@@ -64,3 +64,5 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · inspector · ownership (`ownsOther`) has no field yet; only the fixture sets it · not in this slice's field list.
 - 2026-10-17 · explorer · relationship rows sit under their source classifier after its members, reading "{kind} to {target}" with the name in front when set · features.md lists relationships last in the tree.
 - 2026-10-17 · canvas · edges select through the 10 px hit band, below the 24 px target size; the same relationship's 28 px Explorer row is the conforming alternative (WCAG 2.5.8 equivalent exception) · ui.md fixes the band at 10 px.
+- 2026-10-17 · tests · `?fixture=notation` loads a fixed notation diagram in every build · the visual snapshot and manual review need a stable diagram, and there is no persistence yet.
+- 2026-10-17 · tests · the visual baseline is macOS Chromium and CI skips screenshot equality · Linux fonts differ; the owner reviews the snapshot by eye.

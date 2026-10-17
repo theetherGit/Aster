@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { SvelteFlowProvider } from '@xyflow/svelte';
 	import { Tabs } from 'bits-ui';
 	import Canvas from '#lib/canvas/Canvas.svelte';
@@ -7,11 +8,18 @@
 	import Explorer from '#lib/panels/Explorer.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
 	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
+	import { notationProject } from '#lib/model/fixtures.ts';
 	import Toolbox from '#lib/panels/Toolbox.svelte';
 	import TopBar from '#lib/panels/TopBar.svelte';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+
+	// `?fixture=notation` opens the UML notation fixture (visual regression and manual review).
+	onMount(() => {
+		if (new URL(location.href).searchParams.get('fixture') === 'notation')
+			projectStore.load(notationProject());
+	});
 </script>
 
 <svelte:head>
