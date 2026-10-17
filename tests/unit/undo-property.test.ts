@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
 	Stack,
 	addClassifier,
+	addMember,
 	addToDiagram,
+	deleteMember,
+	reorderMember,
+	setClassifierKind,
+	setLiterals,
+	setMemberText,
 	deleteFromDiagram,
 	deleteFromModel,
 	moveNode,
@@ -11,12 +17,31 @@ import {
 	setClassifierFlags
 } from '#lib/commands/index.ts';
 import type { Command } from '#lib/commands/types.ts';
+import { memberFromText, type MemberKind } from '#lib/mdj/expression.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
-import { classifiersOf, createClassifier, getDiagram } from '#lib/model/project.ts';
+import { classifiersOf, createClassifier, getClassifier, getDiagram } from '#lib/model/project.ts';
 import type { Project, Visibility } from '#lib/model/types.ts';
 import { rng, structural } from './helpers.ts';
 
 const VIS: Visibility[] = ['public', 'protected', 'private', 'package'];
+const KINDS: MemberKind[] = ['attribute', 'operation', 'literal'];
+const LINES: Record<MemberKind, string[]> = {
+	attribute: [
+		'-x: int',
+		'+{static} MAX: int = 5',
+		'<<key>> #id: UUID {readOnly}',
+		'broken[0..',
+		'plain'
+	],
+	operation: [
+		'+go()',
+		'-f(a: int, b: String = "x"): void {query}',
+		'+{abstract} area(): double',
+		'broken(',
+		'+h(out e: E)'
+	],
+	literal: ['ACTIVE', '<<default>> IDLE', 'not valid!']
+};
 
 /** Picks a random valid command for the current project state. */
 function randomCommand(project: Project, r: ReturnType<typeof rng>, n: number): Command {
@@ -24,7 +49,53 @@ function randomCommand(project: Project, r: ReturnType<typeof rng>, n: number): 
 	const all = classifiersOf(project).map((c) => c.id);
 	const onDiagram = all.filter((id) => d.elementIds.includes(id));
 	const offDiagram = all.filter((id) => !d.elementIds.includes(id));
-	const roll = r.int(10);
+	const roll = r.int(16);
+	if (roll >= 10 && all.length) {
+		const id = r.pick(all);
+		const kind = r.pick(KINDS);
+		const list =
+			kind === 'attribute'
+				? getClassifier(project, id).attributes
+				: kind === 'operation'
+					? getClassifier(project, id).operations
+					: getClassifier(project, id).literals;
+		if (roll === 10 || list.length === 0)
+			return addMember(project, {
+				classifierId: id,
+				kind,
+				member: memberFromText(kind, r.pick(LINES[kind]), `m${n}`),
+				index: r.int(list.length + 1)
+			});
+		const memberId = r.pick(list).id;
+		if (roll === 11)
+			return setMemberText(project, {
+				classifierId: id,
+				kind,
+				memberId,
+				text: r.pick(LINES[kind])
+			});
+		if (roll === 12)
+			return reorderMember(project, {
+				classifierId: id,
+				kind,
+				memberId,
+				to: r.int(list.length + 1)
+			});
+		if (roll === 13) return deleteMember(project, { classifierId: id, kind, memberId });
+		if (roll === 14)
+			return setClassifierKind(project, {
+				id,
+				classifierKind: r.pick(['class', 'interface', 'enum', 'dataType'] as const)
+			});
+		return setLiterals(project, {
+			id,
+			literals: Array.from({ length: r.int(3) }, (_, i) => ({
+				id: `l${n}-${i}`,
+				name: `L${i}`,
+				documentation: ''
+			}))
+		});
+	}
 	if (roll === 0 || all.length === 0) {
 		const name = `C${n}`;
 		return addClassifier(project, {

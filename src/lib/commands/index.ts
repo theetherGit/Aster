@@ -13,3 +13,15 @@ export {
 	MOVE_COALESCE_MS,
 	type ClassifierFlags
 } from './elements.ts';
+export {
+	addMember,
+	deleteMember,
+	replaceMember,
+	setMemberText,
+	reorderMember,
+	setClassifierKind,
+	setLiterals,
+	membersOf,
+	type Member,
+	type MemberKind
+} from './members.ts';

@@ -125,6 +125,7 @@ export const renameClassifier: Factory<{ id: Id; name: string }> = define<{ id: 
 
 export interface ClassifierFlags {
 	isAbstract?: boolean;
+	isLeaf?: boolean;
 	visibility?: Visibility;
 	/** `null` clears the stereotype. */
 	stereotype?: string | null;
@@ -142,6 +143,10 @@ export const setClassifierFlags: Factory<{ id: Id; flags: ClassifierFlags }> = d
 		if (flags.isAbstract !== undefined) {
 			previous.isAbstract = c.isAbstract;
 			c.isAbstract = flags.isAbstract;
+		}
+		if (flags.isLeaf !== undefined) {
+			previous.isLeaf = c.isLeaf;
+			c.isLeaf = flags.isLeaf;
 		}
 		if (flags.visibility !== undefined) {
 			previous.visibility = c.visibility;
