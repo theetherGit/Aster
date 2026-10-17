@@ -62,3 +62,5 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · canvas · the toolbox Link tool stays disabled; L and handle drags connect · this slice defines no Link tool mode.
 - 2026-10-17 · inspector · the relationship panel adds stereotype, waypoints (x, y, add, remove) and label positions (distance, angle, reset) · every edge drag needs a non-drag equivalent (CLAUDE.md rule 4).
 - 2026-10-17 · inspector · ownership (`ownsOther`) has no field yet; only the fixture sets it · not in this slice's field list.
+- 2026-10-17 · explorer · relationship rows sit under their source classifier after its members, reading "{kind} to {target}" with the name in front when set · features.md lists relationships last in the tree.
+- 2026-10-17 · canvas · edges select through the 10 px hit band, below the 24 px target size; the same relationship's 28 px Explorer row is the conforming alternative (WCAG 2.5.8 equivalent exception) · ui.md fixes the band at 10 px.

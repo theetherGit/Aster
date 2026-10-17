@@ -1,7 +1,7 @@
 /** Pure helpers for the Explorer tree: rows from the model, and ARIA tree keyboard moves. */
 import { t } from '#lib/i18n/index.ts';
 import { renderMember, type MemberKind } from '#lib/mdj/expression.ts';
-import type { Classifier, Id, Project } from '#lib/model/types.ts';
+import type { Classifier, Id, Project, Relationship } from '#lib/model/types.ts';
 
 export interface TreeRow {
 	/** Stable row id: `project`, `diagram:<id>`, `package:<id>`, `element:<id>`, `member:<cid>:<mid>`. */
@@ -60,12 +60,42 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 	const classifiers = [...project.elements.values()].filter(
 		(e): e is Classifier => e.kind === 'classifier'
 	);
+	const outgoing = new Map<Id, Relationship[]>();
+	for (const el of project.elements.values()) {
+		if (el.kind !== 'relationship') continue;
+		outgoing.set(el.sourceId, [...(outgoing.get(el.sourceId) ?? []), el]);
+	}
+	const nameOf = (id: Id) => {
+		const el = project.elements.get(id);
+		return el && 'name' in el && el.name ? el.name : id;
+	};
+	const relationshipRows = (c: Classifier, level: number) =>
+		(outgoing.get(c.id) ?? []).map((r) => {
+			const kind = t(`rel.${r.relationshipKind}`);
+			const target = nameOf(r.targetId);
+			return {
+				id: rowIdFor(r.id),
+				label: r.name
+					? t('explorer.relationshipNamed', { name: r.name, kind, target })
+					: t('explorer.relationship', { kind, target }),
+				hint: t('ui.kind.relationship'),
+				level,
+				hasChildren: false,
+				expanded: false,
+				elementId: r.id
+			};
+		});
 	const classifierRow = (c: Classifier, level: number) => ({
 		id: rowIdFor(c.id),
 		label: c.name,
 		hint: t(`ui.kind.${c.classifierKind}`),
 		level,
-		hasChildren: c.attributes.length + c.operations.length + c.literals.length > 0,
+		hasChildren:
+			c.attributes.length +
+				c.operations.length +
+				c.literals.length +
+				(outgoing.get(c.id)?.length ?? 0) >
+			0,
 		expanded: expanded.has(rowIdFor(c.id)),
 		elementId: c.id
 	});
@@ -99,7 +129,8 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 				);
 			} else if (r.elementId) {
 				const c = project.elements.get(r.elementId);
-				if (c?.kind === 'classifier') push(memberRows(c, r.level + 1));
+				if (c?.kind === 'classifier')
+					push([...memberRows(c, r.level + 1), ...relationshipRows(c, r.level + 1)]);
 			}
 		});
 	};

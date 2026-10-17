@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { sampleProject } from '#lib/model/fixtures.ts';
+import { createRelationship } from '#lib/model/project.ts';
 import { ROOT, buildRows, parentIndex, rowIdFor, typeAheadIndex } from '#lib/panels/tree.ts';
 
 describe('explorer tree rows', () => {
@@ -53,5 +54,41 @@ describe('explorer tree rows', () => {
 		expect(typeAheadIndex(rows, 3, 'c')).toBe(3); // only one C row; cycles back to itself
 		expect(typeAheadIndex(rows, 0, 'acc')).toBe(2);
 		expect(typeAheadIndex(rows, 0, 'zzz')).toBe(-1);
+	});
+
+	it('lists relationships under their source classifier, after its members', () => {
+		const p = sampleProject();
+		p.elements.set(
+			'r1',
+			createRelationship({
+				id: 'r1',
+				relationshipKind: 'generalization',
+				sourceId: 'Customer',
+				targetId: 'Account'
+			})
+		);
+		p.elements.set(
+			'r2',
+			createRelationship({
+				id: 'r2',
+				relationshipKind: 'association',
+				sourceId: 'Account',
+				targetId: 'Customer',
+				name: 'serves'
+			})
+		);
+		const collapsed = buildRows(p, new Set([ROOT]));
+		expect(collapsed.find((r) => r.id === rowIdFor('Customer'))?.hasChildren).toBe(true);
+		const rows = buildRows(p, new Set([ROOT, rowIdFor('Customer')]));
+		const last = rows.at(-1)!;
+		expect(last).toMatchObject({
+			id: rowIdFor('r1'),
+			elementId: 'r1',
+			level: 3,
+			label: 'generalization to Account'
+		});
+		expect(rows.some((r) => r.id === rowIdFor('r2'))).toBe(false);
+		const acc = buildRows(p, new Set([ROOT, rowIdFor('Account')]));
+		expect(acc.find((r) => r.id === rowIdFor('r2'))?.label).toBe('serves: association to Customer');
 	});
 });

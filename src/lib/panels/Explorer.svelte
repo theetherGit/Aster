@@ -94,6 +94,8 @@
 	$effect(() => {
 		explorerFocus.reveal = (id) => {
 			expanded.add(ROOT);
+			const el = id ? projectStore.project.elements.get(id) : undefined;
+			if (el?.kind === 'relationship') expanded.add(rowIdFor(el.sourceId));
 			focusRow(id ? rowIdFor(id) : ROOT);
 		};
 		if (explorerFocus.pending) {
