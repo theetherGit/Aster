@@ -243,21 +243,23 @@ export function midFrame(points: Pt[], style: LineStyle): Frame {
 }
 
 /**
- * Default label offsets. The angle is measured from the direction into the edge at that end
- * (y down): roles sit on one side of the line, multiplicities on the other, the name above.
+ * Default label offsets, as StarUML writes them for a new edge. The angle convention is
+ * StarUML's (types.ts stores offsets "as StarUML stores it"): the label sits at
+ * `distance` from the anchor, at `theta − alpha`, where theta points into the edge from
+ * that end (tail = source) or, for the name, along the edge from source to target. y is down.
  */
 export const DEFAULT_OFFSETS: Record<LabelKey, LabelOffset> = {
-	name: { alpha: -Math.PI / 2, distance: 15 },
-	sourceRole: { alpha: -Math.PI / 6, distance: 30 },
-	sourceMultiplicity: { alpha: Math.PI / 6, distance: 30 },
-	sourceProperty: { alpha: -Math.PI / 4, distance: 40 },
-	targetRole: { alpha: Math.PI / 6, distance: 30 },
-	targetMultiplicity: { alpha: -Math.PI / 6, distance: 30 },
-	targetProperty: { alpha: Math.PI / 4, distance: 40 }
+	name: { alpha: Math.PI / 2, distance: 15 },
+	sourceRole: { alpha: Math.PI / 6, distance: 30 },
+	sourceMultiplicity: { alpha: -Math.PI / 6, distance: 25 },
+	sourceProperty: { alpha: Math.PI / 4, distance: 40 },
+	targetRole: { alpha: -Math.PI / 6, distance: 30 },
+	targetMultiplicity: { alpha: Math.PI / 6, distance: 25 },
+	targetProperty: { alpha: -Math.PI / 4, distance: 40 }
 };
 
 export function polar(frame: Frame, o: LabelOffset): Pt {
-	const a = frame.theta + o.alpha;
+	const a = frame.theta - o.alpha;
 	return {
 		x: frame.anchor.x + o.distance * Math.cos(a),
 		y: frame.anchor.y + o.distance * Math.sin(a)
@@ -268,7 +270,7 @@ export function polar(frame: Frame, o: LabelOffset): Pt {
 export function offsetFor(frame: Frame, p: Pt): LabelOffset {
 	const dx = p.x - frame.anchor.x;
 	const dy = p.y - frame.anchor.y;
-	let alpha = Math.atan2(dy, dx) - frame.theta;
+	let alpha = frame.theta - Math.atan2(dy, dx);
 	while (alpha > Math.PI) alpha -= 2 * Math.PI;
 	while (alpha <= -Math.PI) alpha += 2 * Math.PI;
 	return { alpha, distance: Math.hypot(dx, dy) };
