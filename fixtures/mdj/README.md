@@ -2,16 +2,9 @@
 
 Real StarUML files. These are the codec's truth: the parser must open every file here, the golden test must serialise each back to JSON equal to its source (ignoring key order and whitespace, with any exception documented in `DECISIONS.md`).
 
-## Required before M1 day 4
+## Corpus
 
-| File               | Source                                         | StarUML version | Notes                                                                                                                                      |
-| ------------------ | ---------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `lab-01-*.mdj`     | OOAD lab exercise 1                            |                 | class diagram; the file the lab actually produces                                                                                          |
-| `lab-02-*.mdj`     | OOAD lab exercise 2                            |                 |                                                                                                                                            |
-| `lab-03-*.mdj`     | OOAD lab exercise 3                            |                 |                                                                                                                                            |
-| `public-*.mdj` ×5+ | GitHub, search `filename:.mdj UMLClassDiagram` |                 | prefer files with packages, enums, notes, non-default line styles, and at least one non-class diagram so Unknown preservation is exercised |
-
-Fill in the version column from the file's `_type: "Project"` sibling fields where present, or from the repository's history.
+The three OOAD lab files are not available (see `DECISIONS.md`), so the corpus is public files only: 15 StarUML files listed with source, commit, licence and file format in [`SOURCES.md`](SOURCES.md). Together they cover several class diagrams per file, packages and subsystems, several models per file, interfaces, enumerations, data and primitive types, all four line styles, notes and text, both navigability encodings, and sequence, use case, profile, object and flowchart diagrams that Aster keeps without showing.
 
 ## Rules
 
