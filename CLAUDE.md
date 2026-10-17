@@ -42,3 +42,5 @@ fixtures/mdj       real StarUML files — the codec's truth
 fixtures/grammar   expression lines + expected parses
 docs/spec          the specification (read-only for you unless asked)
 ```
+
+Import from `src/lib` as `#lib/<path>/<file>.ts` (or `.svelte`), always with the full file path and extension: SvelteKit 3 uses Node subpath imports, which resolve neither `$lib` nor directory indexes.

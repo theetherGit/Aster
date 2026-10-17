@@ -10,3 +10,4 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · tooling · `bits-ui` → `runed` declares a peer on `@sveltejs/kit` ^2 while the project is on kit 3; warning accepted · build and check pass.
 - 2026-10-17 · tooling · hand-authored `src/lib/model/types.ts` and `src/lib/commands/types.ts` are excluded from Prettier · they keep the owner's formatting; the tool must not rewrite files it may not edit.
 - 2026-10-17 · tooling · `src/lib` is imported as `#lib/<file>.js` (full path), not `$lib` · SvelteKit 3 replaced the `$lib` alias with Node subpath imports, which do not resolve directory indexes.
+- 2026-10-17 · fixtures · the three OOAD lab `.mdj` files are not available; the golden corpus will be public files only, and the extra grammar lines will be copied from those · owner does not have the lab files.
