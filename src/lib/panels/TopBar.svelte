@@ -5,8 +5,11 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 
-	const { zoomIn, zoomOut, getViewport, setViewport } = useSvelteFlow();
-	const zoomReset = () => setViewport({ ...getViewport(), zoom: 1 });
+	// useSvelteFlow() copies zoomIn/zoomOut from the store it sees first, which is the
+	// provider's placeholder until the canvas mounts; setZoom/getZoom read the live store.
+	const { getZoom, setZoom } = useSvelteFlow();
+	const zoomBy = (factor: number) => setZoom(Math.min(4, Math.max(0.1, getZoom() * factor)));
+	const zoomReset = () => setZoom(1);
 
 	const undoTitle = $derived(
 		projectStore.undoLabel ? t('ui.undoNamed', { label: projectStore.undoLabel }) : t('ui.undo')
@@ -96,7 +99,7 @@
 			class="icon-btn"
 			aria-label={t('ui.zoomOut')}
 			title={t('ui.zoomOut')}
-			onclick={() => zoomOut()}>−</button
+			onclick={() => zoomBy(1 / 1.2)}>−</button
 		>
 		<button
 			type="button"
@@ -112,7 +115,7 @@
 			class="icon-btn"
 			aria-label={t('ui.zoomIn')}
 			title={t('ui.zoomIn')}
-			onclick={() => zoomIn()}>+</button
+			onclick={() => zoomBy(1.2)}>+</button
 		>
 
 		<span class="mx-1 h-5 w-px bg-chrome-border" aria-hidden="true"></span>
