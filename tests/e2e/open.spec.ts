@@ -24,8 +24,9 @@ async function drop(page: Page, name: string, text: string) {
 test('⌘O opens a .mdj through the file-input fallback, parsing in a Web Worker', async ({
 	page
 }) => {
+	// Shadow the prototype's method: `delete` on the instance would leave Chromium's in place.
 	await page.addInitScript(() => {
-		delete (window as { showOpenFilePicker?: unknown }).showOpenFilePicker;
+		Object.defineProperty(window, 'showOpenFilePicker', { value: undefined, configurable: true });
 	});
 	const workers: string[] = [];
 	page.on('worker', (w) => workers.push(w.url()));
@@ -58,6 +59,23 @@ test('⌘O opens a .mdj through the file-input fallback, parsing in a Web Worker
 
 	await notice(page).getByRole('button', { name: 'Close the import notice' }).click();
 	await expect(notice(page)).toHaveCount(0);
+});
+
+test('⌘O uses the File System Access picker where it exists', async ({ page }) => {
+	const text = readFileSync(fixture('public-vrview.mdj'), 'utf8');
+	await page.addInitScript((text) => {
+		Object.defineProperty(window, 'showOpenFilePicker', {
+			configurable: true,
+			value: async () => [
+				{ kind: 'file', name: 'picked.mdj', getFile: async () => new File([text], 'picked.mdj') }
+			]
+		});
+	}, text);
+	await page.goto('/');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+o');
+	await expect(notice(page)).toContainText('Opened picked.mdj');
+	await expect(page.locator('.classifier-node')).toHaveCount(2);
 });
 
 for (const name of [
