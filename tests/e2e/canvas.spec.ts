@@ -15,11 +15,19 @@ test('class node: 10 + 10 members without clipping, abstract italic, static unde
 	await expect(account.locator('[data-compartment="operation"] li')).toHaveCount(10);
 	await expect(account.locator('.stereotype')).toHaveText('«entity»');
 
-	const clipped = await account.evaluate((el) =>
-		[el, ...el.querySelectorAll('ul')].some(
-			(e) => e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1
-		)
-	);
+	// Content only: the connection handles sit outside the node on purpose.
+	const clipped = await account.evaluate((el) => {
+		const box = el.getBoundingClientRect();
+		return [...el.querySelectorAll('.name-row, ul, li')].some((e) => {
+			const r = e.getBoundingClientRect();
+			return (
+				e.scrollWidth > e.clientWidth + 1 ||
+				e.scrollHeight > e.clientHeight + 1 ||
+				r.right > box.right + 0.5 ||
+				r.bottom > box.bottom + 0.5
+			);
+		});
+	});
 	expect(clipped).toBe(false);
 	const box = (await account.boundingBox())!;
 	expect(box.width).toBeGreaterThanOrEqual(160);

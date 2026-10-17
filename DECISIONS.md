@@ -45,3 +45,18 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · commands · `setRelationshipStereotype` added beside `setRelationshipName`, and `setLabelOffset` (null restores the default) for label drags · the brief needs both behaviours but names neither command.
 - 2026-10-17 · commands · removing a node from a diagram also removes its edges on that diagram; undo restores both · an edge cannot show without both of its nodes.
 - 2026-10-17 · model · new edges default to the oblique line style · features.md: straight by default.
+- 2026-10-17 · canvas · edge stroke is 1.2 px, as this slice's brief asks, not ui.md's 1 px · the brief is newer; ui.md should follow if 1.2 stays.
+- 2026-10-17 · canvas · the ownership dot sits at the end opposite the end whose `ownsOther` is set, where the line meets the classifier typing the owned end (UML 2.5 §11.5.4) · `End.ownsOther` is defined from the owner's side.
+- 2026-10-17 · canvas · association arrows count only `navigable`; `unspecified` and `notNavigable` draw nothing, and UML's × for non-navigable ends is not drawn · the brief gives the arrow rule only, and UML lets tools suppress the ×.
+- 2026-10-17 · canvas · aggregation and composition draw no arrow at the diamond end; an arrow can still appear at the part end · one marker per line end.
+- 2026-10-17 · canvas · label angles are measured from the direction into the edge at that end (y down), distances from the end point or the midpoint; by default role and multiplicity sit on opposite sides 30 px out and the name 15 px above · the codec will map StarUML's convention.
+- 2026-10-17 · canvas · a label is pushed clear of its own line, its end node and its edge's other labels by 4 px, on whichever side needs the smaller move · labels must never sit on their line or on each other.
+- 2026-10-17 · canvas · edge labels never render below 10 CSS px: zoomed out past 83 % they grow in paper units · legible at 50 % zoom.
+- 2026-10-17 · canvas · rectilinear routes run straight when the nodes' spans overlap, otherwise as a Z; with waypoints, legs leave and enter through the side facing the next point · StarUML's router is not specified.
+- 2026-10-17 · canvas · curves are Catmull-Rom splines through the waypoints; rounded corners use an 8 px radius · ui.md gives no curve geometry.
+- 2026-10-17 · canvas · a self-association without waypoints loops 28 px off the node's top-right corner · features.md asks for a readable loop.
+- 2026-10-17 · canvas · nodes carry four 24 px connection handles just outside their sides, shown on hover; a drop anywhere on a node opens the picker, and Svelte Flow never adds edges itself · the spec says a drop opens the picker.
+- 2026-10-17 · canvas · L starts on the nearest other node; arrows move by centre distance weighted 2× off-axis; the source itself is reachable, which makes a self-association · accessibility.md's spatial rule.
+- 2026-10-17 · canvas · the picker is a Bits UI DropdownMenu anchored at the drop point (the target's centre from the keyboard), keys 1–6 in `RelationshipKind` order · board 05 was not available.
+- 2026-10-17 · canvas · line-style chords match the physical key (`KeyL`, `KeyB`) · ⌥ changes the typed character on macOS.
+- 2026-10-17 · canvas · the toolbox Link tool stays disabled; L and handle drags connect · this slice defines no Link tool mode.

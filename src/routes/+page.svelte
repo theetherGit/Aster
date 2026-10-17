@@ -6,6 +6,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import Explorer from '#lib/panels/Explorer.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
+	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
 	import Toolbox from '#lib/panels/Toolbox.svelte';
 	import TopBar from '#lib/panels/TopBar.svelte';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -36,4 +37,5 @@
 			{/if}
 		</Tabs.Content>
 	</Tabs.Root>
+	<RelationshipPicker />
 </SvelteFlowProvider>

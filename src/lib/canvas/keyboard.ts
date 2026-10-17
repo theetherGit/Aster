@@ -1,19 +1,41 @@
-import type { ClassifierKind } from '#lib/model/types.ts';
+import type { ClassifierKind, Id, LineStyle } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
-import { deleteSelection, nudgeSelection, startEditing, stopEditing } from './actions.ts';
-import { canvasFocus } from './focus.ts';
-import { explorerFocus } from './focus.ts';
+import {
+	deleteSelection,
+	nudgeSelection,
+	setLineStyleForSelection,
+	startEditing,
+	startLink,
+	stopEditing
+} from './actions.ts';
+import type { Rect } from './edges/geometry.ts';
+import { canvasFocus, explorerFocus } from './focus.ts';
+import { nearestInDirection, type Direction } from './link.ts';
 
 const inTextField = (e: KeyboardEvent) =>
 	e.target instanceof Element &&
 	e.target.closest('input, textarea, select, [contenteditable="true"]') !== null;
 
+/** StarUML's line-style chords (keyboard.md). Matched on the physical key: ⌥ changes `key` on macOS. */
+function lineStyleChord(e: KeyboardEvent): LineStyle | null {
+	if (e.code === 'KeyL' && !e.shiftKey) return e.altKey ? 'roundrect' : 'rectilinear';
+	if (e.code === 'KeyB' && e.altKey && !e.shiftKey) return 'curve';
+	if (e.code === 'KeyB' && e.shiftKey && !e.altKey) return 'oblique';
+	return null;
+}
+
 /** Bindings from docs/spec/keyboard.md that work everywhere. */
 export function handleGlobalKey(e: KeyboardEvent) {
 	const mod = e.metaKey || e.ctrlKey;
-	if (!mod || e.altKey) return;
+	if (!mod) return;
+	const style = lineStyleChord(e);
+	if (style) {
+		if (!inTextField(e) && setLineStyleForSelection(style)) e.preventDefault();
+		return;
+	}
+	if (e.altKey) return;
 	const key = e.key.toLowerCase();
 	if (key === 'b' && !e.shiftKey) {
 		ui.panels.outline = !ui.panels.outline;
@@ -41,11 +63,41 @@ const CREATE_KEYS: Record<string, ClassifierKind> = {
 	e: 'enum',
 	d: 'dataType'
 };
+const ARROWS: Record<string, Direction> = {
+	ArrowLeft: 'left',
+	ArrowRight: 'right',
+	ArrowUp: 'up',
+	ArrowDown: 'down'
+};
+
+export interface CanvasKeyContext {
+	create: (kind: ClassifierKind) => void;
+	rects: () => Map<Id, Rect>;
+	openPicker: (sourceId: Id, targetId: Id) => void;
+}
 
 /** Bindings that fire only while the canvas has focus and nothing is being edited. */
-export function handleCanvasKey(e: KeyboardEvent, create: (kind: ClassifierKind) => void) {
-	if (inTextField(e) || e.altKey) return;
+export function handleCanvasKey(e: KeyboardEvent, ctx: CanvasKeyContext) {
+	if (inTextField(e)) return;
 	const mod = e.metaKey || e.ctrlKey;
+
+	// Keyboard link: arrows move the target, ↩ opens the picker, Esc cancels.
+	if (ui.link) {
+		if (mod || e.altKey) return;
+		const dir = ARROWS[e.key];
+		if (dir) {
+			const next = nearestInDirection(ctx.rects(), ui.link.targetId, dir);
+			if (next) ui.link = { ...ui.link, targetId: next };
+		} else if (e.key === 'Enter') {
+			ctx.openPicker(ui.link.sourceId, ui.link.targetId);
+		} else if (e.key === 'Escape') {
+			ui.link = null;
+		}
+		e.preventDefault();
+		return;
+	}
+
+	if (e.altKey) return;
 	const step = e.shiftKey ? 8 : 1;
 	switch (e.key) {
 		case 'ArrowLeft':
@@ -73,9 +125,14 @@ export function handleCanvasKey(e: KeyboardEvent, create: (kind: ClassifierKind)
 			break;
 		default: {
 			if (mod || e.shiftKey) return;
-			const kind = CREATE_KEYS[e.key.toLowerCase()];
+			const k = e.key.toLowerCase();
+			if (k === 'l') {
+				if (!startLink(ctx.rects())) return;
+				break;
+			}
+			const kind = CREATE_KEYS[k];
 			if (!kind) return;
-			create(kind);
+			ctx.create(kind);
 		}
 	}
 	e.preventDefault();

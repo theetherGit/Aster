@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { NodeProps } from '@xyflow/svelte';
+	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
 	import { t } from '#lib/i18n/index.ts';
 	import { membersOf } from '#lib/commands/index.ts';
 	import type { ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
@@ -8,6 +8,14 @@
 	import { compartmentsFor, edit, headerLabel } from './inline.ts';
 
 	let { id, data, selected }: NodeProps<ClassifierFlowNode> = $props();
+
+	// Drag from a side handle to another node to connect (L is the keyboard path).
+	const HANDLES = [
+		{ id: 't', position: Position.Top },
+		{ id: 'r', position: Position.Right },
+		{ id: 'b', position: Position.Bottom },
+		{ id: 'l', position: Position.Left }
+	];
 
 	const c = $derived(data.classifier);
 	const flags = $derived(data.flags);
@@ -27,6 +35,7 @@
 <div
 	class="classifier-node"
 	class:selected
+	class:link-target={data.link === 'target' || data.link === 'both'}
 	style:min-width="{data.minWidth}px"
 	data-name={c.name}
 	data-kind={c.classifierKind}
@@ -63,6 +72,9 @@
 			editing={editingIndex(kind)}
 		/>
 	{/each}
+	{#each HANDLES as h (h.id)}
+		<Handle type="source" id={h.id} position={h.position} class="uml-handle" />
+	{/each}
 	{#if selected}
 		<span class="handle tl"></span><span class="handle tr"></span>
 		<span class="handle bl"></span><span class="handle br"></span>
@@ -90,6 +102,45 @@
 	}
 	.classifier-node.selected {
 		outline: 2px solid var(--accent);
+	}
+	/* The keyboard link target carries the focus-ring style (ui.md). */
+	.classifier-node.link-target {
+		outline: 2px dashed var(--accent);
+		outline-offset: 5px;
+	}
+	/* 24 px handles just outside each side; the dot shows on hover. */
+	.classifier-node :global(.uml-handle) {
+		width: 24px;
+		height: 24px;
+		min-width: 0;
+		min-height: 0;
+		background: transparent;
+		border: none;
+		border-radius: 50%;
+		opacity: 0;
+	}
+	.classifier-node :global(.uml-handle::after) {
+		content: '';
+		position: absolute;
+		inset: 8px;
+		border-radius: 50%;
+		background: var(--accent);
+	}
+	.classifier-node:hover :global(.uml-handle),
+	.classifier-node.selected :global(.uml-handle) {
+		opacity: 1;
+	}
+	.classifier-node :global(.uml-handle.svelte-flow__handle-top) {
+		transform: translate(-50%, -100%);
+	}
+	.classifier-node :global(.uml-handle.svelte-flow__handle-bottom) {
+		transform: translate(-50%, 100%);
+	}
+	.classifier-node :global(.uml-handle.svelte-flow__handle-left) {
+		transform: translate(-100%, -50%);
+	}
+	.classifier-node :global(.uml-handle.svelte-flow__handle-right) {
+		transform: translate(100%, -50%);
 	}
 	.name-row {
 		display: flex;
