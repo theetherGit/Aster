@@ -40,3 +40,8 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · inspector · member rows edit the UML line as text, with a visibility select per attribute and operation that dispatches `setMemberText` with the re-rendered line · panel and inline editing must dispatch the same commands.
 - 2026-10-17 · inspector · literals are edited with the member commands, so `setLiterals` has no UI caller yet · panel and inline editing must dispatch the same commands.
 - 2026-10-17 · inspector · Text and Diagram tabs are present but disabled · they belong to later slices.
+- 2026-10-17 · commands · `connect` takes the new relationship's id from its caller · a command must replay to the same id after undo, redo and snapshot restore.
+- 2026-10-17 · commands · relationship edits undo through `replaceElement`, which restores the whole previous relationship · ends come and go with the kind, and the snapshot restores them exactly.
+- 2026-10-17 · commands · `setRelationshipStereotype` added beside `setRelationshipName`, and `setLabelOffset` (null restores the default) for label drags · the brief needs both behaviours but names neither command.
+- 2026-10-17 · commands · removing a node from a diagram also removes its edges on that diagram; undo restores both · an edge cannot show without both of its nodes.
+- 2026-10-17 · model · new edges default to the oblique line style · features.md: straight by default.

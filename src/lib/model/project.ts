@@ -6,11 +6,15 @@ import {
 	type Classifier,
 	type ClassifierKind,
 	type Diagram,
+	type EdgeLayout,
+	type End,
 	type Element,
 	type Id,
 	type NodeLayout,
 	type Operation,
-	type Project
+	type Project,
+	type Relationship,
+	type RelationshipKind
 } from './types.ts';
 
 // ---------------------------------------------------------------------------
@@ -90,6 +94,46 @@ export function createOperation(init: Partial<Operation> & { name: string }): Op
 	};
 }
 
+/** Association, aggregation and composition carry ends; the other kinds do not. */
+export const isAssociationKind = (kind: RelationshipKind) =>
+	kind === 'association' || kind === 'aggregation' || kind === 'composition';
+
+export const defaultEnd = (): End => ({
+	navigable: 'unspecified',
+	isDerived: false,
+	ownsOther: false
+});
+
+/** For aggregation and composition the target is the whole (the diamond side). */
+export function createRelationship(
+	init: Partial<Omit<Relationship, 'kind'>> &
+		Pick<Relationship, 'relationshipKind' | 'sourceId' | 'targetId'>
+): Relationship {
+	const { sourceEnd, targetEnd, name, stereotype, ...rest } = init;
+	return {
+		kind: 'relationship',
+		id: rest.id ?? newId(),
+		relationshipKind: rest.relationshipKind,
+		sourceId: rest.sourceId,
+		targetId: rest.targetId,
+		documentation: rest.documentation ?? '',
+		...(name !== undefined && { name }),
+		...(stereotype !== undefined && { stereotype }),
+		...(isAssociationKind(rest.relationshipKind) && {
+			sourceEnd: sourceEnd ?? defaultEnd(),
+			targetEnd: targetEnd ?? defaultEnd()
+		})
+	};
+}
+
+/** Edges start straight, as the spec's default routing. */
+export const defaultEdgeLayout = (): EdgeLayout => ({
+	kind: 'edge',
+	waypoints: [],
+	lineStyle: 'oblique',
+	labelOffsets: {}
+});
+
 export function defaultNodeLayout(x: number, y: number): NodeLayout {
 	return { kind: 'node', x, y, w: 160, h: 80 };
 }
@@ -155,7 +199,7 @@ export function elementName(el: Element): string {
 		case 'package':
 			return el.name;
 		case 'relationship':
-			return el.name ?? el.relationshipKind;
+			return el.name ?? t(`rel.${el.relationshipKind}`);
 		case 'note':
 		case 'text':
 			return el.text;

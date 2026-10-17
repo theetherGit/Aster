@@ -204,8 +204,15 @@ export const deleteFromDiagram: Factory<{ diagramId: Id; ids: Id[] }> = define<{
 	touches: ids,
 	apply(p): Command {
 		const d = getDiagram(p, diagramId);
+		// An edge cannot show without both of its nodes: take attached edges along.
+		const gone = new Set(ids);
+		for (const id of d.elementIds) {
+			const el = p.elements.get(id);
+			if (el?.kind === 'relationship' && (gone.has(el.sourceId) || gone.has(el.targetId)))
+				gone.add(id);
+		}
 		const entries: Entry[] = [];
-		for (const id of ids) {
+		for (const id of gone) {
 			const index = d.elementIds.indexOf(id);
 			const layout = d.layout.get(id);
 			if (index < 0 || !layout) continue;

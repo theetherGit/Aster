@@ -25,3 +25,18 @@ export {
 	type Member,
 	type MemberKind
 } from './members.ts';
+export {
+	addWaypoint,
+	connect,
+	moveWaypoint,
+	removeWaypoint,
+	replaceElement,
+	setEnd,
+	setLabelOffset,
+	setLineStyle,
+	setRelationshipKind,
+	setRelationshipName,
+	setRelationshipStereotype,
+	type ConnectArgs,
+	type EndPatch
+} from './relationships.ts';

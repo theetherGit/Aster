@@ -4,7 +4,17 @@ import {
 	addClassifier,
 	addMember,
 	addToDiagram,
+	addWaypoint,
+	connect,
 	deleteMember,
+	moveWaypoint,
+	removeWaypoint,
+	setEnd,
+	setLabelOffset,
+	setLineStyle,
+	setRelationshipKind,
+	setRelationshipName,
+	setRelationshipStereotype,
 	reorderMember,
 	setClassifierKind,
 	setLiterals,
@@ -20,11 +30,130 @@ import type { Command } from '#lib/commands/types.ts';
 import { memberFromText, type MemberKind } from '#lib/mdj/expression.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
 import { classifiersOf, createClassifier, getClassifier, getDiagram } from '#lib/model/project.ts';
-import type { Project, Visibility } from '#lib/model/types.ts';
+import type {
+	EdgeLayout,
+	LabelKey,
+	LineStyle,
+	Project,
+	Relationship,
+	RelationshipKind,
+	Visibility
+} from '#lib/model/types.ts';
 import { rng, structural } from './helpers.ts';
 
 const VIS: Visibility[] = ['public', 'protected', 'private', 'package'];
 const KINDS: MemberKind[] = ['attribute', 'operation', 'literal'];
+const REL_KINDS: RelationshipKind[] = [
+	'association',
+	'aggregation',
+	'composition',
+	'generalization',
+	'realization',
+	'dependency'
+];
+const STYLES: LineStyle[] = ['rectilinear', 'oblique', 'roundrect', 'curve'];
+const LABEL_KEYS: LabelKey[] = [
+	'name',
+	'sourceRole',
+	'targetRole',
+	'sourceMultiplicity',
+	'targetMultiplicity'
+];
+
+/** Relationship commands, valid for the current state; null when none applies. */
+function randomRelationshipCommand(
+	project: Project,
+	r: ReturnType<typeof rng>,
+	n: number
+): Command | null {
+	const d = getDiagram(project, 'd1');
+	const nodes = d.elementIds.filter((id) => project.elements.get(id)?.kind === 'classifier');
+	const rels = [...project.elements.values()].filter(
+		(e): e is Relationship => e.kind === 'relationship'
+	);
+	const shown = rels.filter((e) => d.elementIds.includes(e.id));
+	const hidden = rels.filter(
+		(e) =>
+			!d.elementIds.includes(e.id) &&
+			d.elementIds.includes(e.sourceId) &&
+			d.elementIds.includes(e.targetId)
+	);
+	const roll = r.int(12);
+	if ((roll < 3 || rels.length === 0) && nodes.length)
+		return connect(project, {
+			diagramId: 'd1',
+			id: `rel${n}`,
+			sourceId: r.pick(nodes),
+			targetId: r.pick(nodes),
+			kind: r.pick(REL_KINDS)
+		});
+	if (rels.length === 0) return null;
+	const rel = r.pick(rels);
+	if (roll === 3)
+		return setRelationshipKind(project, { id: rel.id, relationshipKind: r.pick(REL_KINDS) });
+	if (roll === 4 && rel.sourceEnd)
+		return setEnd(project, {
+			id: rel.id,
+			end: r.pick(['source', 'target'] as const),
+			patch: {
+				role: r.int(3) ? `role${n}` : null,
+				multiplicity: r.pick(['1', '0..*', null]),
+				navigable: r.pick(['unspecified', 'navigable', 'notNavigable'] as const),
+				ownsOther: r.int(2) === 0
+			}
+		});
+	if (roll === 5)
+		return r.int(2)
+			? setRelationshipName(project, { id: rel.id, name: r.int(3) ? `n${n}` : null })
+			: setRelationshipStereotype(project, { id: rel.id, stereotype: r.int(3) ? 'use' : null });
+	if (roll === 9)
+		return r.int(2)
+			? deleteFromModel(project, { ids: [rel.id] })
+			: shown.length
+				? deleteFromDiagram(project, { diagramId: 'd1', ids: [r.pick(shown).id] })
+				: null;
+	if (roll === 10 && hidden.length)
+		return addToDiagram(project, {
+			diagramId: 'd1',
+			entries: [
+				{
+					id: r.pick(hidden).id,
+					layout: { kind: 'edge', waypoints: [], lineStyle: 'oblique', labelOffsets: {} }
+				}
+			]
+		});
+	if (!shown.length) return null;
+	const e = r.pick(shown);
+	const layout = d.layout.get(e.id) as EdgeLayout;
+	if (roll === 6)
+		return setLineStyle(project, { diagramId: 'd1', id: e.id, lineStyle: r.pick(STYLES) });
+	if (roll === 7 || layout.waypoints.length === 0)
+		return addWaypoint(project, {
+			diagramId: 'd1',
+			id: e.id,
+			index: r.int(layout.waypoints.length + 1),
+			point: { x: r.int(800), y: r.int(600) }
+		});
+	if (roll === 8)
+		return r.int(2)
+			? moveWaypoint(project, {
+					diagramId: 'd1',
+					id: e.id,
+					index: r.int(layout.waypoints.length),
+					point: { x: r.int(800), y: r.int(600) }
+				})
+			: removeWaypoint(project, {
+					diagramId: 'd1',
+					id: e.id,
+					index: r.int(layout.waypoints.length)
+				});
+	return setLabelOffset(project, {
+		diagramId: 'd1',
+		id: e.id,
+		key: r.pick(LABEL_KEYS),
+		offset: r.int(4) ? { alpha: r.next() * 3, distance: r.int(60) } : null
+	});
+}
 const LINES: Record<MemberKind, string[]> = {
 	attribute: [
 		'-x: int',
@@ -49,6 +178,10 @@ function randomCommand(project: Project, r: ReturnType<typeof rng>, n: number): 
 	const all = classifiersOf(project).map((c) => c.id);
 	const onDiagram = all.filter((id) => d.elementIds.includes(id));
 	const offDiagram = all.filter((id) => !d.elementIds.includes(id));
+	if (r.int(3) === 0) {
+		const c = randomRelationshipCommand(project, r, n);
+		if (c) return c;
+	}
 	const roll = r.int(16);
 	if (roll >= 10 && all.length) {
 		const id = r.pick(all);
