@@ -46,6 +46,7 @@ describe('model factories', () => {
 		expect(nextClassName(p)).toBe('Class1');
 		p.elements.set('x', createClassifier({ id: 'x', name: 'Class1' }));
 		expect(nextClassName(p)).toBe('Class2');
+		expect(nextClassName(p, 'enum')).toBe('Enum1');
 	});
 });
 

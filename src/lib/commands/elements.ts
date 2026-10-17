@@ -95,7 +95,10 @@ export const addClassifier: Factory<{ diagramId: Id; classifier: Classifier; at:
 	classifier: Classifier;
 	at: Point;
 }>('addClassifier', (project, { diagramId, classifier, at }) => ({
-	label: t('cmd.addClassifier', { name: classifier.name }),
+	label: t('cmd.addClassifier', {
+		kind: t(`kind.${classifier.classifierKind}`),
+		name: classifier.name
+	}),
 	touches: [classifier.id],
 	apply(p): Command {
 		const d = getDiagram(p, diagramId);

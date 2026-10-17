@@ -23,3 +23,5 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · grammar · a member that is both static and abstract renders `{static}` as the prefix and `{abstract}` in the property block · the prefix slot holds one keyword, and this keeps the line round-tripping.
 - 2026-10-17 · grammar · an unparseable literal keeps its text as the literal's name · `Literal` has no `raw` field in the hand-authored types.
 - 2026-10-17 · grammar · an unparseable attribute or operation keeps its previous name (or the text) in `name` beside `raw` · `name` is required and the Outline needs a label.
+- 2026-10-17 · i18n · messages live in `src/lib/i18n/en.json` and `t()` interpolates `{name}` placeholders · features.md asks for message files.
+- 2026-10-17 · i18n · `?locale=pseudo` wraps every message in brackets and pads it with `~` by 30 % of its source length, placeholders included; the locale is rune state applied after hydration · the page is prerendered in English.

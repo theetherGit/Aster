@@ -4,6 +4,7 @@ import {
 	DEFAULT_DISPLAY_FLAGS,
 	type Attribute,
 	type Classifier,
+	type ClassifierKind,
 	type Diagram,
 	type Element,
 	type Id,
@@ -93,13 +94,26 @@ export function defaultNodeLayout(x: number, y: number): NodeLayout {
 	return { kind: 'node', x, y, w: 160, h: 80 };
 }
 
-/** First unused "Class1", "Class2", … in the project. */
-export function nextClassName(project: Project): string {
+/** First unused "Class1", "Interface1", … in the project for the given kind. */
+export function nextClassName(project: Project, kind: ClassifierKind = 'class'): string {
 	const taken = new Set<string>();
 	for (const el of project.elements.values()) if (el.kind === 'classifier') taken.add(el.name);
 	for (let n = 1; ; n++) {
-		const name = t('model.defaultClassName', { n });
+		const name = t(`model.defaultName.${kind}`, { n });
 		if (!taken.has(name)) return name;
+	}
+}
+
+/** First unused default member line for the given kind on a classifier. */
+export function nextMemberText(c: Classifier, kind: 'attribute' | 'operation' | 'literal'): string {
+	const names = new Set(
+		(kind === 'attribute' ? c.attributes : kind === 'operation' ? c.operations : c.literals).map(
+			(m) => m.name
+		)
+	);
+	for (let n = 1; ; n++) {
+		const text = t(`model.defaultMember.${kind}`, { n });
+		if (!names.has(text.replace(/^[+\-#~]/, '').replace(/\(\)$/, ''))) return text;
 	}
 }
 
