@@ -1,0 +1,1142 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Business Modeling Example",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lIhqaWXllv8=",
+				"classifierKind": "class",
+				"name": "Number1 Provider of Online Printing Service",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"stereotype": "Business Goal"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lIhvKGYOxOc=",
+				"classifierKind": "class",
+				"name": "Best-in-class Services",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"stereotype": "Business Goal"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lIhy/WY39oM=",
+				"classifierKind": "class",
+				"name": "Industry-leading Personalization",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"stereotype": "Business Goal"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lIh2SWZgaR8=",
+				"classifierKind": "class",
+				"name": "Increased Business Provisioning Market Share",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"stereotype": "Business Goal"
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+lIWkimWlpL4=",
+				"name": "Business Analysis Model",
+				"memberIds": [
+					"AAAAAAF+lJZ955o9COk=",
+					"AAAAAAF+lJamNJpXQ+I=",
+					"AAAAAAF+lJcTSJpzj4I=",
+					"AAAAAAF+lJd63ZqOnuA=",
+					"AAAAAAF+lJekqZq4m5g=",
+					"AAAAAAF+lJfPaZrin/o=",
+					"AAAAAAF+lJf5FZsM/YU=",
+					"AAAAAAF+lJf5vJs1GJE=",
+					"AAAAAAF+lJ4mSpuA5wM=",
+					"AAAAAAF+lJ4reZupnBI=",
+					"AAAAAAF+lJ4vkJvSJDQ=",
+					"AAAAAAF+lJ4y+5v7TmI="
+				],
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+lJZ955o9COk=",
+				"name": "Print Services",
+				"memberIds": [],
+				"parentId": "AAAAAAF+lIWkimWlpL4=",
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+lJamNJpXQ+I=",
+				"name": "Support Services",
+				"memberIds": [],
+				"parentId": "AAAAAAF+lIWkimWlpL4=",
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+lJcTSJpzj4I=",
+				"name": "Sales & Marketing",
+				"memberIds": [],
+				"parentId": "AAAAAAF+lIWkimWlpL4=",
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJd63ZqOnuA=",
+				"classifierKind": "class",
+				"name": "Configurator",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Worker"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJekqZq4m5g=",
+				"classifierKind": "class",
+				"name": "Printer",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Worker"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJfPaZrin/o=",
+				"classifierKind": "class",
+				"name": "Online Support",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Worker"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJf5FZsM/YU=",
+				"classifierKind": "class",
+				"name": "Offer Manager",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Worker"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJf5vJs1GJE=",
+				"classifierKind": "class",
+				"name": "Catalog Sales",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Worker"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJ4mSpuA5wM=",
+				"classifierKind": "class",
+				"name": "Catalog",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Entity"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJ4reZupnBI=",
+				"classifierKind": "class",
+				"name": "Service",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Entity"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJ4vkJvSJDQ=",
+				"classifierKind": "class",
+				"name": "Customer Preferences",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Entity"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+lJ4y+5v7TmI=",
+				"classifierKind": "class",
+				"name": "Account",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF+lIWkimWlpL4=",
+				"stereotype": "Business Entity"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lIn202aN+Ek=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+lIhqaWXllv8=",
+				"targetId": "AAAAAAF+lIhvKGYOxOc=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lIn+u2ae060=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+lIhqaWXllv8=",
+				"targetId": "AAAAAAF+lIhy/WY39oM=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lIoIZmavL40=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+lIhqaWXllv8=",
+				"targetId": "AAAAAAF+lIh2SWZgaR8=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lKHY0voxiLw=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAF+lJ4reZupnBI=",
+				"targetId": "AAAAAAF+lJ4mSpuA5wM=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "contains",
+					"multiplicity": "*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"role": "contained in",
+					"navigable": "notNavigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lKG9GPY9k/I=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF+lJ4vkJvSJDQ=",
+				"targetId": "AAAAAAF+lJ4reZupnBI=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "customized by",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"role": "customizes",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lKGkv/Hx6Nw=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF+lJ4y+5v7TmI=",
+				"targetId": "AAAAAAF+lJ4vkJvSJDQ=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "owned by",
+					"navigable": "notNavigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"role": "specifies",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+lKGrK/OT+mo=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF+lJ4y+5v7TmI=",
+				"targetId": "AAAAAAF+lJ4reZupnBI=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "notNavigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"role": "on-file service",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAF+lJCue2uiFvM=",
+				"name": "Business Goals",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAF+lIhqaWXllv8=",
+					"AAAAAAF+lIhvKGYOxOc=",
+					"AAAAAAF+lIhy/WY39oM=",
+					"AAAAAAF+lIh2SWZgaR8=",
+					"AAAAAAF+lIn202aN+Ek=",
+					"AAAAAAF+lIn+u2ae060=",
+					"AAAAAAF+lIoIZmavL40="
+				],
+				"layout": {
+					"AAAAAAF+lIhqaWXllv8=": {
+						"kind": "node",
+						"x": 232,
+						"y": 32,
+						"w": 145,
+						"h": 91,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon",
+							"wordWrap": true
+						}
+					},
+					"AAAAAAF+lIhvKGYOxOc=": {
+						"kind": "node",
+						"x": 48,
+						"y": 217,
+						"w": 148.0234375,
+						"h": 78,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon",
+							"wordWrap": true
+						}
+					},
+					"AAAAAAF+lIhy/WY39oM=": {
+						"kind": "node",
+						"x": 205,
+						"y": 217,
+						"w": 210.80810546875,
+						"h": 78,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon",
+							"wordWrap": true
+						}
+					},
+					"AAAAAAF+lIh2SWZgaR8=": {
+						"kind": "node",
+						"x": 416,
+						"y": 217,
+						"w": 164,
+						"h": 91,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon",
+							"wordWrap": true
+						}
+					},
+					"AAAAAAF+lIn202aN+Ek=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 309,
+								"y": 161
+							},
+							{
+								"x": 120,
+								"y": 161
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF+lIn+u2ae060=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF+lIoIZmavL40=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 309,
+								"y": 161
+							},
+							{
+								"x": 504,
+								"y": 161
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAF+lIWkimWlpL4="
+				],
+				"layout": {
+					"AAAAAAF+lIWkimWlpL4=": {
+						"kind": "node",
+						"x": 368,
+						"y": 64,
+						"w": 118.05078125,
+						"h": 93,
+						"fill": "#91ffec",
+						"flags": {
+							"stereotypeDisplay": "icon",
+							"wordWrap": true
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAF+lI3/jGs4MG8=",
+				"name": "Business Use Case Realizations",
+				"diagramKind": "class",
+				"elementIds": [],
+				"layout": {},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAF+lJYpI5o26+c=",
+				"name": "Business Workers and Systems",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAF+lJZ955o9COk=",
+					"AAAAAAF+lJamNJpXQ+I=",
+					"AAAAAAF+lJcTSJpzj4I=",
+					"AAAAAAF+lJd63ZqOnuA=",
+					"AAAAAAF+lJekqZq4m5g=",
+					"AAAAAAF+lJfPaZrin/o=",
+					"AAAAAAF+lJf5FZsM/YU=",
+					"AAAAAAF+lJf5vJs1GJE="
+				],
+				"layout": {
+					"AAAAAAF+lJZ955o9COk=": {
+						"kind": "node",
+						"x": 80,
+						"y": 48,
+						"w": 124.16259765625,
+						"h": 93,
+						"fill": "#91ffec",
+						"flags": {
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJamNJpXQ+I=": {
+						"kind": "node",
+						"x": 296,
+						"y": 48,
+						"w": 124.16259765625,
+						"h": 93,
+						"fill": "#91ffec",
+						"flags": {
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJcTSJpzj4I=": {
+						"kind": "node",
+						"x": 536,
+						"y": 48,
+						"w": 124.16259765625,
+						"h": 93,
+						"fill": "#91ffec",
+						"flags": {
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJd63ZqOnuA=": {
+						"kind": "node",
+						"x": 32,
+						"y": 160,
+						"w": 122.47412109375,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJekqZq4m5g=": {
+						"kind": "node",
+						"x": 144,
+						"y": 160,
+						"w": 89,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJfPaZrin/o=": {
+						"kind": "node",
+						"x": 296,
+						"y": 160,
+						"w": 122.47412109375,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJf5FZsM/YU=": {
+						"kind": "node",
+						"x": 592,
+						"y": 160,
+						"w": 105,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJf5vJs1GJE=": {
+						"kind": "node",
+						"x": 488,
+						"y": 160,
+						"w": 106.47412109375,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAF+lJ1OyJt3Rxs=",
+				"name": "Business Entities",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAF+lJ4mSpuA5wM=",
+					"AAAAAAF+lJ4reZupnBI=",
+					"AAAAAAF+lJ4vkJvSJDQ=",
+					"AAAAAAF+lJ4y+5v7TmI=",
+					"AAAAAAF+lKGkv/Hx6Nw=",
+					"AAAAAAF+lKGrK/OT+mo=",
+					"AAAAAAF+lKG9GPY9k/I=",
+					"AAAAAAF+lKHY0voxiLw="
+				],
+				"layout": {
+					"AAAAAAF+lJ4mSpuA5wM=": {
+						"kind": "node",
+						"x": 88,
+						"y": 200,
+						"w": 65.33349609375,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJ4reZupnBI=": {
+						"kind": "node",
+						"x": 344,
+						"y": 200,
+						"w": 73,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lJ4vkJvSJDQ=": {
+						"kind": "node",
+						"x": 80,
+						"y": 375,
+						"w": 84.43896484375,
+						"h": 89,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon",
+							"wordWrap": true
+						}
+					},
+					"AAAAAAF+lJ4y+5v7TmI=": {
+						"kind": "node",
+						"x": 344,
+						"y": 381,
+						"w": 81,
+						"h": 78,
+						"fill": "#91ffec",
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAF+lKGkv/Hx6Nw=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAF+lKGrK/OT+mo=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": 1.13004545080676,
+								"distance": 58.60034129593445
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAF+lKG9GPY9k/I=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.041983229957430535,
+								"distance": 35.35533905932738
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAF+lKHY0voxiLw=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.37089138264646504,
+								"distance": 38.62641583165593
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.40814900529357323,
+								"distance": 40.311288741492746
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "UMLProfile",
+			"id": "AAAAAAF+lIWdvGWKy+0=",
+			"parentId": "AAAAAAFF+h6SjaM2Hec=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLUseCaseDiagram",
+			"id": "AAAAAAF+lIv2P2bRRSk=",
+			"parentId": "AAAAAAF+lIWdz2WM2go=",
+			"path": "ownedElements",
+			"index": 5
+		},
+		{
+			"type": "UMLActor",
+			"id": "AAAAAAF+lIwwjWbVkf8=",
+			"parentId": "AAAAAAF+lIWdz2WM2go=",
+			"path": "ownedElements",
+			"index": 6
+		},
+		{
+			"type": "UMLUseCase",
+			"id": "AAAAAAF+lIw8pGb+RJA=",
+			"parentId": "AAAAAAF+lIWdz2WM2go=",
+			"path": "ownedElements",
+			"index": 7
+		},
+		{
+			"type": "UMLCollaboration",
+			"id": "AAAAAAF+lI5x+mtut+0=",
+			"parentId": "AAAAAAF+lIWkimWlpL4=",
+			"path": "ownedElements",
+			"index": 3
+		},
+		{
+			"type": "UMLConstraint",
+			"id": "AAAAAAF+lKY+ele9nNo=",
+			"parentId": "AAAAAAF+lJ4mSpuA5wM=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLSignal",
+			"id": "AAAAAAF+lJ5Qkpwkp7U=",
+			"parentId": "AAAAAAF+lIWkimWlpL4=",
+			"path": "ownedElements",
+			"index": 18
+		},
+		{
+			"type": "UMLDependency",
+			"id": "AAAAAAF+lIaDI2XB2Po=",
+			"parentId": "AAAAAAF+lIWkimWlpL4=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLModelView",
+			"id": "AAAAAAF+lIWdz2WOlYQ=",
+			"parentId": "AAAAAAFF+qBtyKM79qY=",
+			"path": "ownedViews",
+			"index": 0
+		},
+		{
+			"type": "UMLDependencyView",
+			"id": "AAAAAAF+lIaDJGXDosI=",
+			"parentId": "AAAAAAFF+qBtyKM79qY=",
+			"path": "ownedViews",
+			"index": 2
+		},
+		{
+			"type": "UMLUseCaseView",
+			"id": "AAAAAAF+lI4f12s/3+E=",
+			"parentId": "AAAAAAF+lI3/jGs4MG8=",
+			"path": "ownedViews",
+			"index": 0
+		},
+		{
+			"type": "UMLCollaborationView",
+			"id": "AAAAAAF+lI5x+2twCCY=",
+			"parentId": "AAAAAAF+lI3/jGs4MG8=",
+			"path": "ownedViews",
+			"index": 1
+		},
+		{
+			"type": "UMLRealizationView",
+			"id": "AAAAAAF+lJMCc5oaPzc=",
+			"parentId": "AAAAAAF+lI3/jGs4MG8=",
+			"path": "ownedViews",
+			"index": 2
+		},
+		{
+			"type": "UMLSignalView",
+			"id": "AAAAAAF+lJ5QkpwmHY4=",
+			"parentId": "AAAAAAF+lJ1OyJt3Rxs=",
+			"path": "ownedViews",
+			"index": 4
+		},
+		{
+			"type": "UMLConstraintView",
+			"id": "AAAAAAF+lKY+ele+IAw=",
+			"parentId": "AAAAAAF+lJ1OyJt3Rxs=",
+			"path": "ownedViews",
+			"index": 10
+		},
+		{
+			"type": "UMLConstraintLinkView",
+			"id": "AAAAAAF+lKY+ele/mDc=",
+			"parentId": "AAAAAAF+lJ1OyJt3Rxs=",
+			"path": "ownedViews",
+			"index": 11
+		},
+		{
+			"type": "UMLAssociationView",
+			"id": "AAAAAAF+lKF0G++rF9k=",
+			"parentId": "AAAAAAF+lJ1OyJt3Rxs=",
+			"path": "ownedViews",
+			"index": 5
+		}
+	],
+	"sourceRecords": 55,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAF+lJCue2uiFvM=",
+				"name": "Business Goals",
+				"nodes": 4,
+				"edges": 3,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			},
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 0,
+				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 2
+			},
+			{
+				"id": "AAAAAAF+lI3/jGs4MG8=",
+				"name": "Business Use Case Realizations",
+				"nodes": 0,
+				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 3
+			},
+			{
+				"id": "AAAAAAF+lJYpI5o26+c=",
+				"name": "Business Workers and Systems",
+				"nodes": 5,
+				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			},
+			{
+				"id": "AAAAAAF+lJ1OyJt3Rxs=",
+				"name": "Business Entities",
+				"nodes": 4,
+				"edges": 4,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 4
+			}
+		],
+		"model": {
+			"classifiers": 13,
+			"relationships": 7,
+			"packages": 4,
+			"attributes": 0,
+			"operations": 0,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [
+			{
+				"type": "UMLProfileDiagram",
+				"name": "Business Use Case Model Profile"
+			},
+			{
+				"type": "UMLProfileDiagram",
+				"name": "Business Analysis Model Profile"
+			},
+			{
+				"type": "UMLUseCaseDiagram",
+				"name": "Best-in-class Services"
+			}
+		],
+		"unknownElements": 17,
+		"unknownTypes": {
+			"UMLProfile": 1,
+			"UMLUseCaseDiagram": 1,
+			"UMLActor": 1,
+			"UMLUseCase": 1,
+			"UMLCollaboration": 1,
+			"UMLConstraint": 1,
+			"UMLSignal": 1,
+			"UMLDependency": 1,
+			"UMLModelView": 1,
+			"UMLDependencyView": 1,
+			"UMLUseCaseView": 1,
+			"UMLCollaborationView": 1,
+			"UMLRealizationView": 1,
+			"UMLSignalView": 1,
+			"UMLConstraintView": 1,
+			"UMLConstraintLinkView": 1,
+			"UMLAssociationView": 1
+		},
+		"warnings": [
+			{
+				"code": "relationshipEndpoint",
+				"type": "UMLDependency",
+				"name": "AAAAAAF+lIaDI2XB2Po="
+			},
+			{
+				"code": "viewWithoutModel",
+				"diagram": "Main",
+				"type": "UMLModelView"
+			},
+			{
+				"code": "viewWithoutModel",
+				"diagram": "Main",
+				"type": "UMLDependencyView"
+			},
+			{
+				"code": "viewWithoutModel",
+				"diagram": "Business Use Case Realizations",
+				"type": "UMLRealizationView"
+			},
+			{
+				"code": "viewWithoutModel",
+				"diagram": "Business Entities",
+				"type": "UMLAssociationView"
+			}
+		]
+	}
+}

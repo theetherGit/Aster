@@ -1,0 +1,1045 @@
+{
+	"project": {
+		"id": "AAAAAAFF8HrPHGxHVqE=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "package",
+				"id": "AAAAAAFF8HsuDGxQIN8=",
+				"name": "com",
+				"memberIds": [
+					"AAAAAAFF8HtFoGxq9o8="
+				],
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAFF8HtFoGxq9o8=",
+				"name": "company",
+				"memberIds": [
+					"AAAAAAFF8Hu5LWyFBNo="
+				],
+				"parentId": "AAAAAAFF8HsuDGxQIN8=",
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAFF8Hu5LWyFBNo=",
+				"name": "package1",
+				"memberIds": [
+					"AAAAAAFF8IY3RWzik2A=",
+					"AAAAAAFF+hk0VMqTrv4=",
+					"AAAAAAFF8IZDVW0HciI=",
+					"AAAAAAFF8IaVwm0vD2c=",
+					"AAAAAAFF8IcEz21nWVg=",
+					"AAAAAAFF8Icylm2vpFY=",
+					"AAAAAAFF+ZqVxVGRY8A=",
+					"AAAAAAFF+aMrTHWeP30=",
+					"AAAAAAFF+71lysIEAmg=",
+					"AAAAAAFF+8W2xMc//fI=",
+					"AAAAAAFF+8gJIOU3L3Q=",
+					"AAAAAAFHyP51nCsxXGA="
+				],
+				"parentId": "AAAAAAFF8HtFoGxq9o8=",
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF8IY3RWzik2A=",
+				"classifierKind": "class",
+				"name": "Class1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "This Class1's documentation\nThis is second line of documentation\nThis is third line of documentation\n",
+				"attributes": [
+					{
+						"id": "AAAAAAFF+W+3yDh6/CA=",
+						"name": "Attribute1",
+						"visibility": "public",
+						"defaultValue": "\"DEFAULT_STRING\"",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "This is attribute documentation",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFF+ZjWz1GHi1w=",
+						"name": "StaticVariable",
+						"visibility": "public",
+						"isStatic": true,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Collection"
+					},
+					{
+						"id": "AAAAAAFF+bhoXyI2PkY=",
+						"name": "IntArray",
+						"visibility": "public",
+						"multiplicity": "100",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Integer"
+					},
+					{
+						"id": "AAAAAAFF+bky4SL5r4M=",
+						"name": "StringList",
+						"visibility": "public",
+						"multiplicity": "0..*",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFF+b8kSobXncI=",
+						"name": "StaticFinalVar",
+						"visibility": "public",
+						"defaultValue": "false",
+						"isStatic": true,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Boolean"
+					},
+					{
+						"id": "AAAAAAFF+8R/4sXUSCo=",
+						"name": "PrivateAttribute",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Object"
+					},
+					{
+						"id": "AAAAAAFF+8TKTMYwPH4=",
+						"name": "ProtectedAttribute",
+						"visibility": "protected",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFF+XErBjiBsWU=",
+						"name": "Operation1",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Arg1",
+								"direction": "in",
+								"type": "Integer"
+							},
+							{
+								"name": "Arg2",
+								"direction": "in",
+								"type": "String"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "This is operation documentation",
+						"returnType": "Boolean"
+					},
+					{
+						"id": "AAAAAAFF+8QlVMV4Go4=",
+						"name": "AbstractOperation",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": true,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF+hk0VMqTrv4=",
+				"classifierKind": "class",
+				"name": "InnerClass",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFF+hl2YMseKZ0=",
+						"name": "Attribute1",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFF+hmWdMtDXYk=",
+						"name": "Operation1",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "String"
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF8IZDVW0HciI=",
+				"classifierKind": "interface",
+				"name": "Interface1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFF+8MSo8OeeCM=",
+						"name": "Attribute1",
+						"visibility": "public",
+						"defaultValue": "100",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFF+8NnU8QMHKM=",
+						"name": "Operation2",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "arg1",
+								"direction": "in",
+								"type": "String"
+							},
+							{
+								"name": "arg2",
+								"direction": "in",
+								"type": "Integer"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "Object"
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF8IaVwm0vD2c=",
+				"classifierKind": "class",
+				"name": "AbstractClass1",
+				"isAbstract": true,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF8IcEz21nWVg=",
+				"classifierKind": "class",
+				"name": "Collection",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFHs+jwTmEIu5k=",
+						"name": "AbstractOperation",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFHs/KdOWGzDSY=",
+						"name": "Operation2",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "arg1",
+								"direction": "in",
+								"type": "String"
+							},
+							{
+								"name": "arg2",
+								"direction": "in",
+								"type": "Integer"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "Object"
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF8Icylm2vpFY=",
+				"classifierKind": "interface",
+				"name": "SubInterface",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF+ZqVxVGRY8A=",
+				"classifierKind": "class",
+				"name": "Item",
+				"isAbstract": false,
+				"isLeaf": true,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFHyQ8pni6H6OE=",
+						"name": "Operation1",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF+aMrTHWeP30=",
+				"classifierKind": "class",
+				"name": "NotNavigableItem",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF+71lysIEAmg=",
+				"classifierKind": "interface",
+				"name": "SuperInterface1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF+8W2xMc//fI=",
+				"classifierKind": "enum",
+				"name": "Enumeration1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [
+					{
+						"id": "AAAAAAFF+8XGdMeAM7s=",
+						"name": "Literal1",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFF+8XYCMel55s=",
+						"name": "Literal2",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFF+8XizcfEeH8=",
+						"name": "Literal3",
+						"documentation": ""
+					}
+				],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFF+8gJIOU3L3Q=",
+				"classifierKind": "interface",
+				"name": "SuperInterface2",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFHyP51nCsxXGA=",
+				"classifierKind": "class",
+				"name": "AnnotationTest",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFHyQfR+Cv6DyI=",
+						"name": "annotationField1",
+						"visibility": "public",
+						"defaultValue": "100",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int "
+					},
+					{
+						"id": "AAAAAAFHyQilbCykWDE=",
+						"name": "annotationField2",
+						"visibility": "public",
+						"defaultValue": "200",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int "
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFHyQjFXiz8zcc=",
+						"name": "author",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "String"
+					},
+					{
+						"id": "AAAAAAFHyQjq+y14okc=",
+						"name": "date",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "String"
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAFF8Hu5LWyFBNo=",
+				"stereotype": "annotationType"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF8IahYm1UT3g=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFF8IaVwm0vD2c=",
+				"targetId": "AAAAAAFF8IY3RWzik2A=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF8IcWOm2NEHU=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFF8IcEz21nWVg=",
+				"targetId": "AAAAAAFF8IY3RWzik2A=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF8Ichh22ebss=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAFF8IcEz21nWVg=",
+				"targetId": "AAAAAAFF8IZDVW0HciI=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF8IdB5m3UfCk=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAFF8IcEz21nWVg=",
+				"targetId": "AAAAAAFF8Icylm2vpFY=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF+aNsrnXfbqI=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFF8IcEz21nWVg=",
+				"targetId": "AAAAAAFF+aMrTHWeP30=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF+72UrMJ0uuE=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFF8Icylm2vpFY=",
+				"targetId": "AAAAAAFF+71lysIEAmg=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF+8hGt+YW0i0=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFF8Icylm2vpFY=",
+				"targetId": "AAAAAAFF+8gJIOU3L3Q=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFF+ZrZgFG6qZY=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFF+ZqVxVGRY8A=",
+				"targetId": "AAAAAAFF8IcEz21nWVg=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "items",
+					"multiplicity": "0..*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFHtFufG0o1Mpk=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFF+ZqVxVGRY8A=",
+				"targetId": "AAAAAAFF8IcEz21nWVg=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "unorderedItems",
+					"multiplicity": "*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF8HsXlGxNhmc=",
+				"name": "PackageStructure",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFF8HsuDGxQIN8=",
+					"AAAAAAFF8HtFoGxq9o8=",
+					"AAAAAAFF8Hu5LWyFBNo="
+				],
+				"layout": {
+					"AAAAAAFF8HsuDGxQIN8=": {
+						"kind": "node",
+						"x": 80,
+						"y": 52,
+						"w": 100,
+						"h": 72
+					},
+					"AAAAAAFF8HtFoGxq9o8=": {
+						"kind": "node",
+						"x": 76,
+						"y": 168,
+						"w": 101,
+						"h": 65
+					},
+					"AAAAAAFF8Hu5LWyFBNo=": {
+						"kind": "node",
+						"x": 76,
+						"y": 284,
+						"w": 104,
+						"h": 68
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAFF8IYa8WzeRC4=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFF8IY3RWzik2A=",
+					"AAAAAAFF8IZDVW0HciI=",
+					"AAAAAAFF8IaVwm0vD2c=",
+					"AAAAAAFF8IcEz21nWVg=",
+					"AAAAAAFF8Icylm2vpFY=",
+					"AAAAAAFF+ZqVxVGRY8A=",
+					"AAAAAAFF+aMrTHWeP30=",
+					"AAAAAAFF+hk0VMqTrv4=",
+					"AAAAAAFF+71lysIEAmg=",
+					"AAAAAAFF+8W2xMc//fI=",
+					"AAAAAAFF+8gJIOU3L3Q=",
+					"AAAAAAFHyP51nCsxXGA=",
+					"AAAAAAFF8IahYm1UT3g=",
+					"AAAAAAFF8IcWOm2NEHU=",
+					"AAAAAAFF8Ichh22ebss=",
+					"AAAAAAFF8IdB5m3UfCk=",
+					"AAAAAAFF+ZrZgFG6qZY=",
+					"AAAAAAFF+aNsrnXfbqI=",
+					"AAAAAAFF+72UrMJ0uuE=",
+					"AAAAAAFF+8hGt+YW0i0=",
+					"AAAAAAFHtFufG0o1Mpk="
+				],
+				"layout": {
+					"AAAAAAFF8IY3RWzik2A=": {
+						"kind": "node",
+						"x": 28,
+						"y": 32,
+						"w": 278,
+						"h": 166
+					},
+					"AAAAAAFF8IZDVW0HciI=": {
+						"kind": "node",
+						"x": 332,
+						"y": 32,
+						"w": 265,
+						"h": 80
+					},
+					"AAAAAAFF8IaVwm0vD2c=": {
+						"kind": "node",
+						"x": 212,
+						"y": 300,
+						"w": 100,
+						"h": 69
+					},
+					"AAAAAAFF8IcEz21nWVg=": {
+						"kind": "node",
+						"x": 340,
+						"y": 208,
+						"w": 265,
+						"h": 80
+					},
+					"AAAAAAFF8Icylm2vpFY=": {
+						"kind": "node",
+						"x": 652,
+						"y": 232,
+						"w": 83,
+						"h": 60,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAFF+ZqVxVGRY8A=": {
+						"kind": "node",
+						"x": 376,
+						"y": 440,
+						"w": 97,
+						"h": 70
+					},
+					"AAAAAAFF+aMrTHWeP30=": {
+						"kind": "node",
+						"x": 532,
+						"y": 356,
+						"w": 112,
+						"h": 44
+					},
+					"AAAAAAFF+hk0VMqTrv4=": {
+						"kind": "node",
+						"x": 36,
+						"y": 300,
+						"w": 124,
+						"h": 68
+					},
+					"AAAAAAFF+71lysIEAmg=": {
+						"kind": "node",
+						"x": 576,
+						"y": 136,
+						"w": 102,
+						"h": 60,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAFF+8W2xMc//fI=": {
+						"kind": "node",
+						"x": 624,
+						"y": 32,
+						"w": 94.76789855957031,
+						"h": 86,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFF+8gJIOU3L3Q=": {
+						"kind": "node",
+						"x": 692,
+						"y": 132,
+						"w": 102,
+						"h": 60,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAFHyP51nCsxXGA=": {
+						"kind": "node",
+						"x": 40,
+						"y": 412,
+						"w": 220,
+						"h": 114
+					},
+					"AAAAAAFF8IahYm1UT3g=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 184,
+								"y": 334
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFF8IcWOm2NEHU=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 256,
+								"y": 247
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFF8Ichh22ebss=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFF8IdB5m3UfCk=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFF+ZrZgFG6qZY=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": -1.1885894870612226,
+								"distance": 29.4930708397087
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.6318663649720168,
+								"distance": 30.774821855549835
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFF+aNsrnXfbqI=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 508,
+								"y": 377
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFF+72UrMJ0uuE=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFF+8hGt+YW0i0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFHtFufG0o1Mpk=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": -4.906348096058522,
+								"distance": 57.0701322935211
+							},
+							"sourceMultiplicity": {
+								"alpha": -5.677640758647128,
+								"distance": 31.622776601683793
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "UMLContainmentView",
+			"id": "AAAAAAFF8HvI02yftU0=",
+			"parentId": "AAAAAAFF8HsXlGxNhmc=",
+			"path": "ownedViews",
+			"index": 3
+		},
+		{
+			"type": "UMLContainmentView",
+			"id": "AAAAAAFF8HvMTmyjwcc=",
+			"parentId": "AAAAAAFF8HsXlGxNhmc=",
+			"path": "ownedViews",
+			"index": 4
+		},
+		{
+			"type": "UMLContainmentView",
+			"id": "AAAAAAFF+hlfIsr2ydg=",
+			"parentId": "AAAAAAFF8IYa8WzeRC4=",
+			"path": "ownedViews",
+			"index": 14
+		}
+	],
+	"sourceRecords": 87,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF8HsXlGxNhmc=",
+				"name": "PackageStructure",
+				"nodes": 0,
+				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 2
+			},
+			{
+				"id": "AAAAAAFF8IYa8WzeRC4=",
+				"name": "Main",
+				"nodes": 12,
+				"edges": 9,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 1
+			}
+		],
+		"model": {
+			"classifiers": 12,
+			"relationships": 9,
+			"packages": 3,
+			"attributes": 11,
+			"operations": 9,
+			"literals": 3,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [],
+		"unknownElements": 3,
+		"unknownTypes": {
+			"UMLContainmentView": 3
+		},
+		"warnings": []
+	}
+}

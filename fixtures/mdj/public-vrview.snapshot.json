@@ -1,0 +1,316 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFfokoiTzfn64Y=",
+				"classifierKind": "class",
+				"name": "App",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFfokxzQzgRaUM=",
+						"name": "scenes",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "scenesCollection"
+					},
+					{
+						"id": "AAAAAAFfok2OSzgYXro=",
+						"name": "state",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "IScene"
+					},
+					{
+						"id": "AAAAAAFfok4S0zgfKuM=",
+						"name": "vrviewCmp",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Vrview"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFfok6E0zgmldA=",
+						"name": "toggleDebugMode",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					},
+					{
+						"id": "AAAAAAFfok9IQjguWLw=",
+						"name": "showLeftPanel",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					},
+					{
+						"id": "AAAAAAFfolHFwjhX5Q8=",
+						"name": "hideLeftPanel",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					},
+					{
+						"id": "AAAAAAFfok9j7zg1Oqw=",
+						"name": "leftPanelAction",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "action",
+								"direction": "in",
+								"type": "Fn"
+							},
+							{
+								"name": "params?",
+								"direction": "in",
+								"type": "{}"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					},
+					{
+						"id": "AAAAAAFfolCj0jhFokQ=",
+						"name": "handleClickHotspot",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "idScene",
+								"direction": "in",
+								"type": "string | number"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFfolgCBzhmqSY=",
+				"classifierKind": "class",
+				"name": "Vrview",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFfoloEEjibJ+k=",
+						"name": "vrviewPlayer",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "IVrviewPlayer"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFfolqjEjirRSY=",
+						"name": "createHotspot",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "hotspot",
+								"direction": "in",
+								"type": "IHotspot"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					},
+					{
+						"id": "AAAAAAFfol+TgTmh+J0=",
+						"name": "addClickHandler",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "hotspot",
+								"direction": "in",
+								"type": "IHotspot"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFfolyw3ji6e3s=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFfolgCBzhmqSY=",
+				"targetId": "AAAAAAFfokoiTzfn64Y=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFfokoiTzfn64Y=",
+					"AAAAAAFfolgCBzhmqSY=",
+					"AAAAAAFfolyw3ji6e3s="
+				],
+				"layout": {
+					"AAAAAAFfokoiTzfn64Y=": {
+						"kind": "node",
+						"x": 208,
+						"y": 136,
+						"w": 309.99658203125,
+						"h": 161,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFfolgCBzhmqSY=": {
+						"kind": "node",
+						"x": 264,
+						"y": 376,
+						"w": 250.982421875,
+						"h": 86,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFfolyw3ji6e3s=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "rectilinear",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [],
+	"sourceRecords": 32,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 2,
+				"edges": 1,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 2,
+			"relationships": 1,
+			"packages": 0,
+			"attributes": 4,
+			"operations": 7,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [],
+		"unknownElements": 0,
+		"unknownTypes": {},
+		"warnings": []
+	}
+}

@@ -1,0 +1,1041 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCUKxjQ7U0Y=",
+				"classifierKind": "class",
+				"name": "I2C",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF+NEEWsWoKIEA=",
+						"name": "i2cDescriptor",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NEE1MWpYy5w=",
+						"name": "mutex",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAF+NEGv6Wte/gI=",
+						"name": "transact_",
+						"visibility": "private",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCVDmjRnADk=",
+				"classifierKind": "class",
+				"name": "GPIO",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF+NC8LJURzEkg=",
+						"name": "chipAddress",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAF+NC3QL0J2yIA=",
+						"name": "input",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NC4GLULpoPk=",
+						"name": "input_pullup",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NC4erUM3XT8=",
+						"name": "output",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDBwtUeXKiM=",
+						"name": "get",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NC90BkVBUak=",
+						"name": "low",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NC+UnUWPfQk=",
+						"name": "high",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDCH9Uflxfg=",
+						"name": "toggle",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NC+qpUXdbUM=",
+						"name": "set",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCVZgTSR/cg=",
+				"classifierKind": "class",
+				"name": "ADC",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF+NDIARUkqEjk=",
+						"name": "chipAddress",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCcihDbXdrs=",
+				"classifierKind": "class",
+				"name": "Log",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCdD2Tcr4Kg=",
+				"classifierKind": "class",
+				"name": "PIDController",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCdkwDd/tSk=",
+				"classifierKind": "class",
+				"name": "Stopwatch",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCeFczfT+Ho=",
+				"classifierKind": "class",
+				"name": "TCPClient",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCecSjgnMA8=",
+				"classifierKind": "class",
+				"name": "TCPServer",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCfD2Th7Cnc=",
+				"classifierKind": "class",
+				"name": "UDP",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NCmfWzuscwQ=",
+				"classifierKind": "class",
+				"name": "Motor",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF+NEReMnJ1we4=",
+						"name": "chipAddress",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"stereotype": "not implemented"
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+NCs1Xz6FMak=",
+				"name": "io",
+				"memberIds": [
+					"AAAAAAF+NCzTR0FqLmU="
+				],
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+NCzTR0FqLmU=",
+				"name": "Chips",
+				"memberIds": [
+					"AAAAAAF+NDpgO1251wo=",
+					"AAAAAAF+NDs0G177XWk="
+				],
+				"parentId": "AAAAAAF+NCs1Xz6FMak=",
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+NDpgO1251wo=",
+				"name": "Ad7997",
+				"memberIds": [],
+				"parentId": "AAAAAAF+NCzTR0FqLmU=",
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF+NDs0G177XWk=",
+				"name": "Mcp23017",
+				"memberIds": [],
+				"parentId": "AAAAAAF+NCzTR0FqLmU=",
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NDLwl0od6EA=",
+				"classifierKind": "dataType",
+				"name": "DataType1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NDNNL0rTXdQ=",
+				"classifierKind": "dataType",
+				"name": "PrimitiveType1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"stereotype": "primitive"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NDNvqUuJ1hc=",
+				"classifierKind": "class",
+				"name": "Pin",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+NDOvVUxc1Do=",
+				"classifierKind": "enum",
+				"name": "Pin",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [
+					{
+						"id": "AAAAAAF+NDXTzVH+kA8=",
+						"name": "PA0...PA7",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDPc/Ezkc2g=",
+						"name": "PB0...PB7",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDPs1E0ycw0=",
+						"name": "PA2",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDQBzE2AAyw=",
+						"name": "PA3",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDQSdE3OCYs=",
+						"name": "PA4",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDQivE4cN/s=",
+						"name": "PA5",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDQ11E5q9J4=",
+						"name": "PA6",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDRF3E64n9k=",
+						"name": "PA7",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDYvu1L8vYc=",
+						"name": "PB0",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDY7m1NKL4o=",
+						"name": "PB1",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDZO21OYsE4=",
+						"name": "PB2",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDZqa1Pm/y8=",
+						"name": "PB3",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDaA41Q01Zo=",
+						"name": "PB4",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDaVi1SCaaM=",
+						"name": "PB5",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDdrK1bo5Dk=",
+						"name": "PB6",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+NDd561c21yw=",
+						"name": "AD0...AD7",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF+ND8lYWdEGh8=",
+						"name": "PWM1-PWM7",
+						"documentation": ""
+					}
+				]
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF+ND2t4mJ0Yg8=",
+				"classifierKind": "class",
+				"name": "PWM",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF+NEKfOW1pamI=",
+						"name": "chipAddress",
+						"visibility": "private",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"stereotype": "not implemented"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NCY6vzUazTI=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAF+NCUKxjQ7U0Y=",
+				"targetId": "AAAAAAF+NCVDmjRnADk=",
+				"name": "bus",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NCZNHzVdXGM=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAF+NCUKxjQ7U0Y=",
+				"targetId": "AAAAAAF+NCVZgTSR/cg=",
+				"name": "bus",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NCn4hzw+1rA=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAF+NCUKxjQ7U0Y=",
+				"targetId": "AAAAAAF+NCmfWzuscwQ=",
+				"name": "bus",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NEI0WmvtcYU=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAF+NCUKxjQ7U0Y=",
+				"targetId": "AAAAAAF+ND2t4mJ0Yg8=",
+				"name": "bus",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NDwELGB9x9A=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+NDpgO1251wo=",
+				"targetId": "AAAAAAF+NCVZgTSR/cg=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NDvv1GA/c4o=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+NDs0G177XWk=",
+				"targetId": "AAAAAAF+NCVDmjRnADk=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NDj1Fls7bcY=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF+NDOvVUxc1Do=",
+				"targetId": "AAAAAAF+NCVDmjRnADk=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NDktBFwmjfU=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+NDOvVUxc1Do=",
+				"targetId": "AAAAAAF+NCVDmjRnADk=",
+				"name": "uses",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+ND/jY2fd74g=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+NDOvVUxc1Do=",
+				"targetId": "AAAAAAF+NCVZgTSR/cg=",
+				"name": "uses",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF+NEAQKmhBS0Q=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF+NDOvVUxc1Do=",
+				"targetId": "AAAAAAF+ND2t4mJ0Yg8=",
+				"name": "uses",
+				"documentation": ""
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAF+NCUKxjQ7U0Y=",
+					"AAAAAAF+NCVDmjRnADk=",
+					"AAAAAAF+NCVZgTSR/cg=",
+					"AAAAAAF+NCcihDbXdrs=",
+					"AAAAAAF+NCdD2Tcr4Kg=",
+					"AAAAAAF+NCdkwDd/tSk=",
+					"AAAAAAF+NCeFczfT+Ho=",
+					"AAAAAAF+NCecSjgnMA8=",
+					"AAAAAAF+NCfD2Th7Cnc=",
+					"AAAAAAF+NCmfWzuscwQ=",
+					"AAAAAAF+NDOvVUxc1Do=",
+					"AAAAAAF+NDpgO1251wo=",
+					"AAAAAAF+NDs0G177XWk=",
+					"AAAAAAF+ND2t4mJ0Yg8=",
+					"AAAAAAF+NCY6vzUazTI=",
+					"AAAAAAF+NCZNHzVdXGM=",
+					"AAAAAAF+NCn4hzw+1rA=",
+					"AAAAAAF+NDktBFwmjfU=",
+					"AAAAAAF+NDvv1GA/c4o=",
+					"AAAAAAF+NDwELGB9x9A=",
+					"AAAAAAF+ND/jY2fd74g=",
+					"AAAAAAF+NEAQKmhBS0Q=",
+					"AAAAAAF+NEI0WmvtcYU="
+				],
+				"layout": {
+					"AAAAAAF+NCUKxjQ7U0Y=": {
+						"kind": "node",
+						"x": 368,
+						"y": 80,
+						"w": 169,
+						"h": 113
+					},
+					"AAAAAAF+NCVDmjRnADk=": {
+						"kind": "node",
+						"x": 104,
+						"y": 296,
+						"w": 137,
+						"h": 176
+					},
+					"AAAAAAF+NCVZgTSR/cg=": {
+						"kind": "node",
+						"x": 272,
+						"y": 296,
+						"w": 121,
+						"h": 145
+					},
+					"AAAAAAF+NCcihDbXdrs=": {
+						"kind": "node",
+						"x": 400,
+						"y": 736,
+						"w": 129,
+						"h": 81
+					},
+					"AAAAAAF+NCdD2Tcr4Kg=": {
+						"kind": "node",
+						"x": 96,
+						"y": 736,
+						"w": 113,
+						"h": 81
+					},
+					"AAAAAAF+NCdkwDd/tSk=": {
+						"kind": "node",
+						"x": 240,
+						"y": 736,
+						"w": 129,
+						"h": 81
+					},
+					"AAAAAAF+NCeFczfT+Ho=": {
+						"kind": "node",
+						"x": 144,
+						"y": 864,
+						"w": 97,
+						"h": 65
+					},
+					"AAAAAAF+NCecSjgnMA8=": {
+						"kind": "node",
+						"x": 272,
+						"y": 864,
+						"w": 129,
+						"h": 65
+					},
+					"AAAAAAF+NCfD2Th7Cnc=": {
+						"kind": "node",
+						"x": 232,
+						"y": 960,
+						"w": 51.919921875,
+						"h": 45
+					},
+					"AAAAAAF+NCmfWzuscwQ=": {
+						"kind": "node",
+						"x": 544,
+						"y": 296,
+						"w": 145,
+						"h": 137
+					},
+					"AAAAAAF+NDOvVUxc1Do=": {
+						"kind": "node",
+						"x": 120,
+						"y": 88,
+						"w": 126.34619140625,
+						"h": 117,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAF+NDpgO1251wo=": {
+						"kind": "node",
+						"x": 280,
+						"y": 504,
+						"w": 97,
+						"h": 65,
+						"flags": {
+							"showNamespace": true
+						}
+					},
+					"AAAAAAF+NDs0G177XWk=": {
+						"kind": "node",
+						"x": 104,
+						"y": 504,
+						"w": 97,
+						"h": 65,
+						"flags": {
+							"showNamespace": true
+						}
+					},
+					"AAAAAAF+ND2t4mJ0Yg8=": {
+						"kind": "node",
+						"x": 408,
+						"y": 296,
+						"w": 120.56982421875,
+						"h": 145
+					},
+					"AAAAAAF+NCY6vzUazTI=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 3.42924094758303,
+								"distance": 57.697486947006624
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAF+NCZNHzVdXGM=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAF+NCn4hzw+1rA=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAF+NDktBFwmjfU=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF+NDvv1GA/c4o=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF+NDwELGB9x9A=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF+ND/jY2fd74g=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF+NEAQKmhBS0Q=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 424,
+								"y": 240
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": -2.3194904211132483,
+								"distance": 157.4960316960399
+							}
+						}
+					},
+					"AAAAAAF+NEI0WmvtcYU=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "UMLInteraction",
+			"id": "AAAAAAF+NDXgvFJMFhM=",
+			"parentId": "AAAAAAF+NDOvVUxc1Do=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLFrameView",
+			"id": "AAAAAAF+NChPfjmtp4o=",
+			"parentId": "AAAAAAFF+qBtyKM79qY=",
+			"path": "ownedViews",
+			"index": 11
+		},
+		{
+			"type": "UMLFrameView",
+			"id": "AAAAAAF+NCuIFT7NqKg=",
+			"parentId": "AAAAAAFF+qBtyKM79qY=",
+			"path": "ownedViews",
+			"index": 14
+		}
+	],
+	"sourceRecords": 87,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 12,
+				"edges": 9,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 2
+			}
+		],
+		"model": {
+			"classifiers": 15,
+			"relationships": 10,
+			"packages": 4,
+			"attributes": 6,
+			"operations": 9,
+			"literals": 17,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [
+			{
+				"type": "UMLSequenceDiagram",
+				"name": "SequenceDiagram1"
+			}
+		],
+		"unknownElements": 3,
+		"unknownTypes": {
+			"UMLInteraction": 1,
+			"UMLFrameView": 2
+		},
+		"warnings": []
+	}
+}

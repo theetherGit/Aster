@@ -1,0 +1,1505 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDxzRFlF6IjtM=",
+				"classifierKind": "interface",
+				"name": "ShapeEle",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDxzSaYV6z8dg=",
+						"name": "X",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDxzS5mF66fTc=",
+						"name": "Y",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDxzTKx17BWZY=",
+						"name": "Width",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDxzTlWl7IQSs=",
+						"name": "Height",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDxzT8ul7PD0U=",
+						"name": "Angle",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx0Trm186OeE=",
+						"name": "Deviate",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAGDxzWaNl7haro=",
+						"name": "Draw",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Graphics g",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDxzXdMF7rbnA=",
+						"name": "DrawPath",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx2+eOV/Dq8w=",
+						"name": "getSelectShapeEle",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "PointF pointF",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx5kaaGAhR6o=",
+						"name": "isContains",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "PointF MousePoint",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx5la0GAq/xM=",
+						"name": "isContains",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "RectangleF rect",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDx0NxAF7y4xA=",
+				"classifierKind": "class",
+				"name": "Transform",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDx0QfPl8kKW4=",
+						"name": "X",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx0QzKl8rVLg=",
+						"name": "Y",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx0RD3l8yCx4=",
+						"name": "Zoom",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAGDx5JoyGAXQzs=",
+						"name": "getRealPoint",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "PointF pointf",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDx2ZboF9BNOs=",
+				"classifierKind": "class",
+				"name": "PaperSize",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDx2dVb19rxpI=",
+						"name": "Width",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx2drsl9yAcU=",
+						"name": "Height",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx2eppV95NZw=",
+						"name": "Rows",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "行数"
+					},
+					{
+						"id": "AAAAAAGDx2i95V+Bn1E=",
+						"name": "Cols",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDx2k14l+IzF0=",
+						"name": "HorizontalRepeatDistance",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDx2mSn1+Q3sI=",
+				"classifierKind": "interface",
+				"name": "IPrinterSelect",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGDx2nQHV+7Aaw=",
+						"name": "getPrinter",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDx3KhyF/Ord8=",
+				"classifierKind": "class",
+				"name": "Shapes",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDx3K8tl/5O1I=",
+						"name": "lstShape",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "List<ShapeEle>"
+					},
+					{
+						"id": "AAAAAAGDx3L77WAA8tk=",
+						"name": "Transform",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Transform"
+					},
+					{
+						"id": "AAAAAAGDx4X7WWALEus=",
+						"name": "PaperSize",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "PaperSize"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAGDykFncMWj2yA=",
+						"name": "getSelectShapes",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDykHwQ8WrTAg=",
+						"name": "DrawWithBack",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Graphics g",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDzDOwl8qhiuY=",
+						"name": "getNextId",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyh4vNcTuGjg=",
+				"classifierKind": "class",
+				"name": "ShapeEle",
+				"isAbstract": true,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDzDKw6cqUZHM=",
+						"name": "Id",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyh5n3sUZxIU=",
+						"name": "X",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyh6ASsUgI5U=",
+						"name": "Y",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyh6PxcUn+4Q=",
+						"name": "Width",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyh6iZcUurOo=",
+						"name": "Height",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyh61rcU1ruM=",
+						"name": "Angle",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAGDyh7yIcVFzos=",
+						"name": "Draw",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Graphics g",
+								"direction": "in"
+							},
+							{
+								"name": "Transform tran",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyh/5RcVSgws=",
+						"name": "isContains",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "PointF MousePoint",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyiASjcVbuN8=",
+						"name": "isContains",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "RectangleF rect",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyk0FJMXo3AQ=",
+				"classifierKind": "class",
+				"name": "PrintBarcode",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyljOo8YXx2A=",
+				"classifierKind": "interface",
+				"name": "IInvoke",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGDylkkT8ZD/mI=",
+						"name": "ExecuteCommand",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDylz9Gca9qXA=",
+				"classifierKind": "class",
+				"name": "Comand",
+				"isAbstract": true,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyobTCMbujUw=",
+				"classifierKind": "interface",
+				"name": "CommandRecorder",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGDyocYm8caZbo=",
+						"name": "addCommand",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Command command",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyodU8sclSGc=",
+						"name": "Undo",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyodyzscsGaw=",
+						"name": "Redo",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyuWQV8dBE4E=",
+				"classifierKind": "class",
+				"name": "MoveCommand",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyuXGRcdsOvE=",
+				"classifierKind": "class",
+				"name": "ResizeCommand",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyuYMwceXf8M=",
+				"classifierKind": "class",
+				"name": "AddCommand",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyuZ5MsfDAgY=",
+				"classifierKind": "class",
+				"name": "DeleteCommand",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyua3YsfuUVc=",
+				"classifierKind": "class",
+				"name": "PropertyChangedCommand",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyvTYP8hvyV8=",
+				"classifierKind": "class",
+				"name": "UserControlCanvers",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDyvhzkMibGn0=",
+						"name": "CurrentShapeEle",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyvnUNMkba4o=",
+						"name": "Shapes",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDyvvy+8kidvw=",
+						"name": "CommandRecorder",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "CommandRecorder"
+					},
+					{
+						"id": "AAAAAAGDyy1icMmTqv8=",
+						"name": "objectSelected",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "ObjectSelect"
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAGDzD0XEsvSt9w=",
+						"name": "KeyDown",
+						"visibility": "private",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDzD1WQsvZ9+Q=",
+						"name": "KeyUp",
+						"visibility": "private",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDzD1wVcvgeBo=",
+						"name": "MouseDown",
+						"visibility": "private",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGDzD2G8cvnxMw=",
+						"name": "MouseUp",
+						"visibility": "private",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyvjf9siiOzI=",
+				"classifierKind": "class",
+				"name": "ShapeLine",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyvlD+Mjeqnc=",
+				"classifierKind": "class",
+				"name": "ShapeGroup",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDywv4KMksjwE=",
+				"classifierKind": "class",
+				"name": "UserControlToolbox",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGDyzJEd8mbO/w=",
+						"name": "objectSelect",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDyyvXo8lnGlQ=",
+				"classifierKind": "class",
+				"name": "ObejctSelectEvent",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGDyzO93MmiD3M=",
+						"name": "object",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDzDfhGMqoXWE=",
+				"classifierKind": "class",
+				"name": "ISerialize",
+				"isAbstract": true,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGDzDiVe8rTYxE=",
+						"name": "serialize",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Shapes shapes",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "string"
+					},
+					{
+						"id": "AAAAAAGDzDkVS8reK3Q=",
+						"name": "deserialize",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "string s",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "Shapes"
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDzDoLzsrpBmA=",
+				"classifierKind": "class",
+				"name": "JsonSerialize",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGDzDp7D8soiKk=",
+				"classifierKind": "interface",
+				"name": "ISerialize",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGDzDq7ZctTTfE=",
+						"name": "serialize",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Shapes shapes",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "string"
+					},
+					{
+						"id": "AAAAAAGDzDrks8t/UU0=",
+						"name": "deserialize",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "string s",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "Shapes"
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDykLTDMW0tc0=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAGDx3KhyF/Ord8=",
+				"targetId": "AAAAAAGDyh4vNcTuGjg=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDykLgs8XFTXQ=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAGDx3KhyF/Ord8=",
+				"targetId": "AAAAAAGDx0NxAF7y4xA=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDykLugcXWEQM=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAGDx3KhyF/Ord8=",
+				"targetId": "AAAAAAGDx2ZboF9BNOs=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyltFN8ZpsLw=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAGDx3KhyF/Ord8=",
+				"targetId": "AAAAAAGDyljOo8YXx2A=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDylt438aCyFw=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDx3KhyF/Ord8=",
+				"targetId": "AAAAAAGDyljOo8YXx2A=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyluvg8aTlZA=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAGDyk0FJMXo3AQ=",
+				"targetId": "AAAAAAGDyljOo8YXx2A=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyucRWMgZ+5k=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyuWQV8dBE4E=",
+				"targetId": "AAAAAAGDylz9Gca9qXA=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyuc34cgqcEs=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyuXGRcdsOvE=",
+				"targetId": "AAAAAAGDylz9Gca9qXA=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyudSAMg7sNU=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyuYMwceXf8M=",
+				"targetId": "AAAAAAGDylz9Gca9qXA=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyudqgshMb3Q=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyuZ5MsfDAgY=",
+				"targetId": "AAAAAAGDylz9Gca9qXA=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyud9r8hdrPo=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyua3YsfuUVc=",
+				"targetId": "AAAAAAGDylz9Gca9qXA=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyvkUEcjMVK0=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyvjf9siiOzI=",
+				"targetId": "AAAAAAGDyh4vNcTuGjg=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDyvlvK8kKMFI=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDyvlD+Mjeqnc=",
+				"targetId": "AAAAAAGDyh4vNcTuGjg=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDzDo99MsUQqo=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDzDoLzsrpBmA=",
+				"targetId": "AAAAAAGDzDfhGMqoXWE=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDzDr/acuLjwY=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDzDoLzsrpBmA=",
+				"targetId": "AAAAAAGDzDp7D8soiKk=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDzDtfscumb90=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAGDzDoLzsrpBmA=",
+				"targetId": "AAAAAAGDzDp7D8soiKk=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGDzDt/Ycu/hfg=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGDzDoLzsrpBmA=",
+				"targetId": "AAAAAAGDzDp7D8soiKk=",
+				"documentation": ""
+			},
+			{
+				"kind": "note",
+				"id": "AAAAAAGDyin2x8WR0+4=",
+				"text": "偏离的。",
+				"linkedIds": [
+					"AAAAAAGDx0NxAF7y4xA="
+				]
+			},
+			{
+				"kind": "note",
+				"id": "AAAAAAGDylmIQ8ZKbsM=",
+				"text": "负责命令对象请求执行",
+				"linkedIds": [
+					"AAAAAAGDyljOo8YXx2A="
+				]
+			},
+			{
+				"kind": "note",
+				"id": "AAAAAAGDywxoUslWwhI=",
+				"text": "在这里边绘图的",
+				"linkedIds": [
+					"AAAAAAGDyvTYP8hvyV8="
+				]
+			},
+			{
+				"kind": "note",
+				"id": "AAAAAAGDywyPlMleYQc=",
+				"text": "工具箱",
+				"linkedIds": [
+					"AAAAAAGDywv4KMksjwE="
+				]
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAGDx0NxAF7y4xA=",
+					"AAAAAAGDx2ZboF9BNOs=",
+					"AAAAAAGDx2mSn1+Q3sI=",
+					"AAAAAAGDx3KhyF/Ord8=",
+					"AAAAAAGDyh4vNcTuGjg=",
+					"AAAAAAGDyin2x8WR0+4=",
+					"AAAAAAGDyk0FJMXo3AQ=",
+					"AAAAAAGDyljOo8YXx2A=",
+					"AAAAAAGDylmIQ8ZKbsM=",
+					"AAAAAAGDylz9Gca9qXA=",
+					"AAAAAAGDyobTCMbujUw=",
+					"AAAAAAGDyuWQV8dBE4E=",
+					"AAAAAAGDyuXGRcdsOvE=",
+					"AAAAAAGDyuYMwceXf8M=",
+					"AAAAAAGDyuZ5MsfDAgY=",
+					"AAAAAAGDyua3YsfuUVc=",
+					"AAAAAAGDyvTYP8hvyV8=",
+					"AAAAAAGDyvjf9siiOzI=",
+					"AAAAAAGDyvlD+Mjeqnc=",
+					"AAAAAAGDywv4KMksjwE=",
+					"AAAAAAGDywxoUslWwhI=",
+					"AAAAAAGDywyPlMleYQc=",
+					"AAAAAAGDyyvXo8lnGlQ=",
+					"AAAAAAGDzDoLzsrpBmA=",
+					"AAAAAAGDzDp7D8soiKk=",
+					"AAAAAAGDykLTDMW0tc0=",
+					"AAAAAAGDykLgs8XFTXQ=",
+					"AAAAAAGDykLugcXWEQM=",
+					"AAAAAAGDyucRWMgZ+5k=",
+					"AAAAAAGDyuc34cgqcEs=",
+					"AAAAAAGDyudSAMg7sNU=",
+					"AAAAAAGDyudqgshMb3Q=",
+					"AAAAAAGDyud9r8hdrPo=",
+					"AAAAAAGDyvkUEcjMVK0=",
+					"AAAAAAGDyvlvK8kKMFI=",
+					"AAAAAAGDzDt/Ycu/hfg="
+				],
+				"layout": {
+					"AAAAAAGDx0NxAF7y4xA=": {
+						"kind": "node",
+						"x": 1104,
+						"y": 544,
+						"w": 188.572265625,
+						"h": 101
+					},
+					"AAAAAAGDx2ZboF9BNOs=": {
+						"kind": "node",
+						"x": 1408,
+						"y": 512,
+						"w": 181.4248046875,
+						"h": 118
+					},
+					"AAAAAAGDx2mSn1+Q3sI=": {
+						"kind": "node",
+						"x": 184,
+						"y": 16,
+						"w": 98.0419921875,
+						"h": 72,
+						"flags": {
+							"suppressAttributes": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAGDx3KhyF/Ord8=": {
+						"kind": "node",
+						"x": 872,
+						"y": 280,
+						"w": 174.43603515625,
+						"h": 131
+					},
+					"AAAAAAGDyh4vNcTuGjg=": {
+						"kind": "node",
+						"x": 856,
+						"y": 496,
+						"w": 211.43017578125,
+						"h": 176
+					},
+					"AAAAAAGDyin2x8WR0+4=": {
+						"kind": "node",
+						"x": 1304,
+						"y": 568,
+						"w": 100,
+						"h": 50
+					},
+					"AAAAAAGDyk0FJMXo3AQ=": {
+						"kind": "node",
+						"x": 40,
+						"y": 80,
+						"w": 91.630859375,
+						"h": 45
+					},
+					"AAAAAAGDyljOo8YXx2A=": {
+						"kind": "node",
+						"x": 816,
+						"y": 16,
+						"w": 177,
+						"h": 73,
+						"flags": {
+							"suppressAttributes": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAGDylmIQ8ZKbsM=": {
+						"kind": "node",
+						"x": 1056,
+						"y": 16,
+						"w": 150,
+						"h": 50
+					},
+					"AAAAAAGDylz9Gca9qXA=": {
+						"kind": "node",
+						"x": 1448,
+						"y": 160,
+						"w": 62,
+						"h": 45
+					},
+					"AAAAAAGDyobTCMbujUw=": {
+						"kind": "node",
+						"x": 568,
+						"y": 8,
+						"w": 228.5625,
+						"h": 102,
+						"flags": {
+							"suppressAttributes": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAGDyuWQV8dBE4E=": {
+						"kind": "node",
+						"x": 1432,
+						"y": 288,
+						"w": 106.7890625,
+						"h": 45
+					},
+					"AAAAAAGDyuXGRcdsOvE=": {
+						"kind": "node",
+						"x": 1584,
+						"y": 288,
+						"w": 114.7490234375,
+						"h": 45
+					},
+					"AAAAAAGDyuYMwceXf8M=": {
+						"kind": "node",
+						"x": 1760,
+						"y": 288,
+						"w": 98.8291015625,
+						"h": 45
+					},
+					"AAAAAAGDyuZ5MsfDAgY=": {
+						"kind": "node",
+						"x": 1912,
+						"y": 288,
+						"w": 112.578125,
+						"h": 45
+					},
+					"AAAAAAGDyua3YsfuUVc=": {
+						"kind": "node",
+						"x": 2072,
+						"y": 288,
+						"w": 182.630859375,
+						"h": 45
+					},
+					"AAAAAAGDyvTYP8hvyV8=": {
+						"kind": "node",
+						"x": 24,
+						"y": 312,
+						"w": 251.6806640625,
+						"h": 161
+					},
+					"AAAAAAGDyvjf9siiOzI=": {
+						"kind": "node",
+						"x": 920,
+						"y": 816,
+						"w": 75.736328125,
+						"h": 45
+					},
+					"AAAAAAGDyvlD+Mjeqnc=": {
+						"kind": "node",
+						"x": 1088,
+						"y": 816,
+						"w": 88.00634765625,
+						"h": 45
+					},
+					"AAAAAAGDywv4KMksjwE=": {
+						"kind": "node",
+						"x": 560,
+						"y": 304,
+						"w": 134.69970703125,
+						"h": 58
+					},
+					"AAAAAAGDywxoUslWwhI=": {
+						"kind": "node",
+						"x": 160,
+						"y": 232,
+						"w": 111,
+						"h": 50
+					},
+					"AAAAAAGDywyPlMleYQc=": {
+						"kind": "node",
+						"x": 584,
+						"y": 200,
+						"w": 100,
+						"h": 50
+					},
+					"AAAAAAGDyyvXo8lnGlQ=": {
+						"kind": "node",
+						"x": 376,
+						"y": 192,
+						"w": 124.15625,
+						"h": 58
+					},
+					"AAAAAAGDzDoLzsrpBmA=": {
+						"kind": "node",
+						"x": 536,
+						"y": 768,
+						"w": 93.09716796875,
+						"h": 45
+					},
+					"AAAAAAGDzDp7D8soiKk=": {
+						"kind": "node",
+						"x": 488,
+						"y": 568,
+						"w": 202.56884765625,
+						"h": 87,
+						"flags": {
+							"suppressAttributes": true,
+							"stereotypeDisplay": "icon"
+						}
+					},
+					"AAAAAAGDykLTDMW0tc0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDykLgs8XFTXQ=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDykLugcXWEQM=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyucRWMgZ+5k=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyuc34cgqcEs=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyudSAMg7sNU=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyudqgshMb3Q=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyud9r8hdrPo=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyvkUEcjMVK0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDyvlvK8kKMFI=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGDzDt/Ycu/hfg=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "FCFlowchart",
+			"id": "AAAAAAGDzH7wLMvxvqI=",
+			"parentId": "AAAAAAFF+qBWK6M3Z8Y=",
+			"path": "ownedElements",
+			"index": 24
+		}
+	],
+	"sourceRecords": 156,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 21,
+				"edges": 11,
+				"notes": 4,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 23,
+			"relationships": 17,
+			"packages": 0,
+			"attributes": 28,
+			"operations": 26,
+			"literals": 0,
+			"notes": 4,
+			"texts": 0
+		},
+		"hiddenDiagrams": [
+			{
+				"type": "FCFlowchartDiagram",
+				"name": "鼠标事件"
+			}
+		],
+		"unknownElements": 1,
+		"unknownTypes": {
+			"FCFlowchart": 1
+		},
+		"warnings": []
+	}
+}

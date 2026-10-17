@@ -1,0 +1,1331 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WwEFu0pEeI0=",
+				"classifierKind": "class",
+				"name": "GraphGenerator",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAF8WwhpA0skF9U=",
+						"name": "generate_graph",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "QmData qm_data",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WwisY0srWG0=",
+						"name": "_get_nodes",
+						"visibility": "private",
+						"parameters": [
+							{
+								"name": "QmData qm_data",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WwjUuksyx6U=",
+						"name": "_get_edges",
+						"visibility": "private",
+						"parameters": [
+							{
+								"name": "QmData qm_data",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8boLoyrC9h/U=",
+						"name": "_get_graph_features",
+						"visibility": "private",
+						"parameters": [
+							{
+								"name": "QmData qm_data",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8boN057DJaO4=",
+						"name": "_get_graph_attributes",
+						"visibility": "private",
+						"parameters": [
+							{
+								"name": "QmData qm_data",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WwHPJkqaX2c=",
+				"classifierKind": "class",
+				"name": "DataParser",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAF8WwdD1ksUohA=",
+						"name": "parse",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8Ww4mQkt7b7c=",
+				"classifierKind": "class",
+				"name": "GraphGeneratorSettings",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAF8Ww56W0ul+K4=",
+						"name": "from_file",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "str file_path",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"stereotype": "classmethod"
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF8Wx8GVFUgbP4=",
+				"name": "HyDGL",
+				"memberIds": [
+					"AAAAAAF8Wx+cElU/C7Y=",
+					"AAAAAAF8WywzclkZ6e4=",
+					"AAAAAAF8WzISg1nbo/U=",
+					"AAAAAAF8WwFZf0pvswE=",
+					"AAAAAAGBizn0l+/Tl7s=",
+					"AAAAAAGBixn8cO1naOY=",
+					"AAAAAAF8WwIK7ErFBTs="
+				],
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8Wx+cElU/C7Y=",
+				"classifierKind": "class",
+				"name": "Class1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8Wx8GVFUgbP4="
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAF8WywzclkZ6e4=",
+				"name": "Enums",
+				"memberIds": [
+					"AAAAAAF8boHIRbCDgBc=",
+					"AAAAAAGBiw2dnexRH0E=",
+					"AAAAAAGBiw+bNOyJjYc=",
+					"AAAAAAGBixAOaOy3ebg=",
+					"AAAAAAGBixD/QOzkZek=",
+					"AAAAAAF8WyOhVVcawP0=",
+					"AAAAAAF8WyRWlFebWtI=",
+					"AAAAAAF8WyPzzldwFyQ=",
+					"AAAAAAF8WyIvhlW6XlE=",
+					"AAAAAAF8Wy990lmK/4w="
+				],
+				"parentId": "AAAAAAF8Wx8GVFUgbP4=",
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8boHIRbCDgBc=",
+				"classifierKind": "class",
+				"name": "GraphFeature",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBiw2dnexRH0E=",
+				"classifierKind": "class",
+				"name": "SopaEdgeFeature",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBiw+bNOyJjYc=",
+				"classifierKind": "class",
+				"name": "SopaResolutionMode",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBixAOaOy3ebg=",
+				"classifierKind": "class",
+				"name": "NboType",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBixD/QOzkZek=",
+				"classifierKind": "class",
+				"name": "EdgeType",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WyOhVVcawP0=",
+				"classifierKind": "class",
+				"name": "NodeFeature",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WyRWlFebWtI=",
+				"classifierKind": "class",
+				"name": "BondOrderType",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WyPzzldwFyQ=",
+				"classifierKind": "class",
+				"name": "QmTarget",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WyIvhlW6XlE=",
+				"classifierKind": "class",
+				"name": "HydrogenMode",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8Wy990lmK/4w=",
+				"classifierKind": "class",
+				"name": "OrbitalOccupationType",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8WywzclkZ6e4=",
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WzISg1nbo/U=",
+				"classifierKind": "class",
+				"name": "ElementLookUpTable",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF8WzJvp1oIIVY=",
+						"name": "element_identifiers",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAF8WzKn+VoPEbE=",
+						"name": "get_element_identifier",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "int number",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WzLNDVoWJc8=",
+						"name": "get_atomic_number",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "str identifier",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAF8Wx8GVFUgbP4="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WwFZf0pvswE=",
+				"classifierKind": "class",
+				"name": "QmData",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAF8WwffLksb0Bg=",
+						"name": "calculate_composite_properties",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAF8Wx8GVFUgbP4="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBizn0l+/Tl7s=",
+				"classifierKind": "class",
+				"name": "NboDataPoint",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAF8Wx8GVFUgbP4="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBixn8cO1naOY=",
+				"classifierKind": "class",
+				"name": "Tools",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAGBixpeqe2Rpn0=",
+						"name": "calculate_distance_matrix",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "ls points",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGBixzu3u2lwRU=",
+						"name": "get_one_hot_encoded_feature_list",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAF8Wx8GVFUgbP4="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WwIK7ErFBTs=",
+				"classifierKind": "class",
+				"name": "FileHandler",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAF8WwQHdkrxmc8=",
+						"name": "read_file",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "str file_path",
+								"direction": "in"
+							}
+						],
+						"isStatic": true,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WwWwtksC6k4=",
+						"name": "write_file",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "str file_path",
+								"direction": "in"
+							},
+							{
+								"name": "str data",
+								"direction": "in"
+							}
+						],
+						"isStatic": true,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": [],
+				"packageId": "AAAAAAF8Wx8GVFUgbP4="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8Wx+9CVVEbRQ=",
+				"classifierKind": "class",
+				"name": "Class1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WxZJaVFq+zM=",
+				"classifierKind": "class",
+				"name": "Graph",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAF8WxivAVK6rI4=",
+						"name": "nodes",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WxjFBlLffyA=",
+						"name": "edges",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WxjUbVMEnbU=",
+						"name": "targets",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGBixNU0+0mVLY=",
+						"name": "graph_features",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAF8WxhZmlJxKy0=",
+						"name": "get_pytorch_data_object",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WxZrflG8bNg=",
+						"name": "is_connected",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WxbY5FHqoyc=",
+						"name": "get_disjoint_sub_graphs",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAF8WxcfSFIPKEE=",
+						"name": "get_adjacent_nodes",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "int node_index",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAF8WyPJ+1dFWLk=",
+				"classifierKind": "class",
+				"name": "EdgeFeature",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [],
+				"stereotype": "enumeration"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBix8wUO2v+8U=",
+				"classifierKind": "class",
+				"name": "GraphElement",
+				"isAbstract": true,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGBizHqYe3a6AM=",
+						"name": "features",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAGBizH9KO3h/X4=",
+						"name": "get_one_hot_encoded_feature_list",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBizJcre3rIu0=",
+				"classifierKind": "class",
+				"name": "Node",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGBizLUt+4V1H0=",
+						"name": "position",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGBizLuK+4cv38=",
+						"name": "label",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAGBizMCEu4jP2s=",
+				"classifierKind": "class",
+				"name": "Edge",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAGBizMXg+5NYq8=",
+						"name": "node_indices",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAGBizNXDO5VRwc=",
+						"name": "is_directed",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8Wxk+GFPLiSs=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF8WwEFu0pEeI0=",
+				"targetId": "AAAAAAF8WxZJaVFq+zM=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "notNavigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"stereotype": "production"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WxtjwFTg9U8=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwEFu0pEeI0=",
+				"targetId": "AAAAAAF8WxZJaVFq+zM=",
+				"documentation": "",
+				"stereotype": "create"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8Wxv1SVTyH1o=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwEFu0pEeI0=",
+				"targetId": "AAAAAAF8WwFZf0pvswE=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8Wx01XlUOy1o=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwEFu0pEeI0=",
+				"targetId": "AAAAAAF8Ww4mQkt7b7c=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WzQkQ1pNm+I=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwEFu0pEeI0=",
+				"targetId": "AAAAAAF8WzISg1nbo/U=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8Wwzi6ktOjyc=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwHPJkqaX2c=",
+				"targetId": "AAAAAAF8WwIK7ErFBTs=",
+				"documentation": "",
+				"stereotype": "import"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WxBsBEx1sjQ=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF8WwHPJkqaX2c=",
+				"targetId": "AAAAAAF8WwFZf0pvswE=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "notNavigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"stereotype": "produce"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8Wxs5IFTO/bM=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwHPJkqaX2c=",
+				"targetId": "AAAAAAF8WwFZf0pvswE=",
+				"documentation": "",
+				"stereotype": "create"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WxPewU3a/fw=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8Ww4mQkt7b7c=",
+				"targetId": "AAAAAAF8WwEFu0pEeI0=",
+				"documentation": "",
+				"stereotype": "import"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WxVQ0VEI5Tw=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8Ww4mQkt7b7c=",
+				"targetId": "AAAAAAF8WwIK7ErFBTs=",
+				"documentation": "",
+				"stereotype": "import"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WyW1Flf2WWI=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8Ww4mQkt7b7c=",
+				"targetId": "AAAAAAF8WyIvhlW6XlE=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WyZNSlgKnK4=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8Ww4mQkt7b7c=",
+				"targetId": "AAAAAAF8WyIvhlW6XlE=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8Wy2HbVlsbRA=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8Ww4mQkt7b7c=",
+				"targetId": "AAAAAAF8WywzclkZ6e4=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WxA67kwLEjg=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAF8WwFZf0pvswE=",
+				"targetId": "AAAAAAF8WwHPJkqaX2c=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGBiztTffAT5vw=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WwFZf0pvswE=",
+				"targetId": "AAAAAAGBizn0l+/Tl7s=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAF8WzQDilo71CQ=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WxZJaVFq+zM=",
+				"targetId": "AAAAAAF8WzISg1nbo/U=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGBizf4MO99L90=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WxZJaVFq+zM=",
+				"targetId": "AAAAAAGBizJcre3rIu0=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGBizhXk++WURo=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAF8WxZJaVFq+zM=",
+				"targetId": "AAAAAAGBizMCEu4jP2s=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGBizVS4+55Mdc=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGBizJcre3rIu0=",
+				"targetId": "AAAAAAGBix8wUO2v+8U=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAGBizVlDe6Kzko=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAGBizMCEu4jP2s=",
+				"targetId": "AAAAAAGBix8wUO2v+8U=",
+				"documentation": ""
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAF8Wx8GVFUgbP4=",
+					"AAAAAAF8WywzclkZ6e4=",
+					"AAAAAAF8WwEFu0pEeI0=",
+					"AAAAAAF8Ww4mQkt7b7c=",
+					"AAAAAAF8WxZJaVFq+zM=",
+					"AAAAAAF8WyPJ+1dFWLk=",
+					"AAAAAAF8WzISg1nbo/U=",
+					"AAAAAAF8boHIRbCDgBc=",
+					"AAAAAAGBiw2dnexRH0E=",
+					"AAAAAAGBiw+bNOyJjYc=",
+					"AAAAAAGBixAOaOy3ebg=",
+					"AAAAAAGBixD/QOzkZek=",
+					"AAAAAAF8WyOhVVcawP0=",
+					"AAAAAAF8WyRWlFebWtI=",
+					"AAAAAAF8WyPzzldwFyQ=",
+					"AAAAAAF8WyIvhlW6XlE=",
+					"AAAAAAF8Wy990lmK/4w=",
+					"AAAAAAGBix8wUO2v+8U=",
+					"AAAAAAGBizJcre3rIu0=",
+					"AAAAAAGBizMCEu4jP2s=",
+					"AAAAAAF8WwFZf0pvswE=",
+					"AAAAAAGBizn0l+/Tl7s=",
+					"AAAAAAGBixn8cO1naOY=",
+					"AAAAAAF8WwIK7ErFBTs=",
+					"AAAAAAF8WxtjwFTg9U8=",
+					"AAAAAAF8Wxv1SVTyH1o=",
+					"AAAAAAF8Wx01XlUOy1o=",
+					"AAAAAAF8Wy2HbVlsbRA=",
+					"AAAAAAF8WzQkQ1pNm+I=",
+					"AAAAAAGBizVS4+55Mdc=",
+					"AAAAAAGBizVlDe6Kzko=",
+					"AAAAAAGBizf4MO99L90=",
+					"AAAAAAGBizhXk++WURo=",
+					"AAAAAAGBiztTffAT5vw="
+				],
+				"layout": {
+					"AAAAAAF8Wx8GVFUgbP4=": {
+						"kind": "node",
+						"x": 672,
+						"y": 104,
+						"w": 1361,
+						"h": 681
+					},
+					"AAAAAAF8WywzclkZ6e4=": {
+						"kind": "node",
+						"x": 1576,
+						"y": 216,
+						"w": 441,
+						"h": 553
+					},
+					"AAAAAAF8WwEFu0pEeI0=": {
+						"kind": "node",
+						"x": 1184,
+						"y": 392,
+						"w": 257,
+						"h": 118
+					},
+					"AAAAAAF8Ww4mQkt7b7c=": {
+						"kind": "node",
+						"x": 1184,
+						"y": 704,
+						"w": 257,
+						"h": 58
+					},
+					"AAAAAAF8WxZJaVFq+zM=": {
+						"kind": "node",
+						"x": 1184,
+						"y": 160,
+						"w": 257,
+						"h": 161
+					},
+					"AAAAAAF8WyPJ+1dFWLk=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 336,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAF8WzISg1nbo/U=": {
+						"kind": "node",
+						"x": 824,
+						"y": 520,
+						"w": 225,
+						"h": 86
+					},
+					"AAAAAAF8boHIRbCDgBc=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 480,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAGBiw2dnexRH0E=": {
+						"kind": "node",
+						"x": 1808,
+						"y": 408,
+						"w": 184.525390625,
+						"h": 58
+					},
+					"AAAAAAGBiw+bNOyJjYc=": {
+						"kind": "node",
+						"x": 1808,
+						"y": 480,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAGBixAOaOy3ebg=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 624,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAGBixD/QOzkZek=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 408,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAF8WyOhVVcawP0=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 696,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAF8WyRWlFebWtI=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 264,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAF8WyPzzldwFyQ=": {
+						"kind": "node",
+						"x": 1808,
+						"y": 336,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAF8WyIvhlW6XlE=": {
+						"kind": "node",
+						"x": 1600,
+						"y": 552,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAF8Wy990lmK/4w=": {
+						"kind": "node",
+						"x": 1808,
+						"y": 264,
+						"w": 185,
+						"h": 58
+					},
+					"AAAAAAGBix8wUO2v+8U=": {
+						"kind": "node",
+						"x": 688,
+						"y": 200,
+						"w": 226.47412109375,
+						"h": 71
+					},
+					"AAAAAAGBizJcre3rIu0=": {
+						"kind": "node",
+						"x": 976,
+						"y": 152,
+						"w": 105,
+						"h": 73
+					},
+					"AAAAAAGBizMCEu4jP2s=": {
+						"kind": "node",
+						"x": 976,
+						"y": 248,
+						"w": 105,
+						"h": 73
+					},
+					"AAAAAAF8WwFZf0pvswE=": {
+						"kind": "node",
+						"x": 824,
+						"y": 424,
+						"w": 225,
+						"h": 58
+					},
+					"AAAAAAGBizn0l+/Tl7s=": {
+						"kind": "node",
+						"x": 824,
+						"y": 336,
+						"w": 113,
+						"h": 45
+					},
+					"AAAAAAGBixn8cO1naOY=": {
+						"kind": "node",
+						"x": 928,
+						"y": 688,
+						"w": 226.47412109375,
+						"h": 73
+					},
+					"AAAAAAF8WwIK7ErFBTs=": {
+						"kind": "node",
+						"x": 688,
+						"y": 688,
+						"w": 225,
+						"h": 73
+					},
+					"AAAAAAF8WxtjwFTg9U8=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF8Wxv1SVTyH1o=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF8Wx01XlUOy1o=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF8Wy2HbVlsbRA=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAF8WzQkQ1pNm+I=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "curve",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGBizVS4+55Mdc=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGBizVlDe6Kzko=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGBizf4MO99L90=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGBizhXk++WURo=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAGBiztTffAT5vw=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [],
+	"sourceRecords": 126,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 22,
+				"edges": 10,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 25,
+			"relationships": 20,
+			"packages": 2,
+			"attributes": 10,
+			"operations": 19,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [],
+		"unknownElements": 0,
+		"unknownTypes": {},
+		"warnings": []
+	}
+}

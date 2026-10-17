@@ -1,0 +1,1230 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Library System",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/TOTIaqvdo=",
+				"classifierKind": "class",
+				"name": "Book",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/UflG610Kg=",
+						"name": "ISBN",
+						"visibility": "public",
+						"multiplicity": "0..1",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFOe/VKtW68xI8=",
+						"name": "title",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFOe/VaJm7DQKo=",
+						"name": "summary",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/VtWW7KJMU=",
+						"name": "publisher",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/V0fG7RazU=",
+						"name": "publicationDate",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/WEZ27Yy1Y=",
+						"name": "numberOfPages",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/WjH27fdAY=",
+						"name": "language",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/Y5Zm7qfUo=",
+				"classifierKind": "class",
+				"name": "BookItem",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/adO3ebuYw=",
+						"name": "barcode",
+						"visibility": "public",
+						"multiplicity": "0..1",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFOe/a67Xei0ts=",
+						"name": "tag",
+						"visibility": "public",
+						"multiplicity": "0..1",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "RFID"
+					},
+					{
+						"id": "AAAAAAFOe/bav3epIRA=",
+						"name": "isReferenceOnly",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/eKT3fIJPs=",
+				"classifierKind": "class",
+				"name": "Author",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/eon3fydAE=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFOe/e2snf5Zik=",
+						"name": "biography",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/f0BXgCdmM=",
+				"classifierKind": "class",
+				"name": "Account",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/gA7XgsLJ4=",
+						"name": "number",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/gVdXgz3z4=",
+						"name": "history",
+						"visibility": "public",
+						"multiplicity": "0..*",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "History"
+					},
+					{
+						"id": "AAAAAAFOe/gt2Xg6aMw=",
+						"name": "opened",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "Date"
+					},
+					{
+						"id": "AAAAAAFOe/g5rHhBPNA=",
+						"name": "state",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "AccountState"
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/oLpYG4Rvg=",
+				"classifierKind": "class",
+				"name": "Catalog",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/pj64OV/N8=",
+				"classifierKind": "class",
+				"name": "Library",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/5LErytEZc=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/5Twr1cGlk=",
+						"name": "address",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/ro6Yr5T1o=",
+				"classifierKind": "class",
+				"name": "Patron",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/vh7Jnt3F4=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/vqhpqcqI0=",
+						"name": "address",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/szl5EjQjM=",
+				"classifierKind": "interface",
+				"name": "Search",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/s5P5H0Yk4=",
+				"classifierKind": "interface",
+				"name": "Manage",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/vIjZhDh8o=",
+				"classifierKind": "class",
+				"name": "Librarian",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFOe/v8rJvzdxs=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/wEw5yi6gQ=",
+						"name": "address",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/wND52ZsUQ=",
+						"name": "position",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFOe/xpoqIcGg0=",
+				"classifierKind": "enum",
+				"name": "AccountState",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": [
+					{
+						"id": "AAAAAAFOe/zJeaVMxL4=",
+						"name": "Active",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/zXtaX77XE=",
+						"name": "Frozen",
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFOe/zfhqbycdA=",
+						"name": "Closed",
+						"documentation": ""
+					}
+				]
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/jJyXhLSTw=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFOe/TOTIaqvdo=",
+				"targetId": "AAAAAAFOe/eKT3fIJPs=",
+				"name": "wrote",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1..*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1..*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/dY+He1mrE=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFOe/Y5Zm7qfUo=",
+				"targetId": "AAAAAAFOe/TOTIaqvdo=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/jZcXiUj98=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFOe/Y5Zm7qfUo=",
+				"targetId": "AAAAAAFOe/f0BXgCdmM=",
+				"name": "reserved",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "0..3",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/jfSXjy7gM=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFOe/Y5Zm7qfUo=",
+				"targetId": "AAAAAAFOe/f0BXgCdmM=",
+				"name": "borrowed",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "0..12",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/q42oXPyFc=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFOe/Y5Zm7qfUo=",
+				"targetId": "AAAAAAFOe/pj64OV/N8=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/rGiYaBlB0=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFOe/f0BXgCdmM=",
+				"targetId": "AAAAAAFOe/pj64OV/N8=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "accounts",
+					"multiplicity": "*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/sEyIv1kFI=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFOe/f0BXgCdmM=",
+				"targetId": "AAAAAAFOe/ro6Yr5T1o=",
+				"documentation": "",
+				"sourceEnd": {
+					"role": "account",
+					"navigable": "notNavigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/z9oKfpR6o=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFOe/f0BXgCdmM=",
+				"targetId": "AAAAAAFOe/xpoqIcGg0=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/oL4IHqPFA=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFOe/Y5Zm7qfUo=",
+				"targetId": "AAAAAAFOe/oLpYG4Rvg=",
+				"name": "records",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/qONYQ39MM=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFOe/oLpYG4Rvg=",
+				"targetId": "AAAAAAFOe/pj64OV/N8=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/udxpbRmFs=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAFOe/oLpYG4Rvg=",
+				"targetId": "AAAAAAFOe/szl5EjQjM=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/umnZeKRcM=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAFOe/oLpYG4Rvg=",
+				"targetId": "AAAAAAFOe/s5P5H0Yk4=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/wrdp6QT88=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFOe/ro6Yr5T1o=",
+				"targetId": "AAAAAAFOe/szl5EjQjM=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/wz059JEqE=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFOe/vIjZhDh8o=",
+				"targetId": "AAAAAAFOe/szl5EjQjM=",
+				"documentation": "",
+				"stereotype": "use"
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFOe/w9FKAC2F0=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFOe/vIjZhDh8o=",
+				"targetId": "AAAAAAFOe/s5P5H0Yk4=",
+				"documentation": "",
+				"stereotype": "use"
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFOe/TOTIaqvdo=",
+					"AAAAAAFOe/Y5Zm7qfUo=",
+					"AAAAAAFOe/eKT3fIJPs=",
+					"AAAAAAFOe/f0BXgCdmM=",
+					"AAAAAAFOe/oLpYG4Rvg=",
+					"AAAAAAFOe/pj64OV/N8=",
+					"AAAAAAFOe/ro6Yr5T1o=",
+					"AAAAAAFOe/szl5EjQjM=",
+					"AAAAAAFOe/s5P5H0Yk4=",
+					"AAAAAAFOe/vIjZhDh8o=",
+					"AAAAAAFOe/xpoqIcGg0=",
+					"AAAAAAFOe/dY+He1mrE=",
+					"AAAAAAFOe/jJyXhLSTw=",
+					"AAAAAAFOe/jZcXiUj98=",
+					"AAAAAAFOe/jfSXjy7gM=",
+					"AAAAAAFOe/oL4IHqPFA=",
+					"AAAAAAFOe/qONYQ39MM=",
+					"AAAAAAFOe/q42oXPyFc=",
+					"AAAAAAFOe/rGiYaBlB0=",
+					"AAAAAAFOe/sEyIv1kFI=",
+					"AAAAAAFOe/udxpbRmFs=",
+					"AAAAAAFOe/umnZeKRcM=",
+					"AAAAAAFOe/wrdp6QT88=",
+					"AAAAAAFOe/wz059JEqE=",
+					"AAAAAAFOe/w9FKAC2F0=",
+					"AAAAAAFOe/z9oKfpR6o="
+				],
+				"layout": {
+					"AAAAAAFOe/TOTIaqvdo=": {
+						"kind": "node",
+						"x": 56,
+						"y": 48,
+						"w": 144.76708984375,
+						"h": 148,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/Y5Zm7qfUo=": {
+						"kind": "node",
+						"x": 48,
+						"y": 272,
+						"w": 167.6884765625,
+						"h": 101,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/eKT3fIJPs=": {
+						"kind": "node",
+						"x": 376,
+						"y": 64,
+						"w": 124.68310546875,
+						"h": 73,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/f0BXgCdmM=": {
+						"kind": "node",
+						"x": 344,
+						"y": 272,
+						"w": 145,
+						"h": 103,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/oLpYG4Rvg=": {
+						"kind": "node",
+						"x": 56,
+						"y": 608,
+						"w": 133,
+						"h": 41,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/pj64OV/N8=": {
+						"kind": "node",
+						"x": 352,
+						"y": 440,
+						"w": 121,
+						"h": 73,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/ro6Yr5T1o=": {
+						"kind": "node",
+						"x": 592,
+						"y": 472,
+						"w": 97,
+						"h": 73,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/szl5EjQjM=": {
+						"kind": "node",
+						"x": 328,
+						"y": 576,
+						"w": 105,
+						"h": 49,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/s5P5H0Yk4=": {
+						"kind": "node",
+						"x": 328,
+						"y": 648,
+						"w": 105,
+						"h": 49,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/vIjZhDh8o=": {
+						"kind": "node",
+						"x": 592,
+						"y": 608,
+						"w": 74,
+						"h": 88,
+						"flags": {
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/xpoqIcGg0=": {
+						"kind": "node",
+						"x": 624,
+						"y": 184,
+						"w": 103.5517578125,
+						"h": 91,
+						"flags": {
+							"suppressAttributes": true,
+							"suppressOperations": true
+						}
+					},
+					"AAAAAAFOe/dY+He1mrE=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFOe/jJyXhLSTw=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/jZcXiUj98=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/jfSXjy7gM=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/oL4IHqPFA=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": -1.673003155672643,
+								"distance": 39.20459156782532
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/qONYQ39MM=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 136,
+								"y": 488
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/q42oXPyFc=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 136,
+								"y": 464
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/rGiYaBlB0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 1.236059405416543,
+								"distance": 48.703182647543684
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.6823163299191961,
+								"distance": 20.615528128088304
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": -5.421015336291391,
+								"distance": 27.65863337187866
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/sEyIv1kFI=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 640,
+								"y": 336
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": -0.36172915206308437,
+								"distance": 39.56008088970496
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFOe/udxpbRmFs=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFOe/umnZeKRcM=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFOe/wrdp6QT88=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFOe/wz059JEqE=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFOe/w9FKAC2F0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFOe/z9oKfpR6o=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 560,
+								"y": 301
+							},
+							{
+								"x": 560,
+								"y": 224
+							}
+						],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "Hyperlink",
+			"id": "AAAAAAFOxSKAXlhyDRs=",
+			"parentId": "AAAAAAFF+qBWK6M3Z8Y=",
+			"path": "ownedElements",
+			"index": 12
+		},
+		{
+			"type": "UMLFrameView",
+			"id": "AAAAAAFOpUt5H7+dKFs=",
+			"parentId": "AAAAAAFF+qBtyKM79qY=",
+			"path": "ownedViews",
+			"index": 26
+		},
+		{
+			"type": "HyperlinkView",
+			"id": "AAAAAAFOxSKAX1h0RQ8=",
+			"parentId": "AAAAAAFF+qBtyKM79qY=",
+			"path": "ownedViews",
+			"index": 27
+		}
+	],
+	"sourceRecords": 81,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 11,
+				"edges": 15,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 2
+			}
+		],
+		"model": {
+			"classifiers": 11,
+			"relationships": 15,
+			"packages": 0,
+			"attributes": 23,
+			"operations": 0,
+			"literals": 3,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [],
+		"unknownElements": 3,
+		"unknownTypes": {
+			"Hyperlink": 1,
+			"UMLFrameView": 1,
+			"HyperlinkView": 1
+		},
+		"warnings": []
+	}
+}

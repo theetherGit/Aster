@@ -1,0 +1,804 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "package",
+				"id": "AAAAAAFcg5+8SNb1B2w=",
+				"name": "Model1",
+				"memberIds": [
+					"AAAAAAFcg5/t9db6qiE=",
+					"AAAAAAFcg6PQ39dNIPI=",
+					"AAAAAAFcg6lQFdesigM=",
+					"AAAAAAFcg7BOg9gWX0M=",
+					"AAAAAAFcg7Vaath1dsA="
+				],
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcg5/t9db6qiE=",
+				"classifierKind": "class",
+				"name": "User",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFcg6BIU9cm9sI=",
+						"name": "id",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg6Eiftc2NdA=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg6Ck8dcuAZM=",
+						"name": "email",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg6QZJNd3ke0=",
+						"name": "password",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFcg5+8SNb1B2w="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcg6PQ39dNIPI=",
+				"classifierKind": "class",
+				"name": "Game",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFcg6ZxbdeFRZ0=",
+						"name": "id",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg6Sydtd+8iA=",
+						"name": "url_image",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg6cbdteOYDA=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg6evN9eWnws=",
+						"name": "channels",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg6fw0tedNHY=",
+						"name": "viewers",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg6j8M9ek5YQ=",
+						"name": "popularity int",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFcg5+8SNb1B2w="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcg6lQFdesigM=",
+				"classifierKind": "class",
+				"name": "Video",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFcg6mHA9fWYOo=",
+						"name": "id",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg61sFtfecn0=",
+						"name": "id_twitch",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg63potfmhRk=",
+						"name": "game",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg65UZ9ftp84=",
+						"name": "viewers",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg65YYdfzReI=",
+						"name": "created_at",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "dateTime"
+					},
+					{
+						"id": "AAAAAAFcg65cmdf5d90=",
+						"name": "id_channel",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFcg5+8SNb1B2w="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcg7BOg9gWX0M=",
+				"classifierKind": "class",
+				"name": "Channel",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFcg7Cko9hC0lY=",
+						"name": "id",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg7MNXNhJDCg=",
+						"name": "_id_channel",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg7Q3uthQbWM=",
+						"name": "logo",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg7R4nNhX3x0=",
+						"name": "name",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg7SwANheNw8=",
+						"name": "url",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg7Uamthl+g8=",
+						"name": "view",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFcg5+8SNb1B2w="
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcg7Vaath1dsA=",
+				"classifierKind": "class",
+				"name": "Message",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFcg7WpfdifrdE=",
+						"name": "id",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg7k9VNimyzM=",
+						"name": "body",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "string"
+					},
+					{
+						"id": "AAAAAAFcg7oFzdit/EY=",
+						"name": "id_user",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "int"
+					},
+					{
+						"id": "AAAAAAFcg7rCuti0OJk=",
+						"name": "created_at",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "dateTime"
+					}
+				],
+				"operations": [],
+				"literals": [],
+				"packageId": "AAAAAAFcg5+8SNb1B2w="
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcg7s/Sti8XEU=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFcg5/t9db6qiE=",
+				"targetId": "AAAAAAFcg6PQ39dNIPI=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcg7xvVdlOGxA=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFcg5/t9db6qiE=",
+				"targetId": "AAAAAAFcg6PQ39dNIPI=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1..*",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1..*",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcg708d9mry9s=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFcg6lQFdesigM=",
+				"targetId": "AAAAAAFcg6PQ39dNIPI=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "0..*",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcg74Gn9pheh0=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFcg6lQFdesigM=",
+				"targetId": "AAAAAAFcg7BOg9gWX0M=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcg74O+NrCmE8=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFcg7BOg9gWX0M=",
+				"targetId": "AAAAAAFcg7Vaath1dsA=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1..*",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcg74YWNsyWvA=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFcg7Vaath1dsA=",
+				"targetId": "AAAAAAFcg5/t9db6qiE=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "0..*",
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [],
+				"layout": {},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAFcg5+8Stb2/uM=",
+				"name": "MCD",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFcg5/t9db6qiE=",
+					"AAAAAAFcg6PQ39dNIPI=",
+					"AAAAAAFcg6lQFdesigM=",
+					"AAAAAAFcg7BOg9gWX0M=",
+					"AAAAAAFcg7Vaath1dsA=",
+					"AAAAAAFcg7xvVdlOGxA=",
+					"AAAAAAFcg708d9mry9s=",
+					"AAAAAAFcg74Gn9pheh0=",
+					"AAAAAAFcg74O+NrCmE8=",
+					"AAAAAAFcg74YWNsyWvA="
+				],
+				"layout": {
+					"AAAAAAFcg5/t9db6qiE=": {
+						"kind": "node",
+						"x": 104,
+						"y": 112,
+						"w": 153,
+						"h": 169,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcg6PQ39dNIPI=": {
+						"kind": "node",
+						"x": 392,
+						"y": 80,
+						"w": 144,
+						"h": 168,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcg6lQFdesigM=": {
+						"kind": "node",
+						"x": 648,
+						"y": 144,
+						"w": 140.43798828125,
+						"h": 163,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcg7BOg9gWX0M=": {
+						"kind": "node",
+						"x": 528,
+						"y": 368,
+						"w": 137,
+						"h": 177,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcg7Vaath1dsA=": {
+						"kind": "node",
+						"x": 224,
+						"y": 360,
+						"w": 140.43798828125,
+						"h": 184,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcg7xvVdlOGxA=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcg708d9mry9s=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcg74Gn9pheh0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcg74O+NrCmE8=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcg74YWNsyWvA=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [],
+	"sourceRecords": 52,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 0,
+				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			},
+			{
+				"id": "AAAAAAFcg5+8Stb2/uM=",
+				"name": "MCD",
+				"nodes": 5,
+				"edges": 5,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 5,
+			"relationships": 6,
+			"packages": 1,
+			"attributes": 26,
+			"operations": 0,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [],
+		"unknownElements": 0,
+		"unknownTypes": {},
+		"warnings": []
+	}
+}

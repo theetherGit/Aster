@@ -1,0 +1,690 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFjY6HKKdEjP+Q=",
+				"classifierKind": "class",
+				"name": "SafeCreation",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFjY6IvftFO+jk=",
+						"name": "owners",
+						"visibility": "public",
+						"multiplicity": "1..*",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjY6Lb1NFVU6k=",
+						"name": "threshold",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjY6Mi2tFdm9w=",
+						"name": "gas_price",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjY6Nig9FkSv0=",
+						"name": "gas",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZWLVb9fXtHo=",
+						"name": "tx_hash",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZWlj/dg/20w=",
+						"name": "deployer",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjggzVzCZDMts=",
+						"name": "signed_tx",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjjJ4EBGDxkSY=",
+						"name": "v",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjjJ4gSGEouXY=",
+						"name": "r",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjjJ4o7WFN8H4=",
+						"name": "s",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFjZWGdDtePF7Y=",
+						"name": "sendETHtoDeployer",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFjZVkWXtFy5Gw=",
+				"classifierKind": "class",
+				"name": "SafeContract",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFjZVmJx9Gf9mM=",
+						"name": "address",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFjggvgYCTn+0Y=",
+						"name": "getBalance",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFjZVzBLtLf25I=",
+				"classifierKind": "class",
+				"name": "SafeTransaction",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFjZV2FvtR32t8=",
+						"name": "value",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZV2RMtScPXE=",
+						"name": "data",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZV2cotTB0YQ=",
+						"name": "signatures",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZV3BwNTmOho=",
+						"name": "type",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZV3XNNULrZI=",
+						"name": "gas",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZV43UtVOUNQ=",
+						"name": "gas_price",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjjKIIqWRtn+4=",
+						"name": "to",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": true,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjjK4S5mTt274=",
+						"name": "dataGas",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjjK4wrWUk2Ww=",
+						"name": "safe_tx_gas",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+iRoc9s1veE=",
+						"name": "operation",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+ieBzdxeKrs=",
+						"name": "tx_hash",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+ieg3tzsyws=",
+						"name": "tx_mined",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFjZWA5dtaEsV4=",
+						"name": "send",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZWChPNbHHWo=",
+						"name": "estimate",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFjZWELDNcia5k=",
+						"name": "setGasOptions",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFj+h0pz9JBqIo=",
+				"classifierKind": "class",
+				"name": "SafeFunding",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFj+h1iF9KzWdE=",
+						"name": "safe_funded",
+						"visibility": "public",
+						"defaultValue": "false",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+h2QdtLkZmM=",
+						"name": "deployer_funded",
+						"visibility": "public",
+						"defaultValue": "false",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+h5gNNOKC3w=",
+						"name": "deployer_funded_tx_hash",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+h74ONRw0a4=",
+						"name": "safe_deployed",
+						"visibility": "public",
+						"defaultValue": "false",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+h8cydShy4E=",
+						"name": "safe_deployed_tx_hash",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": ""
+					}
+				],
+				"operations": [
+					{
+						"id": "AAAAAAFj+h++D9W9fl4=",
+						"name": "is_all_funded",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFj+iApv9XuCiQ=",
+						"name": "status",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFjZVyxCNKWAqg=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFjZVkWXtFy5Gw=",
+				"targetId": "AAAAAAFjY6HKKdEjP+Q=",
+				"name": "safeAddress",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFjZV0L3dNQLnU=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFjZVkWXtFy5Gw=",
+				"targetId": "AAAAAAFjZVzBLtLf25I=",
+				"name": "safeAddress",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "0..*",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFj+iFw2NfdgDQ=",
+				"relationshipKind": "association",
+				"sourceId": "AAAAAAFjZVkWXtFy5Gw=",
+				"targetId": "AAAAAAFj+h0pz9JBqIo=",
+				"documentation": "",
+				"sourceEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"multiplicity": "1",
+					"navigable": "unspecified",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFjY6G3Z9EfZ3Q=",
+				"name": "Models",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFjY6HKKdEjP+Q=",
+					"AAAAAAFjZVkWXtFy5Gw=",
+					"AAAAAAFjZVzBLtLf25I=",
+					"AAAAAAFj+h0pz9JBqIo=",
+					"AAAAAAFjZVyxCNKWAqg=",
+					"AAAAAAFjZV0L3dNQLnU=",
+					"AAAAAAFj+iFw2NfdgDQ="
+				],
+				"layout": {
+					"AAAAAAFjY6HKKdEjP+Q=": {
+						"kind": "node",
+						"x": 8,
+						"y": 224,
+						"w": 204,
+						"h": 206
+					},
+					"AAAAAAFjZVkWXtFy5Gw=": {
+						"kind": "node",
+						"x": 272,
+						"y": 24,
+						"w": 91.30078125,
+						"h": 71
+					},
+					"AAAAAAFjZVzBLtLf25I=": {
+						"kind": "node",
+						"x": 592,
+						"y": 200,
+						"w": 142.615234375,
+						"h": 266
+					},
+					"AAAAAAFj+h0pz9JBqIo=": {
+						"kind": "node",
+						"x": 272,
+						"y": 224,
+						"w": 218.5458984375,
+						"h": 161
+					},
+					"AAAAAAFjZVyxCNKWAqg=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": -1.0246964743925102,
+								"distance": 80.00624975587844
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFjZV0L3dNQLnU=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.1520850297798637,
+								"distance": 52.88667128870941
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFj+iFw2NfdgDQ=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "UMLCollaboration",
+			"id": "AAAAAAFjYxrX1s9jJVs=",
+			"parentId": "AAAAAAFF+h6SjaM2Hec=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLConstraint",
+			"id": "AAAAAAFjZVmwUNGmcmo=",
+			"parentId": "AAAAAAFjZVmJx9Gf9mM=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLCollaboration",
+			"id": "AAAAAAFjZXeWS+imsis=",
+			"parentId": "AAAAAAFF+h6SjaM2Hec=",
+			"path": "ownedElements",
+			"index": 2
+		}
+	],
+	"sourceRecords": 52,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFjY6G3Z9EfZ3Q=",
+				"name": "Models",
+				"nodes": 4,
+				"edges": 3,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 4,
+			"relationships": 3,
+			"packages": 0,
+			"attributes": 28,
+			"operations": 7,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [
+			{
+				"type": "UMLSequenceDiagram",
+				"name": "SafeCreation"
+			},
+			{
+				"type": "UMLSequenceDiagram",
+				"name": "getCreationTX"
+			}
+		],
+		"unknownElements": 3,
+		"unknownTypes": {
+			"UMLCollaboration": 2,
+			"UMLConstraint": 1
+		},
+		"warnings": []
+	}
+}

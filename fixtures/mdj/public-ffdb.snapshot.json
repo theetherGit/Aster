@@ -1,0 +1,962 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcDOHrgTTz3Ug=",
+				"classifierKind": "class",
+				"name": "FFDataBaseModel",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFcFwlXmd7Ulkk=",
+						"name": "insert",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+mF09aBtv8=",
+						"name": "update",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+rU69kSyZg=",
+						"name": "select",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+sAydmovyQ=",
+						"name": "delete",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG/d87eh9gI4=",
+						"name": "Sqlstatement",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcDOOYNDXNWoc=",
+				"classifierKind": "class",
+				"name": "FFDBSafeOperation",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFcG+7iv+ueE38=",
+						"name": "insert",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+78aeufM4I=",
+						"name": "update",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+8Zy+ugEAA=",
+						"name": "select",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+8om+uhR2A=",
+						"name": "delete",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcDOQ6ODX4BkU=",
+				"classifierKind": "class",
+				"name": "FFDBTransaction",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFcG++FbuuiMXs=",
+						"name": "insert",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG++aD+ujGSI=",
+						"name": "update",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG++vMOukeog=",
+						"name": "select",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					},
+					{
+						"id": "AAAAAAFcG+/W3uulKgg=",
+						"name": "delete",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcFv5zcN1rnRs=",
+				"classifierKind": "class",
+				"name": "FFDBManager",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFcFw8pnt8puz4=",
+						"name": "databasePath",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcFwGXit2X0L8=",
+				"classifierKind": "class",
+				"name": "NSObject",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFcFwhV6d7Jd1s=",
+						"name": "propertyOfSelf",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcFwH5Xt3VgkE=",
+				"classifierKind": "class",
+				"name": "Class1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAFcFyQareAI2Bc=",
+				"name": "Model1",
+				"memberIds": [],
+				"documentation": ""
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcG+H4FMoc2O4=",
+				"classifierKind": "interface",
+				"name": "Interface1",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcG+cS8c+Xq14=",
+				"classifierKind": "class",
+				"name": "FMDB",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFcG/URPeWj+gU=",
+				"classifierKind": "class",
+				"name": "Sqlite",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAFcG/sXevDfJOA=",
+				"name": "Model2",
+				"memberIds": [],
+				"documentation": ""
+			},
+			{
+				"kind": "package",
+				"id": "AAAAAAFcG/scifFSeV8=",
+				"name": "Model3",
+				"memberIds": [],
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcFwGX1t3Afj8=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcFwGXit2X0L8=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcFw3lHN8RiJ8=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcFv5zcN1rnRs=",
+				"name": "databasePath",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9oG48eTy4s=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcFv5zcN1rnRs=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9yHpcgW26c=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcFv5zcN1rnRs=",
+				"name": "FMDatabase *db",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9+j18laZQQ=",
+				"relationshipKind": "realization",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcFwGXit2X0L8=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG+gEONGNEBo=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcG+cS8c+Xq14=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9aEMsVFy0c=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcDOOYNDXNWoc=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9fN2cXICqg=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFcDOOYNDXNWoc=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG933iMgrQFk=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFcDOOYNDXNWoc=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG+flSNBxGfg=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFcDOOYNDXNWoc=",
+				"targetId": "AAAAAAFcG+cS8c+Xq14=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9aSk8VW480=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcDOQ6ODX4BkU=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9fbVsYaEls=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFcDOQ6ODX4BkU=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG94E28hupWI=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFcDOQ6ODX4BkU=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG+fVBNAQ8Fo=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFcDOQ6ODX4BkU=",
+				"targetId": "AAAAAAFcG+cS8c+Xq14=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcFw0ZcN7bYdk=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcFv5zcN1rnRs=",
+				"targetId": "AAAAAAFcFv5zcN1rnRs=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcFw1dWN70m98=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcDOHrgTTz3Ug=",
+				"targetId": "AAAAAAFcFv5zcN1rnRs=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9e06sV/qKs=",
+				"relationshipKind": "aggregation",
+				"sourceId": "AAAAAAFcFv5zcN1rnRs=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9hmmMcmFJ8=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFcFv5zcN1rnRs=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG9xujMf9NQM=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFcFv5zcN1rnRs=",
+				"targetId": "AAAAAAFcDOHrgTTz3Ug=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFcG+fx9tDh00Y=",
+				"relationshipKind": "composition",
+				"sourceId": "AAAAAAFcFv5zcN1rnRs=",
+				"targetId": "AAAAAAFcG+cS8c+Xq14=",
+				"documentation": "",
+				"sourceEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				},
+				"targetEnd": {
+					"navigable": "navigable",
+					"visibility": "public",
+					"isDerived": false,
+					"ownsOther": false
+				}
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFcDOHrgTTz3Ug=",
+					"AAAAAAFcDOOYNDXNWoc=",
+					"AAAAAAFcDOQ6ODX4BkU=",
+					"AAAAAAFcFv5zcN1rnRs=",
+					"AAAAAAFcFwGXit2X0L8=",
+					"AAAAAAFcG+cS8c+Xq14=",
+					"AAAAAAFcG9yHpcgW26c=",
+					"AAAAAAFcG933iMgrQFk=",
+					"AAAAAAFcG94E28hupWI=",
+					"AAAAAAFcG9+j18laZQQ=",
+					"AAAAAAFcG+fVBNAQ8Fo=",
+					"AAAAAAFcG+flSNBxGfg=",
+					"AAAAAAFcG+fx9tDh00Y=",
+					"AAAAAAFcG+gEONGNEBo="
+				],
+				"layout": {
+					"AAAAAAFcDOHrgTTz3Ug=": {
+						"kind": "node",
+						"x": 224,
+						"y": 272,
+						"w": 127.15234375,
+						"h": 118,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcDOOYNDXNWoc=": {
+						"kind": "node",
+						"x": 408,
+						"y": 272,
+						"w": 138.32421875,
+						"h": 103,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcDOQ6ODX4BkU=": {
+						"kind": "node",
+						"x": 32,
+						"y": 272,
+						"w": 125,
+						"h": 103,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcFv5zcN1rnRs=": {
+						"kind": "node",
+						"x": 656,
+						"y": 216,
+						"w": 109.7216796875,
+						"h": 58,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcFwGXit2X0L8=": {
+						"kind": "node",
+						"x": 232,
+						"y": 96,
+						"w": 110,
+						"h": 58,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcG+cS8c+Xq14=": {
+						"kind": "node",
+						"x": 336,
+						"y": 480,
+						"w": 131,
+						"h": 57,
+						"fill": "#ffffff",
+						"line": "#000000"
+					},
+					"AAAAAAFcG9yHpcgW26c=": {
+						"kind": "edge",
+						"waypoints": [
+							{
+								"x": 288,
+								"y": 244
+							}
+						],
+						"lineStyle": "rectilinear",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 0.04051834974361604,
+								"distance": 148.12157169028418
+							}
+						}
+					},
+					"AAAAAAFcG933iMgrQFk=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "rectilinear",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcG94E28hupWI=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "rectilinear",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcG9+j18laZQQ=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFcG+fVBNAQ8Fo=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcG+flSNBxGfg=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcG+fx9tDh00Y=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAFcG+gEONGNEBo=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [],
+	"sourceRecords": 64,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 6,
+				"edges": 8,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 9,
+			"relationships": 20,
+			"packages": 3,
+			"attributes": 0,
+			"operations": 15,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [],
+		"unknownElements": 0,
+		"unknownTypes": {},
+		"warnings": []
+	}
+}

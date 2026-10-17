@@ -1,0 +1,801 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanXs6f+nek5U=",
+				"classifierKind": "class",
+				"name": "CloudProviderFactory",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFanXvd0uoJmcc=",
+						"name": "getCloudProviderCmdExecutor",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "String providerName",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "CommandExecutor"
+					}
+				],
+				"literals": [],
+				"stereotype": "abstract"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanXz8tuoVqqQ=",
+				"classifierKind": "class",
+				"name": "CommandExecutor",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFanX1hLuo/ZOo=",
+						"name": "executeCommand",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "Command cmd",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "Response"
+					}
+				],
+				"literals": [],
+				"stereotype": "interface"
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanX3sHepKoBY=",
+				"classifierKind": "class",
+				"name": "AWSCommandExecutor",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanX48Z+qGZo8=",
+				"classifierKind": "class",
+				"name": "AzureCommandExecutor",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanYOue+rYwsQ=",
+				"classifierKind": "class",
+				"name": "DockerTask",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFanYQwMesC6cc=",
+						"name": "execute",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanYWozese/is=",
+				"classifierKind": "class",
+				"name": "ConsumerLoop",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanYYR5+tJt6A=",
+				"classifierKind": "class",
+				"name": "JobManager",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFanYb+yeuG2QI=",
+						"name": "startScheduler",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanYdFIuuNMIk=",
+				"classifierKind": "class",
+				"name": "MessageProcessorJob",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFanYjJBuvOCE0=",
+						"name": "execute",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFancdFMe5y1zk=",
+				"classifierKind": "class",
+				"name": "Message",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFancdq+e6cQx8=",
+						"name": "msg",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFancePu+6jb98=",
+						"name": "userEmail",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFancfGou6q8Yc=",
+						"name": "userName",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFancfeq+6xT7A=",
+						"name": "userId",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFancf+DO64SH8=",
+						"name": "content",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFancgTm+6/VuI=",
+						"name": "intent",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanchhde7Gyt8=",
+				"classifierKind": "class",
+				"name": "SlackMessage",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [
+					{
+						"id": "AAAAAAFancjhwe8Er6M=",
+						"name": "slackBotToken",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					},
+					{
+						"id": "AAAAAAFanckjg+8MeiY=",
+						"name": "channelId",
+						"visibility": "public",
+						"isStatic": false,
+						"isReadOnly": false,
+						"isDerived": false,
+						"documentation": "",
+						"type": "String"
+					}
+				],
+				"operations": [],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFancomgO8anx8=",
+				"classifierKind": "class",
+				"name": "MessageProducer",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFancpcoO9Eol4=",
+						"name": "sendMessage",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "String topic",
+								"direction": "in"
+							},
+							{
+								"name": "String msg",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "classifier",
+				"id": "AAAAAAFanctvs+9Te94=",
+				"classifierKind": "class",
+				"name": "MessageListener",
+				"isAbstract": false,
+				"isLeaf": false,
+				"visibility": "public",
+				"documentation": "",
+				"attributes": [],
+				"operations": [
+					{
+						"id": "AAAAAAFancunS+9+GL0=",
+						"name": "registerListener",
+						"visibility": "public",
+						"parameters": [
+							{
+								"name": "SlackSession",
+								"direction": "in"
+							}
+						],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": "",
+						"returnType": "void"
+					},
+					{
+						"id": "AAAAAAFancwIeu+JunU=",
+						"name": "processUserMessage",
+						"visibility": "public",
+						"parameters": [],
+						"isStatic": false,
+						"isAbstract": false,
+						"isQuery": false,
+						"documentation": ""
+					}
+				],
+				"literals": []
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanYNG2+rGEyo=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanXs6f+nek5U=",
+				"targetId": "AAAAAAFanXz8tuoVqqQ=",
+				"name": "creates",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanYSI3OsKScY=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanXz8tuoVqqQ=",
+				"targetId": "AAAAAAFanYOue+rYwsQ=",
+				"name": "invokes",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanX4rjOp1Zfg=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFanX3sHepKoBY=",
+				"targetId": "AAAAAAFanXz8tuoVqqQ=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanX6L9OqwmF0=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFanX48Z+qGZo8=",
+				"targetId": "AAAAAAFanXz8tuoVqqQ=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanYaQtet0jkU=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanYWozese/is=",
+				"targetId": "AAAAAAFanYYR5+tJt6A=",
+				"name": "initializes",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanYfZAeu5n1M=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanYWozese/is=",
+				"targetId": "AAAAAAFanYdFIuuNMIk=",
+				"name": "triggers",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanYnLruvWrIY=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanYdFIuuNMIk=",
+				"targetId": "AAAAAAFanXs6f+nek5U=",
+				"name": "uses",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanci02u7xcKM=",
+				"relationshipKind": "generalization",
+				"sourceId": "AAAAAAFanchhde7Gyt8=",
+				"targetId": "AAAAAAFancdFMe5y1zk=",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanc46Pe+V1NQ=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanctvs+9Te94=",
+				"targetId": "AAAAAAFancdFMe5y1zk=",
+				"name": "creates",
+				"documentation": ""
+			},
+			{
+				"kind": "relationship",
+				"id": "AAAAAAFanc5vvu+nmZs=",
+				"relationshipKind": "dependency",
+				"sourceId": "AAAAAAFanctvs+9Te94=",
+				"targetId": "AAAAAAFancomgO8anx8=",
+				"name": "invokes",
+				"documentation": ""
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "cp_class_diag",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFanXs6f+nek5U=",
+					"AAAAAAFanXz8tuoVqqQ=",
+					"AAAAAAFanX3sHepKoBY=",
+					"AAAAAAFanX48Z+qGZo8=",
+					"AAAAAAFanYOue+rYwsQ=",
+					"AAAAAAFanYWozese/is=",
+					"AAAAAAFanYYR5+tJt6A=",
+					"AAAAAAFanYdFIuuNMIk=",
+					"AAAAAAFanX4rjOp1Zfg=",
+					"AAAAAAFanX6L9OqwmF0=",
+					"AAAAAAFanYNG2+rGEyo=",
+					"AAAAAAFanYSI3OsKScY=",
+					"AAAAAAFanYaQtet0jkU=",
+					"AAAAAAFanYfZAeu5n1M=",
+					"AAAAAAFanYnLruvWrIY="
+				],
+				"layout": {
+					"AAAAAAFanXs6f+nek5U=": {
+						"kind": "node",
+						"x": 40,
+						"y": 248,
+						"w": 441,
+						"h": 71,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanXz8tuoVqqQ=": {
+						"kind": "node",
+						"x": 120,
+						"y": 376,
+						"w": 285,
+						"h": 71,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanX3sHepKoBY=": {
+						"kind": "node",
+						"x": 64,
+						"y": 512,
+						"w": 159,
+						"h": 45,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanX48Z+qGZo8=": {
+						"kind": "node",
+						"x": 264,
+						"y": 512,
+						"w": 165,
+						"h": 45,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanYOue+rYwsQ=": {
+						"kind": "node",
+						"x": 480,
+						"y": 384,
+						"w": 89,
+						"h": 58,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanYWozese/is=": {
+						"kind": "node",
+						"x": 416,
+						"y": 144,
+						"w": 106,
+						"h": 45,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanYYR5+tJt6A=": {
+						"kind": "node",
+						"x": 616,
+						"y": 144,
+						"w": 110,
+						"h": 58,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanYdFIuuNMIk=": {
+						"kind": "node",
+						"x": 608,
+						"y": 256,
+						"w": 150,
+						"h": 58,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanX4rjOp1Zfg=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanX6L9OqwmF0=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanYNG2+rGEyo=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanYSI3OsKScY=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanYaQtet0jkU=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanYfZAeu5n1M=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanYnLruvWrIY=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			},
+			{
+				"id": "AAAAAAFancaIf+5uCK0=",
+				"name": "slackbot_class_diag",
+				"diagramKind": "class",
+				"elementIds": [
+					"AAAAAAFancdFMe5y1zk=",
+					"AAAAAAFanchhde7Gyt8=",
+					"AAAAAAFancomgO8anx8=",
+					"AAAAAAFanctvs+9Te94=",
+					"AAAAAAFanci02u7xcKM=",
+					"AAAAAAFanc46Pe+V1NQ=",
+					"AAAAAAFanc5vvu+nmZs="
+				],
+				"layout": {
+					"AAAAAAFancdFMe5y1zk=": {
+						"kind": "node",
+						"x": 176,
+						"y": 264,
+						"w": 119,
+						"h": 133,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanchhde7Gyt8=": {
+						"kind": "node",
+						"x": 160,
+						"y": 456,
+						"w": 147,
+						"h": 73,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFancomgO8anx8=": {
+						"kind": "node",
+						"x": 448,
+						"y": 256,
+						"w": 276,
+						"h": 58,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanctvs+9Te94=": {
+						"kind": "node",
+						"x": 272,
+						"y": 136,
+						"w": 227,
+						"h": 73,
+						"fill": "#ffffd8",
+						"line": "#000000"
+					},
+					"AAAAAAFanci02u7xcKM=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanc46Pe+V1NQ=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					},
+					"AAAAAAFanc5vvu+nmZs=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"line": "#000000",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "UMLCollaboration",
+			"id": "AAAAAAFanZiEGuvqQx8=",
+			"parentId": "AAAAAAFF+qBWK6M3Z8Y=",
+			"path": "ownedElements",
+			"index": 9
+		}
+	],
+	"sourceRecords": 73,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "cp_class_diag",
+				"nodes": 8,
+				"edges": 7,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			},
+			{
+				"id": "AAAAAAFancaIf+5uCK0=",
+				"name": "slackbot_class_diag",
+				"nodes": 4,
+				"edges": 3,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 12,
+			"relationships": 10,
+			"packages": 0,
+			"attributes": 8,
+			"operations": 8,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [
+			{
+				"type": "UMLSequenceDiagram",
+				"name": "Slack ChatBot Sequence"
+			}
+		],
+		"unknownElements": 1,
+		"unknownTypes": {
+			"UMLCollaboration": 1
+		},
+		"warnings": []
+	}
+}

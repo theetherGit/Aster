@@ -1,0 +1,111 @@
+{
+	"project": {
+		"id": "AAAAAAFF+h6SjaM2Hec=",
+		"name": "Untitled",
+		"elements": [
+			{
+				"kind": "package",
+				"id": "AAAAAAGV9yrUp7Hp4MU=",
+				"name": "Model1",
+				"memberIds": [],
+				"documentation": ""
+			}
+		],
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"diagramKind": "class",
+				"elementIds": [],
+				"layout": {},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
+			}
+		]
+	},
+	"unknown": [
+		{
+			"type": "UMLObjectDiagram",
+			"id": "AAAAAAGV9yrUp7HqaCA=",
+			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
+			"path": "ownedElements",
+			"index": 0
+		},
+		{
+			"type": "UMLObject",
+			"id": "AAAAAAGV9yyfALHuqdM=",
+			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
+			"path": "ownedElements",
+			"index": 1
+		},
+		{
+			"type": "UMLObject",
+			"id": "AAAAAAGV9yzOeLIMdEw=",
+			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
+			"path": "ownedElements",
+			"index": 2
+		},
+		{
+			"type": "UMLObject",
+			"id": "AAAAAAGV9y0JbrIrNMk=",
+			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
+			"path": "ownedElements",
+			"index": 3
+		},
+		{
+			"type": "UMLObject",
+			"id": "AAAAAAGV9y1hTrJLN1k=",
+			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
+			"path": "ownedElements",
+			"index": 4
+		}
+	],
+	"sourceRecords": 4,
+	"report": {
+		"diagrams": [
+			{
+				"id": "AAAAAAFF+qBtyKM79qY=",
+				"name": "Main",
+				"nodes": 0,
+				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			}
+		],
+		"model": {
+			"classifiers": 0,
+			"relationships": 0,
+			"packages": 1,
+			"attributes": 0,
+			"operations": 0,
+			"literals": 0,
+			"notes": 0,
+			"texts": 0
+		},
+		"hiddenDiagrams": [
+			{
+				"type": "UMLObjectDiagram",
+				"name": "ObjectDiagram1"
+			}
+		],
+		"unknownElements": 5,
+		"unknownTypes": {
+			"UMLObjectDiagram": 1,
+			"UMLObject": 4
+		},
+		"warnings": []
+	}
+}
