@@ -1,0 +1,7 @@
+{
+	// Cloudflare Pages: build command `pnpm build`, output directory `build`.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "aster",
+	"compatibility_date": "2026-10-17",
+	"pages_build_output_dir": "build"
+}
