@@ -1,0 +1,278 @@
+[
+	{
+		"kind": "attribute",
+		"input": "name",
+		"expected": {
+			"name": "name",
+			"visibility": "public",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "+name"
+	},
+	{
+		"kind": "attribute",
+		"input": "-balance: double",
+		"expected": {
+			"name": "balance",
+			"type": "double",
+			"visibility": "private",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "-balance: double"
+	},
+	{
+		"kind": "attribute",
+		"input": "#  items :  List<Item>  ",
+		"expected": {
+			"name": "items",
+			"type": "List<Item>",
+			"visibility": "protected",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "#items: List<Item>"
+	},
+	{
+		"kind": "attribute",
+		"input": "~count: int = 0",
+		"expected": {
+			"name": "count",
+			"type": "int",
+			"defaultValue": "0",
+			"visibility": "package",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "~count: int = 0"
+	},
+	{
+		"kind": "attribute",
+		"input": "+tags: String[*]",
+		"expected": {
+			"name": "tags",
+			"type": "String",
+			"multiplicity": "*",
+			"visibility": "public",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "+tags: String[*]"
+	},
+	{
+		"kind": "attribute",
+		"input": "-copies: Copy[1..*]",
+		"expected": {
+			"name": "copies",
+			"type": "Copy",
+			"multiplicity": "1..*",
+			"visibility": "private",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "-copies: Copy[1..*]"
+	},
+	{
+		"kind": "attribute",
+		"input": "+{static} MAX_LOANS: int = 5",
+		"expected": {
+			"name": "MAX_LOANS",
+			"type": "int",
+			"defaultValue": "5",
+			"visibility": "public",
+			"isStatic": true,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "+{static} MAX_LOANS: int = 5"
+	},
+	{
+		"kind": "attribute",
+		"input": "+/age: int",
+		"expected": {
+			"name": "age",
+			"type": "int",
+			"visibility": "public",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": true
+		},
+		"canonical": "+/age: int"
+	},
+	{
+		"kind": "attribute",
+		"input": "-id: UUID {readOnly}",
+		"expected": {
+			"name": "id",
+			"type": "UUID",
+			"visibility": "private",
+			"isStatic": false,
+			"isReadOnly": true,
+			"isDerived": false
+		},
+		"canonical": "-id: UUID {readOnly}"
+	},
+	{
+		"kind": "attribute",
+		"input": "<<key>> -isbn: String",
+		"expected": {
+			"name": "isbn",
+			"type": "String",
+			"stereotype": "key",
+			"visibility": "private",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "<<key>> -isbn: String"
+	},
+	{
+		"kind": "attribute",
+		"input": "+title: String = \"untitled\"",
+		"expected": {
+			"name": "title",
+			"type": "String",
+			"defaultValue": "\"untitled\"",
+			"visibility": "public",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false
+		},
+		"canonical": "+title: String = \"untitled\""
+	},
+	{
+		"kind": "operation",
+		"input": "+borrow()",
+		"expected": {
+			"name": "borrow",
+			"parameters": [],
+			"visibility": "public",
+			"isStatic": false,
+			"isAbstract": false,
+			"isQuery": false
+		},
+		"canonical": "+borrow()"
+	},
+	{
+		"kind": "operation",
+		"input": "+getBalance(): double",
+		"expected": {
+			"name": "getBalance",
+			"parameters": [],
+			"returnType": "double",
+			"visibility": "public",
+			"isStatic": false,
+			"isAbstract": false,
+			"isQuery": false
+		},
+		"canonical": "+getBalance(): double"
+	},
+	{
+		"kind": "operation",
+		"input": "+deposit(amount: double, note: String = \"\"): void",
+		"expected": {
+			"name": "deposit",
+			"parameters": [
+				{ "name": "amount", "type": "double", "direction": "in" },
+				{ "name": "note", "type": "String", "direction": "in", "defaultValue": "\"\"" }
+			],
+			"returnType": "void",
+			"visibility": "public",
+			"isStatic": false,
+			"isAbstract": false,
+			"isQuery": false
+		},
+		"canonical": "+deposit(amount: double, note: String = \"\"): void"
+	},
+	{
+		"kind": "operation",
+		"input": "+{abstract} area(): double",
+		"expected": {
+			"name": "area",
+			"parameters": [],
+			"returnType": "double",
+			"visibility": "public",
+			"isStatic": false,
+			"isAbstract": true,
+			"isQuery": false
+		},
+		"canonical": "+{abstract} area(): double"
+	},
+	{
+		"kind": "operation",
+		"input": "+{static} of(value: int): Money",
+		"expected": {
+			"name": "of",
+			"parameters": [{ "name": "value", "type": "int", "direction": "in" }],
+			"returnType": "Money",
+			"visibility": "public",
+			"isStatic": true,
+			"isAbstract": false,
+			"isQuery": false
+		},
+		"canonical": "+{static} of(value: int): Money"
+	},
+	{
+		"kind": "operation",
+		"input": "-validate(out errors: List<String>, inout state: State): boolean {query}",
+		"expected": {
+			"name": "validate",
+			"parameters": [
+				{ "name": "errors", "type": "List<String>", "direction": "out" },
+				{ "name": "state", "type": "State", "direction": "inout" }
+			],
+			"returnType": "boolean",
+			"visibility": "private",
+			"isStatic": false,
+			"isAbstract": false,
+			"isQuery": true
+		},
+		"canonical": "-validate(out errors: List<String>, inout state: State): boolean {query}"
+	},
+	{
+		"kind": "operation",
+		"input": "<<create>> +Book(isbn: String, title: String)",
+		"expected": {
+			"name": "Book",
+			"stereotype": "create",
+			"parameters": [
+				{ "name": "isbn", "type": "String", "direction": "in" },
+				{ "name": "title", "type": "String", "direction": "in" }
+			],
+			"visibility": "public",
+			"isStatic": false,
+			"isAbstract": false,
+			"isQuery": false
+		},
+		"canonical": "<<create>> +Book(isbn: String, title: String)"
+	},
+	{
+		"kind": "literal",
+		"input": "AVAILABLE",
+		"expected": { "name": "AVAILABLE" },
+		"canonical": "AVAILABLE"
+	},
+	{
+		"kind": "literal",
+		"input": "<<default>> ON_LOAN",
+		"expected": { "name": "ON_LOAN", "stereotype": "default" },
+		"canonical": "<<default>> ON_LOAN"
+	},
+	{
+		"kind": "attribute",
+		"input": "+name: String[0..1",
+		"expected": { "raw": "+name: String[0..1" }
+	},
+	{
+		"kind": "operation",
+		"input": "+broken(a: int",
+		"expected": { "raw": "+broken(a: int" }
+	}
+]
