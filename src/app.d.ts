@@ -8,6 +8,15 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	/** File System Access API (Chromium); absent elsewhere, hence optional. */
+	interface Window {
+		showOpenFilePicker?(options?: {
+			types?: { description?: string; accept: Record<string, string[]> }[];
+			excludeAcceptAllOption?: boolean;
+			multiple?: boolean;
+		}): Promise<FileSystemFileHandle[]>;
+	}
 }
 
 export {};

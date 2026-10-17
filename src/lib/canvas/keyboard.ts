@@ -1,4 +1,5 @@
 import type { ClassifierKind, Id, LineStyle } from '#lib/model/types.ts';
+import { openFromPicker } from '#lib/persist/files.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
@@ -37,7 +38,9 @@ export function handleGlobalKey(e: KeyboardEvent) {
 	}
 	if (e.altKey) return;
 	const key = e.key.toLowerCase();
-	if (key === 'b' && !e.shiftKey) {
+	if (key === 'o' && !e.shiftKey) {
+		openFromPicker();
+	} else if (key === 'b' && !e.shiftKey) {
 		ui.panels.outline = !ui.panels.outline;
 	} else if (key === 'e' && !e.shiftKey) {
 		// Select in Outline: open the drawer and move focus to the selected element's row.

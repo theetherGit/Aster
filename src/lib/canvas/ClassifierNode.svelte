@@ -37,6 +37,7 @@
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
 	style:min-width="{data.minWidth}px"
+	style:min-height={data.minHeight ? `${data.minHeight}px` : undefined}
 	data-name={c.name}
 	data-kind={c.classifierKind}
 >

@@ -4,6 +4,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import ProjectMenu from './ProjectMenu.svelte';
 
 	// useSvelteFlow() copies zoomIn/zoomOut from the store it sees first, which is the
 	// provider's placeholder until the canvas mounts; setZoom/getZoom read the live store.
@@ -39,7 +40,7 @@
 			><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M6 3v10" /></svg
 		>
 	</button>
-	<h1 class="truncate font-semibold">{projectStore.project.name}</h1>
+	<h1 class="m-0 min-w-0 text-[13px]"><ProjectMenu /></h1>
 
 	<Tabs.List aria-label={t('ui.diagrams')} class="flex h-full items-end gap-1">
 		{#each projectStore.project.diagrams as d (d.id)}

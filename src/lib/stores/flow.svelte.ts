@@ -16,6 +16,8 @@ export interface ClassifierNodeData extends Record<string, unknown> {
 	classifier: Classifier;
 	flags: DisplayFlags;
 	minWidth: number;
+	/** StarUML's autoResize off: the stored height is the least the node takes. */
+	minHeight: number;
 	editing: EditTarget | null;
 	/** Role in a keyboard link in progress. */
 	link: 'source' | 'target' | 'both' | null;
@@ -39,6 +41,7 @@ class Flow {
 			const el = project.elements.get(id);
 			const l = diagram.layout.get(id);
 			if (!el || !l || el.kind !== 'classifier' || l.kind !== 'node') continue;
+			const flags = { ...diagram.defaults, ...l.flags };
 			out.push({
 				id,
 				type: el.classifierKind,
@@ -48,8 +51,9 @@ class Flow {
 					// new references to react to.
 					// ponytail: clones every classifier per command; per-element version stamps if 500-node perf needs it
 					classifier: structuredClone(el),
-					flags: { ...diagram.defaults, ...l.flags },
+					flags,
 					minWidth: Math.max(160, l.w),
+					minHeight: flags.autoResize === false ? l.h : 0,
 					editing: null,
 					link: null
 				},
@@ -68,11 +72,11 @@ class Flow {
 			const el = project.elements.get(id);
 			const l = diagram.layout.get(id);
 			if (!el || !l || el.kind !== 'relationship' || l.kind !== 'edge') continue;
-			if (
-				diagram.layout.get(el.sourceId)?.kind !== 'node' ||
-				diagram.layout.get(el.targetId)?.kind !== 'node'
-			)
-				continue;
+			// Drawn only between drawn nodes: classifiers for now (package frames come later).
+			const drawn = (nodeId: string) =>
+				diagram.layout.get(nodeId)?.kind === 'node' &&
+				project.elements.get(nodeId)?.kind === 'classifier';
+			if (!drawn(el.sourceId) || !drawn(el.targetId)) continue;
 			const name = (nodeId: string) => {
 				const n = project.elements.get(nodeId);
 				return n ? elementName(n) : nodeId;
