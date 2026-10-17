@@ -1,7 +1,10 @@
 import type { ClassifierKind } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
+import { ui } from '#lib/stores/ui.svelte.ts';
 import { deleteSelection, nudgeSelection, startEditing, stopEditing } from './actions.ts';
+import { canvasFocus } from './focus.ts';
+import { explorerFocus } from './focus.ts';
 
 const inTextField = (e: KeyboardEvent) =>
 	e.target instanceof Element &&
@@ -12,7 +15,16 @@ export function handleGlobalKey(e: KeyboardEvent) {
 	const mod = e.metaKey || e.ctrlKey;
 	if (!mod || e.altKey) return;
 	const key = e.key.toLowerCase();
-	if (inTextField(e)) {
+	if (key === 'b' && !e.shiftKey) {
+		ui.panels.outline = !ui.panels.outline;
+	} else if (key === 'e' && !e.shiftKey) {
+		// Select in Outline: open the drawer and move focus to the selected element's row.
+		ui.panels.outline = true;
+		explorerFocus.reveal(selection.list[0] ?? null);
+	} else if (key === 'd' && !e.shiftKey) {
+		// Select in diagram: focus returns to the canvas with the same selection.
+		canvasFocus.focus();
+	} else if (inTextField(e)) {
 		return;
 	} else if (key === 'z') {
 		if (e.shiftKey) projectStore.redo();

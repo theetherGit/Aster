@@ -4,11 +4,13 @@
 	import Canvas from '#lib/canvas/Canvas.svelte';
 	import { handleGlobalKey } from '#lib/canvas/keyboard.ts';
 	import { t } from '#lib/i18n/index.ts';
+	import Explorer from '#lib/panels/Explorer.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
 	import Toolbox from '#lib/panels/Toolbox.svelte';
 	import TopBar from '#lib/panels/TopBar.svelte';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
+	import { ui } from '#lib/stores/ui.svelte.ts';
 </script>
 
 <svelte:head>
@@ -22,6 +24,9 @@
 	<Tabs.Root bind:value={projectStore.activeDiagramId} class="grid h-dvh grid-rows-[44px_1fr]">
 		<TopBar />
 		<Tabs.Content value={projectStore.activeDiagramId} class="relative flex min-h-0">
+			{#if ui.panels.outline}
+				<Explorer />
+			{/if}
 			<div class="relative min-w-0 flex-1">
 				<Canvas />
 				<Toolbox />

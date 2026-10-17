@@ -17,6 +17,25 @@
 </script>
 
 <header class="flex h-11 items-center gap-3 border-b border-chrome-border bg-chrome-bg px-3">
+	<button
+		type="button"
+		class="icon-btn"
+		aria-label={t('explorer.toggle')}
+		title={t('explorer.toggle')}
+		aria-pressed={ui.panels.outline}
+		onclick={() => (ui.panels.outline = !ui.panels.outline)}
+	>
+		<svg
+			width="16"
+			height="16"
+			viewBox="0 0 16 16"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="1.5"
+			aria-hidden="true"
+			><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M6 3v10" /></svg
+		>
+	</button>
 	<h1 class="truncate font-semibold">{projectStore.project.name}</h1>
 
 	<Tabs.List aria-label={t('ui.diagrams')} class="flex h-full items-end gap-1">
