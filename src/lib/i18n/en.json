@@ -110,6 +110,5 @@
 	"inspector.moveDown": "Move {name} down",
 	"inspector.unparsed": "Kept as text; could not parse",
 	"inspector.memberVisibility": "Visibility of {name}",
-	"vis.option": "{name} ({symbol})",
-	"ui.inspector": "Inspector"
+	"vis.option": "{name} ({symbol})"
 }

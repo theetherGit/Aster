@@ -37,3 +37,6 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · explorer · diagrams, packages and classifiers are siblings under the project, as in StarUML's Model Explorer, not nested under diagrams · an element can sit on several diagrams; relationship rows arrive with relationships.
 - 2026-10-17 · explorer · ↩ or Space selects the row's element on the canvas, click selects, double-click returns focus to the canvas; single selection only · the tree is read-only until M2, and the ARIA tree pattern leaves activation to the app.
 - 2026-10-17 · explorer · ⌘E opens the drawer when it is closed, then focuses the selected element's row · keyboard.md binds ⌘E to select-in-Outline while the drawer is hidden by default.
+- 2026-10-17 · inspector · member rows edit the UML line as text, with a visibility select per attribute and operation that dispatches `setMemberText` with the re-rendered line · panel and inline editing must dispatch the same commands.
+- 2026-10-17 · inspector · literals are edited with the member commands, so `setLiterals` has no UI caller yet · panel and inline editing must dispatch the same commands.
+- 2026-10-17 · inspector · Text and Diagram tabs are present but disabled · they belong to later slices.
