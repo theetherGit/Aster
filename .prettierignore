@@ -10,3 +10,7 @@ bun.lockb
 
 # Scaffolding placeholders
 .gitkeep
+
+# Hand-authored contracts keep their own formatting
+src/lib/model/types.ts
+src/lib/commands/types.ts
