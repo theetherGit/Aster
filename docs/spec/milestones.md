@@ -1,0 +1,26 @@
+# Milestone plan
+
+Five weeks to v0.1 in three milestones, each ending with a deployed build someone else can use; the lab on 24 Oct 2026 is M1, a usable preview rather than the release, and the two weeks after it are where the accessibility and product work that make it worth adopting happen.
+
+| Milestone                   | Dates        | Scope                                                                                                                                                                                                                                                                                                                          | Exit criteria                                                                                                                                                                  |
+| --------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **M1 · Lab preview**        | 17–24 Oct    | Model and command stack; class, interface, enum, data type nodes; inline UML text editing; six relationships with line styles; notes and documentation; display toggles; `.mdj` import and export; PNG/SVG; autosave and files; undo; Modern layout, light and dark; command palette; explorer as a read-only tree             | The lab exercise done in Aster, saved as `.mdj`, opened in StarUML on a lab PC, exported as PNG; deployed at a public URL; README with the roadmap                             |
+| **M2 · Accessible preview** | 25 Oct–7 Nov | Outline tree as a full editing surface; Text view with PlantUML round-trip and `.puml` import/export; canvas keyboard navigation and focus model; live announcements; high-contrast theme and reduced motion; pointer targets and drag alternatives; Classic layout; validation panel; quick find; i18n scaffolding; axe in CI | The lab exercise completed keyboard-only, then completed in VoiceOver and NVDA using Outline and Text; manual WCAG 2.2 AA audit passes; a second person has used it unprompted |
+| **M3 · v0.1 release**       | 8–21 Nov     | Packages with containment; object diagrams; ELK auto-layout and tidy tools; Mermaid and PDF export; fragment import; fill and line colour; PWA offline; performance pass to 500/800; docs site, keyboard reference, template gallery; contributor guide; licence                                                               | Tagged v0.1.0; docs live; the three lab `.mdj` files plus ten public `.mdj` files from GitHub round-trip; 500-class fixture at 60 fps; announced                               |
+
+## Week by week inside M1
+
+| Day | Date   | Done when                                                                                                                                                            |
+| --- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Fri 17 | Scaffold on Cloudflare Pages; model types and command stack with undo; a class node with three compartments drawn from the model; `C` creates one at the cursor      |
+| 2   | Sat 18 | Inline UML text editing with the parser and fixture tests; interface, enum, data type nodes; explorer tree (read-only) and Properties panel bound to the same stores |
+| 3   | Sun 19 | Six relationship edges with correct markers and end labels; relationship picker; waypoints; four line styles; self-association loop                                  |
+| 4   | Mon 20 | `.mdj` import across the mapping table in a worker; the lab sample files open correctly; unknowns preserved; import notice                                           |
+| 5   | Tue 21 | `.mdj` export passing the golden and StarUML round-trip checks; PNG/SVG export; IndexedDB autosave with undo stack; File System Access with fallback; welcome screen |
+| 6   | Wed 22 | Command registry and palette; display toggles with StarUML keys; notes and documentation; dark/light; performance pass with a 200-class fixture                      |
+| 7   | Thu 23 | Buffer. Fix what slipped; rehearse the lab exercise end to end twice; README, CONTRIBUTING, CHANGELOG; tag v0.1.0-preview.1                                          |
+| —   | Fri 24 | Lab: do the exercise in Aster in front of the class, save `.mdj`, open it in StarUML on the lab PC, export the PNG                                                   |
+
+## Rules
+
+Every evening ends with a deploy so there is always a working URL. Nothing from a later milestone starts early, however tempting. Each milestone's accessibility items are exit criteria, not polish. When something slips, the milestone date moves rather than the bar. The day-7 buffer is not a feature day.
