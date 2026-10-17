@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { t } from '#lib/i18n/index.js';
-import { en } from '#lib/i18n/en.js';
+import { t } from '#lib/i18n/index.ts';
+import { en } from '#lib/i18n/en.ts';
 
 describe('i18n', () => {
 	it('resolves every key in the English catalogue to a non-empty string', () => {
