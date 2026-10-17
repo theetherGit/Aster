@@ -1,0 +1,113 @@
+import { describe, expect, it } from 'vitest';
+import lines from '../../fixtures/grammar/lines.json';
+import {
+	isRaw,
+	memberFromText,
+	parseMember,
+	parseParameter,
+	renderAttribute,
+	renderMember,
+	renderOperation,
+	type MemberKind
+} from '#lib/mdj/expression.ts';
+
+type Line = {
+	kind: MemberKind | 'parameter';
+	input: string;
+	expected: unknown;
+	canonical?: string;
+};
+
+const parse = (kind: Line['kind'], input: string) =>
+	kind === 'parameter' ? parseParameter(input) : parseMember(kind, input);
+
+describe('expression grammar fixtures', () => {
+	it.each((lines as Line[]).map((l) => [l.kind, l.input, l] as const))(
+		'%s %j parses to the expected structure',
+		(kind, input, line) => {
+			expect(parse(kind, input)).toEqual(line.expected);
+		}
+	);
+
+	it.each(
+		(lines as Line[])
+			.filter((l) => l.canonical !== undefined)
+			.map((l) => [l.input, l.canonical!, l] as const)
+	)('%j renders canonically as %j and the canonical form parses back', (input, canonical, line) => {
+		const parsed = parse(line.kind, input);
+		expect(isRaw(parsed)).toBe(false);
+		const rendered =
+			line.kind === 'parameter' ? canonical : renderMember(line.kind, parsed as never);
+		expect(rendered).toBe(canonical);
+		expect(parse(line.kind, canonical)).toEqual(line.expected);
+	});
+
+	it('has the 20 shipped lines plus the two unparseable ones', () => {
+		expect(lines.length).toBeGreaterThanOrEqual(22);
+	});
+});
+
+describe('expression edge cases', () => {
+	it('never throws and keeps garbage verbatim', () => {
+		for (const s of ['', '   ', '::', '+(', '{', '<<x', '+a: b = {', '+f(a,,b)', '+x: y {wat}']) {
+			expect(parseMember('attribute', s)).toEqual({ raw: s });
+			expect(parseMember('operation', s)).toEqual({ raw: s });
+			expect(parseMember('literal', s)).toEqual({ raw: s });
+		}
+	});
+
+	it('splits parameters on top-level commas only', () => {
+		const op = parseMember(
+			'operation',
+			'+put(key: Map<String, List<Int>>, value: String = "a,b"): void'
+		);
+		expect(op).toMatchObject({
+			parameters: [
+				{ name: 'key', type: 'Map<String, List<Int>>', direction: 'in' },
+				{ name: 'value', type: 'String', direction: 'in', defaultValue: '"a,b"' }
+			]
+		});
+	});
+
+	it('accepts flags in the property block and renders static+abstract losslessly', () => {
+		expect(parseMember('attribute', 'x: int {static, readOnly}')).toMatchObject({
+			isStatic: true,
+			isReadOnly: true
+		});
+		const op = parseMember('operation', '+{static} f() {abstract, query}');
+		expect(op).toMatchObject({ isStatic: true, isAbstract: true, isQuery: true });
+		const text = renderOperation(op as never);
+		expect(parseMember('operation', text)).toEqual(op);
+	});
+
+	it('honours display options', () => {
+		const a = parseMember('attribute', '<<key>> -isbn: String[1] = "x" {readOnly}');
+		expect(
+			renderAttribute(a as never, {
+				showVisibility: false,
+				showType: false,
+				showMultiplicity: false,
+				showProperty: false,
+				guillemets: true
+			})
+		).toBe('«key» isbn');
+		const op = parseMember('operation', '+f(a: int): int {query}');
+		expect(
+			renderOperation(op as never, { showOperationSignature: false, showProperty: false })
+		).toBe('+f()');
+	});
+
+	it('memberFromText keeps unparseable text under raw and the previous name', () => {
+		const prev = memberFromText('attribute', '-count: int', 'a1');
+		const broken = memberFromText('attribute', '+count: int[0..', 'a1', prev);
+		expect(broken).toMatchObject({ id: 'a1', name: 'count', raw: '+count: int[0..' });
+		expect(renderAttribute(broken as never)).toBe('+count: int[0..');
+		expect(memberFromText('literal', 'not a literal!', 'l1')).toMatchObject({
+			id: 'l1',
+			name: 'not a literal!'
+		});
+		expect(
+			memberFromText('operation', '+go()', 'o1', { ...prev, documentation: 'doc' })
+		).toMatchObject({ documentation: 'doc', name: 'go' });
+	});
+});

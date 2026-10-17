@@ -19,3 +19,7 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · ui · theme follows `prefers-color-scheme` only; no explicit light/dark/high-contrast switch yet · the `⌘⌥T` toggle and high-contrast tokens are a later slice.
 - 2026-10-17 · ui · diagram tabs are Bits UI Tabs with the canvas area as the tabpanel · keeps the tab/tabpanel ARIA relationship real instead of empty panels.
 - 2026-10-17 · tooling · e2e tests reselect nodes by `.class-node[data-name]` · nodes are not focusable until the M2 canvas keyboard model, so there is no role to query yet.
+- 2026-10-17 · grammar · the property block accepts only `static`, `readOnly`, `derived` (attributes) and `static`, `abstract`, `query` (operations); any other property makes the line raw · the grammar leaves `props` open, and silently dropping an unknown property would lose data.
+- 2026-10-17 · grammar · a member that is both static and abstract renders `{static}` as the prefix and `{abstract}` in the property block · the prefix slot holds one keyword, and this keeps the line round-tripping.
+- 2026-10-17 · grammar · an unparseable literal keeps its text as the literal's name · `Literal` has no `raw` field in the hand-authored types.
+- 2026-10-17 · grammar · an unparseable attribute or operation keeps its previous name (or the text) in `name` beside `raw` · `name` is required and the Outline needs a label.
