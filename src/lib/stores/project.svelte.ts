@@ -69,7 +69,7 @@ class ProjectStore {
 	#afterHistory(label: string | null) {
 		if (label === null) return null;
 		this.version++;
-		selection.editingId = null;
+		selection.editing = null;
 		const onDiagram = new Set(this.diagram.elementIds);
 		selection.set(this.#stack.lastTouched.filter((id) => onDiagram.has(id)));
 		return label;

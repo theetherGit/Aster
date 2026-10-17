@@ -7,8 +7,8 @@
 	const TOOLS: { id: Tool; key: string | null; ready: boolean; glyph: string }[] = [
 		{ id: 'select', key: null, ready: true, glyph: '↖' },
 		{ id: 'class', key: 'C', ready: true, glyph: 'C' },
-		{ id: 'interface', key: 'I', ready: false, glyph: 'I' },
-		{ id: 'enum', key: 'E', ready: false, glyph: 'E' },
+		{ id: 'interface', key: 'I', ready: true, glyph: 'I' },
+		{ id: 'enum', key: 'E', ready: true, glyph: 'E' },
 		{ id: 'package', key: 'P', ready: false, glyph: 'P' },
 		{ id: 'link', key: 'L', ready: false, glyph: '⟶' }
 	];

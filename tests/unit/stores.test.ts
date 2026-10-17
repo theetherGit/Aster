@@ -28,13 +28,13 @@ describe('stores', () => {
 
 	it('folds selection and editing into canvas nodes without touching the derived nodes', () => {
 		selection.set(['Customer']);
-		selection.editingId = 'Customer';
-		expect(flow.nodes.every((n) => !n.selected && !n.data.editing)).toBe(true);
+		selection.editing = { id: 'Customer', target: { part: 'name' } };
+		expect(flow.nodes.every((n) => !n.selected && n.data.editing === null)).toBe(true);
 		const customer = flow.canvasNodes.find((n) => n.id === 'Customer')!;
 		expect(customer.selected).toBe(true);
-		expect(customer.data.editing).toBe(true);
+		expect(customer.data.editing).toEqual({ part: 'name' });
 		selection.clear();
-		selection.editingId = null;
+		selection.editing = null;
 		expect(flow.canvasNodes.every((n) => !n.selected)).toBe(true);
 	});
 });

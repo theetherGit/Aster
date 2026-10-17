@@ -67,7 +67,7 @@
 	"ui.diagrams": "Diagrams",
 	"ui.canvas": "Diagram canvas",
 	"ui.toolbox": "Toolbox",
-	"ui.className": "Class name",
+	"ui.className": "Name",
 	"ui.selectedCount": "{count} selected",
 	"ui.tool.select": "Select",
 	"ui.tool.class": "Class",

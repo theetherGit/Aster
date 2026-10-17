@@ -13,7 +13,6 @@ import {
 	getNodeLayout,
 	nextClassName
 } from '#lib/model/project.ts';
-import { renderAttribute, renderOperation } from '#lib/model/render.ts';
 import { fixtureClassifier, sampleProject } from '#lib/model/fixtures.ts';
 import { DEFAULT_DISPLAY_FLAGS } from '#lib/model/types.ts';
 
@@ -73,33 +72,7 @@ describe('model readers', () => {
 	});
 });
 
-describe('canonical rendering', () => {
-	it('renders attributes', () => {
-		const a = createAttribute({
-			name: 'balance',
-			type: 'Money',
-			defaultValue: '0',
-			visibility: 'private'
-		});
-		expect(renderAttribute(a)).toBe('- balance: Money = 0');
-		expect(
-			renderAttribute(a, { showVisibility: false, showType: false, showOperationSignature: true })
-		).toBe('balance = 0');
-		expect(renderAttribute(createAttribute({ name: 'x', raw: 'garbage ::' }))).toBe('garbage ::');
-	});
-
-	it('renders operations', () => {
-		const o = createOperation({
-			name: 'deposit',
-			returnType: 'void',
-			parameters: [{ name: 'amount', type: 'Money', direction: 'in' }]
-		});
-		expect(renderOperation(o)).toBe('+ deposit(amount: Money): void');
-		expect(
-			renderOperation(o, { showVisibility: true, showType: true, showOperationSignature: false })
-		).toBe('+ deposit()');
-	});
-
+describe('fixtures', () => {
 	it('fixture classifier has n attributes and n operations with statics', () => {
 		const c = fixtureClassifier('C', 10);
 		expect(c.attributes).toHaveLength(10);

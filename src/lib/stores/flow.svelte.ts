@@ -1,35 +1,38 @@
 import type { Edge, Node } from '@xyflow/svelte';
-import type { Classifier, DisplayFlags } from '#lib/model/types.ts';
+import type { Classifier, ClassifierKind, DisplayFlags } from '#lib/model/types.ts';
 import { projectStore } from './project.svelte.ts';
-import { selection } from './selection.svelte.ts';
+import { selection, type EditTarget } from './selection.svelte.ts';
 
-export interface ClassNodeData extends Record<string, unknown> {
+export interface ClassifierNodeData extends Record<string, unknown> {
 	classifier: Classifier;
 	flags: DisplayFlags;
 	minWidth: number;
-	editing: boolean;
+	editing: EditTarget | null;
 }
-export type ClassFlowNode = Node<ClassNodeData, 'class'>;
+export type ClassifierFlowNode = Node<ClassifierNodeData, ClassifierKind>;
 
 class Flow {
 	/** Svelte Flow nodes, derived from project + layout only. Never mutated. */
-	nodes: ClassFlowNode[] = $derived.by(() => {
+	nodes: ClassifierFlowNode[] = $derived.by(() => {
 		const project = projectStore.project;
 		const diagram = projectStore.diagram;
-		const out: ClassFlowNode[] = [];
+		const out: ClassifierFlowNode[] = [];
 		for (const id of diagram.elementIds) {
 			const el = project.elements.get(id);
 			const l = diagram.layout.get(id);
 			if (!el || !l || el.kind !== 'classifier' || l.kind !== 'node') continue;
 			out.push({
 				id,
-				type: 'class',
+				type: el.classifierKind,
 				position: { x: l.x, y: l.y },
 				data: {
-					classifier: el,
+					// Commands mutate the model in place; a per-version snapshot gives the node
+					// new references to react to.
+					// ponytail: clones every classifier per command; per-element version stamps if 500-node perf needs it
+					classifier: structuredClone(el),
 					flags: { ...diagram.defaults, ...l.flags },
 					minWidth: Math.max(160, l.w),
-					editing: false
+					editing: null
 				},
 				focusable: false
 			});
@@ -41,13 +44,32 @@ class Flow {
 	edges: Edge[] = $derived([]);
 
 	/** The nodes as the canvas shows them: selection and inline-editing state folded in. */
-	canvasNodes: ClassFlowNode[] = $derived(
+	canvasNodes: ClassifierFlowNode[] = $derived(
 		this.nodes.map((n) => ({
 			...n,
 			selected: selection.has(n.id),
-			data: { ...n.data, editing: selection.editingId === n.id }
+			data: { ...n.data, editing: selection.editing?.id === n.id ? selection.editing.target : null }
 		}))
 	);
+
+	/** Names offered by type completion: every classifier plus the usual primitives. */
+	typeNames: string[] = $derived.by(() => {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local scratch set, never observed
+		const names = new Set([
+			'String',
+			'int',
+			'long',
+			'double',
+			'float',
+			'boolean',
+			'char',
+			'void',
+			'Date'
+		]);
+		for (const el of projectStore.project.elements.values())
+			if (el.kind === 'classifier' && el.name) names.add(el.name);
+		return [...names].sort((a, b) => a.localeCompare(b));
+	});
 }
 
 export const flow = new Flow();

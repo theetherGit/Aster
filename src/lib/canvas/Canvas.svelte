@@ -11,18 +11,35 @@
 	import '@xyflow/svelte/dist/style.css';
 	import { moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
-	import { flow, type ClassFlowNode } from '#lib/stores/flow.svelte.ts';
+	import type { ClassifierKind } from '#lib/model/types.ts';
+	import { flow, type ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
 	import { layout } from '#lib/stores/layout.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import ClassNode from './ClassNode.svelte';
-	import { createClassAt } from './actions.ts';
+	import ClassifierNode from './ClassifierNode.svelte';
+	import { createClassifierAt } from './actions.ts';
 	import { canvasFocus } from './focus.ts';
 	import { handleCanvasKey } from './keyboard.ts';
 
-	const nodeTypes = { class: ClassNode };
-	const { screenToFlowPosition } = useSvelteFlow();
+	const nodeTypes = {
+		class: ClassifierNode,
+		interface: ClassifierNode,
+		enum: ClassifierNode,
+		dataType: ClassifierNode
+	};
+	const { screenToFlowPosition, getInternalNode } = useSvelteFlow();
+
+	// Derived nodes are fresh objects after every command. Without `measured`, Svelte Flow
+	// resets them and hides each node until it re-measures, which flickers and drops focus.
+	// Hand back its own last measurement as a hint: view-only, never model state. Content
+	// that changes size is re-measured by Svelte Flow's ResizeObserver as usual.
+	const nodes = $derived(
+		flow.canvasNodes.map((n) => {
+			const m = getInternalNode(n.id)?.measured;
+			return m?.width && m.height ? { ...n, measured: { width: m.width, height: m.height } } : n;
+		})
+	);
 
 	let el: HTMLDivElement;
 	let pointer: { x: number; y: number } | null = null;
@@ -49,7 +66,7 @@
 
 	// Svelte Flow moves its own copy of the nodes while dragging; the model follows through
 	// coalesced moveNode commands, and the derived nodes replace Svelte Flow's copy.
-	const onnodedrag: NodeTargetEventWithPointer<MouseEvent | TouchEvent, ClassFlowNode> = ({
+	const onnodedrag: NodeTargetEventWithPointer<MouseEvent | TouchEvent, ClassifierFlowNode> = ({
 		targetNode,
 		nodes
 	}) => {
@@ -66,7 +83,7 @@
 		});
 	};
 
-	const onselectionchange: OnSelectionChange<ClassFlowNode> = ({ nodes }) => {
+	const onselectionchange: OnSelectionChange<ClassifierFlowNode> = ({ nodes }) => {
 		selection.set(nodes.map((n) => n.id));
 	};
 
@@ -75,8 +92,14 @@
 	};
 
 	function onpaneclick({ event }: { event: MouseEvent | TouchEvent }) {
-		if (ui.tool !== 'class' || !('clientX' in event)) return;
-		createClassAt(toPaper({ x: event.clientX, y: event.clientY }));
+		if (
+			ui.tool === 'select' ||
+			ui.tool === 'package' ||
+			ui.tool === 'link' ||
+			!('clientX' in event)
+		)
+			return;
+		createClassifierAt(ui.tool, toPaper({ x: event.clientX, y: event.clientY }));
 		ui.tool = 'select';
 	}
 </script>
@@ -92,12 +115,13 @@
 	role="application"
 	aria-label={t('ui.canvas')}
 	tabindex="0"
-	onkeydown={(e) => handleCanvasKey(e, () => createClassAt(cursorPosition()))}
+	onkeydown={(e) =>
+		handleCanvasKey(e, (kind: ClassifierKind) => createClassifierAt(kind, cursorPosition()))}
 	onpointermove={(e) => (pointer = { x: e.clientX, y: e.clientY })}
 	onpointerleave={() => (pointer = null)}
 >
 	<SvelteFlow
-		nodes={flow.canvasNodes}
+		{nodes}
 		edges={flow.edges}
 		{nodeTypes}
 		snapGrid={[1, 1]}
@@ -109,6 +133,7 @@
 		panOnDrag={[1]}
 		panOnScroll
 		zoomOnScroll={false}
+		zoomOnDoubleClick={false}
 		nodesFocusable={false}
 		disableKeyboardA11y
 		nodesConnectable={false}

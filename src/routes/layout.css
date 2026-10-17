@@ -84,3 +84,53 @@ body {
 	color: var(--chrome-muted);
 	opacity: 0.6;
 }
+
+/* Form controls and menus for the inspector; Bits UI supplies behaviour, these supply looks. */
+.field {
+	box-sizing: border-box;
+	height: 28px;
+	padding: 0 8px;
+	color: var(--chrome-text);
+	background: var(--chrome-bg);
+	border: 1px solid var(--chrome-border);
+	border-radius: var(--radius-control);
+}
+.field:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 0;
+}
+.menu {
+	z-index: 50;
+	min-width: 140px;
+	padding: 4px;
+	color: var(--chrome-text);
+	background: var(--chrome-surface);
+	border: 1px solid var(--chrome-border);
+	border-radius: var(--radius-control);
+	box-shadow: 0 6px 20px rgb(0 0 0 / 0.16);
+}
+.menu-item {
+	display: flex;
+	align-items: center;
+	height: 28px;
+	padding: 0 8px;
+	border-radius: 4px;
+	cursor: default;
+}
+.menu-item[data-highlighted] {
+	background: var(--accent);
+	color: var(--on-accent);
+}
+.tab {
+	height: 32px;
+	padding: 0 10px;
+	color: var(--chrome-muted);
+	border-bottom: 2px solid transparent;
+}
+.tab[data-state='active'] {
+	color: var(--chrome-text);
+	border-bottom-color: var(--accent);
+}
+.tab:disabled {
+	opacity: 0.5;
+}

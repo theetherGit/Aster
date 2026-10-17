@@ -1,28 +1,37 @@
+import type { ClassifierKind } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { deleteSelection, nudgeSelection, startEditing, stopEditing } from './actions.ts';
 
 const inTextField = (e: KeyboardEvent) =>
 	e.target instanceof Element &&
-	e.target.closest('input, textarea, [contenteditable="true"]') !== null;
+	e.target.closest('input, textarea, select, [contenteditable="true"]') !== null;
 
-/** Bindings from docs/spec/keyboard.md that work everywhere: undo and redo. */
+/** Bindings from docs/spec/keyboard.md that work everywhere. */
 export function handleGlobalKey(e: KeyboardEvent) {
 	const mod = e.metaKey || e.ctrlKey;
-	if (!mod || e.altKey || inTextField(e)) return;
+	if (!mod || e.altKey) return;
 	const key = e.key.toLowerCase();
-	if (key === 'z') {
+	if (inTextField(e)) {
+		return;
+	} else if (key === 'z') {
 		if (e.shiftKey) projectStore.redo();
 		else projectStore.undo();
-		e.preventDefault();
 	} else if (key === 'y' && !e.shiftKey) {
 		projectStore.redo();
-		e.preventDefault();
-	}
+	} else return;
+	e.preventDefault();
 }
 
+const CREATE_KEYS: Record<string, ClassifierKind> = {
+	c: 'class',
+	i: 'interface',
+	e: 'enum',
+	d: 'dataType'
+};
+
 /** Bindings that fire only while the canvas has focus and nothing is being edited. */
-export function handleCanvasKey(e: KeyboardEvent, createClass: () => void) {
+export function handleCanvasKey(e: KeyboardEvent, create: (kind: ClassifierKind) => void) {
 	if (inTextField(e) || e.altKey) return;
 	const mod = e.metaKey || e.ctrlKey;
 	const step = e.shiftKey ? 8 : 1;
@@ -42,7 +51,7 @@ export function handleCanvasKey(e: KeyboardEvent, createClass: () => void) {
 			deleteSelection(mod);
 			break;
 		case 'Escape':
-			if (selection.editingId) stopEditing();
+			if (selection.editing) stopEditing();
 			else selection.clear();
 			break;
 		case 'Enter':
@@ -50,10 +59,12 @@ export function handleCanvasKey(e: KeyboardEvent, createClass: () => void) {
 			if (mod) return;
 			startEditing();
 			break;
-		default:
+		default: {
 			if (mod || e.shiftKey) return;
-			if (e.key.toLowerCase() === 'c') createClass();
-			else return;
+			const kind = CREATE_KEYS[e.key.toLowerCase()];
+			if (!kind) return;
+			create(kind);
+		}
 	}
 	e.preventDefault();
 }
