@@ -8,6 +8,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import MemberList from './MemberList.svelte';
+	import RelationshipInspector from './RelationshipInspector.svelte';
 
 	// Commands mutate elements in place, so references never change; cloning the selected
 	// element on every project version gives Svelte a new value to react to.
@@ -141,6 +142,8 @@
 				{#each memberKinds as kind (kind)}
 					<MemberList classifier={c} {kind} />
 				{/each}
+			{:else if single?.kind === 'relationship'}
+				<RelationshipInspector rel={single} />
 			{:else if single && single.kind !== 'classifier'}
 				<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
 				<h2 class="mt-1 text-[15px] font-semibold">{elementName(single)}</h2>

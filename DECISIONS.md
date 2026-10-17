@@ -60,3 +60,5 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · canvas · the picker is a Bits UI DropdownMenu anchored at the drop point (the target's centre from the keyboard), keys 1–6 in `RelationshipKind` order · board 05 was not available.
 - 2026-10-17 · canvas · line-style chords match the physical key (`KeyL`, `KeyB`) · ⌥ changes the typed character on macOS.
 - 2026-10-17 · canvas · the toolbox Link tool stays disabled; L and handle drags connect · this slice defines no Link tool mode.
+- 2026-10-17 · inspector · the relationship panel adds stereotype, waypoints (x, y, add, remove) and label positions (distance, angle, reset) · every edge drag needs a non-drag equivalent (CLAUDE.md rule 4).
+- 2026-10-17 · inspector · ownership (`ownsOther`) has no field yet; only the fixture sets it · not in this slice's field list.
