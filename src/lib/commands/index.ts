@@ -6,6 +6,7 @@ export {
 	deleteFromDiagram,
 	deleteFromModel,
 	moveNode,
+	setNodePositions,
 	renameClassifier,
 	resizeNode,
 	restoreElements,

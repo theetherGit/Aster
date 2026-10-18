@@ -202,3 +202,31 @@ describe('touches', () => {
 		expect(stack.lastTouched).toEqual(['Account']);
 	});
 });
+
+describe('coalesced moves stay small', () => {
+	it('a long drag keeps one absolute inverse, so the undo history does not grow with it', () => {
+		const { project, stack, d, tick } = setup();
+		for (let i = 0; i < 300; i++) {
+			stack.run(moveNode(project, { diagramId: 'd1', ids: ['Account', 'Customer'], dx: 1, dy: 2 }));
+			tick(16);
+		}
+		const snap = stack.snapshot();
+		expect(snap.undo).toEqual([
+			{
+				id: 'setNodePositions',
+				args: {
+					diagramId: 'd1',
+					positions: [
+						{ id: 'Account', x: 120, y: 80 },
+						{ id: 'Customer', x: 480, y: 120 }
+					]
+				}
+			}
+		]);
+		expect(JSON.stringify(snap).length).toBeLessThan(200);
+		stack.undo();
+		expect(getNodeLayout(d, 'Account')).toMatchObject({ x: 120, y: 80 });
+		stack.redo();
+		expect(getNodeLayout(d, 'Account')).toMatchObject({ x: 420, y: 680 });
+	});
+});

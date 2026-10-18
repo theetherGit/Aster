@@ -246,12 +246,39 @@ export const moveNode: Factory<{ diagramId: Id; ids: Id[]; dx: number; dy: numbe
 	coalesceKey: `move:${diagramId}:${[...ids].sort().join(',')}`,
 	coalesceMs: MOVE_COALESCE_MS,
 	apply(p): Command {
-		for (const id of ids) {
+		const before = ids.map((id) => {
 			const l = node(p, diagramId, id);
+			const at = { id, x: l.x, y: l.y };
 			l.x += dx;
 			l.y += dy;
-		}
-		return moveNode(p, { diagramId, ids, dx: -dx, dy: -dy });
+			return at;
+		});
+		// Absolute inverse: a coalesced drag keeps only its first inverse (stack.ts).
+		return setNodePositions(p, { diagramId, positions: before });
+	}
+}));
+
+/** Puts nodes at absolute positions; the inverse puts them back where they were. */
+export const setNodePositions: Factory<{
+	diagramId: Id;
+	positions: { id: Id; x: number; y: number }[];
+}> = define('setNodePositions', (project, { diagramId, positions }) => ({
+	label: t('cmd.moveNode', {
+		name: namesOf(
+			project,
+			positions.map((q) => q.id)
+		)
+	}),
+	touches: positions.map((q) => q.id),
+	apply(p): Command {
+		const before = positions.map(({ id, x, y }) => {
+			const l = node(p, diagramId, id);
+			const at = { id, x: l.x, y: l.y };
+			l.x = x;
+			l.y = y;
+			return at;
+		});
+		return setNodePositions(p, { diagramId, positions: before });
 	}
 }));
 

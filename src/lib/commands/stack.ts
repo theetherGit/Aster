@@ -1,5 +1,4 @@
 import type { Project } from '#lib/model/types.ts';
-import { compose } from './batch.ts';
 import { hydrate, serialise } from './registry.ts';
 import {
 	UNDO_LIMIT,
@@ -59,8 +58,8 @@ export class Stack implements CommandStack {
 			top.key === command.coalesceKey &&
 			at - top.at <= command.coalesceMs
 		) {
-			// Undo must apply the newest inverse first.
-			top.inverse = compose(p, top.label, inverse, top.inverse);
+			// Coalescing commands return absolute inverses (a state, not a delta), so the run's
+			// first inverse already restores where it started; later ones add nothing.
 			top.at = at;
 		} else {
 			this.#undo.push({

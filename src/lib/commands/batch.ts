@@ -19,15 +19,3 @@ export const batch: Factory<BatchArgs> = define<BatchArgs>(
 		}
 	})
 );
-
-/** `first` then `second`, flattening nested batches so coalesced drags stay shallow. */
-export function compose(
-	project: Parameters<typeof batch>[0],
-	label: string,
-	first: Command,
-	second: Command
-): Command {
-	const flat = (c: Command): SerialisedCommand[] =>
-		c.id === 'batch' ? (serialise(c).args as BatchArgs).commands : [serialise(c)];
-	return batch(project, { label, commands: [...flat(first), ...flat(second)] });
-}
