@@ -211,5 +211,5 @@ test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered
 	await canvasOf(page).focus();
 	await page.keyboard.press('ControlOrMeta+Alt+t');
 	expect(await theme()).toBe('light'); // back to system
-	expect(await page.evaluate(() => localStorage.getItem('aster:theme'))).toBeNull();
+	expect(await page.evaluate(() => localStorage.getItem('aster:theme'))).toBe('system');
 });

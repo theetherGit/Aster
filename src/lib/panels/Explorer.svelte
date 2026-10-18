@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { useDebounce } from 'runed';
 	import { tick } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { canvasFocus, explorerFocus } from '#lib/canvas/focus.ts';
@@ -23,7 +24,7 @@
 	let focusedId = $state(ROOT);
 	let treeEl: HTMLUListElement;
 	let buffer = '';
-	let bufferTimer = 0;
+	const clearBuffer = useDebounce(() => (buffer = ''), 500);
 
 	const rows = $derived(buildRows(projectStore.project, expanded));
 	// The selected element's row in the open diagram (or under the project when unplaced).
@@ -84,9 +85,8 @@
 				break;
 			default: {
 				if (e.key.length !== 1 || e.key === ' ') return;
-				clearTimeout(bufferTimer);
 				buffer += e.key;
-				bufferTimer = window.setTimeout(() => (buffer = ''), 500);
+				void clearBuffer();
 				const next = typeAheadIndex(rows, i, buffer);
 				if (next >= 0) focusRow(rows[next].id);
 			}

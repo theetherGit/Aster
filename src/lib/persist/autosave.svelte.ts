@@ -4,6 +4,7 @@
  * the last 10 projects make the Recent list, each with a thumbnail drawn at save time.
  */
 import { del, get, set } from 'idb-keyval';
+import { useDebounce, watch } from 'runed';
 import { parseAster, serializeAster, type AsterFile } from '#lib/aster/index.ts';
 import { canvasRects } from '#lib/canvas/focus.ts';
 import type { CommandStackSnapshot } from '#lib/commands/types.ts';
@@ -71,7 +72,6 @@ class Persist {
 }
 export const persist = new Persist();
 
-let timer = 0;
 let pending: Promise<void> | null = null;
 
 /** The open project to IndexedDB, now. */
@@ -133,16 +133,13 @@ async function thumbnail(project: Project, diagramId: Id): Promise<string | unde
 	}
 }
 
-function schedule() {
-	clearTimeout(timer);
-	timer = window.setTimeout(() => {
-		pending = saveNow().catch((e) => console.error('autosave failed', e));
-	}, DEBOUNCE_MS);
-}
+const schedule = useDebounce(() => {
+	pending = saveNow().catch((e) => console.error('autosave failed', e));
+}, DEBOUNCE_MS);
 
 /** Wait for a scheduled or running save (tests, before unload). */
 export async function flush() {
-	clearTimeout(timer);
+	schedule.cancel();
 	await pending;
 	await saveNow();
 }
@@ -150,19 +147,17 @@ export async function flush() {
 /** Start saving on every change. Returns the stop function. */
 export function startAutosave(): () => void {
 	return $effect.root(() => {
-		let first = true;
-		$effect(() => {
-			void projectStore.version;
-			void projectStore.activeDiagramId;
-			void files.current;
-			void files.bannerDismissed;
-			if (first) {
-				first = false;
-				return;
-			}
-			schedule();
-		});
-		return () => clearTimeout(timer);
+		watch(
+			() => [
+				projectStore.version,
+				projectStore.activeDiagramId,
+				files.current,
+				files.bannerDismissed
+			],
+			() => void schedule(),
+			{ lazy: true }
+		);
+		return () => schedule.cancel();
 	});
 }
 

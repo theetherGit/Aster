@@ -1,20 +1,27 @@
+import { PersistedState } from 'runed';
 import type { ClassifierKind, Id, RelationshipKind } from '#lib/model/types.ts';
 
 export type Tool = 'select' | 'class' | 'interface' | 'enum' | 'package' | 'link';
 export type Theme = 'system' | 'light' | 'dark' | 'high-contrast';
 export type LayoutPreset = 'modern' | 'classic';
 
-const THEME_KEY = 'aster:theme';
-const storedTheme = (): Theme => {
-	if (typeof localStorage === 'undefined') return 'system';
-	const v = localStorage.getItem(THEME_KEY);
-	return v === 'light' || v === 'dark' ? v : 'system';
-};
+/** The remembered override: raw `light` | `dark` | `system` in localStorage, synced across tabs. */
+const storedTheme = new PersistedState<Theme>('aster:theme', 'system', {
+	serializer: {
+		serialize: (v) => v,
+		deserialize: (v) => (v === 'light' || v === 'dark' ? v : 'system')
+	}
+});
 
 class Ui {
 	zoom = $state(1);
 	/** System-following with a remembered override (features.md, themes). */
-	theme: Theme = $state(storedTheme());
+	get theme(): Theme {
+		return storedTheme.current;
+	}
+	set theme(v: Theme) {
+		storedTheme.current = v;
+	}
 	layoutPreset: LayoutPreset = $state('modern');
 	panels = $state({ outline: false, inspector: true });
 	/** Which inspector tab shows (board 15: Diagram holds the display defaults). */
@@ -51,8 +58,4 @@ export function cycleTheme() {
 }
 export function setTheme(theme: Theme) {
 	ui.theme = theme;
-	if (typeof localStorage !== 'undefined') {
-		if (theme === 'system') localStorage.removeItem(THEME_KEY);
-		else localStorage.setItem(THEME_KEY, theme);
-	}
 }

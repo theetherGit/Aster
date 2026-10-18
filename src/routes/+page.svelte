@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { useInterval } from 'runed';
 	import { SvelteFlowProvider } from '@xyflow/svelte';
 	import { Tabs } from 'bits-ui';
 	import Canvas from '#lib/canvas/Canvas.svelte';
@@ -53,10 +54,7 @@
 
 	// Relative times tick once a minute.
 	let now = $state(Date.now());
-	$effect(() => {
-		const id = setInterval(() => (now = Date.now()), 30_000);
-		return () => clearInterval(id);
-	});
+	useInterval(30_000, { callback: () => (now = Date.now()) });
 	const title = $derived(
 		`${files.current?.name ?? projectStore.project.name}${files.state === 'unsaved' ? ' •' : ''} – ${t('app.name')}`
 	);

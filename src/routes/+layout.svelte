@@ -4,6 +4,7 @@
 	import paperFont from '#lib/assets/fonts/source-sans-3/source-sans-3-latin-wght-normal.woff2';
 	import { locale, localeFromUrl } from '#lib/i18n/locale.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -15,15 +16,10 @@
 
 	// Theme: the remembered override, else the system; written to <html data-theme> so the
 	// token blocks in layout.css apply. The paper stays white either way (ui.md).
+	const prefersDark = new MediaQuery('(prefers-color-scheme: dark)');
 	$effect(() => {
-		const media = matchMedia('(prefers-color-scheme: dark)');
-		const apply = () => {
-			const resolved = ui.theme === 'system' ? (media.matches ? 'dark' : 'light') : ui.theme;
-			document.documentElement.dataset.theme = resolved;
-		};
-		apply();
-		media.addEventListener('change', apply);
-		return () => media.removeEventListener('change', apply);
+		document.documentElement.dataset.theme =
+			ui.theme === 'system' ? (prefersDark.current ? 'dark' : 'light') : ui.theme;
 	});
 </script>
 

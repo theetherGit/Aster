@@ -48,7 +48,8 @@
 		"bits-ui": "^2.19.5",
 		"elkjs": "^0.12.0",
 		"idb-keyval": "^6.3.0",
-		"nanoid": "^6.0.2"
+		"nanoid": "^6.0.2",
+		"runed": "0.35.1"
 	},
 	"packageManager": "pnpm@12.14.0",
 	"engines": {
