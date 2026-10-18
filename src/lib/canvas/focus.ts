@@ -13,3 +13,8 @@ export const explorerFocus: { reveal: (id: Id | null) => void; pending: Id | nul
 	reveal: () => {},
 	pending: null
 };
+
+/** Registered by the canvas while mounted: the rendered rectangles of the diagram's nodes (export, thumbnails). */
+export const canvasRects: { get: () => Map<Id, { x: number; y: number; w: number; h: number }> } = {
+	get: () => new Map()
+};

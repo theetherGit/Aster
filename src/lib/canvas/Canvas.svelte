@@ -32,7 +32,7 @@
 	import Markers from './edges/Markers.svelte';
 	import UmlEdge from './edges/UmlEdge.svelte';
 	import { center, type Rect } from './edges/geometry.ts';
-	import { canvasFocus } from './focus.ts';
+	import { canvasFocus, canvasRects } from './focus.ts';
 	import { handleCanvasKey } from './keyboard.ts';
 
 	const nodeTypes = {
@@ -63,9 +63,11 @@
 
 	$effect(() => {
 		canvasFocus.el = el;
+		canvasRects.get = rects;
 		el.focus();
 		return () => {
 			canvasFocus.el = null;
+			canvasRects.get = () => new Map();
 		};
 	});
 

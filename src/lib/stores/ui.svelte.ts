@@ -12,6 +12,12 @@ class Ui {
 	tool: Tool = $state('select');
 	/** Keyboard link in progress: arrows move the target highlight. */
 	link: { sourceId: Id; targetId: Id } | null = $state(null);
+	/** Board 07 welcome: first visit until the user picks something. */
+	welcome = $state(false);
+	/** Owner's first-run ruling (#1): the sample shows a strip until the user starts their own work. */
+	sampleStrip = $state(false);
+	/** Board 06 export sheet. */
+	exportOpen = $state(false);
 	/** Edge under the pointer: its two end nodes light up (features list #14). */
 	hoveredEdge: Id | null = $state(null);
 	/** Relationship picker open at a client-space point. */
