@@ -24,6 +24,8 @@
 	--paper-grid: #e0e0e6;
 	--paper-ink: #1b1b1b;
 	--paper-fill: #ffffff;
+	/* The accent as drawn on the paper (selection, focus, link preview, handles); yellow would not read on white. */
+	--paper-accent: var(--accent);
 	/* Edges of form controls (inputs, segments): 3:1 against bg and surface, unlike separators. */
 	--control-border: #7d7d89;
 	--control-radius: 6px;
@@ -66,6 +68,52 @@
 		--warning: #e0a33a;
 		--danger: #f0705c;
 		--control-border: #74747f;
+	}
+}
+
+/* High contrast (ui.md token table): black chrome, white text and edges, yellow accent, 2 px UML strokes,
+   no grid. The paper keeps a blue accent, since yellow on white is 1.3:1. */
+:root[data-theme='high-contrast'] {
+	color-scheme: dark;
+	--chrome-bg: #000000;
+	--chrome-surface: #0a0a0a;
+	--chrome-border: #ffffff;
+	--chrome-text: #ffffff;
+	--chrome-muted: #e6e6e6;
+	--accent: #ffd60a;
+	--accent-fill: #ffd60a;
+	--on-accent: #000000;
+	--warning: #ffd60a;
+	--danger: #ff6b5a;
+	--paper-bg: #ffffff;
+	--paper-grid: transparent;
+	--paper-ink: #000000;
+	--paper-fill: #ffffff;
+	--paper-accent: #1a4fd6;
+	--control-border: #ffffff;
+	--uml-stroke: 2px;
+}
+
+/* Forced colours (Windows high contrast): let the system palette through, keep the one outline that carries meaning. */
+@media (forced-colors: active) {
+	:focus-visible {
+		outline-color: Highlight;
+	}
+	.classifier-node.selected,
+	.note-node.selected {
+		outline-color: Highlight;
+	}
+}
+
+/* Reduced motion: nothing moves on its own; state changes still show, at once. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
 	}
 }
 

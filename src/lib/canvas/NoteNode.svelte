@@ -124,13 +124,13 @@
 	}
 	.note-node:hover:not(.selected),
 	.note-node.edge-hover:not(.selected) {
-		outline: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+		outline: 1px solid color-mix(in srgb, var(--paper-accent) 50%, transparent);
 	}
 	.note-node.selected {
-		outline: 2px solid var(--accent);
+		outline: 2px solid var(--paper-accent);
 	}
 	.note-node.link-target {
-		outline: 2px dashed var(--accent);
+		outline: 2px dashed var(--paper-accent);
 		outline-offset: 5px;
 	}
 	.body {
@@ -149,7 +149,7 @@
 		padding: 0;
 		font: inherit;
 		color: inherit;
-		background: color-mix(in srgb, var(--accent) 8%, transparent);
+		background: color-mix(in srgb, var(--paper-accent) 8%, transparent);
 		border: none;
 		outline: none;
 		resize: none;
@@ -168,7 +168,7 @@
 		position: absolute;
 		inset: 8px;
 		border-radius: 50%;
-		background: var(--accent);
+		background: var(--paper-accent);
 	}
 	.note-node:hover :global(.uml-handle) {
 		opacity: 1;
@@ -179,7 +179,7 @@
 		width: 7px;
 		height: 7px;
 		background: var(--paper-bg);
-		border: 1.5px solid var(--accent);
+		border: 1.5px solid var(--paper-accent);
 	}
 	.handle.tl {
 		top: -4px;

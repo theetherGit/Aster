@@ -43,6 +43,7 @@
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import { live } from '#lib/stores/live.svelte.ts';
 	import { resolve } from '$app/paths';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
@@ -273,6 +274,10 @@
 			</div>
 		</Tabs.Content>
 	</Tabs.Root>
+	<!-- features.md, Live announcements: every command result, read politely; keyed so repeats are read again. -->
+	{#key live.n}
+		<div class="sr-only" aria-live="polite" data-testid="live">{live.text}</div>
+	{/key}
 	<RelationshipPicker />
 	<ExportSheet />
 	<Palette />

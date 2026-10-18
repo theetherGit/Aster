@@ -14,7 +14,7 @@
 <div class="hint">
 	<div
 		class="mb-3 w-[200px]"
-		use:hairline={{ figure: drawer, label: t('empty.figure'), intensity: 0.4, play: false }}
+		use:hairline={{ figure: drawer, label: t('empty.figure'), intensity: 0.4, play: true }}
 	></div>
 	<p class="text-[17px] font-semibold">{t('empty.title')}</p>
 	<p class="mt-1 text-[13px]">{t('empty.body')}</p>

@@ -22,7 +22,12 @@
 	];
 	const dashed = (k: RelationshipKind) => k === 'realization' || k === 'dependency';
 	const note = () => COMMANDS.find((c) => c.id === 'create.note')?.run();
-	const pick = (tool: Tool) => (ui.tool = ui.tool === tool ? 'select' : tool);
+	const pick = (tool: Tool) => {
+		ui.tool = ui.tool === tool ? 'select' : tool;
+		if (ui.pinned !== ui.tool) ui.pinned = null;
+	};
+	/** StarUML's lock: a double-clicked tool keeps placing until Esc. */
+	const pin = (tool: Tool) => ((ui.tool = tool), (ui.pinned = tool));
 	const pickRel = (kind: RelationshipKind) => {
 		ui.lastRelationshipKind = kind;
 		ui.tool = ui.tool === 'link' && ui.lastRelationshipKind === kind ? 'select' : 'link';
@@ -42,9 +47,12 @@
 				type="button"
 				class="tool"
 				aria-pressed={ui.tool === e.tool}
+				aria-label={ui.pinned === e.tool ? t('ui.toolPinned', { tool: e.label }) : undefined}
+				data-pinned={ui.pinned === e.tool || undefined}
 				disabled={!e.ready}
-				title={e.ready ? e.label : t('ui.comingSoon')}
+				title={e.ready ? t('ui.pinHint', { tool: e.label }) : t('ui.comingSoon')}
 				onclick={() => pick(e.tool)}
+				ondblclick={() => e.ready && pin(e.tool)}
 			>
 				<span class="glyph {e.tool}" aria-hidden="true"></span>{e.label}
 			</button>
@@ -91,6 +99,9 @@
 	.tool[aria-pressed='true'] {
 		background: color-mix(in srgb, var(--accent) 12%, var(--chrome-bg));
 		border-left-color: var(--accent);
+	}
+	.tool[data-pinned] {
+		box-shadow: inset 0 0 0 1px var(--accent);
 	}
 	.tool:disabled {
 		color: var(--chrome-muted);

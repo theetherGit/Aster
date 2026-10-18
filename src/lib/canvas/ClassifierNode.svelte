@@ -102,14 +102,14 @@
 	}
 	.classifier-node:hover:not(.selected),
 	.classifier-node.edge-hover:not(.selected) {
-		outline: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+		outline: 1px solid color-mix(in srgb, var(--paper-accent) 50%, transparent);
 	}
 	.classifier-node.selected {
-		outline: 2px solid var(--accent);
+		outline: 2px solid var(--paper-accent);
 	}
 	/* The keyboard link target carries the focus-ring style (ui.md). */
 	.classifier-node.link-target {
-		outline: 2px dashed var(--accent);
+		outline: 2px dashed var(--paper-accent);
 		outline-offset: 5px;
 	}
 	/* 24 px handles just outside each side; the dot shows on hover. */
@@ -129,7 +129,7 @@
 		position: absolute;
 		inset: 7px;
 		box-sizing: border-box;
-		border: 2px solid var(--accent);
+		border: 2px solid var(--paper-accent);
 		border-radius: 50%;
 		background: var(--paper-bg);
 	}
@@ -176,7 +176,7 @@
 		height: 22px;
 		padding: 0 4px;
 		text-align: center;
-		background: color-mix(in srgb, var(--accent) 8%, transparent);
+		background: color-mix(in srgb, var(--paper-accent) 8%, transparent);
 	}
 	/* Board 01/13: hollow 6 px corner handles. */
 	.handle {
@@ -185,7 +185,7 @@
 		width: 7px;
 		height: 7px;
 		background: var(--paper-bg);
-		border: 1.5px solid var(--accent);
+		border: 1.5px solid var(--paper-accent);
 	}
 	.handle.tl {
 		top: -4px;

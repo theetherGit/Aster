@@ -326,14 +326,14 @@
 	}
 	/* Board 12: the selected line itself turns accent. */
 	.uml-edge.hovered:not(.selected) .edge-line {
-		stroke: color-mix(in srgb, var(--accent) 60%, var(--paper-ink));
+		stroke: color-mix(in srgb, var(--paper-accent) 60%, var(--paper-ink));
 	}
 	.uml-edge.selected .edge-line {
-		stroke: var(--accent);
+		stroke: var(--paper-accent);
 	}
 	.edge-end {
 		fill: var(--paper-bg);
-		stroke: var(--accent);
+		stroke: var(--paper-accent);
 		pointer-events: none;
 	}
 	.edge-hit {
@@ -365,11 +365,11 @@
 	}
 	.edge-handle .mark {
 		fill: var(--paper-bg);
-		stroke: var(--accent);
+		stroke: var(--paper-accent);
 		pointer-events: none;
 	}
 	.edge-handle.waypoint .mark {
-		fill: var(--accent);
+		fill: var(--paper-accent);
 	}
 	.edge-handle.midpoint.dragging .mark {
 		opacity: 0;

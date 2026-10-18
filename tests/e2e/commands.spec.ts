@@ -228,6 +228,12 @@ test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered
 	await expect.poll(theme).toBe('dark'); // applied before first paint by app.html's script
 	await canvasOf(page).focus();
 	await page.keyboard.press('ControlOrMeta+Alt+t');
+	expect(await theme()).toBe('high-contrast');
+	expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(
+		'rgb(0, 0, 0)'
+	);
+	expect(['#ffffff', '#fff']).toContain(await paper()); // paper stays white here too
+	await page.keyboard.press('ControlOrMeta+Alt+t');
 	expect(await theme()).toBe('light'); // back to system
 	expect(await page.evaluate(() => localStorage.getItem('aster:theme'))).toBe('system');
 });

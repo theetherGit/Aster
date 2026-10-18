@@ -15,6 +15,7 @@
 	} from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
 	import { untrack } from 'svelte';
+	import { prefersReducedMotion } from 'svelte/motion';
 	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { ClassifierKind, Id } from '#lib/model/types.ts';
@@ -67,6 +68,8 @@
 		})
 	);
 
+	/** Zoom and fit animate unless the reader asked for less motion. */
+	const dur = (ms: number) => (prefersReducedMotion.current ? 0 : ms);
 	let el: HTMLDivElement;
 	let pointer: { x: number; y: number } | null = null;
 
@@ -80,9 +83,10 @@
 			createNote: () => createNoteAt(cursorPosition(), rects().values()),
 			createText: () => createTextAt(cursorPosition(), rects().values()),
 			startLink: () => startLink(rects()),
-			zoomBy: (f: number) => setZoom(Math.min(4, Math.max(0.1, getZoom() * f)), { duration: 120 }),
-			zoomTo: (z: number) => setZoom(z, { duration: 120 }),
-			fitAll: () => fitView({ padding: 0.1, duration: 200 }),
+			zoomBy: (f: number) =>
+				setZoom(Math.min(4, Math.max(0.1, getZoom() * f)), { duration: dur(120) }),
+			zoomTo: (z: number) => setZoom(z, { duration: dur(120) }),
+			fitAll: () => fitView({ padding: 0.1, duration: dur(200) }),
 			fitSelection: () => {
 				const r = rects();
 				const boxes = selection.list.map((id) => r.get(id)).filter((b): b is Rect => !!b);
@@ -91,7 +95,7 @@
 				const y = Math.min(...boxes.map((b) => b.y));
 				const x2 = Math.max(...boxes.map((b) => b.x + b.w));
 				const y2 = Math.max(...boxes.map((b) => b.y + b.h));
-				fitBounds({ x, y, width: x2 - x, height: y2 - y }, { padding: 0.2, duration: 200 });
+				fitBounds({ x, y, width: x2 - x, height: y2 - y }, { padding: 0.2, duration: dur(200) });
 			},
 			rects
 		} satisfies Partial<typeof canvasApi>);
@@ -220,7 +224,7 @@
 		)
 			return;
 		createClassifierAt(ui.tool, toPaper({ x: event.clientX, y: event.clientY }), rects().values());
-		ui.tool = 'select';
+		if (ui.pinned !== ui.tool) ui.tool = 'select'; // a pinned tool keeps placing (features.md)
 	}
 
 	/** Link preview: source centre to target centre, in paper space. */
@@ -307,12 +311,12 @@
 		inset: 0;
 	}
 	.aster-canvas:focus-visible {
-		outline: 2px dashed var(--accent);
+		outline: 2px dashed var(--paper-accent);
 		outline-offset: -5px;
 	}
 	.aster-canvas :global(.svelte-flow__selection) {
-		background: color-mix(in srgb, var(--accent) 8%, transparent);
-		border: 1px dashed var(--accent);
+		background: color-mix(in srgb, var(--paper-accent) 8%, transparent);
+		border: 1px dashed var(--paper-accent);
 	}
 	.aster-canvas :global(.svelte-flow__node) {
 		cursor: grab;
@@ -322,7 +326,7 @@
 	}
 	/* Connection previews are the one other place the accent appears on paper (ui.md). */
 	.aster-canvas :global(.svelte-flow__connection-path) {
-		stroke: var(--accent);
+		stroke: var(--paper-accent);
 		stroke-width: 1.5;
 		stroke-dasharray: 6 4;
 	}
@@ -334,7 +338,7 @@
 		pointer-events: none;
 	}
 	.link-preview line {
-		stroke: var(--accent);
+		stroke: var(--paper-accent);
 		stroke-width: 1.5;
 		stroke-dasharray: 6 4;
 	}

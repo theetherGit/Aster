@@ -16,6 +16,9 @@ function tokens(selector: string): Record<string, string> {
 }
 const light = tokens(':root {');
 const dark = { ...light, ...tokens(":root[data-theme='dark']") };
+const highContrast = { ...light, ...tokens(":root[data-theme='high-contrast']") };
+/** `--paper-accent` is `var(--accent)` unless a theme sets it (high contrast does). */
+for (const t of [light, dark, highContrast]) t['paper-accent'] ??= t['accent'];
 
 const lum = (hex: string) => {
 	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -42,14 +45,16 @@ const TEXT_PAIRS: [string, string][] = [
 const EDGE_PAIRS: [string, string][] = [
 	['accent', 'chrome-bg'],
 	['accent', 'chrome-surface'],
-	['accent', 'paper-bg'],
 	['control-border', 'chrome-bg'],
-	['control-border', 'chrome-surface']
+	['control-border', 'chrome-surface'],
+	['paper-accent', 'paper-bg'],
+	['paper-ink', 'paper-fill']
 ];
 
 describe.each([
 	['light', light],
-	['dark', dark]
+	['dark', dark],
+	['high-contrast', highContrast]
 ] as const)('%s theme tokens', (_name, t) => {
 	it.each(TEXT_PAIRS)('%s on %s reads at 4.5:1', (fg, bg) => {
 		expect(t[fg], fg).toBeDefined();
@@ -62,4 +67,9 @@ describe.each([
 	it('paper is white', () => {
 		expect(t['paper-bg']).toBe('#ffffff');
 	});
+});
+
+it('high contrast draws UML at 2 px and chrome edges in white', () => {
+	expect(highContrast['chrome-border']).toBe('#ffffff');
+	expect(css).toMatch(/data-theme='high-contrast'\][\s\S]*?--uml-stroke: 2px/);
 });

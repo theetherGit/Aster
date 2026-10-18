@@ -230,7 +230,13 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('Esc'),
 		context: 'canvas',
 		sheetOnly: true,
-		run: () => (selection.editing ? stopEditing() : selection.clear())
+		run: () => {
+			if (selection.editing) stopEditing();
+			else if (ui.pinned || ui.tool !== 'select') {
+				ui.pinned = null;
+				ui.tool = 'select';
+			} else selection.clear();
+		}
 	},
 	{
 		id: 'edit.undo',

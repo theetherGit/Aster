@@ -33,15 +33,20 @@
 	<Toolbar.Group
 		type="single"
 		value={ui.tool}
-		onValueChange={(v: string) => (ui.tool = (v || 'select') as Tool)}
+		onValueChange={(v: string) => {
+			ui.tool = (v || 'select') as Tool;
+			if (ui.pinned && ui.pinned !== ui.tool) ui.pinned = null;
+		}}
 		class="flex flex-col gap-1"
 	>
 		{#each TOOLS as tool (tool.id)}
 			<Toolbar.GroupItem
 				value={tool.id}
-				aria-label={label(tool)}
-				title={label(tool)}
-				class="flex h-8 w-8 items-center justify-center rounded-control text-[13px] font-semibold text-chrome-text hover:bg-chrome-surface data-[state=on]:bg-accent/15 data-[state=on]:text-accent"
+				aria-label={ui.pinned === tool.id ? t('ui.toolPinned', { tool: label(tool) }) : label(tool)}
+				title={tool.id === 'select' ? label(tool) : t('ui.pinHint', { tool: label(tool) })}
+				data-pinned={ui.pinned === tool.id || undefined}
+				ondblclick={() => tool.id !== 'select' && ((ui.tool = tool.id), (ui.pinned = tool.id))}
+				class="flex h-8 w-8 items-center justify-center rounded-control text-[13px] font-semibold text-chrome-text hover:bg-chrome-surface data-pinned:ring-2 data-pinned:ring-accent data-pinned:ring-inset data-[state=on]:bg-accent/15 data-[state=on]:text-accent"
 			>
 				<svg
 					width="15"

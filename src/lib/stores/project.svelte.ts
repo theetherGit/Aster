@@ -1,3 +1,5 @@
+import { t } from '#lib/i18n/index.ts';
+import { announce } from './live.svelte.ts';
 import { Stack } from '#lib/commands/index.ts';
 import type { Command, CommandStackSnapshot } from '#lib/commands/types.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
@@ -69,17 +71,19 @@ class ProjectStore {
 	run<A>(factory: Factory<A>, args: A): string {
 		const label = this.#stack.run(factory(this.#project, args));
 		this.version++;
+		announce(sentence(label));
 		return label;
 	}
 	undo(): string | null {
 		return this.#afterHistory(this.#stack.undo());
 	}
 	redo(): string | null {
-		return this.#afterHistory(this.#stack.redo());
+		return this.#afterHistory(this.#stack.redo(), 'redone');
 	}
 	/** After undo/redo: re-derive and jump the selection to what the step touched. */
-	#afterHistory(label: string | null) {
+	#afterHistory(label: string | null, verb: 'undone' | 'redone' = 'undone') {
 		if (label === null) return null;
+		announce(t(`live.${verb}`, { label }));
 		this.version++;
 		selection.editing = null;
 		const onDiagram = new Set(this.diagram.elementIds);
@@ -87,5 +91,8 @@ class ProjectStore {
 		return label;
 	}
 }
+
+/** Command labels are phrases ("create class Book"); the live region reads them as sentences. */
+const sentence = (label: string) => label.charAt(0).toUpperCase() + label.slice(1);
 
 export const projectStore = new ProjectStore();

@@ -13,7 +13,7 @@ const storedLayout = new PersistedState<LayoutPreset>('aster:layout', 'modern', 
 const storedTheme = new PersistedState<Theme>('aster:theme', 'system', {
 	serializer: {
 		serialize: (v) => v,
-		deserialize: (v) => (v === 'light' || v === 'dark' ? v : 'system')
+		deserialize: (v) => (v === 'light' || v === 'dark' || v === 'high-contrast' ? v : 'system')
 	}
 });
 
@@ -46,6 +46,8 @@ class Ui {
 	/** Which inspector tab shows (board 15: Diagram holds the display defaults); Classic's Editors add Documentation. */
 	inspectorTab: 'properties' | 'diagram' | 'documentation' = $state('properties');
 	tool: Tool = $state('select');
+	/** features.md, Pin a tool: a double-clicked tool keeps placing until Esc or another tool. */
+	pinned: Tool | null = $state(null);
 	/** Keyboard link in progress: arrows move the target highlight. */
 	link: { sourceId: Id; targetId: Id } | null = $state(null);
 	/** Relationship picker open at a client-space point. */
@@ -68,10 +70,10 @@ class Ui {
 
 export const ui = new Ui();
 
-/** ⌘⌥T: system → light → dark → system; remembered. */
+/** ⌘⌥T: system → light → dark → high contrast → system (keyboard.md); remembered. */
 export function cycleTheme() {
-	const next: Theme = ui.theme === 'system' ? 'light' : ui.theme === 'light' ? 'dark' : 'system';
-	setTheme(next);
+	const order: Theme[] = ['system', 'light', 'dark', 'high-contrast'];
+	setTheme(order[(order.indexOf(ui.theme) + 1) % order.length]);
 }
 export function setTheme(theme: Theme) {
 	ui.theme = theme;

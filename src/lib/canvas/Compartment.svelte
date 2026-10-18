@@ -100,7 +100,7 @@
 	.member.editing {
 		margin: 0 -10px;
 		padding: 0 10px;
-		background: color-mix(in srgb, var(--accent) 8%, transparent);
+		background: color-mix(in srgb, var(--paper-accent) 8%, transparent);
 	}
 	.member.static {
 		text-decoration: underline;

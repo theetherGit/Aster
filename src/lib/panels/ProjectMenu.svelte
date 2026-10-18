@@ -54,7 +54,7 @@
 		>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content class="menu min-w-[260px]" sideOffset={4} align="start">
+		<DropdownMenu.Content class="menu min-w-65" sideOffset={4} align="start">
 			<DropdownMenu.Item class="menu-item" onSelect={() => newProject()}>
 				<span>{t('file.new')}</span>
 				<kbd class="ml-auto font-sans text-[11px] opacity-80">{t('file.newShortcut')}</kbd>
