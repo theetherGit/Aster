@@ -1,3 +1,35 @@
+/*
+ * Hairline engine: @lucasmarkes/hairline 0.5.1, https://github.com/lucasmarkes/hairline
+ *
+ * MIT License
+ *
+ * Copyright (c) 2026 Lucas Marques
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Lines 51–765 below are that package's engine (its src/core, built as the Hairline skill's
+ * kernel.js), unchanged byte for byte, except line 133, a `// prettier-ignore` that is ours.
+ * Lines 768–994 are the Aster figure: `mount()` from line 839, its SPEC from line 985.
+ * Lines 996–1129 are the adapter, copied from the package's `create()` (src/mount.ts) for this one figure.
+ *
+ * When the package is bumped, regenerate the engine block from the bench page the skill builds; never patch it by hand.
+ */
 /* eslint-disable @typescript-eslint/ban-ts-comment -- the engine is vendored JavaScript */
 // @ts-nocheck -- the Hairline engine below is vendored JavaScript, kept byte for byte; the figure and the adapter at the end are ours.
 /**
