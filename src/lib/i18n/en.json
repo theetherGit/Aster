@@ -221,5 +221,16 @@
 	"diagramType.other": "{type}",
 	"model.defaultName.primitiveType": "PrimitiveType{n}",
 	"kind.primitiveType": "primitive type",
-	"ui.kind.primitiveType": "Primitive type"
+	"ui.kind.primitiveType": "Primitive type",
+	"ui.canvasNamed": "Diagram canvas: {name}",
+	"picker.heading": "{source} → {target}",
+	"import.placedSummary": "{classifiers} classifiers and {relationships} relationships placed.",
+	"import.keptVerb.one": "{list} is kept and will be saved back unchanged, but Aster can’t show it yet.",
+	"import.keptVerb.other": "{list} are kept and will be saved back unchanged, but Aster can’t show them yet.",
+	"import.otherKept": "{count} other elements Aster does not draw yet are kept the same way.",
+	"import.details": "Details",
+	"list.pair": "{a} and {b}",
+	"list.more": "{a}, {b}",
+	"diagramCount.one": "{count} {type}",
+	"diagramCount.other": "{count} {type}s"
 }

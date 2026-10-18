@@ -1037,3 +1037,29 @@ describe('containers and arrays the table does not name', () => {
 		expect(R(r, 'd').relationshipKind).toBe('dependency');
 	});
 });
+
+describe('which diagram opens', () => {
+	const view = (id: string, modelId: string) => nodeView(id, modelId, [0, 0, 10, 10]);
+	it('StarUML’s default class diagram when it has classifiers; otherwise the first diagram that does', () => {
+		const withDefault = parseMdj(
+			one([
+				cls('A'),
+				diagram('D1', [view('v1', 'A')]),
+				diagram('D2', [view('v2', 'A')], { defaultDiagram: true })
+			])
+		);
+		expect(withDefault.openDiagramId).toBe('D2');
+		const emptyDefault = parseMdj(
+			one([
+				cls('A'),
+				diagram('D1', [], { defaultDiagram: true }),
+				diagram('D2', []),
+				diagram('D3', [view('v3', 'A')])
+			])
+		);
+		expect(emptyDefault.openDiagramId).toBe('D3');
+		const nothing = parseMdj(one([diagram('D1', []), diagram('D2', [], { defaultDiagram: true })]));
+		expect(nothing.openDiagramId).toBe('D2');
+		expect(parseMdj(one([])).openDiagramId).toBeNull();
+	});
+});

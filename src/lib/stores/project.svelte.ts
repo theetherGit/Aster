@@ -46,10 +46,14 @@ class ProjectStore {
 		return this.#stack.redoLabel;
 	}
 
-	load(project: Project) {
+	/** Make `project` the open project, showing `diagramId` (or its first diagram). */
+	load(project: Project, diagramId?: Id | null) {
 		this.#project = project;
 		this.#stack = new Stack(() => this.#project);
-		this.activeDiagramId = project.diagrams[0]?.id ?? '';
+		this.activeDiagramId =
+			(diagramId && project.diagrams.some((d) => d.id === diagramId)
+				? diagramId
+				: project.diagrams[0]?.id) ?? '';
 		this.version++;
 	}
 

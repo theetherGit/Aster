@@ -179,7 +179,7 @@
 	bind:this={el}
 	class="aster-canvas"
 	role="application"
-	aria-label={t('ui.canvas')}
+	aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
 	tabindex="0"
 	onkeydown={(e) =>
 		handleCanvasKey(e, {

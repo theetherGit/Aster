@@ -84,6 +84,8 @@ export interface ParseResult {
 	project: Project;
 	unknown: Unknown[];
 	report: ParseReport;
+	/** The diagram to show first: never an empty one when something can be drawn. */
+	openDiagramId: Id | null;
 }
 
 export class MdjError extends Error {}
@@ -323,7 +325,13 @@ class Parser {
 		for (const d of this.diagrams) this.mapViews(d, this.diagramJson.get(d.id)!);
 		for (const id of this.elements.keys()) this.project.importedIds.add(id);
 		for (const d of this.diagrams) this.project.importedIds.add(d.id);
-		return { project: this.project, unknown: this.unknown, report: this.report() };
+		const report = this.report();
+		return {
+			project: this.project,
+			unknown: this.unknown,
+			report,
+			openDiagramId: this.openDiagram(report)
+		};
 	}
 
 	walkOwned(container: Json, packageId: Id | undefined) {
@@ -772,6 +780,25 @@ class Parser {
 			line: str(v.lineColor),
 			labelOffsets
 		});
+	}
+
+	/**
+	 * StarUML's default diagram when it is a class diagram with something Aster draws; else the
+	 * first diagram that has classifiers; else the default; else the first. Opening onto an empty
+	 * canvas looks like a failed import.
+	 */
+	openDiagram(report: ParseReport): Id | null {
+		const drawn = new Set(report.diagrams.filter((d) => d.nodes > 0).map((d) => d.id));
+		const defaults = this.diagrams
+			.filter((d) => this.diagramJson.get(d.id)?.defaultDiagram === true)
+			.map((d) => d.id);
+		return (
+			defaults.find((id) => drawn.has(id)) ??
+			this.diagrams.find((d) => drawn.has(d.id))?.id ??
+			defaults[0] ??
+			this.diagrams[0]?.id ??
+			null
+		);
 	}
 
 	report(): ParseReport {

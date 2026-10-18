@@ -4,7 +4,7 @@ test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, âŒ
 	page
 }) => {
 	await page.goto('/');
-	const canvas = page.getByRole('application', { name: 'Diagram canvas' });
+	const canvas = page.getByRole('application', { name: 'Diagram canvas: Main' });
 	await expect(canvas).toBeFocused();
 
 	await page.keyboard.press('ControlOrMeta+b');

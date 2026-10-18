@@ -83,7 +83,7 @@ export async function openFile(f: OpenedFile) {
 		ui.picker = null;
 		selection.editing = null;
 		selection.clear();
-		projectStore.load(result.project);
+		projectStore.load(result.project, result.openDiagramId);
 		files.current = { name: f.name, handle: f.handle };
 		files.recent = [
 			{ name: f.name, at: Date.now(), data: keep, handle: f.handle },

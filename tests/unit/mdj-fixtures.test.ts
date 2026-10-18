@@ -93,6 +93,12 @@ describe.each(files)('%s', (file) => {
 		);
 	});
 
+	it('opens onto a diagram with classifiers whenever any diagram has some', () => {
+		const opened = result.report.diagrams.find((d) => d.id === result.openDiagramId);
+		if (result.report.diagrams.some((d) => d.nodes > 0)) expect(opened?.nodes).toBeGreaterThan(0);
+		else expect(opened).toBeDefined();
+	});
+
 	it('reports the number of unknowns it keeps', () => {
 		const unknowns = result.unknown.filter((u) => u.path !== SOURCE_PATH);
 		expect(result.report.unknownElements).toBe(unknowns.length);

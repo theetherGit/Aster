@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export const canvasOf = (page: Page) => page.getByRole('application', { name: 'Diagram canvas' });
+export const canvasOf = (page: Page) =>
+	page.getByRole('application', { name: /^Diagram canvas: / });
 export const node = (page: Page, name: string) =>
 	page.locator(`.classifier-node[data-name="${name}"]`);
 export const lines = (page: Page, name: string, kind: string) =>

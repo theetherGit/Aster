@@ -45,9 +45,12 @@ test('⌘O opens a .mdj through the file-input fallback, parsing in a Web Worker
 	const kept = notice(page).getByTestId('kept-hidden');
 	await expect(kept).toContainText('profile diagram');
 	await expect(kept).toContainText('use case diagram');
-	await expect(kept).toContainText('elements Aster does not model yet');
+	await expect(kept).toContainText('are kept and will be saved back unchanged');
+	await expect(notice(page)).toContainText(
+		'other elements Aster does not draw yet are kept the same way'
+	);
 
-	// The first class diagram is active; every class diagram has a tab.
+	// StarUML’s default diagram is empty here, so the first one with classes opens; every class diagram has a tab.
 	await expect(page.getByRole('tab')).toHaveCount(5);
 	await expect(page.getByRole('tab', { name: 'Business Goals' })).toHaveAttribute(
 		'aria-selected',
@@ -57,6 +60,9 @@ test('⌘O opens a .mdj through the file-input fallback, parsing in a Web Worker
 	await expect(page.getByTestId('project-name')).toHaveText('Business Modeling Example');
 	await expect(canvasOf(page)).toBeFocused();
 
+	// The per-diagram detail sits behind a disclosure.
+	await notice(page).getByRole('button', { name: 'Details' }).click();
+	await expect(notice(page)).toContainText('Business Goals: 4 classifiers, 3 relationships');
 	await notice(page).getByRole('button', { name: 'Close the import notice' }).click();
 	await expect(notice(page)).toHaveCount(0);
 });
