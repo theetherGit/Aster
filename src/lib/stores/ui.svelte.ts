@@ -5,6 +5,10 @@ export type Tool = 'select' | 'class' | 'interface' | 'enum' | 'package' | 'link
 export type Theme = 'system' | 'light' | 'dark' | 'high-contrast';
 export type LayoutPreset = 'modern' | 'classic';
 
+/** The layout preset (overview.md: "Switching is one toggle and is remembered"), raw in localStorage. */
+const storedLayout = new PersistedState<LayoutPreset>('aster:layout', 'modern', {
+	serializer: { serialize: (v) => v, deserialize: (v) => (v === 'classic' ? 'classic' : 'modern') }
+});
 /** The remembered override: raw `light` | `dark` | `system` in localStorage, synced across tabs. */
 const storedTheme = new PersistedState<Theme>('aster:theme', 'system', {
 	serializer: {
@@ -22,10 +26,25 @@ class Ui {
 	set theme(v: Theme) {
 		storedTheme.current = v;
 	}
-	layoutPreset: LayoutPreset = $state('modern');
+	get layoutPreset(): LayoutPreset {
+		return storedLayout.current;
+	}
+	set layoutPreset(v: LayoutPreset) {
+		storedLayout.current = v;
+		if (v === 'modern' && this.inspectorTab === 'documentation') this.inspectorTab = 'properties';
+	}
 	panels = $state({ outline: false, inspector: true });
-	/** Which inspector tab shows (board 15: Diagram holds the display defaults). */
-	inspectorTab: 'properties' | 'diagram' = $state('properties');
+	/** Classic's six panels, StarUML's Ctrl+1–6 (keyboard.md). */
+	classic = $state({
+		sidebar: true,
+		navigator: true,
+		toolbar: true,
+		statusbar: true,
+		toolbox: true,
+		editors: true
+	});
+	/** Which inspector tab shows (board 15: Diagram holds the display defaults); Classic's Editors add Documentation. */
+	inspectorTab: 'properties' | 'diagram' | 'documentation' = $state('properties');
 	tool: Tool = $state('select');
 	/** Keyboard link in progress: arrows move the target highlight. */
 	link: { sourceId: Id; targetId: Id } | null = $state(null);

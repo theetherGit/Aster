@@ -21,7 +21,7 @@ function dispatch(e: KeyboardEvent, context: Context): boolean {
 		if (c.context !== context) continue;
 		if (!c.keys.some((s) => matches(e, s))) continue;
 		if (typing && !c.inText) return false;
-		if (c.when && !c.when()) return false;
+		if (c.when && !c.when()) continue; // another command may own the chord in this layout
 		c.run();
 		e.preventDefault();
 		return true;

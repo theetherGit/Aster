@@ -17,6 +17,8 @@
 		type TreeRow
 	} from './tree.ts';
 
+	// Modern: the 240 px Outline drawer. Classic: the Model Explorer, filling its column (board 03).
+	let { variant = 'modern' }: { variant?: 'modern' | 'classic' } = $props();
 	// Read-only tree (editing from the tree is M2). role="tree" with a roving tabindex and
 	// the ARIA Authoring Practices keyboard. Hand-built: no primitive fits it.
 	// Board 01: the project and the open diagram start expanded.
@@ -128,21 +130,27 @@
 </script>
 
 <aside
-	aria-label={t('explorer.title')}
-	class="flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface"
+	aria-label={variant === 'classic' ? t('classic.modelExplorer') : t('explorer.title')}
+	class={variant === 'classic'
+		? 'flex min-h-0 flex-1 flex-col overflow-auto'
+		: 'flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface'}
 >
-	<div class="flex items-center justify-between pr-2 pl-4">
-		<h2 class="py-3 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
-			{t('explorer.title')}
-		</h2>
-		<button
-			type="button"
-			class="icon-btn w-auto px-1.5 text-[11px] text-chrome-muted"
-			aria-label={t('explorer.hide')}
-			title={t('explorer.hide')}
-			onclick={() => (ui.panels.outline = false)}>{t('explorer.shortcut')}</button
-		>
-	</div>
+	{#if variant === 'classic'}
+		<h2 class="panel-title">{t('classic.modelExplorer')}</h2>
+	{:else}
+		<div class="flex items-center justify-between pr-2 pl-4">
+			<h2 class="py-3 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
+				{t('explorer.title')}
+			</h2>
+			<button
+				type="button"
+				class="icon-btn w-auto px-1.5 text-[11px] text-chrome-muted"
+				aria-label={t('explorer.hide')}
+				title={t('explorer.hide')}
+				onclick={() => (ui.panels.outline = false)}>{t('explorer.shortcut')}</button
+			>
+		</div>
+	{/if}
 	<ul role="tree" aria-label={t('explorer.tree')} bind:this={treeEl} class="pb-3" {onkeydown}>
 		{#each rows as row, i (row.id)}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->

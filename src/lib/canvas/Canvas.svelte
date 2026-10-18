@@ -279,12 +279,14 @@
 		{onmove}
 		{onpaneclick}
 	>
+		<!-- ui.md: Modern's soft dot grid; Classic's fine line grid (board 03). -->
 		<Background
-			variant={BackgroundVariant.Dots}
+			variant={ui.layoutPreset === 'classic' ? BackgroundVariant.Lines : BackgroundVariant.Dots}
 			bgColor="var(--paper-bg)"
 			patternColor="var(--paper-grid)"
 			gap={20}
 			size={1.5}
+			lineWidth={1}
 		/>
 		{#if preview}
 			<ViewportPortal target="front">

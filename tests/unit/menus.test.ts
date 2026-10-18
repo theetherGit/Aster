@@ -1,0 +1,25 @@
+import { describe, expect, it } from 'vitest';
+import { COMMANDS } from '#lib/app/commands.svelte.ts';
+import { MENUS, menuItems } from '#lib/app/menus.ts';
+
+describe('the Classic menu bar is the registry', () => {
+	it('has the six StarUML menus, none empty', () => {
+		expect(MENUS.map((m) => m.id)).toEqual(['file', 'edit', 'format', 'model', 'view', 'help']);
+		for (const m of MENUS) expect(menuItems(m).length, m.id).toBeGreaterThan(0);
+	});
+
+	it('lists every command that is not sheet-only exactly once', () => {
+		const listed = MENUS.flatMap((m) => menuItems(m).map((c) => c.id));
+		expect(new Set(listed).size).toBe(listed.length);
+		const expected = COMMANDS.filter((c) => !c.sheetOnly).map((c) => c.id);
+		expect(listed.sort()).toEqual(expected.sort());
+	});
+
+	it('puts the shortcut sheet and the palette under Help, not View', () => {
+		const help = menuItems(MENUS[5]).map((c) => c.id);
+		const view = menuItems(MENUS[4]).map((c) => c.id);
+		expect(help).toEqual(['view.palette', 'view.shortcuts']);
+		expect(view).not.toContain('view.shortcuts');
+		expect(view).toContain('view.layout');
+	});
+});

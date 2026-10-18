@@ -19,6 +19,10 @@
 	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
 	import Toolbox from '#lib/panels/Toolbox.svelte';
 	import TopBar from '#lib/panels/TopBar.svelte';
+	import MenuBar from '#lib/panels/classic/MenuBar.svelte';
+	import ClassicToolbar from '#lib/panels/classic/ClassicToolbar.svelte';
+	import ClassicToolbox from '#lib/panels/classic/ClassicToolbox.svelte';
+	import WorkingDiagrams from '#lib/panels/classic/WorkingDiagrams.svelte';
 	import UnsavedPrompt from '#lib/panels/UnsavedPrompt.svelte';
 	import { ago } from '#lib/panels/time.ts';
 	import {
@@ -93,6 +97,11 @@
 		});
 	});
 
+	// Two arrangements of the same panels (overview.md): Modern, boards 01–02, and Classic, board
+	// 03. The canvas column is shared, so switching keeps the canvas mounted: selection, zoom and
+	// unsaved state stay (features.md, Classic layout).
+	const classic = $derived(ui.layoutPreset === 'classic');
+
 	const counts = $derived.by(() => {
 		const d = projectStore.diagram;
 		const kind = (k: string) =>
@@ -147,13 +156,34 @@
 	}}
 />
 
-<!-- Modern layout (docs/spec/ui.md, boards 01–02): top bar, floating toolbox, right inspector. -->
 <SvelteFlowProvider>
-	<Tabs.Root bind:value={projectStore.activeDiagramId} class="grid h-dvh grid-rows-[44px_1fr]">
-		<TopBar />
+	<Tabs.Root
+		bind:value={projectStore.activeDiagramId}
+		class="grid h-dvh {classic ? 'grid-rows-[auto_1fr]' : 'grid-rows-[44px_1fr]'}"
+		data-layout={ui.layoutPreset}
+	>
+		{#if classic}
+			<div>
+				<MenuBar />
+				{#if ui.classic.toolbar}
+					<ClassicToolbar />
+				{/if}
+			</div>
+		{:else}
+			<TopBar />
+		{/if}
 		<Tabs.Content value={projectStore.activeDiagramId} class="relative flex min-h-0">
 			<div class="relative flex min-h-0 flex-1">
-				{#if ui.panels.outline}
+				{#if classic}
+					{#if ui.classic.sidebar}
+						<aside class="classic-column left" aria-label={t('classic.sidebar')}>
+							<WorkingDiagrams />
+							{#if ui.classic.toolbox}
+								<ClassicToolbox />
+							{/if}
+						</aside>
+					{/if}
+				{:else if ui.panels.outline}
 					<Explorer />
 				{/if}
 				<div
@@ -197,31 +227,49 @@
 					{#if projectStore.diagram.elementIds.length === 0}
 						<EmptyHint />
 					{/if}
-					<Toolbox />
+					{#if !classic}
+						<Toolbox />
+					{/if}
 					<ImportNotice />
 					<Toast />
-					<footer class="footer">
-						<span>{t('footer.counts', counts)}</span>
-						<span aria-hidden="true">·</span>
-						{#if files.current}
-							<span data-testid="footer-save" data-saved={persist.at}
-								>{t('footer.autosaved', {
-									ago: persist.at ? ago(persist.at, now) : t('time.justNow')
-								})}</span
-							>
+					{#if !classic || ui.classic.statusbar}
+						<footer class="footer">
+							<span>{t('footer.counts', counts)}</span>
 							<span aria-hidden="true">·</span>
-							<button
-								type="button"
-								class="file-name"
-								title={t('footer.copyName')}
-								onclick={copyName}>{copiedName ? t('file.copied') : files.current.name}</button
-							>
-						{:else}
-							<span data-testid="footer-save" data-saved={persist.at}>{t('footer.notSaved')}</span>
-						{/if}
-					</footer>
+							{#if files.current}
+								<span data-testid="footer-save" data-saved={persist.at}
+									>{t('footer.autosaved', {
+										ago: persist.at ? ago(persist.at, now) : t('time.justNow')
+									})}</span
+								>
+								<span aria-hidden="true">·</span>
+								<button
+									type="button"
+									class="file-name"
+									title={t('footer.copyName')}
+									onclick={copyName}>{copiedName ? t('file.copied') : files.current.name}</button
+								>
+							{:else}
+								<span data-testid="footer-save" data-saved={persist.at}>{t('footer.notSaved')}</span
+								>
+							{/if}
+						</footer>
+					{/if}
 				</div>
-				<Inspector />
+				{#if classic}
+					{#if ui.classic.navigator || ui.classic.editors}
+						<aside class="classic-column right" aria-label={t('classic.rightColumn')}>
+							{#if ui.classic.navigator}
+								<Explorer variant="classic" />
+							{/if}
+							{#if ui.classic.editors}
+								<Inspector variant="classic" />
+							{/if}
+						</aside>
+					{/if}
+				{:else}
+					<Inspector />
+				{/if}
 			</div>
 		</Tabs.Content>
 	</Tabs.Root>
@@ -256,6 +304,23 @@
 </SvelteFlowProvider>
 
 <style>
+	/* Board 03: 200 px left column, 280 px right column, grey chrome, 1 px separators. */
+	.classic-column {
+		display: flex;
+		flex-shrink: 0;
+		flex-direction: column;
+		min-height: 0;
+		font-size: 12.5px;
+		background: var(--chrome-bg);
+	}
+	.classic-column.left {
+		width: 200px;
+		border-right: 1px solid var(--chrome-border);
+	}
+	.classic-column.right {
+		width: 280px;
+		border-left: 1px solid var(--chrome-border);
+	}
 	.footer {
 		position: absolute;
 		bottom: 18px;

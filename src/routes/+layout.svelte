@@ -21,6 +21,10 @@
 		document.documentElement.dataset.theme =
 			ui.theme === 'system' ? (prefersDark.current ? 'dark' : 'light') : ui.theme;
 	});
+	// The layout preset's tokens (ui.md): Classic is grey chrome and yellow classes in every theme.
+	$effect(() => {
+		document.documentElement.dataset.layout = ui.layoutPreset;
+	});
 </script>
 
 <svelte:head>

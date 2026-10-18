@@ -47,6 +47,15 @@ export interface AppCommand {
 }
 
 const k = (...specs: string[]) => specs.map(parse);
+const classic = () => ui.layoutPreset === 'classic';
+const CLASSIC_PANELS = [
+	'sidebar',
+	'navigator',
+	'toolbar',
+	'statusbar',
+	'toolbox',
+	'editors'
+] as const;
 const hasSelection = () => selection.size > 0;
 const selectedClassifiers = () =>
 	selection.list.filter((id) => projectStore.project.elements.get(id)?.kind === 'classifier');
@@ -385,8 +394,11 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('⌘B'),
 		context: 'global',
 		inText: true,
-		state: () => ui.panels.outline,
-		run: () => (ui.panels.outline = !ui.panels.outline)
+		state: () => (classic() ? ui.classic.navigator : ui.panels.outline),
+		run: () => {
+			if (classic()) ui.classic.navigator = !ui.classic.navigator;
+			else ui.panels.outline = !ui.panels.outline;
+		}
 	},
 	{
 		id: 'view.inspector',
@@ -395,9 +407,35 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('⌘\\'),
 		context: 'global',
 		inText: true,
-		state: () => ui.panels.inspector,
-		run: () => (ui.panels.inspector = !ui.panels.inspector)
+		state: () => (classic() ? ui.classic.editors : ui.panels.inspector),
+		run: () => {
+			if (classic()) ui.classic.editors = !ui.classic.editors;
+			else ui.panels.inspector = !ui.panels.inspector;
+		}
 	},
+	{
+		id: 'view.layout',
+		group: 'view',
+		label: () => t(classic() ? 'cmd.layoutModern' : 'cmd.layoutClassic'),
+		keys: k('⌘⇧L'),
+		context: 'global',
+		inText: true,
+		run: () => (ui.layoutPreset = classic() ? 'modern' : 'classic')
+	},
+	// StarUML's Ctrl+1–6 (keyboard.md), only in Classic. Listed before zoom.fit so ⌘1 is the
+	// Sidebar there and the fit alias everywhere else: the router skips a command whose `when` fails.
+	...CLASSIC_PANELS.map((panel, i): AppCommand => ({
+		id: `classic.${panel}`,
+		group: 'view',
+		label: () => t(`classic.toggle.${panel}`),
+		keys: k(`⌘${i + 1}`),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		when: classic,
+		state: () => ui.classic[panel],
+		run: () => (ui.classic[panel] = !ui.classic[panel])
+	})),
 	{
 		id: 'zoom.in',
 		group: 'view',

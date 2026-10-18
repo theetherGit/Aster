@@ -114,16 +114,24 @@ describe('the command registry (docs/spec/keyboard.md, M1 rows)', () => {
 		expect(bound.has(key)).toBe(true);
 	});
 
-	it('has unique ids and no two commands on one key in one context', () => {
+	it('has unique ids and no two commands on one key in one context, unless one is layout-scoped', () => {
 		const ids = COMMANDS.map((c) => c.id);
 		expect(new Set(ids).size).toBe(ids.length);
-		const seen = new Map<string, string>();
+		const seen = new Map<string, (typeof COMMANDS)[number]>();
 		for (const c of COMMANDS)
 			for (const k of c.keys) {
 				const sig = `${c.context}:${format(k, true)}`;
-				expect(seen.get(sig), `${sig} bound by ${seen.get(sig)} and ${c.id}`).toBeUndefined();
-				seen.set(sig, c.id);
+				const other = seen.get(sig);
+				// Classic's ⌘1 (Sidebar) shadows the fit alias there: a `when` on one of them says so.
+				if (other && !other.when && !c.when) expect.fail(`${sig} bound by ${other.id} and ${c.id}`);
+				seen.set(sig, c);
 			}
+	});
+
+	it("Classic's ⌘1 comes before the fit alias, so the router reaches it first", () => {
+		const ids = COMMANDS.map((c) => c.id);
+		expect(ids.indexOf('classic.sidebar')).toBeLessThan(ids.indexOf('zoom.fit'));
+		expect(COMMANDS.find((c) => c.id === 'classic.sidebar')?.when).toBeDefined();
 	});
 
 	it('every palette command has a label; sheet rows are the only no-ops', () => {

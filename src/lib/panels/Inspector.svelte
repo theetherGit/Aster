@@ -16,6 +16,11 @@
 	import NoteInspector from './NoteInspector.svelte';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 
+	// Modern: the 300 px inspector with its rail. Classic: StarUML's Editors, tabs Style /
+	// Property / Documentation over the same fields (board 03).
+	let { variant = 'modern' }: { variant?: 'modern' | 'classic' } = $props();
+	const classic = $derived(variant === 'classic');
+
 	// Commands mutate elements in place, so references never change; cloning the selected
 	// element on every project version gives Svelte a new value to react to.
 	const single = $derived.by(() => {
@@ -24,6 +29,12 @@
 		return el && structuredClone(el);
 	});
 	const classifier = $derived(single?.kind === 'classifier' ? single : undefined);
+	/** Classic's Documentation tab: any selected element that carries documentation. */
+	const documented = $derived(
+		single && typeof (single as { documentation?: unknown }).documentation === 'string'
+			? (single as { id: string; documentation: string })
+			: undefined
+	);
 
 	const KINDS: ClassifierKind[] = ['class', 'interface', 'enum', 'dataType', 'primitiveType'];
 	const VIS: Visibility[] = ['public', 'protected', 'private', 'package'];
@@ -44,7 +55,7 @@
 </script>
 
 <!-- Every field dispatches the same commands as inline editing (docs/spec/features.md, Properties panel). -->
-{#if !ui.panels.inspector || (selection.size === 0 && ui.inspectorTab !== 'diagram')}
+{#if !classic && (!ui.panels.inspector || (selection.size === 0 && ui.inspectorTab !== 'diagram'))}
 	<!-- Boards 18–19: a 40 px rail with one button when nothing is selected or the panel is hidden. -->
 	<aside
 		aria-label={t('inspector.collapsed')}
@@ -74,16 +85,31 @@
 	</aside>
 {:else}
 	<aside
-		aria-label={t('inspector.title')}
-		class="w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface"
+		aria-label={classic ? t('classic.editors') : t('inspector.title')}
+		class={classic
+			? 'flex min-h-0 flex-1 flex-col overflow-auto border-t border-chrome-border bg-chrome-surface'
+			: 'w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
 	>
 		<Tabs.Root bind:value={ui.inspectorTab}>
-			<Tabs.List class="flex border-b border-chrome-border px-2" aria-label={t('inspector.title')}>
-				<Tabs.Trigger value="properties" class="tab">{t('inspector.tab.properties')}</Tabs.Trigger>
-				<Tabs.Trigger value="text" class="tab" disabled title={t('ui.comingSoon')}
-					>{t('inspector.tab.text')}</Tabs.Trigger
-				>
-				<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
+			<Tabs.List
+				class="flex border-b border-chrome-border px-2 {classic ? 'editors-tabs' : ''}"
+				aria-label={classic ? t('classic.editors') : t('inspector.title')}
+			>
+				{#if classic}
+					<span class="panel-title border-0 bg-transparent px-1">{t('classic.editors')}</span>
+					<Tabs.Trigger value="diagram" class="tab">{t('classic.tab.style')}</Tabs.Trigger>
+					<Tabs.Trigger value="properties" class="tab">{t('classic.tab.property')}</Tabs.Trigger>
+					<Tabs.Trigger value="documentation" class="tab"
+						>{t('classic.tab.documentation')}</Tabs.Trigger
+					>
+				{:else}
+					<Tabs.Trigger value="properties" class="tab">{t('inspector.tab.properties')}</Tabs.Trigger
+					>
+					<Tabs.Trigger value="text" class="tab" disabled title={t('ui.comingSoon')}
+						>{t('inspector.tab.text')}</Tabs.Trigger
+					>
+					<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
+				{/if}
 			</Tabs.List>
 			<Tabs.Content value="properties" class="p-4">
 				{#if classifier}
@@ -184,6 +210,8 @@
 				{:else if single && single.kind !== 'classifier'}
 					<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
 					<h2 class="mt-1 text-[15px] font-semibold">{elementName(single)}</h2>
+				{:else if selection.size === 0}
+					<p class="text-chrome-muted">{t('classic.noSelection')}</p>
 				{:else}
 					<p class="text-chrome-muted">{t('ui.selectedCount', { count: selection.size })}</p>
 				{/if}
@@ -191,6 +219,27 @@
 			<Tabs.Content value="diagram" class="p-4">
 				<DiagramTab />
 			</Tabs.Content>
+			{#if classic}
+				<Tabs.Content value="documentation" class="p-4">
+					{#if documented}
+						<Documentation
+							id={documented.id}
+							documentation={documented.documentation}
+							field="editors-doc"
+						/>
+					{:else}
+						<p class="text-chrome-muted">{t('classic.noSelection')}</p>
+					{/if}
+				</Tabs.Content>
+			{/if}
 		</Tabs.Root>
 	</aside>
 {/if}
+
+<style>
+	/* Board 03: "Editors" and its three tabs on one 280 px row. */
+	:global(.editors-tabs .tab) {
+		padding: 0 7px;
+		font-size: 12px;
+	}
+</style>
