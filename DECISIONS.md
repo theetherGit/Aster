@@ -130,3 +130,7 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-18 · inspector · end fields are named "{field} at the {end} end", navigability options read "not set / yes / no", line-style buttons carry their StarUML chords in the title, and the import notice's close button is "Dismiss" · docs/design/html 13, 08, 22.
 - 2026-10-18 · inspector · label rows keep editable distance and angle fields where the board shows text, because typing a position is the keyboard alternative to dragging a label · board 13 HTML.
 - 2026-10-18 · shell · toolbox, top bar, line style, reset, notice and drop icons use the board's 24-unit paths · docs/design/html.
+- 2026-10-18 · canvas · a new classifier never lands on another node: from the requested point it moves to the nearest clear grid step right, down or diagonal, 20 px from every measured node rect · owner's canvas-polish slice (#41).
+- 2026-10-18 · canvas · empty member lines show the grammar's shape as ghost text ("name: Type", "name(param: Type): Return", "LITERAL") in paper ink at 45 % · slice item #6.
+- 2026-10-18 · canvas · hovering an edge tints its line and outlines both end nodes with the hover style · slice item #14.
+- 2026-10-18 · inspector · multiplicity ends offer 1, 0..1, *, 1..*, 0..* as chips (typing still allowed); a new composition starts as whole 1 — part 0..*, existing ends are never overwritten · slice item #11; fixtures carry explicit ends so snapshots did not change.

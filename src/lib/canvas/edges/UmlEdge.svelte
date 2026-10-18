@@ -215,9 +215,16 @@
 	positions in the Inspector, selection through the Explorer tree (accessibility.md).
 -->
 {#if points.length >= 2}
+	<!-- Hovering the edge lights up both end nodes; the hit band below is what the pointer meets. -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<g
 		class="uml-edge"
 		class:selected
+		class:hovered={ui.hoveredEdge === id}
+		onpointerenter={() => (ui.hoveredEdge = id)}
+		onpointerleave={() => {
+			if (ui.hoveredEdge === id) ui.hoveredEdge = null;
+		}}
 		data-rel-id={id}
 		data-kind={rel.relationshipKind}
 		data-line-style={style}
@@ -318,6 +325,9 @@
 		stroke-width: var(--uml-stroke);
 	}
 	/* Board 12: the selected line itself turns accent. */
+	.uml-edge.hovered:not(.selected) .edge-line {
+		stroke: color-mix(in srgb, var(--accent) 60%, var(--paper-ink));
+	}
 	.uml-edge.selected .edge-line {
 		stroke: var(--accent);
 	}

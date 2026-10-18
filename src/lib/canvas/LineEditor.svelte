@@ -41,6 +41,8 @@
 	const kindLabel = (part: MemberKind | 'name') =>
 		part === 'name' ? t('ui.className') : t(`member.line.${part}`);
 	const ariaLabel = $derived(label || kindLabel(own.part));
+	// Ghost text (features list #6): the grammar's shape, so nobody has to recall it.
+	const placeholder = own.part === 'name' ? undefined : t(`member.placeholder.${own.part}`);
 
 	// A brand-new node stays hidden until Svelte Flow first measures it, and a hidden input
 	// cannot take focus, so retry for a few frames until focus sticks.
@@ -134,6 +136,7 @@
 		<Combobox.Input
 			class="line-input nodrag nopan"
 			aria-label={ariaLabel}
+			{placeholder}
 			autocomplete="off"
 			spellcheck="false"
 			{onkeydown}
@@ -168,6 +171,7 @@
 	<input
 		class="line-input nodrag nopan"
 		aria-label={ariaLabel}
+		{placeholder}
 		autocomplete="off"
 		spellcheck="false"
 		bind:value={draft}
@@ -192,5 +196,9 @@
 		border: none;
 		border-radius: 0;
 		outline: none;
+	}
+	:global(.line-input::placeholder) {
+		color: color-mix(in srgb, var(--paper-ink) 45%, var(--paper-bg));
+		opacity: 1;
 	}
 </style>

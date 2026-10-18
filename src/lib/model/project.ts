@@ -109,6 +109,17 @@ export const defaultEnd = (): End => ({
 	ownsOther: false
 });
 
+/** Fresh ends for a kind: composition starts as whole 1 — part 0..* (the diamond side is the target). */
+export function defaultEnds(kind: RelationshipKind): Pick<Relationship, 'sourceEnd' | 'targetEnd'> {
+	const sourceEnd = defaultEnd();
+	const targetEnd = defaultEnd();
+	if (kind === 'composition') {
+		sourceEnd.multiplicity = '0..*';
+		targetEnd.multiplicity = '1';
+	}
+	return { sourceEnd, targetEnd };
+}
+
 /** For aggregation and composition the target is the whole (the diamond side). */
 export function createRelationship(
 	init: Partial<Omit<Relationship, 'kind'>> &
@@ -125,8 +136,8 @@ export function createRelationship(
 		...(name !== undefined && { name }),
 		...(stereotype !== undefined && { stereotype }),
 		...(isAssociationKind(rest.relationshipKind) && {
-			sourceEnd: sourceEnd ?? defaultEnd(),
-			targetEnd: targetEnd ?? defaultEnd()
+			sourceEnd: sourceEnd ?? defaultEnds(rest.relationshipKind).sourceEnd,
+			targetEnd: targetEnd ?? defaultEnds(rest.relationshipKind).targetEnd
 		})
 	};
 }

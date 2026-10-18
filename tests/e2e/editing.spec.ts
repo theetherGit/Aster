@@ -24,6 +24,7 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await page.keyboard.press('Enter');
 	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String']);
 	await expect(attr).toHaveValue('');
+	await expect(attr).toHaveAttribute('placeholder', 'name: Type'); // ghost text
 
 	await typeInto(page, attr, '+ {static} count: int = 0');
 	await page.keyboard.press('Enter');

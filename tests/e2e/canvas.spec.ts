@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { canvasOf, node, position } from './helpers';
+import { canvasOf, create, node, position } from './helpers';
 
 test.beforeEach(async ({ page }) => {
 	await page.goto('/');
@@ -110,4 +110,19 @@ test('typing in a panel never spawns classes; the toolbox Class tool creates on 
 	await page.mouse.click(700, 500);
 	await expect(page.locator('.classifier-node')).toHaveCount(3);
 	await expect(canvasOf(page).getByRole('textbox', { name: 'Name' })).toBeFocused();
+});
+
+test('new classes land in free space, never on top of each other', async ({ page }) => {
+	await page.mouse.move(600, 400);
+	await create(page, 'c', 'One');
+	await page.keyboard.press('Escape');
+	await page.mouse.move(600, 400);
+	await create(page, 'c', 'Two');
+	await page.keyboard.press('Escape');
+	const a = (await node(page, 'One').boundingBox())!;
+	const b = (await node(page, 'Two').boundingBox())!;
+	const apart =
+		a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
+	expect(apart).toBe(true);
+	expect(Math.abs(b.x - a.x) + Math.abs(b.y - a.y)).toBeLessThan(400); // near, not flung away
 });

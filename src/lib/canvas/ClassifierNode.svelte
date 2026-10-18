@@ -36,6 +36,7 @@
 	class="classifier-node"
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
+	class:edge-hover={data.hovered}
 	style:min-width="{data.minWidth}px"
 	style:min-height={data.minHeight ? `${data.minHeight}px` : undefined}
 	data-name={c.name}
@@ -98,7 +99,8 @@
 		white-space: nowrap;
 		cursor: grab;
 	}
-	.classifier-node:hover:not(.selected) {
+	.classifier-node:hover:not(.selected),
+	.classifier-node.edge-hover:not(.selected) {
 		outline: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
 	}
 	.classifier-node.selected {

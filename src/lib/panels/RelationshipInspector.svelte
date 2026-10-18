@@ -52,6 +52,7 @@
 		'realization',
 		'dependency'
 	];
+	const PRESETS = ['1', '0..1', '*', '1..*', '0..*'];
 	const STYLES: LineStyle[] = ['rectilinear', 'oblique', 'roundrect', 'curve'];
 	// Board 13 icons (docs/design/html/13), 22×14.
 	const STYLE_PATH: Record<LineStyle, string> = {
@@ -210,6 +211,21 @@
 				value={e.multiplicity ?? ''}
 				onchange={(ev) => patchEnd(end, { multiplicity: text(ev.currentTarget.value) })}
 			/>
+		{/each}
+		<!-- Multiplicity presets (features list #11): one click, typing still allowed. -->
+		<span></span>
+		{#each ends as [end, e, owner] (end)}
+			<div class="flex flex-wrap gap-1">
+				{#each PRESETS as m (m)}
+					<button
+						type="button"
+						class="chip"
+						aria-pressed={e.multiplicity === m}
+						aria-label={t('inspector.multiplicityPreset', { value: m, end: owner })}
+						onclick={() => e.multiplicity !== m && patchEnd(end, { multiplicity: m })}>{m}</button
+					>
+				{/each}
+			</div>
 		{/each}
 		<span class="text-chrome-muted" id="ends-nav">{t('inspector.navigable')}</span>
 		{#each ends as [end, e] (end)}
@@ -373,3 +389,24 @@
 	onchange={(e) =>
 		e.currentTarget.value !== rel.documentation &&
 		run(setDocumentation, { id: rel.id, documentation: e.currentTarget.value })}></textarea>
+
+<style>
+	.chip {
+		height: 24px;
+		padding: 0 6px;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 11px;
+		color: var(--chrome-muted);
+		background: var(--chrome-bg);
+		border: 1px solid var(--chrome-border);
+		border-radius: 999px;
+	}
+	.chip:hover {
+		color: var(--chrome-text);
+	}
+	.chip[aria-pressed='true'] {
+		color: var(--chrome-text);
+		background: color-mix(in srgb, var(--accent) 18%, transparent);
+		border-color: var(--accent);
+	}
+</style>

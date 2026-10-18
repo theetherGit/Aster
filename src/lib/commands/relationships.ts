@@ -2,7 +2,7 @@ import { t } from '#lib/i18n/index.ts';
 import {
 	createRelationship,
 	defaultEdgeLayout,
-	defaultEnd,
+	defaultEnds,
 	elementName,
 	getDiagram,
 	getElement,
@@ -108,8 +108,9 @@ export const setRelationshipKind: Factory<{ id: Id; relationshipKind: Relationsh
 			return editRelationship(p, id, (r) => {
 				r.relationshipKind = relationshipKind;
 				if (isAssociationKind(relationshipKind)) {
-					r.sourceEnd ??= defaultEnd();
-					r.targetEnd ??= defaultEnd();
+					const ends = defaultEnds(relationshipKind);
+					r.sourceEnd ??= ends.sourceEnd;
+					r.targetEnd ??= ends.targetEnd;
 				} else {
 					delete r.sourceEnd;
 					delete r.targetEnd;

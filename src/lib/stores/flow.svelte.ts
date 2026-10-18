@@ -21,6 +21,8 @@ export interface ClassifierNodeData extends Record<string, unknown> {
 	editing: EditTarget | null;
 	/** Role in a keyboard link in progress. */
 	link: 'source' | 'target' | 'both' | null;
+	/** An end of the edge under the pointer. */
+	hovered: boolean;
 }
 export type ClassifierFlowNode = Node<ClassifierNodeData, ClassifierKind>;
 
@@ -55,7 +57,8 @@ class Flow {
 					minWidth: Math.max(160, l.w),
 					minHeight: flags.autoResize === false ? l.h : 0,
 					editing: null,
-					link: null
+					link: null,
+					hovered: false
 				},
 				focusable: false
 			});
@@ -111,12 +114,15 @@ class Flow {
 	);
 
 	/** The nodes as the canvas shows them: selection and inline-editing state folded in. */
-	canvasNodes: ClassifierFlowNode[] = $derived(
-		this.nodes.map((n) => ({
+	canvasNodes: ClassifierFlowNode[] = $derived.by(() => {
+		const h = ui.hoveredEdge ? projectStore.project.elements.get(ui.hoveredEdge) : undefined;
+		const hoveredEnds = h?.kind === 'relationship' ? [h.sourceId, h.targetId] : [];
+		return this.nodes.map((n) => ({
 			...n,
 			selected: selection.has(n.id),
 			data: {
 				...n.data,
+				hovered: hoveredEnds.includes(n.id),
 				editing: selection.editing?.id === n.id ? selection.editing.target : null,
 				link: !ui.link
 					? null
@@ -128,8 +134,8 @@ class Flow {
 								? 'target'
 								: null
 			}
-		}))
-	);
+		}));
+	});
 
 	/** Names offered by type completion: every classifier plus the usual primitives. */
 	typeNames: string[] = $derived.by(() => {

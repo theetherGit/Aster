@@ -12,6 +12,8 @@ class Ui {
 	tool: Tool = $state('select');
 	/** Keyboard link in progress: arrows move the target highlight. */
 	link: { sourceId: Id; targetId: Id } | null = $state(null);
+	/** Edge under the pointer: its two end nodes light up (features list #14). */
+	hoveredEdge: Id | null = $state(null);
 	/** Relationship picker open at a client-space point. */
 	picker: { sourceId: Id; targetId: Id; x: number; y: number } | null = $state(null);
 	/** The picker's default: the kind chosen last. */

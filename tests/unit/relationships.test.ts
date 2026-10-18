@@ -15,7 +15,7 @@ import {
 	setRelationshipStereotype
 } from '#lib/commands/index.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
-import { getDiagram, getElement } from '#lib/model/project.ts';
+import { createRelationship, getDiagram, getElement } from '#lib/model/project.ts';
 import type { EdgeLayout, Relationship } from '#lib/model/types.ts';
 import { structural } from './helpers.ts';
 
@@ -277,5 +277,45 @@ describe('relationship deletion', () => {
 		expect(project.elements.has('r1')).toBe(false);
 		expect(d.layout.has('r1')).toBe(false);
 		expect(d.elementIds).toEqual(['Account', 'Customer']);
+	});
+});
+
+describe('composition defaults (features list #11)', () => {
+	it('starts as whole 1 — part 0..* on create and when the kind changes to composition', () => {
+		const made = createRelationship({
+			relationshipKind: 'composition',
+			sourceId: 'a',
+			targetId: 'b'
+		});
+		expect(made.sourceEnd?.multiplicity).toBe('0..*');
+		expect(made.targetEnd?.multiplicity).toBe('1');
+		const assoc = createRelationship({
+			relationshipKind: 'association',
+			sourceId: 'a',
+			targetId: 'b'
+		});
+		expect(assoc.sourceEnd?.multiplicity).toBeUndefined();
+
+		const project = sampleProject();
+		project.elements.set(
+			'g',
+			createRelationship({
+				id: 'g',
+				relationshipKind: 'generalization',
+				sourceId: 'Customer',
+				targetId: 'Account'
+			})
+		);
+		const stack = new Stack(() => project);
+		stack.run(setRelationshipKind(project, { id: 'g', relationshipKind: 'composition' }));
+		const r = project.elements.get('g');
+		expect(r?.kind === 'relationship' && r.sourceEnd?.multiplicity).toBe('0..*');
+		expect(r?.kind === 'relationship' && r.targetEnd?.multiplicity).toBe('1');
+		// Existing ends are kept: back to association keeps them, composition again does not overwrite.
+		stack.run(setRelationshipKind(project, { id: 'g', relationshipKind: 'association' }));
+		stack.run(setEnd(project, { id: 'g', end: 'source', patch: { multiplicity: '2' } }));
+		stack.run(setRelationshipKind(project, { id: 'g', relationshipKind: 'composition' }));
+		const again = project.elements.get('g');
+		expect(again?.kind === 'relationship' && again.sourceEnd?.multiplicity).toBe('2');
 	});
 });

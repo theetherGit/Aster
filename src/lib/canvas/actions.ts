@@ -16,14 +16,22 @@ import { ui } from '#lib/stores/ui.svelte.ts';
 import type { Rect } from './edges/geometry.ts';
 import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
+import { freePosition } from './place.ts';
 
-/** Creates a classifier at a paper position, selects it and opens its name for typing. */
-export function createClassifierAt(kind: ClassifierKind, at: Point) {
+/**
+ * Creates a classifier near a paper position (in free space, never on another node), selects it
+ * and opens its name for typing. `taken` is the diagram's node rects as measured on screen.
+ */
+export function createClassifierAt(kind: ClassifierKind, at: Point, taken: Iterable<Rect>) {
 	const classifier = createClassifier({
 		classifierKind: kind,
 		name: nextClassName(projectStore.project, kind)
 	});
-	projectStore.run(addClassifier, { diagramId: projectStore.activeDiagramId, classifier, at });
+	projectStore.run(addClassifier, {
+		diagramId: projectStore.activeDiagramId,
+		classifier,
+		at: freePosition(at, taken)
+	});
 	edit(classifier.id, { part: 'name' });
 }
 

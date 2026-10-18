@@ -155,7 +155,7 @@
 			!('clientX' in event)
 		)
 			return;
-		createClassifierAt(ui.tool, toPaper({ x: event.clientX, y: event.clientY }));
+		createClassifierAt(ui.tool, toPaper({ x: event.clientX, y: event.clientY }), rects().values());
 		ui.tool = 'select';
 	}
 
@@ -183,7 +183,8 @@
 	tabindex="0"
 	onkeydown={(e) =>
 		handleCanvasKey(e, {
-			create: (kind: ClassifierKind) => createClassifierAt(kind, cursorPosition()),
+			create: (kind: ClassifierKind) =>
+				createClassifierAt(kind, cursorPosition(), rects().values()),
 			rects,
 			openPicker
 		})}

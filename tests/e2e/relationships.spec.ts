@@ -198,6 +198,13 @@ test.describe('on the notation fixture', () => {
 		await inspector.locator('#source-role').press('Enter');
 		await expect(borrows.locator('[data-label="sourceRole"] text')).toHaveText('loan');
 
+		// Multiplicity preset chips.
+		await inspector.getByRole('button', { name: 'Multiplicity 1..* at the Book end' }).click();
+		await expect(borrows.locator('[data-label="targetMultiplicity"] text')).toHaveText('1..*');
+		await expect(
+			inspector.getByRole('button', { name: 'Multiplicity 1..* at the Book end' })
+		).toHaveAttribute('aria-pressed', 'true');
+
 		await inspector.getByLabel('Kind').click();
 		await page.getByRole('option', { name: 'Composition' }).click();
 		await expect(borrows).toHaveAttribute('data-kind', 'composition');
@@ -286,6 +293,18 @@ test.describe('on the notation fixture', () => {
 		await inspector.getByLabel('role, Book end distance').press('Enter');
 		const far = (await label.boundingBox())!;
 		expect(far.y).toBeLessThan(before.y - 20);
+	});
+
+	test('hovering an edge highlights both of its end nodes', async ({ page }) => {
+		const borrows = edgeOf(page, 'borrows');
+		const p = await pointOnEdge(borrows, 0.35);
+		await page.mouse.move(p.x, p.y);
+		await expect(borrows).toHaveClass(/hovered/);
+		await expect(node(page, 'Loan')).toHaveClass(/edge-hover/);
+		await expect(node(page, 'Book')).toHaveClass(/edge-hover/);
+		await page.mouse.move(20, 700);
+		await expect(node(page, 'Loan')).not.toHaveClass(/edge-hover/);
+		await expect(borrows).not.toHaveClass(/hovered/);
 	});
 
 	test('explorer lists relationships under their source; selecting one selects the edge', async ({
