@@ -28,6 +28,7 @@
 		type Pt,
 		type Rect
 	} from './geometry.ts';
+	import { paperFont } from './fonts.svelte.ts';
 	import { textWidth } from './measure.ts';
 	import { MARKER_LENGTH, labelsFor, markersFor, type EdgeLabelSpec } from './notation.ts';
 
@@ -77,6 +78,7 @@
 	}
 	const labels: PlacedLabel[] = $derived.by(() => {
 		if (points.length < 2) return [];
+		void paperFont.ready; // re-measure once the paper font is in
 		const placed: Rect[] = [];
 		return labelsFor(rel, data!.flags).map((spec) => {
 			const frame = spec.at === 'mid' ? midFrame(points, style) : endFrame(line, spec.at);
@@ -303,7 +305,7 @@
 	.edge-line {
 		fill: none;
 		stroke: var(--paper-ink);
-		stroke-width: 1.2;
+		stroke-width: var(--uml-stroke);
 	}
 	.edge-halo {
 		fill: none;

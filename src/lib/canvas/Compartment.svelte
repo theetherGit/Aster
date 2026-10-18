@@ -80,7 +80,7 @@
 		margin: 0;
 		padding: 6px 10px;
 		list-style: none;
-		border-top: 1px solid var(--paper-ink);
+		border-top: var(--uml-stroke) solid var(--paper-ink);
 	}
 	.compartment.empty {
 		height: 8px;

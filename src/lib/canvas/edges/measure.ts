@@ -1,5 +1,10 @@
 /** Width of a label line in the paper font, measured once per text and size. */
 const cache = new Map<string, number>();
+
+/** Forget measured widths, for when the paper font finishes loading. */
+export function clearTextWidths() {
+	cache.clear();
+}
 let ctx: CanvasRenderingContext2D | null | undefined;
 
 export function textWidth(text: string, size: number): number {

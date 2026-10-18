@@ -120,7 +120,7 @@
 	.glyph {
 		flex-shrink: 0;
 		stroke: currentColor;
-		stroke-width: 1.2;
+		stroke-width: var(--uml-stroke);
 		fill: none;
 	}
 	.glyph path {

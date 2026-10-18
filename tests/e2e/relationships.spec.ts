@@ -106,7 +106,13 @@ test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their 
 	for (const m of await page.locator('marker[id^="aster-m-"]').all()) {
 		await expect(m).toHaveAttribute('markerUnits', 'userSpaceOnUse');
 	}
-	await expect(line('association')).toHaveCSS('stroke-width', '1.2px');
+	// One stroke width for all UML ink (ui.md: 1 px), from one token.
+	await expect(line('association')).toHaveCSS('stroke-width', '1px');
+	await expect(node(page, 'Hub')).toHaveCSS('border-top-width', '1px');
+	await expect(node(page, 'Hub').locator('[data-compartment]').first()).toHaveCSS(
+		'border-top-width',
+		'1px'
+	);
 
 	// Undo walks back through the edges one by one.
 	await page.keyboard.press('ControlOrMeta+z');

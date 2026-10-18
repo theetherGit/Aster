@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './fonts.css';
 
 /* Chrome and paper tokens from docs/spec/ui.md (Modern). Paper stays white in every theme. */
 :root {
@@ -16,7 +17,9 @@
 	--paper-grid: #e0e0e6;
 	--paper-ink: #1b1b1b;
 	--paper-fill: #ffffff;
-	--font-paper: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	--font-paper: 'Source Sans 3', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	/* Every UML stroke on paper: edges, markers, node borders, compartment lines (ui.md: 1 px). */
+	--uml-stroke: 1px;
 }
 
 @media (prefers-color-scheme: dark) {

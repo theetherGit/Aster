@@ -91,7 +91,7 @@
 		width: max-content;
 		background: var(--paper-fill);
 		color: var(--paper-ink);
-		border: 1px solid var(--paper-ink);
+		border: var(--uml-stroke) solid var(--paper-ink);
 		font-family: var(--font-paper);
 		font-size: 12px;
 		line-height: 20px;

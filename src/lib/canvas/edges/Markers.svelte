@@ -65,7 +65,7 @@
 	}
 	path {
 		stroke: var(--paper-ink);
-		stroke-width: 1.2;
+		stroke-width: var(--uml-stroke);
 		stroke-dasharray: none;
 		stroke-linejoin: miter;
 	}
