@@ -207,7 +207,7 @@ test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered
 	const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 	expect(bg).toBe('rgb(26, 26, 31)');
 	await page.reload();
-	expect(await theme()).toBe('dark');
+	await expect.poll(theme).toBe('dark'); // applied before first paint by app.html's script
 	await canvasOf(page).focus();
 	await page.keyboard.press('ControlOrMeta+Alt+t');
 	expect(await theme()).toBe('light'); // back to system
