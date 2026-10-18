@@ -3,14 +3,15 @@ import type { MemberKind } from '#lib/mdj/expression.ts';
 import type { Id } from '#lib/model/types.ts';
 
 /** What is being edited inline: the name, or a member line (index may equal the list length = a new line). */
-export type EditTarget = { part: 'name' } | { part: MemberKind; index: number };
+export type EditTarget = { part: 'name' } | { part: 'text' } | { part: MemberKind; index: number };
 export interface Editing {
 	id: Id;
 	target: EditTarget;
 }
 
 export const sameTarget = (a: EditTarget, b: EditTarget) =>
-	a.part === b.part && (a.part === 'name' || a.index === (b as { index: number }).index);
+	a.part === b.part &&
+	(a.part === 'name' || a.part === 'text' || a.index === (b as { index: number }).index);
 
 class Selection {
 	ids = new SvelteSet<Id>();

@@ -6,7 +6,7 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	await customer.click();
 	const inspector = page.getByRole('complementary', { name: 'Inspector' });
 	await expect(inspector).toBeVisible();
-	await expect(inspector.getByLabel('Name')).toHaveValue('Customer');
+	await expect(inspector.getByLabel('Name', { exact: true })).toHaveValue('Customer');
 
 	// Member text: change visibility in the panel, compartment text follows.
 	const first = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
@@ -48,8 +48,8 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	// Flags and kind.
 	await inspector.getByLabel('Abstract').check();
 	await expect(customer.locator('.name')).toHaveCSS('font-style', 'italic');
-	await inspector.getByLabel('Stereotype').fill('entity');
-	await inspector.getByLabel('Stereotype').press('Enter');
+	await inspector.getByLabel('Stereotype', { exact: true }).fill('entity');
+	await inspector.getByLabel('Stereotype', { exact: true }).press('Enter');
 	await expect(customer.locator('.stereotype')).toHaveText('«entity»');
 
 	await inspector.getByLabel('Kind').click();
@@ -59,8 +59,8 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	await inspector.getByRole('button', { name: 'Add literal' }).click();
 	await expect(customer.locator('[data-compartment="literal"] li')).toHaveText(['LITERAL1']);
 
-	await inspector.getByLabel('Name').fill('Member');
-	await inspector.getByLabel('Name').press('Enter');
+	await inspector.getByLabel('Name', { exact: true }).fill('Member');
+	await inspector.getByLabel('Name', { exact: true }).press('Enter');
 	await expect(page.locator('.classifier-node[data-name="Member"]')).toBeVisible();
 
 	// Everything above is on the undo stack.

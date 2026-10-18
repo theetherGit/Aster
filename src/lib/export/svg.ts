@@ -52,7 +52,7 @@ const esc = (s: string) =>
 const n = (v: number) => String(Math.round(v * 100) / 100);
 
 function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], out: string[]) {
-	const header = headerLabel(c);
+	const header = flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c);
 	const nameH = header ? STEREO_ROW : NAME_ROW;
 	out.push(
 		`<g class="node" data-name="${esc(c.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" fill="${PAPER}" stroke="${INK}"/>`

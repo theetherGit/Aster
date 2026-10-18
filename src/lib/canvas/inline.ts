@@ -112,6 +112,7 @@ export function nameEnter(id: Id, text: string) {
 
 /** Tab / ⇧Tab: commit, then move to the next / previous part (name, then each compartment). */
 export function moveCompartment(id: Id, from: EditTarget, text: string, backwards: boolean) {
+	if (from.part === 'text') return; // notes and text have one field
 	if (from.part === 'name') commitName(id, text);
 	else commitLine(id, from.part, from.index, text);
 	const c = classifier(id);
@@ -123,6 +124,7 @@ export function moveCompartment(id: Id, from: EditTarget, text: string, backward
 
 /** ⌘↩ / ⌘⇧↩: commit, then open a new attribute / operation line below. */
 export function addLineBelow(id: Id, from: EditTarget, text: string, kind: MemberKind) {
+	if (from.part === 'text') return;
 	if (from.part === 'name') commitName(id, text);
 	else commitLine(id, from.part, from.index, text);
 	const c = classifier(id);

@@ -28,10 +28,11 @@
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import ClassifierNode from './ClassifierNode.svelte';
-	import { createClassifierAt } from './actions.ts';
+	import { createClassifierAt, createNoteAt, createTextAt, startLink } from './actions.ts';
 	import Markers from './edges/Markers.svelte';
 	import UmlEdge from './edges/UmlEdge.svelte';
 	import { center, type Rect } from './edges/geometry.ts';
+	import { canvasApi } from './api.ts';
 	import { canvasFocus, canvasRects } from './focus.ts';
 	import { handleCanvasKey } from './keyboard.ts';
 
@@ -43,7 +44,15 @@
 		primitiveType: ClassifierNode
 	};
 	const edgeTypes = { uml: UmlEdge };
-	const { screenToFlowPosition, flowToScreenPosition, getInternalNode } = useSvelteFlow();
+	const {
+		screenToFlowPosition,
+		flowToScreenPosition,
+		getInternalNode,
+		getZoom,
+		setZoom,
+		fitView,
+		fitBounds
+	} = useSvelteFlow();
 
 	// Derived nodes are fresh objects after every command. Without `measured`, Svelte Flow
 	// resets them and hides each node until it re-measures, which flickers and drops focus.
@@ -64,6 +73,28 @@
 	$effect(() => {
 		canvasFocus.el = el;
 		canvasRects.get = rects;
+		// What commands outside the canvas (palette, shortcuts) can ask of it.
+		Object.assign(canvasApi, {
+			create: (kind: ClassifierKind) =>
+				createClassifierAt(kind, cursorPosition(), rects().values()),
+			createNote: () => createNoteAt(cursorPosition(), rects().values()),
+			createText: () => createTextAt(cursorPosition(), rects().values()),
+			startLink: () => startLink(rects()),
+			zoomBy: (f: number) => setZoom(Math.min(4, Math.max(0.1, getZoom() * f)), { duration: 120 }),
+			zoomTo: (z: number) => setZoom(z, { duration: 120 }),
+			fitAll: () => fitView({ padding: 0.1, duration: 200 }),
+			fitSelection: () => {
+				const r = rects();
+				const boxes = selection.list.map((id) => r.get(id)).filter((b): b is Rect => !!b);
+				if (!boxes.length) return;
+				const x = Math.min(...boxes.map((b) => b.x));
+				const y = Math.min(...boxes.map((b) => b.y));
+				const x2 = Math.max(...boxes.map((b) => b.x + b.w));
+				const y2 = Math.max(...boxes.map((b) => b.y + b.h));
+				fitBounds({ x, y, width: x2 - x, height: y2 - y }, { padding: 0.2, duration: 200 });
+			},
+			rects
+		} satisfies Partial<typeof canvasApi>);
 		el.focus();
 		return () => {
 			canvasFocus.el = null;
@@ -203,13 +234,7 @@
 	role="application"
 	aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
 	tabindex="0"
-	onkeydown={(e) =>
-		handleCanvasKey(e, {
-			create: (kind: ClassifierKind) =>
-				createClassifierAt(kind, cursorPosition(), rects().values()),
-			rects,
-			openPicker
-		})}
+	onkeydown={(e) => handleCanvasKey(e, { rects, openPicker })}
 >
 	<Markers />
 	<SvelteFlow

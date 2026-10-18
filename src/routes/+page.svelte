@@ -9,6 +9,8 @@
 	import Explorer from '#lib/panels/Explorer.svelte';
 	import ExportSheet from '#lib/panels/ExportSheet.svelte';
 	import ImportNotice from '#lib/panels/ImportNotice.svelte';
+	import Palette from '#lib/panels/Palette.svelte';
+	import ShortcutSheet from '#lib/panels/ShortcutSheet.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
 	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
 	import Toolbox from '#lib/panels/Toolbox.svelte';
@@ -20,7 +22,6 @@
 	import { files, newProject, openDropped, saveFile } from '#lib/persist/files.svelte.ts';
 	import { notationProject } from '#lib/model/fixtures.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
-	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 
 	// First visit: the welcome (board 07) over the sample. Returning: the last autosaved project.
@@ -176,9 +177,7 @@
 						{/if}
 					</footer>
 				</div>
-				{#if selection.size}
-					<Inspector />
-				{/if}
+				<Inspector />
 				{#if ui.welcome}
 					<Welcome />
 				{/if}
@@ -187,6 +186,8 @@
 	</Tabs.Root>
 	<RelationshipPicker />
 	<ExportSheet />
+	<Palette />
+	<ShortcutSheet />
 	<UnsavedPrompt />
 	{#if files.dragging}
 		<!-- Board 21: the whole window is the drop target. -->

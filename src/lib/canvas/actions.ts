@@ -1,5 +1,7 @@
 import {
 	addClassifier,
+	addNote,
+	addText,
 	batch,
 	deleteFromDiagram,
 	deleteFromModel,
@@ -8,6 +10,7 @@ import {
 } from '#lib/commands/index.ts';
 import { serialise } from '#lib/commands/registry.ts';
 import { t } from '#lib/i18n/index.ts';
+import { newId } from '#lib/model/ids.ts';
 import { createClassifier, nextClassName } from '#lib/model/project.ts';
 import type { ClassifierKind, Id, LineStyle, Point } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -87,3 +90,25 @@ export function setLineStyleForSelection(lineStyle: LineStyle): boolean {
 }
 
 export { endEditing as stopEditing };
+
+/** N: a note at a paper position, its text open for typing. */
+export function createNoteAt(at: Point, taken: Iterable<Rect>) {
+	const id = newId();
+	projectStore.run(addNote, {
+		diagramId: projectStore.activeDiagramId,
+		note: { kind: 'note', id, text: '', linkedIds: [] },
+		at: freePosition(at, taken, { w: 160, h: 60 })
+	});
+	edit(id, { part: 'text' });
+}
+
+/** A free text element (no key in keyboard.md; the palette reaches it). */
+export function createTextAt(at: Point, taken: Iterable<Rect>) {
+	const id = newId();
+	projectStore.run(addText, {
+		diagramId: projectStore.activeDiagramId,
+		text: { kind: 'text', id, text: '' },
+		at: freePosition(at, taken, { w: 120, h: 24 })
+	});
+	edit(id, { part: 'text' });
+}

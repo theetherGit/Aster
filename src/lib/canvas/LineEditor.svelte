@@ -30,14 +30,16 @@
 	// An editor belongs to the line it was opened for. The caller's `target` is reactive (an
 	// each-block index), so a reorder would otherwise retarget this editor before teardown.
 	// svelte-ignore state_referenced_locally
-	const own: EditTarget = { ...target };
+	const own = { ...target } as { part: 'name' } | { part: MemberKind; index: number };
+	// Notes and text elements have their own editor; this one is for names and member lines.
 
 	// The draft deliberately starts from the initial text and then lives on its own.
 	// svelte-ignore state_referenced_locally
 	let draft = $state(initial);
 	$effect(() => ondraft?.(draft));
 
-	const isCurrent = () => selection.editing?.id === id && sameTarget(selection.editing.target, own);
+	const isCurrent = () =>
+		selection.editing?.id === id && sameTarget(selection.editing.target, own as EditTarget);
 	const kindLabel = (part: MemberKind | 'name') =>
 		part === 'name' ? t('ui.className') : t(`member.line.${part}`);
 	const ariaLabel = $derived(label || kindLabel(own.part));
@@ -95,7 +97,7 @@
 			endEditing();
 		} else if (e.key === 'Enter' && mod) {
 			open = false;
-			addLineBelow(id, own, draft, e.shiftKey ? 'operation' : 'attribute');
+			addLineBelow(id, own as EditTarget, draft, e.shiftKey ? 'operation' : 'attribute');
 		} else if (e.key === 'Enter') {
 			if (open && highlighted()) return; // Bits accepts the suggestion into the draft
 			open = false;
@@ -103,7 +105,7 @@
 			else lineEnter(id, own.part, own.index, draft);
 		} else if (e.key === 'Tab') {
 			open = false;
-			moveCompartment(id, own, draft, e.shiftKey);
+			moveCompartment(id, own as EditTarget, draft, e.shiftKey);
 		} else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && mod && own.part !== 'name') {
 			reorderLine(id, own.part, own.index, draft, e.key === 'ArrowUp' ? -1 : 1);
 		} else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && open) {

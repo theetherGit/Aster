@@ -1,0 +1,524 @@
+/**
+ * The app command registry (Day 6): every user-facing action once, with its label, shortcut,
+ * group and `when`. The keyboard router, the palette (board 16) and the shortcut sheet (board 17)
+ * all read this list; adding a command here is all it takes to appear in both.
+ * Model commands stay in src/lib/commands; these call them.
+ */
+import { canvasApi } from '#lib/canvas/api.ts';
+import { canvasFocus, explorerFocus } from '#lib/canvas/focus.ts';
+import {
+	deleteSelection,
+	nudgeSelection,
+	setLineStyleForSelection,
+	startEditing,
+	stopEditing
+} from '#lib/canvas/actions.ts';
+import { batch, setDiagramDefaults, setNodeFlags } from '#lib/commands/index.ts';
+import { serialise } from '#lib/commands/registry.ts';
+import { copyDiagramAsPng } from '#lib/export/actions.ts';
+import { t, type MessageKey } from '#lib/i18n/index.ts';
+import type { ClassifierKind, DisplayFlags, Id, LineStyle } from '#lib/model/types.ts';
+import { newProject, openFromPicker, saveFile } from '#lib/persist/files.svelte.ts';
+import { projectStore } from '#lib/stores/project.svelte.ts';
+import { selection } from '#lib/stores/selection.svelte.ts';
+import { ui, cycleTheme } from '#lib/stores/ui.svelte.ts';
+import { parse, type Shortcut } from './shortcuts.ts';
+
+export type Group = 'create' | 'edit' | 'select' | 'file' | 'view' | 'format' | 'display';
+export type Context = 'global' | 'canvas';
+
+export interface AppCommand {
+	id: string;
+	group: Group;
+	label: () => string;
+	keys: Shortcut[];
+	/** 'global' works everywhere; 'canvas' only while the canvas has focus and nothing is edited. */
+	context: Context;
+	/** StarUML's own key for the same action (keyboard.md). */
+	staruml?: boolean;
+	/** Still fires while typing in a field (file and view chords); off for editing keys. */
+	inText?: boolean;
+	/** Listed in the sheet, not offered in the palette (modal keys, nudges, rows the editor owns). */
+	sheetOnly?: boolean;
+	when?: () => boolean;
+	/** On/off for toggles, shown in the palette. */
+	state?: () => boolean | null;
+	run: () => void;
+}
+
+const k = (...specs: string[]) => specs.map(parse);
+const hasSelection = () => selection.size > 0;
+const selectedClassifiers = () =>
+	selection.list.filter((id) => projectStore.project.elements.get(id)?.kind === 'classifier');
+
+// ---- display toggles: the selection when there is one, else the diagram defaults (board 15) ----
+
+function effective(id: Id): DisplayFlags {
+	const d = projectStore.diagram;
+	const l = d.layout.get(id);
+	return { ...d.defaults, ...(l?.kind === 'node' ? l.flags : undefined) };
+}
+export function flagState<K extends keyof DisplayFlags>(key: K): DisplayFlags[K] {
+	const [first] = selectedClassifiers();
+	return first ? effective(first)[key] : projectStore.diagram.defaults[key];
+}
+export function setFlag<K extends keyof DisplayFlags>(key: K, value: DisplayFlags[K]) {
+	const ids = selectedClassifiers();
+	const diagramId = projectStore.activeDiagramId;
+	if (!ids.length) {
+		projectStore.run(setDiagramDefaults, { diagramId, patch: { [key]: value } });
+		return;
+	}
+	if (ids.length === 1) {
+		projectStore.run(setNodeFlags, { diagramId, id: ids[0], patch: { [key]: value } });
+		return;
+	}
+	const p = projectStore.project;
+	projectStore.run(batch, {
+		label: t('cmd.setNodeFlags', { what: t(`flag.${key}` as MessageKey) }),
+		commands: ids.map((id) =>
+			serialise(setNodeFlags(p, { diagramId, id, patch: { [key]: value } }))
+		)
+	});
+}
+const toggle = (key: keyof DisplayFlags & string) => () => setFlag(key, !flagState(key) as never);
+
+const display = (
+	id: string,
+	key: keyof DisplayFlags,
+	keys: string[],
+	label: MessageKey
+): AppCommand => ({
+	id,
+	group: 'display',
+	label: () => t(label),
+	keys: k(...keys),
+	context: 'global',
+	staruml: keys.length > 0,
+	state: () => flagState(key) as boolean,
+	run: toggle(key)
+});
+
+const lineStyle = (id: string, style: LineStyle, key: string): AppCommand => ({
+	id,
+	group: 'format',
+	label: () => t(`cmd.lineStyle.${style}` as MessageKey),
+	keys: k(key),
+	context: 'global',
+	staruml: true,
+	when: () => selection.list.some((x) => projectStore.diagram.layout.get(x)?.kind === 'edge'),
+	run: () => setLineStyleForSelection(style)
+});
+
+const create = (kind: ClassifierKind, key: string): AppCommand => ({
+	id: `create.${kind}`,
+	group: 'create',
+	label: () => t(`cmd.create.${kind}` as MessageKey),
+	keys: k(key),
+	context: 'canvas',
+	run: () => {
+		ui.lastCreated = kind;
+		canvasApi.create(kind);
+	}
+});
+
+const nudge = (id: string, key: string, dx: number, dy: number, big = false): AppCommand => ({
+	id,
+	group: 'select',
+	label: () => t(big ? 'cmd.nudgeBig' : 'cmd.nudge'),
+	keys: k(key),
+	context: 'canvas',
+	sheetOnly: true,
+	when: hasSelection,
+	run: () => nudgeSelection(dx * (big ? 8 : 1), dy * (big ? 8 : 1))
+});
+
+const sheetRow = (
+	id: string,
+	group: Group,
+	label: MessageKey,
+	keys: string[],
+	staruml = false
+): AppCommand => ({
+	id,
+	group,
+	label: () => t(label),
+	keys: k(...keys),
+	context: 'canvas',
+	sheetOnly: true,
+	staruml,
+	run: () => {}
+});
+
+function switchDiagram(delta: number) {
+	const ds = projectStore.project.diagrams;
+	const i = ds.findIndex((d) => d.id === projectStore.activeDiagramId);
+	const next = ds[(i + delta + ds.length) % ds.length];
+	if (next) projectStore.activeDiagramId = next.id;
+}
+
+export const COMMANDS: AppCommand[] = [
+	// Create and connect
+	create('class', 'C'),
+	create('interface', 'I'),
+	create('enum', 'E'),
+	create('dataType', 'D'),
+	{
+		id: 'create.note',
+		group: 'create',
+		label: () => t('cmd.create.note'),
+		keys: k('N'),
+		context: 'canvas',
+		run: () => canvasApi.createNote()
+	},
+	{
+		id: 'create.text',
+		group: 'create',
+		label: () => t('cmd.create.text'),
+		keys: [],
+		context: 'global',
+		run: () => canvasApi.createText()
+	},
+	{
+		id: 'create.repeat',
+		group: 'create',
+		label: () => t('cmd.create.repeat'),
+		keys: k('⌘⇧D'),
+		context: 'global',
+		when: () => ui.lastCreated !== null,
+		run: () => ui.lastCreated && canvasApi.create(ui.lastCreated)
+	},
+	{
+		id: 'link.start',
+		group: 'create',
+		label: () => t('cmd.link'),
+		keys: k('L'),
+		context: 'canvas',
+		when: () => selection.size === 1,
+		run: () => canvasApi.startLink()
+	},
+	sheetRow('link.kind', 'create', 'cmd.linkKind', ['1', '6']),
+
+	// Edit
+	{
+		id: 'edit.start',
+		group: 'edit',
+		label: () => t('cmd.edit'),
+		keys: k('F2', '↩'),
+		context: 'canvas',
+		staruml: true,
+		when: () => selection.size === 1,
+		run: startEditing
+	},
+	sheetRow('edit.addAttribute', 'edit', 'cmd.addAttributeBelow', ['⌘↩'], true),
+	sheetRow('edit.addOperation', 'edit', 'cmd.addOperationBelow', ['⌘⇧↩'], true),
+	sheetRow('edit.compartment', 'edit', 'cmd.nextCompartment', ['Tab', '⇧Tab']),
+	sheetRow('edit.moveMember', 'edit', 'cmd.moveMember', ['⌘↑', '⌘↓']),
+	{
+		id: 'edit.escape',
+		group: 'edit',
+		label: () => t('cmd.escape'),
+		keys: k('Esc'),
+		context: 'canvas',
+		sheetOnly: true,
+		run: () => (selection.editing ? stopEditing() : selection.clear())
+	},
+	{
+		id: 'edit.undo',
+		group: 'edit',
+		label: () => t('ui.undo'),
+		keys: k('⌘Z'),
+		context: 'global',
+		when: () => projectStore.canUndo,
+		run: () => projectStore.undo()
+	},
+	{
+		id: 'edit.redo',
+		group: 'edit',
+		label: () => t('ui.redo'),
+		keys: k('⌘⇧Z', '⌘Y'),
+		context: 'global',
+		when: () => projectStore.canRedo,
+		run: () => projectStore.redo()
+	},
+
+	// Select and arrange
+	{
+		id: 'select.all',
+		group: 'select',
+		label: () => t('cmd.selectAll'),
+		keys: k('⌘A'),
+		context: 'canvas',
+		run: () => selection.set(projectStore.diagram.elementIds)
+	},
+	nudge('nudge.left', '←', -1, 0),
+	nudge('nudge.right', '→', 1, 0),
+	nudge('nudge.up', '↑', 0, -1),
+	nudge('nudge.down', '↓', 0, 1),
+	nudge('nudge.left.big', '⇧←', -1, 0, true),
+	nudge('nudge.right.big', '⇧→', 1, 0, true),
+	nudge('nudge.up.big', '⇧↑', 0, -1, true),
+	nudge('nudge.down.big', '⇧↓', 0, 1, true),
+	{
+		id: 'delete.view',
+		group: 'select',
+		label: () => t('cmd.removeFromDiagram'),
+		keys: k('⌫', 'Delete'),
+		context: 'canvas',
+		staruml: true,
+		when: hasSelection,
+		run: () => deleteSelection(false)
+	},
+	{
+		id: 'delete.model',
+		group: 'select',
+		label: () => t('cmd.deleteFromModelCmd'),
+		keys: k('⌘⌫'),
+		context: 'canvas',
+		staruml: true,
+		when: hasSelection,
+		run: () => deleteSelection(true)
+	},
+	{
+		id: 'view.selectInOutline',
+		group: 'select',
+		label: () => t('cmd.selectInOutline'),
+		keys: k('⌘E'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		run: () => {
+			ui.panels.outline = true;
+			explorerFocus.reveal(selection.list[0] ?? null);
+		}
+	},
+	{
+		id: 'view.selectInDiagram',
+		group: 'select',
+		label: () => t('cmd.selectInDiagram'),
+		keys: k('⌘D'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		run: () => canvasFocus.focus()
+	},
+
+	// File
+	{
+		id: 'file.new',
+		group: 'file',
+		label: () => t('file.new'),
+		keys: k('⌘N'),
+		context: 'global',
+		inText: true,
+		run: () => void newProject()
+	},
+	{
+		id: 'file.open',
+		group: 'file',
+		label: () => t('file.open'),
+		keys: k('⌘O'),
+		context: 'global',
+		inText: true,
+		run: () => void openFromPicker()
+	},
+	{
+		id: 'file.save',
+		group: 'file',
+		label: () => t('file.save'),
+		keys: k('⌘S'),
+		context: 'global',
+		inText: true,
+		run: () => void saveFile()
+	},
+	{
+		id: 'file.saveAs',
+		group: 'file',
+		label: () => t('file.saveAs'),
+		keys: k('⌘⇧S'),
+		context: 'global',
+		inText: true,
+		run: () => void saveFile(true)
+	},
+	{
+		id: 'file.export',
+		group: 'file',
+		label: () => t('export.title'),
+		keys: k('⌘⇧E'),
+		context: 'global',
+		inText: true,
+		run: () => (ui.exportOpen = true)
+	},
+	{
+		id: 'file.copyImage',
+		group: 'file',
+		label: () => t('cmd.copyImage'),
+		keys: k('⌘⇧C'),
+		context: 'global',
+		staruml: true,
+		run: () => void copyDiagramAsPng()
+	},
+
+	// View and find
+	{
+		id: 'view.palette',
+		group: 'view',
+		label: () => t('ui.palette'),
+		keys: k('⌘K', '⌘⇧P'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		run: () => (ui.paletteOpen = true)
+	},
+	{
+		id: 'view.shortcuts',
+		group: 'view',
+		label: () => t('cmd.shortcuts'),
+		keys: k('?'),
+		context: 'canvas',
+		run: () => (ui.shortcutsOpen = true)
+	},
+	{
+		id: 'view.outline',
+		group: 'view',
+		label: () => t('cmd.toggleOutline'),
+		keys: k('⌘B'),
+		context: 'global',
+		inText: true,
+		state: () => ui.panels.outline,
+		run: () => (ui.panels.outline = !ui.panels.outline)
+	},
+	{
+		id: 'view.inspector',
+		group: 'view',
+		label: () => t('cmd.toggleInspector'),
+		keys: k('⌘\\'),
+		context: 'global',
+		inText: true,
+		state: () => ui.panels.inspector,
+		run: () => (ui.panels.inspector = !ui.panels.inspector)
+	},
+	{
+		id: 'zoom.in',
+		group: 'view',
+		label: () => t('ui.zoomIn'),
+		keys: k('⌘='),
+		context: 'global',
+		inText: true,
+		run: () => canvasApi.zoomBy(1.2)
+	},
+	{
+		id: 'zoom.out',
+		group: 'view',
+		label: () => t('ui.zoomOut'),
+		keys: k('⌘-'),
+		context: 'global',
+		inText: true,
+		run: () => canvasApi.zoomBy(1 / 1.2)
+	},
+	{
+		id: 'zoom.reset',
+		group: 'view',
+		label: () => t('ui.zoomReset'),
+		keys: k('⌘0'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		run: () => canvasApi.zoomTo(1)
+	},
+	{
+		id: 'zoom.fit',
+		group: 'view',
+		label: () => t('cmd.zoomFit'),
+		keys: k('⌘9', '⌘1'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		run: () => canvasApi.fitAll()
+	},
+	{
+		id: 'zoom.selection',
+		group: 'view',
+		label: () => t('cmd.zoomSelection'),
+		keys: k('⌘⇧9'),
+		context: 'global',
+		inText: true,
+		run: () => (selection.size ? canvasApi.fitSelection() : canvasApi.fitAll())
+	},
+	{
+		id: 'diagram.next',
+		group: 'view',
+		label: () => t('cmd.nextDiagram'),
+		keys: k('⌘⇧]'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		when: () => projectStore.project.diagrams.length > 1,
+		run: () => switchDiagram(1)
+	},
+	{
+		id: 'diagram.prev',
+		group: 'view',
+		label: () => t('cmd.prevDiagram'),
+		keys: k('⌘⇧['),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		when: () => projectStore.project.diagrams.length > 1,
+		run: () => switchDiagram(-1)
+	},
+	{
+		id: 'view.theme',
+		group: 'view',
+		label: () => t('cmd.theme'),
+		keys: k('⌘⌥T'),
+		context: 'global',
+		inText: true,
+		run: cycleTheme
+	},
+
+	// Format
+	lineStyle('format.rectilinear', 'rectilinear', '⌘L'),
+	lineStyle('format.oblique', 'oblique', '⌘⇧B'),
+	lineStyle('format.roundrect', 'roundrect', '⌘⌥L'),
+	lineStyle('format.curve', 'curve', '⌘⌥B'),
+
+	// Display (StarUML's keys; "Show property strings" has none, ⌘⇧P is the palette alias)
+	display('display.visibility', 'showVisibility', ['⌘⇧V'], 'flag.showVisibility'),
+	display('display.type', 'showType', ['⌘⇧Y'], 'flag.showType'),
+	display('display.multiplicity', 'showMultiplicity', ['⌘⇧M'], 'flag.showMultiplicity'),
+	display('display.signature', 'showOperationSignature', ['⌘⇧J'], 'flag.showOperationSignature'),
+	display('display.namespace', 'showNamespace', ['⌘⇧N'], 'flag.showNamespace'),
+	display('display.property', 'showProperty', [], 'flag.showProperty'),
+	display('display.suppressAttributes', 'suppressAttributes', ['⌘⇧A'], 'flag.suppressAttributes'),
+	display('display.suppressOperations', 'suppressOperations', ['⌘⇧O'], 'flag.suppressOperations'),
+	display('display.suppressLiterals', 'suppressLiterals', ['⌘⇧T'], 'flag.suppressLiterals'),
+	{
+		id: 'display.stereotype.none',
+		group: 'display',
+		label: () => t('cmd.stereotypeNone'),
+		keys: k('⌘⇧0'),
+		context: 'global',
+		staruml: true,
+		state: () => flagState('stereotypeDisplay') === 'none',
+		run: () => setFlag('stereotypeDisplay', 'none')
+	},
+	{
+		id: 'display.stereotype.label',
+		group: 'display',
+		label: () => t('cmd.stereotypeLabel'),
+		keys: k('⌘⇧1'),
+		context: 'global',
+		staruml: true,
+		state: () => flagState('stereotypeDisplay') === 'label',
+		run: () => setFlag('stereotypeDisplay', 'label')
+	},
+	display('display.autoResize', 'autoResize', ['⌘⇧R'], 'flag.autoResize'),
+	display('display.wordWrap', 'wordWrap', [], 'flag.wordWrap')
+];
+
+export const byId = (id: string) => COMMANDS.find((c) => c.id === id);
+export function runCommand(id: string) {
+	const c = byId(id);
+	if (c && (!c.when || c.when())) c.run();
+}

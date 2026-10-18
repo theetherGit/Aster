@@ -19,7 +19,8 @@
 
 	const c = $derived(data.classifier);
 	const flags = $derived(data.flags);
-	const header = $derived(headerLabel(c));
+	// stereotypeDisplay 'none' (⌘⇧0) hides the «stereotype» line; 'label' is the default.
+	const header = $derived(flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c));
 	const compartments = $derived(
 		compartmentsFor(c).filter(
 			(k) =>
