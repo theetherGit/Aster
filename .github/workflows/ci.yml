@@ -6,7 +6,8 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    # Pinned: screenshot baselines are tied to the runner image.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4

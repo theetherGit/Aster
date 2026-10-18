@@ -99,3 +99,5 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-18 · open · the import notice follows board 08: top right, accent edge, a one-paragraph summary, per-diagram detail and warnings behind a Bits UI Collapsible · replaces the earlier notice entry.
 - 2026-10-18 · canvas · the relationship picker heads its list with "source → target" (board 05).
 - 2026-10-18 · canvas · the canvas region is named "Diagram canvas: <diagram name>" · screen readers hear which diagram they are in; live announcements (M2.2) are required to make the inside audible.
+- 2026-10-18 · tooling · the lockfile is frozen until the lab on 2026-10-24: no `pnpm update`; CI installs with `--frozen-lockfile` · SvelteKit 3 is stable, but `runed` still declares a Kit 2 peer.
+- 2026-10-18 · tooling · CI runners are pinned to ubuntu-24.04, and a manual "Linux visual baselines" workflow records Linux screenshot baselines on that image · baselines are tied to the runner image, and ubuntu-latest moves to Ubuntu 26.

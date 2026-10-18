@@ -1,0 +1,28 @@
+name: Linux visual baselines
+
+# Run by hand after a deliberate visual change: records the Linux screenshot baselines on the
+# same runner image CI compares on, and uploads them as an artifact to commit.
+on:
+  workflow_dispatch:
+
+jobs:
+  baselines:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --update-snapshots=all tests/e2e/notation.spec.ts
+        env:
+          CI: true
+          UPDATE_BASELINES: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-baselines
+          path: tests/e2e/**/*-linux.png
+          if-no-files-found: error
