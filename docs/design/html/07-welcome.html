@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aster board 07 welcome</title>
+    <!--
+  Aster design board 07-welcome: Welcome screen.
+  Spec: features.md Autosave, recents, files. Picture: ../07-welcome.png
+
+  STATIC REFERENCE SNAPSHOT, NOT PRODUCTION CODE.
+  - Use it for structure, ARIA, copy, sizes and spacing. Inline styles are the design tokens resolved to
+    hex for the light theme; in the app every colour comes from the token CSS variables in docs/spec/ui.md.
+  - Rebuild in Svelte 5. Menus, dialogs, popovers, tabs, comboboxes, toggle groups and tooltips use Bits UI
+    primitives; the canvas and the Outline tree are hand-built. Never copy the inline styles or the absolute positions.
+  - Diagram positions are fixed here for the picture; in the app they come from the model and layout.
+  - Where this file and docs/spec disagree, the spec wins; log it in DECISIONS.md.
+  Tokens in this board: chrome.bg #F6F6F8 · chrome.surface #FFFFFF · chrome.border #DCDCE3 · chrome.text #1B1B22 · chrome.muted #6B6B78 · accent #2F6FE4 · on-accent #FFFFFF · danger #C43A2C · selection tint rgba(47,111,228,0.10).
+  Paper (all themes): paper.bg #FFFFFF · paper.ink #1B1B1B · dot grid #E0E0E6 · warning #B8781A (light) / #E0A33A (dark).
+-->
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #d9d9de;
+        display: flex;
+        justify-content: center;
+      }
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      @keyframes aster-caret {
+        50% {
+          opacity: 0;
+        }
+      }
+      .caret {
+        animation: aster-caret 1s steps(1) infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .caret {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div style="width: 1280px; height: 800px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; border-radius: 10px; background: #f6f6f8; color: #1b1b22; font-family: -apple-system, BlinkMacSystemFont, &quot; Segoe UI&quot;, &quot; Helvetica Neue&quot;, sans-serif; font-size: 13px; line-height: 1.4">
+      <div style="height: 44px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 14px; background: #f6f6f8; border-bottom: 1px solid #dcdce3">
+        <span style="width: 18px; height: 18px; border-radius: 5px; background: #2f6fe4; display: inline-flex; align-items: center; justify-content: center"
+          ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18"></path></svg
+        ></span>
+        <span style="font-weight: 600"><span>Library System</span></span>
+        <span title="Unsaved changes" style="width: 6px; height: 6px; border-radius: 3px; background: #2f6fe4"></span>
+        <span style="width: 1px; height: 18px; background: #dcdce3; margin: 0 4px"></span>
+        <div style="display: flex; gap: 2px; height: 44px; align-items: stretch">
+          <button type="button" style="font: inherit; padding: 0 10px; border-width: 0 0 2px; border-bottom-style: solid; border-bottom-color: #2f6fe4; margin-bottom: -1px; background: transparent; color: #1b1b22; font-weight: 600; cursor: pointer">Class diagram</button>
+          <button type="button" style="padding: 0 10px; border: 0; background: transparent; color: #6b6b78; font: inherit; cursor: pointer">Domain overview</button>
+          <button type="button" aria-label="New diagram" style="width: 28px; border: 0; background: transparent; color: #6b6b78; cursor: pointer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+          </button>
+        </div>
+        <span style="flex: 1 1 0%"></span>
+        <button type="button" aria-label="Undo" style="width: 28px; height: 28px; border: 1px solid #dcdce3; border-radius: 6px; background: transparent; color: #1b1b22; cursor: pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M9 14L4 9l5-5"></path>
+            <path d="M4 9h11a5 5 0 0 1 0 10h-3"></path>
+          </svg>
+        </button>
+        <button type="button" aria-label="Redo" style="width: 28px; height: 28px; border: 1px solid #dcdce3; border-radius: 6px; background: transparent; color: #6b6b78; cursor: pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M15 14l5-5-5-5"></path>
+            <path d="M20 9H9a5 5 0 0 0 0 10h3"></path>
+          </svg>
+        </button>
+        <div style="display: flex; align-items: center; height: 28px; border: 1px solid #dcdce3; border-radius: 6px; overflow: hidden">
+          <button type="button" aria-label="Zoom out" style="width: 26px; height: 26px; border: 0; background: transparent; color: #1b1b22; cursor: pointer">−</button>
+          <span style="min-width: 44px; text-align: center; font-size: 12px; font-variant-numeric: tabular-nums">100%</span>
+          <button type="button" aria-label="Zoom in" style="width: 26px; height: 26px; border: 0; background: transparent; color: #1b1b22; cursor: pointer">+</button>
+        </div>
+        <button type="button" style="height: 28px; padding: 0 10px; border: 1px solid #dcdce3; border-radius: 6px; background: transparent; color: #1b1b22; font: inherit; cursor: pointer">Export</button>
+        <button type="button" aria-label="Command palette" style="width: 28px; height: 28px; border: 1px solid #dcdce3; border-radius: 6px; background: transparent; color: #6b6b78; cursor: pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7"></path></svg>
+        </button>
+      </div>
+
+      <div style="flex: 1 1 0%; display: flex; min-height: 0">
+        <div style="flex: 1 1 0%; min-width: 0; position: relative; overflow: hidden; background-color: #ffffff; background-image: radial-gradient(#e0e0e6 1px, transparent 1px); background-size: 20px 20px">
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; background: #ffffff">
+            <div style="text-align: center">
+              <div style="font-size: 26px; font-weight: 600; color: #1b1b1b; letter-spacing: -0.01em">Aster</div>
+              <div style="font-size: 13px; color: #5f5f5f; margin-top: 4px">Open UML class modeller. Reads and writes StarUML files. Nothing leaves this computer.</div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; width: 720px">
+              <button type="button" style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px; border: 1px solid #dcdce3; border-radius: 10px; background: #ffffff; color: #1b1b1b; text-align: left; cursor: pointer; font: inherit">
+                <span style="width: 32px; height: 32px; border-radius: 8px; background: #2f6fe4; display: inline-flex; align-items: center; justify-content: center"
+                  ><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg
+                ></span>
+                <span style="font-weight: 600">New diagram</span>
+                <span style="font-size: 12px; color: #5f5f5f">Start blank, or from this week's lab exercise.</span>
+                <span style="font-size: 11px; color: #8a8a8a; font-family: ui-monospace, Menlo, monospace">⌘N</span>
+              </button>
+              <button type="button" style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px; border: 1px solid #dcdce3; border-radius: 10px; background: #ffffff; color: #1b1b1b; text-align: left; cursor: pointer; font: inherit">
+                <span style="width: 32px; height: 32px; border-radius: 8px; background: #eef0f4; display: inline-flex; align-items: center; justify-content: center"
+                  ><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B1B1B" stroke-width="2" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg
+                ></span>
+                <span style="font-weight: 600">Open .mdj</span>
+                <span style="font-size: 12px; color: #5f5f5f">StarUML projects open with every class where you left it. Or drop a file anywhere.</span>
+                <span style="font-size: 11px; color: #8a8a8a; font-family: ui-monospace, Menlo, monospace">⌘O</span>
+              </button>
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 18px; border: 1px solid #dcdce3; border-radius: 10px; background: #ffffff; color: #1b1b1b">
+                <span style="font-weight: 600">Recent</span>
+                <a href="#recent" style="display: flex; justify-content: space-between; font-size: 12.5px; color: #1b1b1b; text-decoration: none"><span>library.mdj</span><span style="color: #8a8a8a">2h</span></a>
+                <a href="#recent" style="display: flex; justify-content: space-between; font-size: 12.5px; color: #1b1b1b; text-decoration: none"><span>hospital-v3.mdj</span><span style="color: #8a8a8a">Tue</span></a>
+                <a href="#recent" style="display: flex; justify-content: space-between; font-size: 12.5px; color: #1b1b1b; text-decoration: none"><span>atm-usecase.mdj</span><span style="color: #8a8a8a">Oct 9</span></a>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: #8a8a8a">Press <span style="font-family: ui-monospace, Menlo, monospace; color: #1b1b1b">?</span> any time for every shortcut</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

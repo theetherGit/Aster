@@ -27,7 +27,32 @@ Screenshots of the Aster UI Design canvas. App boards are 1280×800 and the nota
 | 21 File dragged over the window      | `21-drop-file.png`             | Day 4–5                                                                                                           |
 | 22 File that won't open              | `22-open-error.png`            | Day 4–5                                                                                                           |
 
-Notes on the new boards:
+## HTML snapshots
+
+`html/` has every board as a static HTML file with the same number and name as its PNG, plus `html/index.html` to browse them. Read the PNG for the look and the HTML for everything a picture can't give you: element structure, ARIA roles and labels, the exact copy, and sizes, spacing and radii in px.
+
+The HTML snapshots are **reference only, not production code**:
+
+- Inline styles are the tokens resolved to hex for that board's theme; the comment at the top of each file maps the hex values back to token names. In the app, every colour comes from the token CSS variables in `docs/spec/ui.md`.
+- Diagram positions are fixed for the picture. In the app they come from the model and layout.
+- Don't copy inline styles or absolute positioning. Rebuild each piece as a Svelte component on the primitives below.
+
+| On the board                                       | Build it with                                                |
+| -------------------------------------------------- | ------------------------------------------------------------ |
+| Diagram tabs, inspector tabs, Classic Editors tabs | Bits UI Tabs                                                 |
+| Relationship picker                                | Bits UI DropdownMenu, anchored at the drop point             |
+| Export sheet                                       | Bits UI Dialog                                               |
+| Unsaved changes prompt                             | Bits UI AlertDialog                                          |
+| Command palette                                    | Bits UI Command inside a Dialog                              |
+| Line style and stereotype segments                 | Bits UI ToggleGroup                                          |
+| Type completion while editing                      | Bits UI Combobox                                             |
+| Right-click / ⇧F10 menu                            | Bits UI ContextMenu                                          |
+| Toolbox key hints                                  | Bits UI Tooltip                                              |
+| Classic menu bar and toolbar                       | Bits UI Menubar and Toolbar                                  |
+| Import notice, open error, undo toast              | Plain `role="status"` / `role="alert"` regions, no primitive |
+| Canvas, nodes, edges, Outline tree                 | Hand-built, per the spec                                     |
+
+## Notes on the new boards
 
 - The inspector collapses to a 40 px rail with one button (`⌘\`) when nothing is selected (18, 19).
 - Display shortcuts change the selection when there is one, else the diagram defaults (15). A class changed on its own stops following the defaults.
