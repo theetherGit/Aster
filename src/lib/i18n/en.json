@@ -182,6 +182,7 @@
 	"inspector.labelDistance": "{label} distance",
 	"inspector.labelAngle": "{label} angle in degrees",
 	"inspector.resetLabels": "Reset label positions",
+	"inspector.resetAll": "Reset all",
 	"label.name": "name",
 	"label.sourceRole": "role",
 	"label.targetRole": "role",

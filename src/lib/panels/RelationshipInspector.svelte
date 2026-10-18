@@ -316,7 +316,8 @@
 			<button
 				type="button"
 				class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-				onclick={resetLabels}>{t('inspector.resetLabels')}</button
+				aria-label={t('inspector.resetLabels')}
+				onclick={resetLabels}>{t('inspector.resetAll')}</button
 			>
 		</div>
 		<ul class="mt-1 flex flex-col gap-1">
