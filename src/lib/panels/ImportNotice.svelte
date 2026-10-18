@@ -128,7 +128,7 @@
 				>
 				<Collapsible.Root>
 					<Collapsible.Trigger
-						class="h-7 rounded-control px-1 text-chrome-muted underline hover:text-chrome-text"
+						class="h-7 rounded-control px-1 text-chrome-muted hover:text-chrome-text hover:underline"
 						>{t('import.showDetails')}</Collapsible.Trigger
 					>
 					<Collapsible.Content
@@ -148,7 +148,7 @@
 
 			<Collapsible.Root>
 				<Collapsible.Trigger
-					class="mt-2 h-6 rounded-control px-1 text-[12px] text-chrome-muted underline hover:text-chrome-text"
+					class="mt-2 h-6 rounded-control px-1 text-[12px] text-chrome-muted hover:text-chrome-text hover:underline"
 				>
 					{t('import.details')}
 				</Collapsible.Trigger>
