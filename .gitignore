@@ -29,3 +29,6 @@ playwright-report
 
 # Local tooling
 .remember/
+
+# Generated performance fixtures (fixtures/perf/generate.ts)
+fixtures/perf/*.mdj

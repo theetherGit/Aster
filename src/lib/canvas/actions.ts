@@ -11,7 +11,7 @@ import {
 import { serialise } from '#lib/commands/registry.ts';
 import { t } from '#lib/i18n/index.ts';
 import { newId } from '#lib/model/ids.ts';
-import { createClassifier, nextClassName } from '#lib/model/project.ts';
+import { createClassifier, elementName, nextClassName } from '#lib/model/project.ts';
 import type { ClassifierKind, Id, LineStyle, Point } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
@@ -51,10 +51,19 @@ export function nudgeSelection(dx: number, dy: number) {
 export function deleteSelection(fromModel: boolean) {
 	const ids = selection.list;
 	if (!ids.length) return;
+	const first = projectStore.project.elements.get(ids[0]);
+	const name =
+		ids.length === 1 && first ? elementName(first) : t('cmd.many', { count: ids.length });
 	selection.editing = null;
 	selection.clear();
 	if (fromModel) projectStore.run(deleteFromModel, { ids });
 	else projectStore.run(deleteFromDiagram, { diagramId: projectStore.activeDiagramId, ids });
+	// Board 19: say what happened and offer the way back.
+	ui.toast = {
+		text: fromModel ? t('toast.deleted', { name }) : t('toast.removed', { name }),
+		undo: true,
+		at: Date.now()
+	};
 }
 
 /** F2 / ↩ on a selected classifier: edit its name. */

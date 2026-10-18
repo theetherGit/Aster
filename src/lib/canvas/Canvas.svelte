@@ -268,6 +268,7 @@
 		nodesFocusable={false}
 		edgesFocusable={false}
 		disableKeyboardA11y
+		onlyRenderVisibleElements={flow.nodes.length > 100}
 		proOptions={{ hideAttribution: true }}
 		connectionMode={ConnectionMode.Loose}
 		connectionLineType={ConnectionLineType.Straight}

@@ -80,6 +80,11 @@
 		<button type="button" class="mt-6 text-[13px] text-accent hover:underline" onclick={explore}
 			>{t('welcome.sample')}</button
 		>
+		<p class="mt-4 text-[13px] text-chrome-muted">
+			{t('welcome.pressBefore')}
+			<kbd class="rounded border border-chrome-border px-1.5 text-chrome-text">?</kbd>
+			{t('welcome.pressAfter')}
+		</p>
 	</div>
 </section>
 
@@ -138,7 +143,7 @@
 	}
 	.icon.accent {
 		color: var(--on-accent);
-		background: var(--accent);
+		background: var(--accent-fill);
 	}
 	.card-title {
 		font-size: 15px;

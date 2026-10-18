@@ -158,7 +158,7 @@
 				>
 				<button
 					type="button"
-					class="h-8 rounded-control bg-accent px-3 font-medium text-on-accent disabled:opacity-50"
+					class="h-8 rounded-control bg-accent-fill px-3 font-medium text-on-accent disabled:opacity-50"
 					disabled={busy}
 					onclick={() => run(downloadExport)}>{t('export.download')}</button
 				>
@@ -182,7 +182,7 @@
 		color: var(--chrome-text);
 	}
 	:global(.segment-item[data-state='on']) {
-		background: var(--accent);
+		background: var(--accent-fill);
 		color: var(--on-accent);
 	}
 	:global(.segment[data-disabled]) {

@@ -1,7 +1,13 @@
 @import 'tailwindcss';
 @import './fonts.css';
 
-/* Chrome and paper tokens from docs/spec/ui.md (Modern). Paper stays white in every theme. */
+/*
+ * Chrome and paper tokens from docs/spec/ui.md (Modern). Paper stays white in every theme.
+ * `data-theme` on <html> is the resolved theme (set by +layout.svelte from the system or the
+ * remembered override); before it exists the media query follows the system.
+ * `--accent-fill` is the accent used behind white text: the dark accent (#4f8cff) is 3.2:1
+ * against white, so filled controls keep the light accent in both themes (DECISIONS.md).
+ */
 :root {
 	color-scheme: light;
 	--chrome-bg: #f6f6f8;
@@ -10,6 +16,7 @@
 	--chrome-text: #1b1b22;
 	--chrome-muted: #6b6b78;
 	--accent: #2f6fe4;
+	--accent-fill: #2f6fe4;
 	--on-accent: #ffffff;
 	--warning: #b8781a;
 	--danger: #c43a2c;
@@ -22,8 +29,21 @@
 	--uml-stroke: 1px;
 }
 
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--chrome-bg: #1a1a1f;
+	--chrome-surface: #222229;
+	--chrome-border: #2f2f38;
+	--chrome-text: #ececf1;
+	--chrome-muted: #9b9ba8;
+	--accent: #4f8cff;
+	--accent-fill: #2f6fe4;
+	--warning: #e0a33a;
+	--danger: #f0705c;
+}
+
 @media (prefers-color-scheme: dark) {
-	:root {
+	:root:not([data-theme]) {
 		color-scheme: dark;
 		--chrome-bg: #1a1a1f;
 		--chrome-surface: #222229;
@@ -31,8 +51,9 @@
 		--chrome-text: #ececf1;
 		--chrome-muted: #9b9ba8;
 		--accent: #4f8cff;
+		--accent-fill: #2f6fe4;
 		--warning: #e0a33a;
-		--danger: #e5533d;
+		--danger: #f0705c;
 	}
 }
 
@@ -43,6 +64,7 @@
 	--color-chrome-text: var(--chrome-text);
 	--color-chrome-muted: var(--chrome-muted);
 	--color-accent: var(--accent);
+	--color-accent-fill: var(--accent-fill);
 	--color-on-accent: var(--on-accent);
 	--color-warning: var(--warning);
 	--color-danger: var(--danger);

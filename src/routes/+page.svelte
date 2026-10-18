@@ -11,6 +11,7 @@
 	import ImportNotice from '#lib/panels/ImportNotice.svelte';
 	import Palette from '#lib/panels/Palette.svelte';
 	import ShortcutSheet from '#lib/panels/ShortcutSheet.svelte';
+	import Toast from '#lib/panels/Toast.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
 	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
 	import Toolbox from '#lib/panels/Toolbox.svelte';
@@ -156,6 +157,7 @@
 					{/if}
 					<Toolbox />
 					<ImportNotice />
+					<Toast />
 					<footer class="footer">
 						<span>{t('footer.counts', counts)}</span>
 						<span aria-hidden="true">·</span>
@@ -291,7 +293,7 @@
 		box-sizing: content-box;
 		padding: 8px;
 		color: var(--on-accent);
-		background: var(--accent);
+		background: var(--accent-fill);
 		border-radius: 8px;
 	}
 	.drop-title {

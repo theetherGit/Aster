@@ -183,3 +183,29 @@ test('display toggles: keys change the diagram defaults or the selection, and ro
 	expect(after).toContain(name);
 	expect(after.length).toBe(before.length + 1);
 });
+
+test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered, the paper stays white', async ({
+	page
+}) => {
+	await page.goto('/');
+	await expect(canvasOf(page)).toBeFocused();
+	const theme = () => page.evaluate(() => document.documentElement.dataset.theme);
+	const paper = () =>
+		page.evaluate(() =>
+			getComputedStyle(document.documentElement).getPropertyValue('--paper-bg').trim()
+		);
+	expect(await theme()).toBe('light'); // the test browser prefers light
+	await page.keyboard.press('ControlOrMeta+Alt+t');
+	expect(await theme()).toBe('light'); // explicit light
+	await page.keyboard.press('ControlOrMeta+Alt+t');
+	expect(await theme()).toBe('dark');
+	expect(['#ffffff', '#fff']).toContain(await paper()); // the minifier shortens it
+	const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+	expect(bg).toBe('rgb(26, 26, 31)');
+	await page.reload();
+	expect(await theme()).toBe('dark');
+	await canvasOf(page).focus();
+	await page.keyboard.press('ControlOrMeta+Alt+t');
+	expect(await theme()).toBe('light'); // back to system
+	expect(await page.evaluate(() => localStorage.getItem('aster:theme'))).toBeNull();
+});

@@ -468,5 +468,10 @@
 	"note.sizeHint": "Or ⇧ + arrow keys on the canvas.",
 	"inspector.preview": "Preview",
 	"inspector.previewEmpty": "Nothing written yet.",
+	"toast.removed": "{name} removed from this diagram. It's still in the model.",
+	"toast.deleted": "{name} deleted from the model.",
+	"toast.dismiss": "Dismiss",
+	"welcome.pressBefore": "Press",
+	"welcome.pressAfter": "any time for every shortcut",
 	"footer.counts": "{classifiers} classifiers · {relationships} relationships"
 }

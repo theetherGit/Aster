@@ -40,7 +40,7 @@
 				>
 				<button
 					type="button"
-					class="h-9 rounded-control bg-accent px-3 font-medium text-on-accent"
+					class="h-9 rounded-control bg-accent-fill px-3 font-medium text-on-accent"
 					onclick={() => resolvePending('save')}
 					>{next === null ? t('file.promptSaveNew') : t('file.promptSaveOpen')}</button
 				>

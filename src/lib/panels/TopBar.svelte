@@ -166,7 +166,7 @@
 		width: 24px;
 		height: 24px;
 		color: var(--on-accent);
-		background: var(--accent);
+		background: var(--accent-fill);
 		border-radius: 6px;
 	}
 	/* A bordered pill holding one or more 28 px controls. */
