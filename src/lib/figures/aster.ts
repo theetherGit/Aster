@@ -35,8 +35,8 @@
 /**
  * `aster(el, options)`: the Aster mark as a Hairline figure, with the same `(el, opts) => { update, destroy }`
  * signature as the stock figures, so it works with `use:hairline`. Built with the Hairline skill from
- * `docs/brand/aster-mark.svg`. To adjust it, edit the figure (part 2) in the skill's bench page, run its look, then
- * paste the figure back here; the bench output stays local in `.hairline/`.
+ * `docs/brand/aster-mark.svg`. To adjust it, edit the figure (part 2) in the bench page under `docs/figures/aster/`,
+ * run the skill's look, then paste the figure back here; scratch stays local in `.hairline/`.
  *
  * Three parts, in order:
  *  1. the engine, `HL`: the package's `src/core`, as the bench page pasted it (sha256 in its first line);

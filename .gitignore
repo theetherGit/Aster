@@ -29,7 +29,7 @@ playwright-report
 
 # Local tooling
 .remember/
-# Hairline bench pages and look sheets: skill output, the figure itself lives in src/lib/figures
+# Hairline scratch (bench pages in progress); finished ones live in docs/figures
 .hairline/
 
 # Generated performance fixtures (fixtures/perf/generate.ts)

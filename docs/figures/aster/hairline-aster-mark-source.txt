@@ -1,0 +1,11 @@
+aster-mark.svg  viewBox 0 0 100 100  (1:1)  7 shapes in 2 groups
+title: none   ids: none
+ink: 6.7..93.3 × 4..96  (87% × 92% of the viewBox)
+
+#1  rect    -         box 43..57 × 4..42  centre 50,23  filled  closed, curves and lines  left of #2, touching
+#2  rect    -         box 53.4..93.3 × 20.9..52.1  centre 73.4,36.5  filled  closed, curves and lines
+#3  rect    -         box 53.4..93.3 × 47.9..79.1  centre 73.4,63.5  filled  closed, curves and lines
+#4  rect    -         box 43..57 × 58..96  centre 50,77  filled  closed, curves and lines  right of #5, touching
+#5  rect    -         box 6.7..46.6 × 47.9..79.1  centre 26.6,63.5  filled  closed, curves and lines  mirror of #3
+#6  rect    -         box 6.7..46.6 × 20.9..52.1  centre 26.6,36.5  filled  closed, curves and lines  mirror of #2
+#7  circle  -         box 39..61 × 39..61  centre 50,50  filled  closed, curves  right of #5, touching

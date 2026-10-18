@@ -20,3 +20,6 @@ fixtures/mdj/*.snapshot.json
 
 # Static design snapshots: reference only, kept as exported
 docs/design/html/
+
+# Hairline bench pages and look sheets: design artifacts, kept as built
+docs/figures/
