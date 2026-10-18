@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COMMANDS } from '#lib/app/commands.svelte.ts';
-import { format, matches, parse } from '#lib/app/shortcuts.ts';
+import { ariaKeys, format, matches, parse } from '#lib/app/shortcuts.ts';
 
 const ev = (init: Partial<KeyboardEvent> & { code: string }) => init as KeyboardEvent;
 
@@ -18,6 +18,13 @@ describe('shortcuts as data', () => {
 		expect(format(parse('⌘⇧]'), true)).toBe('⌘⇧]');
 		expect(format(parse('⌫'), true)).toBe('⌫');
 		expect(format(parse('?'), false)).toBe('?');
+	});
+
+	it('spells shortcuts for aria-keyshortcuts', () => {
+		expect(ariaKeys(parse('⌘⇧V'), true)).toBe('Meta+Shift+V');
+		expect(ariaKeys(parse('⌘⇧V'), false)).toBe('Control+Shift+V');
+		expect(ariaKeys(parse('⌘⌥T'), true)).toBe('Meta+Alt+T');
+		expect(ariaKeys(parse('⌘⇧0'), false)).toBe('Control+Shift+0');
 	});
 
 	it('matches on the physical key with exact modifiers', () => {

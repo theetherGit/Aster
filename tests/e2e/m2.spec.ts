@@ -81,3 +81,33 @@ test('high contrast: white edges on black chrome, 2 px UML strokes, paper still 
 	const outline = await node(page, 'Account').evaluate((n) => getComputedStyle(n).outlineColor);
 	expect(outline).toBe('rgb(26, 79, 214)');
 });
+
+test('board 15: the Diagram tab holds defaults; a class overrides them in Properties and can follow again', async ({
+	page
+}) => {
+	await page.goto('/design/notation');
+	await expect(page.locator('.uml-edge')).toHaveCount(8);
+	const inspector = page.getByRole('complementary', { name: 'Inspector' });
+	// Diagram defaults: a tick means shown, so unticking Attributes hides every attribute compartment.
+	await node(page, 'Person').click();
+	await inspector.getByRole('tab', { name: 'Diagram' }).click();
+	await expect(inspector.getByLabel('Diagram name')).toHaveValue('Library');
+	const attrs = inspector.getByRole('checkbox', { name: 'Attributes' });
+	await expect(attrs).toBeChecked();
+	await attrs.uncheck();
+	await expect(page.locator('.classifier-node [data-compartment="attribute"]')).toHaveCount(0);
+	await attrs.check();
+	await expect(node(page, 'Person').locator('[data-compartment="attribute"]')).toHaveCount(1);
+
+	// One class of its own: Properties › Display, the override count, then back to the diagram.
+	await inspector.getByRole('tab', { name: 'Properties' }).click();
+	await expect(inspector).toContainText('Follows the diagram');
+	await inspector.getByRole('button', { name: 'Display' }).click();
+	await inspector.getByRole('checkbox', { name: 'Attributes' }).uncheck();
+	await expect(node(page, 'Person').locator('[data-compartment="attribute"]')).toHaveCount(0);
+	await expect(node(page, 'Member').locator('[data-compartment="attribute"]')).toHaveCount(1);
+	await expect(inspector).toContainText('1 set here');
+	await inspector.getByRole('button', { name: 'Follow diagram' }).click();
+	await expect(node(page, 'Person').locator('[data-compartment="attribute"]')).toHaveCount(1);
+	await expect(inspector).toContainText('Follows the diagram');
+});

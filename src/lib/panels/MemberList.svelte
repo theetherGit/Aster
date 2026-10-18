@@ -71,7 +71,7 @@
 </script>
 
 <!-- Board 01: heading with "+ Add" at the right; flat rows whose controls appear on hover or focus. -->
-<fieldset class="mt-5 min-w-0">
+<fieldset class="mt-6 min-w-0">
 	<div class="mb-1 flex items-center justify-between">
 		<legend class="section float-left mb-0">{t(`inspector.${kind}s`)}</legend>
 		<button

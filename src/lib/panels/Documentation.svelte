@@ -11,7 +11,7 @@
 	let preview = $state(false);
 </script>
 
-<div class="mt-5 flex items-center justify-between">
+<div class="mt-6 flex items-center justify-between">
 	<h2 class="section mb-0"><label for={field}>{t('inspector.documentation')}</label></h2>
 	<Collapsible.Root bind:open={preview}>
 		<Collapsible.Trigger

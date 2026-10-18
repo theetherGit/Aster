@@ -41,6 +41,16 @@ const CODE_LABEL: Record<string, string> = {
 };
 
 /** "⌘⇧V" on macOS, "Ctrl+Shift+V" elsewhere. `?` shows as itself. */
+/** The `aria-keyshortcuts` form: "Meta+Shift+V" on macOS, "Control+Shift+V" elsewhere. */
+export function ariaKeys(s: Shortcut, mac = isMac()): string {
+	const parts: string[] = [];
+	if (s.mod) parts.push(mac ? 'Meta' : 'Control');
+	if (s.alt) parts.push('Alt');
+	if (s.shift) parts.push('Shift');
+	parts.push(s.code.replace(/^(Key|Digit)/, ''));
+	return parts.join('+');
+}
+
 export function format(s: Shortcut, mac = isMac()): string {
 	let key = CODE_LABEL[s.code] ?? s.code.replace(/^Key|^Digit/, '');
 	if (s.code === 'Slash' && s.shift) return mac ? '?' : '?';

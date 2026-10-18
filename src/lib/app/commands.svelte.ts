@@ -62,7 +62,8 @@ const selectedClassifiers = () =>
 
 // ---- display toggles: the selection when there is one, else the diagram defaults (board 15) ----
 
-function effective(id: Id): DisplayFlags {
+/** A classifier's flags as drawn: the diagram's defaults under its own overrides. */
+export function effective(id: Id): DisplayFlags {
 	const d = projectStore.diagram;
 	const l = d.layout.get(id);
 	return { ...d.defaults, ...(l?.kind === 'node' ? l.flags : undefined) };

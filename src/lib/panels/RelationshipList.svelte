@@ -50,7 +50,7 @@
 </script>
 
 {#if rels.length}
-	<h2 class="section mt-5">{t('inspector.relationships')}</h2>
+	<h2 class="section mt-6">{t('inspector.relationships')}</h2>
 	<ul class="flex flex-col">
 		{#each rels as r (r.id)}
 			<li>

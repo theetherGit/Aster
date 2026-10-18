@@ -168,29 +168,6 @@
 </Dialog.Root>
 
 <style>
-	/* One segmented control for both groups: the toolbox's "on" language, natural widths. */
-	:global(.segment) {
-		display: inline-grid;
-		grid-auto-flow: column;
-		grid-auto-columns: minmax(44px, auto);
-		overflow: hidden;
-		border: 1px solid var(--control-border);
-		border-radius: var(--radius-control);
-	}
-	:global(.segment-item) {
-		height: 32px;
-		padding: 0 12px;
-		font-size: 13px;
-		color: var(--chrome-text);
-	}
-	:global(.segment-item + .segment-item) {
-		border-left: 1px solid var(--chrome-border);
-	}
-	:global(.segment-item[data-state='on']) {
-		font-weight: 600;
-		color: var(--accent);
-		background: color-mix(in srgb, var(--accent) 14%, var(--chrome-surface));
-	}
 	:global(.segment[data-disabled]) {
 		opacity: 0.5;
 	}

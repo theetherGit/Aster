@@ -232,14 +232,17 @@ select:focus-visible {
 .menu-item[data-highlighted] {
 	background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
-/* Inspector section headings (board 01/13): small caps, muted. */
-.section {
-	margin: 0 0 6px;
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-	color: var(--chrome-muted);
+/* Inspector section headings (board 01/13): small caps, muted. In the components layer so the
+   utilities that space them (mt-6, mb-0) win; unlayered rules would beat every utility. */
+@layer components {
+	.section {
+		margin-bottom: 6px;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--chrome-muted);
+	}
 }
 .tab {
 	height: 32px;
@@ -266,4 +269,32 @@ select:focus-visible {
 	color: var(--chrome-text);
 	background: var(--chrome-surface);
 	border-bottom: 1px solid var(--chrome-border);
+}
+
+/* Segmented controls (export sheet, Diagram tab): one language, the toolbox's "on" tint. */
+.segment {
+	display: inline-grid;
+	grid-auto-flow: column;
+	grid-auto-columns: minmax(44px, auto);
+	overflow: hidden;
+	border: 1px solid var(--control-border);
+	border-radius: var(--radius-control);
+}
+.segment.mt-1 {
+	display: grid;
+	grid-auto-columns: 1fr;
+}
+.segment-item {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 13px;
+	color: var(--chrome-text);
+}
+.segment-item + .segment-item {
+	border-left: 1px solid var(--chrome-border);
+}
+.segment-item[data-state='on'] {
+	font-weight: 600;
+	color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 14%, var(--chrome-surface));
 }

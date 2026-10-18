@@ -1,6 +1,13 @@
 <script lang="ts">
-	import { Select, Tabs } from 'bits-ui';
-	import { renameClassifier, setClassifierFlags, setClassifierKind } from '#lib/commands/index.ts';
+	import { Collapsible, Select, Tabs } from 'bits-ui';
+	import { effective } from '#lib/app/commands.svelte.ts';
+	import {
+		renameClassifier,
+		setClassifierFlags,
+		setClassifierKind,
+		setNodeFlags
+	} from '#lib/commands/index.ts';
+	import { DEFAULT_DISPLAY_FLAGS, type DisplayFlags } from '#lib/model/types.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { MemberKind } from '#lib/mdj/expression.ts';
 	import { elementName } from '#lib/model/project.ts';
@@ -12,6 +19,7 @@
 	import FieldSelect from './FieldSelect.svelte';
 	import RelationshipList from './RelationshipList.svelte';
 	import DiagramTab from './DiagramTab.svelte';
+	import DisplayFlagsForm from './DisplayFlagsForm.svelte';
 	import Documentation from './Documentation.svelte';
 	import NoteInspector from './NoteInspector.svelte';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -45,6 +53,35 @@
 			? ['literal', 'attribute', 'operation']
 			: ['attribute', 'operation']
 	);
+
+	// Board 15: a classifier's own display flags, over the diagram's defaults; "Follow diagram
+	// defaults" clears them (setNodeFlags with every key undefined removes each override).
+	const overrides = $derived.by(() => {
+		void projectStore.version;
+		const l = classifier ? projectStore.diagram.layout.get(classifier.id) : undefined;
+		return new Set(
+			(l?.kind === 'node' && l.flags ? Object.keys(l.flags) : []) as (keyof DisplayFlags)[]
+		);
+	});
+	let displayOpen = $state(false);
+	const nodeValue = (key: keyof DisplayFlags) => {
+		void projectStore.version;
+		return classifier ? effective(classifier.id)[key] : DEFAULT_DISPLAY_FLAGS[key];
+	};
+	const nodeSet = (key: keyof DisplayFlags, v: DisplayFlags[keyof DisplayFlags]) =>
+		classifier &&
+		projectStore.run(setNodeFlags, {
+			diagramId: projectStore.activeDiagramId,
+			id: classifier.id,
+			patch: { [key]: v }
+		});
+	const followDefaults = () =>
+		classifier &&
+		projectStore.run(setNodeFlags, {
+			diagramId: projectStore.activeDiagramId,
+			id: classifier.id,
+			patch: Object.fromEntries([...overrides].map((k) => [k, undefined]))
+		});
 
 	const commitName = (name: string) => {
 		if (classifier && name.trim() && name.trim() !== classifier.name)
@@ -200,6 +237,31 @@
 						<MemberList classifier={c} {kind} />
 					{/each}
 					<RelationshipList classifier={c} />
+					<Collapsible.Root bind:open={displayOpen} class="mt-6">
+						<div class="flex h-7 items-center gap-2">
+							<Collapsible.Trigger
+								class="section mb-0 flex items-center gap-1.5 rounded-control whitespace-nowrap"
+							>
+								<span class="caret" aria-hidden="true">{displayOpen ? '▾' : '▸'}</span>
+								{t('inspector.display')}
+							</Collapsible.Trigger>
+							<span class="min-w-0 flex-1 truncate text-[12px] text-chrome-muted">
+								{overrides.size
+									? t('inspector.overrides', { n: overrides.size })
+									: t('inspector.followsDiagram')}
+							</span>
+							{#if overrides.size}
+								<button
+									type="button"
+									class="h-7 shrink-0 rounded-control border border-chrome-border px-2 text-[12px] whitespace-nowrap hover:bg-chrome-bg"
+									onclick={followDefaults}>{t('inspector.followDefaults')}</button
+								>
+							{/if}
+						</div>
+						<Collapsible.Content class="mt-2">
+							<DisplayFlagsForm idPrefix="node" value={nodeValue} set={nodeSet} {overrides} />
+						</Collapsible.Content>
+					</Collapsible.Root>
 					<Documentation id={c.id} documentation={c.documentation} field="cls-doc" />
 				{:else if single?.kind === 'relationship'}
 					<RelationshipInspector rel={single} />
@@ -245,6 +307,12 @@
 			z-index: 20;
 			box-shadow: -8px 0 24px rgb(0 0 0 / 0.12);
 		}
+	}
+	.caret {
+		display: inline-block;
+		width: 10px;
+		font-size: 10px;
+		color: var(--chrome-muted);
 	}
 	/* Board 03: "Editors" and its three tabs on one 280 px row. */
 	:global(.editors-tabs .tab) {
