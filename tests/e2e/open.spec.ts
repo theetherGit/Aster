@@ -160,7 +160,11 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 
 	await drop(page, 'bad.mdj', '{"_type":"UMLModel"}');
 	await expect(notice(page)).toHaveAttribute('role', 'alert');
-	await expect(notice(page)).toContainText('Could not open bad.mdj');
-	await expect(notice(page)).toContainText('It is not a StarUML project file.');
+	await expect(notice(page)).toContainText("Couldn't open bad.mdj");
+	await expect(notice(page)).toContainText(
+		"It isn't a StarUML project file (.mdj), so nothing was loaded. Untitled is unchanged."
+	);
+	await notice(page).getByRole('button', { name: 'Show details' }).click();
+	await expect(notice(page)).toContainText('not a StarUML project');
 	await expect(page.locator('.classifier-node')).toHaveCount(2);
 });

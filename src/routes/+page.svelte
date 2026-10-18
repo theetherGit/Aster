@@ -22,6 +22,13 @@
 		if (new URL(location.href).searchParams.get('fixture') === 'notation')
 			projectStore.load(notationProject());
 	});
+
+	const counts = $derived.by(() => {
+		const d = projectStore.diagram;
+		const kind = (k: string) =>
+			d.elementIds.filter((id) => projectStore.project.elements.get(id)?.kind === k).length;
+		return { classifiers: kind('classifier'), relationships: kind('relationship') };
+	});
 </script>
 
 <svelte:head>
@@ -57,9 +64,9 @@
 				<Canvas />
 				<Toolbox />
 				<ImportNotice />
-				{#if files.dragging}
-					<div class="drop-overlay" aria-hidden="true">{t('file.drop')}</div>
-				{/if}
+				<footer class="footer" aria-label={t('footer.counts', counts)}>
+					{t('footer.counts', counts)}
+				</footer>
 			</div>
 			{#if selection.size}
 				<Inspector />
@@ -67,22 +74,80 @@
 		</Tabs.Content>
 	</Tabs.Root>
 	<RelationshipPicker />
+	{#if files.dragging}
+		<!-- Board 21: the whole window is the drop target. -->
+		<div class="drop-overlay" aria-hidden="true">
+			<div class="drop-card">
+				<svg
+					width="28"
+					height="28"
+					viewBox="0 0 28 28"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.6"
+					aria-hidden="true"
+					><path d="M8 3.5h8l5 5v16H8z" /><path
+						d="M16 3.5v5h5M14 11v9m-3.5-3.5L14 20l3.5-3.5"
+					/></svg
+				>
+				<p class="drop-title">{t('file.dropTitle')}</p>
+				<p class="drop-hint">{t('file.dropHint')}</p>
+			</div>
+		</div>
+	{/if}
 </SvelteFlowProvider>
 
 <style>
-	.drop-overlay {
+	.footer {
 		position: absolute;
-		inset: 8px;
-		z-index: 30;
+		bottom: 10px;
+		left: 14px;
+		z-index: 5;
+		font-size: 12px;
+		color: var(--chrome-muted);
+		pointer-events: none;
+	}
+	.drop-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 60;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		background: color-mix(in srgb, var(--accent) 6%, transparent);
+		pointer-events: none;
+	}
+	.drop-overlay::after {
+		content: '';
+		position: absolute;
+		inset: 6px;
+		border: 2px dashed var(--accent);
+		border-radius: 10px;
+	}
+	.drop-card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		padding: 22px 40px;
+		color: var(--chrome-text);
+		background: var(--chrome-surface);
+		border: 1px solid var(--chrome-border);
+		border-radius: 12px;
+		box-shadow: 0 12px 32px rgb(0 0 0 / 0.22);
+	}
+	.drop-card svg {
+		padding: 6px;
+		color: var(--on-accent);
+		background: var(--accent);
+		border-radius: 8px;
+	}
+	.drop-title {
 		font-size: 15px;
 		font-weight: 600;
-		color: var(--chrome-text);
-		background: color-mix(in srgb, var(--accent) 8%, transparent);
-		border: 2px dashed var(--accent);
-		border-radius: 12px;
-		pointer-events: none;
+	}
+	.drop-hint {
+		font-size: 12px;
+		color: var(--chrome-muted);
 	}
 </style>

@@ -2,7 +2,7 @@
 	import { Collapsible } from 'bits-ui';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import type { ParseReport, ParseWarning } from '#lib/mdj/parse.ts';
-	import { files } from '#lib/persist/files.svelte.ts';
+	import { files, openFromPicker } from '#lib/persist/files.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 
 	// The import notice (board 08): top right, non-blocking, a short summary first and the
@@ -83,6 +83,18 @@
 		data-testid="import-notice"
 	>
 		<header class="flex items-start gap-2">
+			{#if notice.kind === 'failed'}
+				<svg
+					class="mt-0.5 shrink-0 text-danger"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					aria-hidden="true"><circle cx="8" cy="8" r="6.25" /><path d="M8 4.75v4M8 11.2v.1" /></svg
+				>
+			{/if}
 			<h2 id="import-notice-title" class="min-w-0 flex-1 text-[14px] font-semibold">
 				{#if notice.kind === 'opening'}
 					{t('import.opening', { file: notice.file })}
@@ -103,7 +115,28 @@
 		</header>
 
 		{#if notice.kind === 'failed'}
-			<p class="body">{notice.invalid ? t('import.notStarUml') : notice.message}</p>
+			<p class="body">
+				{t(notice.invalid ? 'import.failedBody' : 'import.failedOther', {
+					project: projectStore.project.name
+				})}
+			</p>
+			<div class="mt-2 flex items-center gap-2">
+				<button
+					type="button"
+					class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
+					onclick={() => openFromPicker()}>{t('import.chooseAnother')}</button
+				>
+				<Collapsible.Root>
+					<Collapsible.Trigger
+						class="h-7 rounded-control px-1 text-chrome-muted underline hover:text-chrome-text"
+						>{t('import.showDetails')}</Collapsible.Trigger
+					>
+					<Collapsible.Content
+						><pre
+							class="mt-2 text-[11px] whitespace-pre-wrap text-chrome-muted">{notice.message}</pre></Collapsible.Content
+					>
+				</Collapsible.Root>
+			</div>
 		{:else if notice.kind === 'opened'}
 			{@const r = notice.report}
 			{@const kept = keptSentence(r)}

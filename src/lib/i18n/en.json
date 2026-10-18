@@ -178,7 +178,7 @@
 	"file.drop": "Drop a .mdj file to open it",
 	"import.opening": "Opening {file}…",
 	"import.opened": "Opened {file}",
-	"import.failed": "Could not open {file}",
+	"import.failed": "Couldn't open {file}",
 	"import.notStarUml": "It is not a StarUML project file.",
 	"import.close": "Close the import notice",
 	"import.placed": "Placed",
@@ -245,5 +245,12 @@
 	"inspector.resetLabel": "Reset {label} position",
 	"inspector.relationships": "Relationships",
 	"inspector.selectRelationship": "Select {summary}",
-	"inspector.relationshipSummary": "{source} {sourceMultiplicity} {glyph} {targetMultiplicity} {target}"
+	"inspector.relationshipSummary": "{source} {sourceMultiplicity} {glyph} {targetMultiplicity} {target}",
+	"import.failedBody": "It isn't a StarUML project file (.mdj), so nothing was loaded. {project} is unchanged.",
+	"import.failedOther": "It couldn't be read, so nothing was loaded. {project} is unchanged.",
+	"import.chooseAnother": "Choose another file…",
+	"import.showDetails": "Show details",
+	"file.dropTitle": "Drop to open",
+	"file.dropHint": "A StarUML .mdj file",
+	"footer.counts": "{classifiers} classifiers · {relationships} relationships"
 }
