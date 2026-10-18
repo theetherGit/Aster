@@ -79,7 +79,7 @@ export async function saveNow(): Promise<void> {
 	const p = projectStore.project;
 	const diagram = projectStore.diagram;
 	persist.saving = true;
-	const thumb = await thumbnail(p, diagram.id);
+	const thumb = await thumbnailOf(p, diagram.id);
 	const record: Saved = {
 		version: 2,
 		file: serializeAster(p, files.origin ?? undefined),
@@ -111,15 +111,23 @@ export async function saveNow(): Promise<void> {
 	persist.ready = true;
 }
 
-/** A small PNG of the diagram for the Recent list; skipped for big diagrams. */
-async function thumbnail(project: Project, diagramId: Id): Promise<string | undefined> {
+/**
+ * A small PNG of a diagram: the Recent list's thumbnails, and the welcome's sample card. Rendered
+ * nodes come from `rects` (the live canvas by default); the rest fall back to the layout's sizes.
+ * Skipped for big diagrams.
+ */
+export async function thumbnailOf(
+	project: Project,
+	diagramId: Id,
+	rects: ReadonlyMap<Id, { x: number; y: number; w: number; h: number }> = canvasRects.get(),
+	maxWidth = THUMB_WIDTH
+): Promise<string | undefined> {
 	const diagram = project.diagrams.find((d) => d.id === diagramId);
 	if (!diagram || typeof document === 'undefined') return undefined;
 	try {
-		const rects = canvasRects.get();
-		if (rects.size === 0 || rects.size > THUMB_MAX_NODES) return undefined;
+		if (rects.size > THUMB_MAX_NODES) return undefined;
 		const { svg, width, height } = diagramToSvg(project, diagram, rects, { background: 'white' });
-		const scale = Math.min(1, THUMB_WIDTH / width);
+		const scale = Math.min(1, maxWidth / width);
 		// ponytail: scale through a 1× render sized down; fine for a 320 px preview
 		const blob = await Promise.race([
 			svgToPng(svg, width * scale, height * scale, 1),
@@ -212,6 +220,13 @@ export async function forget(id: string) {
 	await del(KEY(id));
 	persist.recent = persist.recent.filter((r) => r.id !== id);
 	await set(RECENT, $state.snapshot(persist.recent));
+}
+
+/** Board 23 "Clear": every record and the Recent list go; the open project is saved again on its next change. */
+export async function clearRecent() {
+	await Promise.all(persist.recent.map((r) => del(KEY(r.id))));
+	persist.recent = [];
+	await Promise.all([del(RECENT), del(LAST)]);
 }
 
 /** First visit flag, synchronous so the welcome can show before IndexedDB answers. */

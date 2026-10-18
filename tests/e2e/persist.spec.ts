@@ -249,11 +249,13 @@ test.describe('first visit', () => {
 		const welcome = page.getByRole('region', { name: 'Aster' });
 		await expect(welcome).toBeVisible();
 		await expect(welcome.getByRole('button', { name: /New diagram/ })).toBeVisible();
-		await expect(welcome.getByRole('button', { name: /Open \.mdj/ })).toBeVisible();
-		await expect(welcome).toContainText('Files you open appear here');
+		await expect(welcome.getByRole('button', { name: /Open file/ })).toBeVisible();
+		await expect(welcome.getByRole('button', { name: /New diagram/ })).toBeFocused();
+		await expect(welcome).toContainText('Files you open or save appear here');
+		await expect(welcome.getByRole('img', { name: 'Sample diagram' })).toBeVisible();
 		// Hairline figure at rest, exposed as an image with a meaningful name.
 		await expect(welcome.getByRole('img', { name: /nothing open yet/ })).toBeVisible();
-		await welcome.getByRole('button', { name: 'Or explore the sample diagram' }).click();
+		await welcome.getByRole('button', { name: 'Open sample' }).click();
 		await expect(welcome).toHaveCount(0);
 		await expect(page.getByText('Sample. Press ⌘N for your own.')).toBeVisible();
 		await expect(node(page, 'Account')).toBeVisible();
