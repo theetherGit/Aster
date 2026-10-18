@@ -58,10 +58,11 @@ test('⌘S downloads the native .aster for an Aster-born project; the save state
 }) => {
 	await page.goto('/');
 	await expect(canvasOf(page)).toBeFocused();
-	// Never saved: amber state, "not saved to a file yet".
-	await expect(page.getByTestId('save-state')).toHaveAttribute('data-state', 'never');
+	// Untouched sample: nothing to lose, no dot. The first edit makes it "never saved": amber.
+	await expect(page.getByTestId('save-state')).toHaveCount(0);
 	await page.mouse.move(600, 400);
 	await create(page, 'c', 'Book');
+	await expect(page.getByTestId('save-state')).toHaveAttribute('data-state', 'never');
 	await page.keyboard.press('Escape');
 
 	const download = page.waitForEvent('download');

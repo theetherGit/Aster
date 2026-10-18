@@ -35,7 +35,7 @@
 		title={stateTitle}
 	>
 		<span class="truncate" data-testid="project-name">{projectStore.project.name}</span>
-		{#if files.state !== 'saved'}
+		{#if files.state === 'unsaved' || files.state === 'never'}
 			<span
 				class="dot"
 				class:never={files.state === 'never'}

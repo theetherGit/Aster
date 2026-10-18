@@ -64,9 +64,12 @@ class Files {
 	get dirty() {
 		return projectStore.version !== this.savedVersion;
 	}
-	/** ui.md's three states. */
-	get state(): 'saved' | 'unsaved' | 'never' {
-		if (!this.current) return 'never';
+	/**
+	 * ui.md's three states, plus `new`: a project that lives only in the browser and has no edits yet
+	 * (the sample on first visit, an untouched ⌘N). Nothing can be lost, so no dot and no banner.
+	 */
+	get state(): 'saved' | 'unsaved' | 'never' | 'new' {
+		if (!this.current) return this.dirty ? 'never' : 'new';
 		return this.dirty ? 'unsaved' : 'saved';
 	}
 }
