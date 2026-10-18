@@ -97,7 +97,7 @@ const CLASSIFIERS: Record<string, ClassifierKind> = {
 	UMLInterface: 'interface',
 	UMLEnumeration: 'enum',
 	UMLDataType: 'dataType',
-	UMLPrimitiveType: 'dataType'
+	UMLPrimitiveType: 'primitiveType'
 };
 const RELATIONSHIPS: Record<string, RelationshipKind> = {
 	UMLAssociation: 'association',
@@ -378,9 +378,7 @@ class Parser {
 		if (packageId) (this.elements.get(packageId) as Package).memberIds.push(id);
 		this.late.push(() => {
 			const s = this.nameOf(o.stereotype, 'stereotype', c.name);
-			// UMLPrimitiveType is a data type shown «primitive» (data-model.md).
-			if (s ?? (type === 'UMLPrimitiveType' ? 'primitive' : undefined))
-				c.stereotype = s ?? 'primitive';
+			if (s) c.stereotype = s;
 		});
 		arr(o.attributes).forEach((a, i) =>
 			isObj(a) && a._type === 'UMLAttribute'
@@ -420,6 +418,9 @@ class Parser {
 			isStatic: bool(o.isStatic),
 			isReadOnly: bool(o.isReadOnly),
 			isDerived: bool(o.isDerived),
+			isOrdered: bool(o.isOrdered),
+			isUnique: bool(o.isUnique),
+			isID: bool(o.isID),
 			documentation: str(o.documentation) ?? ''
 		});
 		this.late.push(() => {
@@ -512,6 +513,8 @@ class Parser {
 					navigable: navigability(e.navigable),
 					visibility: vis(e.visibility) ?? 'public',
 					isDerived: bool(e.isDerived),
+					isOrdered: bool(e.isOrdered),
+					isUnique: bool(e.isUnique),
 					ownsOther: false
 				});
 			let [a, b] = [e1, e2];

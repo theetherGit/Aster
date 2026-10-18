@@ -275,6 +275,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -282,6 +284,8 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -297,6 +301,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -304,6 +310,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -319,6 +327,8 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -326,6 +336,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -340,6 +352,8 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -347,6 +361,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			}

@@ -93,7 +93,7 @@ export function parseParameter(line: string): Parameter | Raw {
 export function parseAttribute(line: string): ParsedAttribute | Raw {
 	const m = ATTRIBUTE.exec(line)?.groups;
 	if (!m) return { raw: line };
-	const p = props(m.props, ['static', 'readOnly', 'derived']);
+	const p = props(m.props, ['static', 'readOnly', 'derived', 'ordered', 'unique', 'id']);
 	if (!p) return { raw: line };
 	return {
 		name: m.name,
@@ -101,6 +101,9 @@ export function parseAttribute(line: string): ParsedAttribute | Raw {
 		isStatic: m.prefix === 'static' || p.has('static'),
 		isReadOnly: p.has('readOnly'),
 		isDerived: m.derived === '/' || p.has('derived'),
+		isOrdered: p.has('ordered'),
+		isUnique: p.has('unique'),
+		isID: p.has('id'),
 		...(m.type && { type: m.type.trim() }),
 		...(m.mult && { multiplicity: m.mult }),
 		...(m.def !== undefined && { defaultValue: m.def.trim() }),
@@ -186,7 +189,13 @@ export function renderAttribute(a: ParsedAttribute | Attribute, o: RenderOptions
 	if (a.type && o.showType !== false) s += `: ${a.type}`;
 	if (a.multiplicity && o.showMultiplicity !== false) s += `[${a.multiplicity}]`;
 	if (a.defaultValue !== undefined && o.showType !== false) s += ` = ${a.defaultValue}`;
-	if (a.isReadOnly && o.showProperty !== false) s += ' {readOnly}';
+	const props = [
+		...(a.isReadOnly ? ['readOnly'] : []),
+		...(a.isOrdered ? ['ordered'] : []),
+		...(a.isUnique ? ['unique'] : []),
+		...(a.isID ? ['id'] : [])
+	];
+	if (props.length && o.showProperty !== false) s += ` {${props.join(', ')}}`;
 	return s;
 }
 
@@ -249,6 +258,9 @@ export function memberFromText(
 					isStatic: false,
 					isReadOnly: false,
 					isDerived: false,
+					isOrdered: false,
+					isUnique: false,
+					isID: false,
 					raw: text
 				}
 			: {

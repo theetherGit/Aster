@@ -218,5 +218,8 @@
 	"diagramType.FCFlowchartDiagram": "flowchart",
 	"diagramType.DFDDiagram": "data flow diagram",
 	"diagramType.ERDDiagram": "ER diagram",
-	"diagramType.other": "{type}"
+	"diagramType.other": "{type}",
+	"model.defaultName.primitiveType": "PrimitiveType{n}",
+	"kind.primitiveType": "primitive type",
+	"ui.kind.primitiveType": "Primitive type"
 }

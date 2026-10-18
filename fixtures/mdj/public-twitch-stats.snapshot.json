@@ -33,6 +33,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -43,6 +46,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -53,6 +59,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -63,6 +72,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					}
@@ -88,6 +100,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -98,6 +113,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -108,6 +126,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -118,6 +139,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -128,6 +152,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -138,6 +165,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -162,6 +192,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -172,6 +205,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -182,6 +218,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -192,6 +231,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -202,6 +244,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "dateTime"
 					},
@@ -212,6 +257,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					}
@@ -237,6 +285,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -247,6 +298,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -257,6 +311,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -267,6 +324,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -277,6 +337,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -287,6 +350,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					}
@@ -312,6 +378,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -322,6 +391,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "string"
 					},
@@ -332,6 +404,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "int"
 					},
@@ -342,6 +417,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": "",
 						"type": "dateTime"
 					}
@@ -361,12 +439,16 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -382,6 +464,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -389,6 +473,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -404,6 +490,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -411,6 +499,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -426,6 +516,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -433,6 +525,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -448,6 +542,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -455,6 +551,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -470,6 +568,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -477,6 +577,8 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			}

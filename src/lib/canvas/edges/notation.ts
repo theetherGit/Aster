@@ -81,6 +81,9 @@ export function labelsFor(r: Relationship, flags: DisplayFlags): EdgeLabelSpec[]
 		}
 		if (flags.showMultiplicity && e.multiplicity)
 			out.push({ key: `${at}Multiplicity`, at, lines: [e.multiplicity] });
+		const props = [...(e.isOrdered ? ['ordered'] : []), ...(e.isUnique ? ['unique'] : [])];
+		if (flags.showProperty && props.length)
+			out.push({ key: `${at}Property`, at, lines: [`{${props.join(', ')}}`] });
 	}
 	return out;
 }

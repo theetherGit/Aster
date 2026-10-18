@@ -32,6 +32,7 @@ export function compartmentsFor(c: Classifier): MemberKind[] {
 				...(ops ? (['operation'] as const) : [])
 			];
 		case 'dataType':
+		case 'primitiveType':
 			return ['attribute', ...(ops ? (['operation'] as const) : [])];
 		default:
 			return ['attribute', 'operation'];
@@ -42,7 +43,13 @@ export function compartmentsFor(c: Classifier): MemberKind[] {
 export function headerLabel(c: Classifier): string | undefined {
 	if (c.classifierKind === 'class') return c.stereotype;
 	if (c.stereotype) return c.stereotype;
-	return c.classifierKind === 'enum' ? 'enumeration' : c.classifierKind;
+	const KEYWORD = {
+		interface: 'interface',
+		enum: 'enumeration',
+		dataType: 'dataType',
+		primitiveType: 'primitive'
+	};
+	return KEYWORD[c.classifierKind];
 }
 
 const classifier = (id: Id) => getClassifier(projectStore.project, id);

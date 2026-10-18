@@ -69,6 +69,9 @@ export function createAttribute(init: Partial<Attribute> & { name: string }): At
 		isStatic: init.isStatic ?? false,
 		isReadOnly: init.isReadOnly ?? false,
 		isDerived: init.isDerived ?? false,
+		isOrdered: init.isOrdered ?? false,
+		isUnique: init.isUnique ?? false,
+		isID: init.isID ?? false,
 		documentation: init.documentation ?? '',
 		...(init.type !== undefined && { type: init.type }),
 		...(init.multiplicity !== undefined && { multiplicity: init.multiplicity }),
@@ -101,6 +104,8 @@ export const isAssociationKind = (kind: RelationshipKind) =>
 export const defaultEnd = (): End => ({
 	navigable: 'unspecified',
 	isDerived: false,
+	isOrdered: false,
+	isUnique: false,
 	ownsOther: false
 });
 

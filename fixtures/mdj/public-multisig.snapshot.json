@@ -21,6 +21,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -30,6 +33,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -39,6 +45,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -48,6 +57,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -57,6 +69,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": true,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -66,6 +81,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": true,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -75,6 +93,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": true,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -84,6 +105,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -93,6 +117,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -102,6 +129,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -136,6 +166,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -170,6 +203,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -179,6 +215,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -188,6 +227,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -197,6 +239,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -206,6 +251,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -215,6 +263,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -224,6 +275,9 @@
 						"isStatic": false,
 						"isReadOnly": true,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -233,6 +287,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -242,6 +299,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -251,6 +311,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -260,6 +323,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -269,6 +335,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -324,6 +393,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -334,6 +406,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -343,6 +418,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": true,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -353,6 +431,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -362,6 +443,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": true,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -402,6 +486,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -409,6 +495,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -425,6 +513,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -432,6 +522,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -447,6 +539,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
@@ -454,6 +548,8 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			}

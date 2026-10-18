@@ -162,6 +162,8 @@ describe('relationship edits', () => {
 			navigable: 'navigable',
 			visibility: 'private',
 			isDerived: false,
+			isOrdered: false,
+			isUnique: false,
 			ownsOther: true
 		});
 		stack.run(

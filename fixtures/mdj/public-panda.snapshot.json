@@ -803,12 +803,16 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -823,12 +827,16 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -844,12 +852,16 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -881,12 +893,16 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -943,12 +959,16 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -1004,12 +1024,16 @@
 					"navigable": "notNavigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -1032,12 +1056,16 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -1060,12 +1088,16 @@
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "navigable",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},

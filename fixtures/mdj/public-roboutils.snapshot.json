@@ -20,6 +20,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					},
 					{
@@ -29,6 +32,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -63,6 +69,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -167,6 +176,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -268,6 +280,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -327,7 +342,7 @@
 			{
 				"kind": "classifier",
 				"id": "AAAAAAF+NDNNL0rTXdQ=",
-				"classifierKind": "dataType",
+				"classifierKind": "primitiveType",
 				"name": "PrimitiveType1",
 				"isAbstract": false,
 				"isLeaf": false,
@@ -335,8 +350,7 @@
 				"documentation": "",
 				"attributes": [],
 				"operations": [],
-				"literals": [],
-				"stereotype": "primitive"
+				"literals": []
 			},
 			{
 				"kind": "classifier",
@@ -467,6 +481,9 @@
 						"isStatic": false,
 						"isReadOnly": false,
 						"isDerived": false,
+						"isOrdered": false,
+						"isUnique": false,
+						"isID": false,
 						"documentation": ""
 					}
 				],
@@ -486,12 +503,16 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -507,12 +528,16 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -528,12 +553,16 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -549,12 +578,16 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},
@@ -585,12 +618,16 @@
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				},
 				"targetEnd": {
 					"navigable": "unspecified",
 					"visibility": "public",
 					"isDerived": false,
+					"isOrdered": false,
+					"isUnique": false,
 					"ownsOther": false
 				}
 			},

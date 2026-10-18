@@ -222,7 +222,8 @@ describe('UMLClass, UMLInterface, UMLEnumeration, UMLDataType, UMLPrimitiveType'
 		]);
 		expect(C(r, 'DT')).toMatchObject({ classifierKind: 'dataType' });
 		expect(C(r, 'DT')).not.toHaveProperty('stereotype');
-		expect(C(r, 'PT')).toMatchObject({ classifierKind: 'dataType', stereotype: 'primitive' });
+		expect(C(r, 'PT')).toMatchObject({ classifierKind: 'primitiveType' });
+		expect(C(r, 'PT')).not.toHaveProperty('stereotype');
 	});
 });
 
@@ -244,6 +245,9 @@ describe('UMLAttribute', () => {
 							isStatic: true,
 							isReadOnly: true,
 							isDerived: true,
+							isOrdered: true,
+							isUnique: true,
+							isID: true,
 							stereotype: 'key',
 							documentation: 'd'
 						},
@@ -271,6 +275,9 @@ describe('UMLAttribute', () => {
 				isStatic: true,
 				isReadOnly: true,
 				isDerived: true,
+				isOrdered: true,
+				isUnique: true,
+				isID: true,
 				stereotype: 'key',
 				documentation: 'd'
 			},
@@ -282,6 +289,9 @@ describe('UMLAttribute', () => {
 				isStatic: false,
 				isReadOnly: false,
 				isDerived: false,
+				isOrdered: false,
+				isUnique: false,
+				isID: false,
 				documentation: ''
 			},
 			{
@@ -291,6 +301,9 @@ describe('UMLAttribute', () => {
 				isStatic: false,
 				isReadOnly: false,
 				isDerived: false,
+				isOrdered: false,
+				isUnique: false,
+				isID: false,
 				documentation: ''
 			}
 		]);
@@ -387,7 +400,9 @@ describe('UMLAssociation', () => {
 								name: 'items',
 								multiplicity: '0..*',
 								navigable: 'navigable',
-								isDerived: true
+								isDerived: true,
+								isOrdered: true,
+								isUnique: true
 							})
 						})
 					]
@@ -409,6 +424,8 @@ describe('UMLAssociation', () => {
 				navigable: 'notNavigable',
 				visibility: 'private',
 				isDerived: false,
+				isOrdered: false,
+				isUnique: false,
 				ownsOther: false
 			},
 			targetEnd: {
@@ -417,6 +434,8 @@ describe('UMLAssociation', () => {
 				navigable: 'navigable',
 				visibility: 'public',
 				isDerived: true,
+				isOrdered: true,
+				isUnique: true,
 				ownsOther: false
 			}
 		});

@@ -19,7 +19,7 @@
 	});
 	const classifier = $derived(single?.kind === 'classifier' ? single : undefined);
 
-	const KINDS: ClassifierKind[] = ['class', 'interface', 'enum', 'dataType'];
+	const KINDS: ClassifierKind[] = ['class', 'interface', 'enum', 'dataType', 'primitiveType'];
 	const VIS: Visibility[] = ['public', 'protected', 'private', 'package'];
 	const kindItems = KINDS.map((k) => ({ value: k, label: t(`ui.kind.${k}`) }));
 	const visItems = VIS.map((v) => ({ value: v, label: t(`vis.${v}`) }));

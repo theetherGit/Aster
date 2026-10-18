@@ -6,7 +6,7 @@ export type Id = string;
 
 export type Visibility = 'public' | 'protected' | 'private' | 'package';
 
-export type ClassifierKind = 'class' | 'interface' | 'enum' | 'dataType';
+export type ClassifierKind = 'class' | 'interface' | 'enum' | 'dataType' | 'primitiveType';
 
 export type RelationshipKind =
   | 'association'
@@ -51,6 +51,9 @@ export interface Attribute {
   isStatic: boolean;
   isReadOnly: boolean;
   isDerived: boolean;
+  isOrdered: boolean;
+  isUnique: boolean;
+  isID: boolean;
   stereotype?: string;
   documentation: string;
   /** Set only when the source line could not be parsed; rendered verbatim. */
@@ -101,6 +104,8 @@ export interface End {
   navigable: Navigability;
   visibility?: Visibility;
   isDerived: boolean;
+  isOrdered: boolean;
+  isUnique: boolean;
   /** True when this end's class owns the other end's attribute (draws the ownership dot). */
   ownsOther: boolean;
 }

@@ -39,7 +39,8 @@
 		class: ClassifierNode,
 		interface: ClassifierNode,
 		enum: ClassifierNode,
-		dataType: ClassifierNode
+		dataType: ClassifierNode,
+		primitiveType: ClassifierNode
 	};
 	const edgeTypes = { uml: UmlEdge };
 	const { screenToFlowPosition, flowToScreenPosition, getInternalNode } = useSvelteFlow();

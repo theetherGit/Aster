@@ -56,6 +56,8 @@ export function sampleProject(): Project {
 const end = (e: Partial<End> = {}): End => ({
 	navigable: 'unspecified',
 	isDerived: false,
+	isOrdered: false,
+	isUnique: false,
 	ownsOther: false,
 	...e
 });

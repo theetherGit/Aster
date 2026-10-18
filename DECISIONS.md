@@ -87,3 +87,8 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-17 · open · the project name in the top bar is the menu for Open (⌘O) and this session's Recent files · Modern has no menu bar; recents with thumbnails arrive with autosave (day 5).
 - 2026-10-17 · open · after opening, the first class diagram in document order is active even when it is empty · as the brief says; StarUML's defaultDiagram is kept in #source.
 - 2026-10-17 · open · the import notice is a dismissible status region in the canvas corner, not a dialog · it must not block; board 08 was not available.
+- 2026-10-18 · model · `Attribute` gains `isOrdered`, `isUnique`, `isID`; `End` gains `isOrdered`, `isUnique`; `ClassifierKind` gains `primitiveType` (owner-approved change to types.ts) · lab answers like `-copies: Copy[1..*] {ordered}` turned into raw lines, and the fixtures carry these fields; replaces the «primitive»-as-stereotype entry.
+- 2026-10-18 · grammar · the attribute property block also accepts `ordered`, `unique` and `id`, rendered in the order readOnly, ordered, unique, id · extends the earlier property-block entry.
+- 2026-10-18 · grammar · fixtures/grammar/lines.json attribute expectations gain the three new flags, and five property-block lines were added · the expected shape mirrors `Attribute` in types.ts.
+- 2026-10-18 · mdj · `isOrdered`, `isUnique`, `isID` on attributes and `isOrdered`, `isUnique` on association ends are mapped instead of parked in #source; `UMLPrimitiveType` maps to the `primitiveType` kind · follows the types change.
+- 2026-10-18 · canvas · an association end shows `{ordered, unique}` as its property label when showProperty is on · StarUML's head and tail property labels.

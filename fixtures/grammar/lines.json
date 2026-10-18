@@ -7,7 +7,10 @@
 			"visibility": "public",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "+name"
 	},
@@ -20,7 +23,10 @@
 			"visibility": "private",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "-balance: double"
 	},
@@ -33,7 +39,10 @@
 			"visibility": "protected",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "#items: List<Item>"
 	},
@@ -47,7 +56,10 @@
 			"visibility": "package",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "~count: int = 0"
 	},
@@ -61,7 +73,10 @@
 			"visibility": "public",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "+tags: String[*]"
 	},
@@ -75,7 +90,10 @@
 			"visibility": "private",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "-copies: Copy[1..*]"
 	},
@@ -89,7 +107,10 @@
 			"visibility": "public",
 			"isStatic": true,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "+{static} MAX_LOANS: int = 5"
 	},
@@ -102,7 +123,10 @@
 			"visibility": "public",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": true
+			"isDerived": true,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "+/age: int"
 	},
@@ -115,7 +139,10 @@
 			"visibility": "private",
 			"isStatic": false,
 			"isReadOnly": true,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "-id: UUID {readOnly}"
 	},
@@ -129,7 +156,10 @@
 			"visibility": "private",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "<<key>> -isbn: String"
 	},
@@ -143,7 +173,10 @@
 			"visibility": "public",
 			"isStatic": false,
 			"isReadOnly": false,
-			"isDerived": false
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": false
 		},
 		"canonical": "+title: String = \"untitled\""
 	},
@@ -180,8 +213,17 @@
 		"expected": {
 			"name": "deposit",
 			"parameters": [
-				{ "name": "amount", "type": "double", "direction": "in" },
-				{ "name": "note", "type": "String", "direction": "in", "defaultValue": "\"\"" }
+				{
+					"name": "amount",
+					"type": "double",
+					"direction": "in"
+				},
+				{
+					"name": "note",
+					"type": "String",
+					"direction": "in",
+					"defaultValue": "\"\""
+				}
 			],
 			"returnType": "void",
 			"visibility": "public",
@@ -210,7 +252,13 @@
 		"input": "+{static} of(value: int): Money",
 		"expected": {
 			"name": "of",
-			"parameters": [{ "name": "value", "type": "int", "direction": "in" }],
+			"parameters": [
+				{
+					"name": "value",
+					"type": "int",
+					"direction": "in"
+				}
+			],
 			"returnType": "Money",
 			"visibility": "public",
 			"isStatic": true,
@@ -225,8 +273,16 @@
 		"expected": {
 			"name": "validate",
 			"parameters": [
-				{ "name": "errors", "type": "List<String>", "direction": "out" },
-				{ "name": "state", "type": "State", "direction": "inout" }
+				{
+					"name": "errors",
+					"type": "List<String>",
+					"direction": "out"
+				},
+				{
+					"name": "state",
+					"type": "State",
+					"direction": "inout"
+				}
 			],
 			"returnType": "boolean",
 			"visibility": "private",
@@ -243,8 +299,16 @@
 			"name": "Book",
 			"stereotype": "create",
 			"parameters": [
-				{ "name": "isbn", "type": "String", "direction": "in" },
-				{ "name": "title", "type": "String", "direction": "in" }
+				{
+					"name": "isbn",
+					"type": "String",
+					"direction": "in"
+				},
+				{
+					"name": "title",
+					"type": "String",
+					"direction": "in"
+				}
 			],
 			"visibility": "public",
 			"isStatic": false,
@@ -256,23 +320,114 @@
 	{
 		"kind": "literal",
 		"input": "AVAILABLE",
-		"expected": { "name": "AVAILABLE" },
+		"expected": {
+			"name": "AVAILABLE"
+		},
 		"canonical": "AVAILABLE"
 	},
 	{
 		"kind": "literal",
 		"input": "<<default>> ON_LOAN",
-		"expected": { "name": "ON_LOAN", "stereotype": "default" },
+		"expected": {
+			"name": "ON_LOAN",
+			"stereotype": "default"
+		},
 		"canonical": "<<default>> ON_LOAN"
 	},
 	{
 		"kind": "attribute",
+		"input": "-copies: Copy[1..*] {ordered}",
+		"expected": {
+			"name": "copies",
+			"type": "Copy",
+			"multiplicity": "1..*",
+			"visibility": "private",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false,
+			"isOrdered": true,
+			"isUnique": false,
+			"isID": false
+		},
+		"canonical": "-copies: Copy[1..*] {ordered}"
+	},
+	{
+		"kind": "attribute",
+		"input": "+code: String {id}",
+		"expected": {
+			"name": "code",
+			"type": "String",
+			"visibility": "public",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": true
+		},
+		"canonical": "+code: String {id}"
+	},
+	{
+		"kind": "attribute",
+		"input": "#tags: Tag[*] {ordered, unique}",
+		"expected": {
+			"name": "tags",
+			"type": "Tag",
+			"multiplicity": "*",
+			"visibility": "protected",
+			"isStatic": false,
+			"isReadOnly": false,
+			"isDerived": false,
+			"isOrdered": true,
+			"isUnique": true,
+			"isID": false
+		},
+		"canonical": "#tags: Tag[*] {ordered, unique}"
+	},
+	{
+		"kind": "attribute",
+		"input": "-isbn: String {readOnly,id}",
+		"expected": {
+			"name": "isbn",
+			"type": "String",
+			"visibility": "private",
+			"isStatic": false,
+			"isReadOnly": true,
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": false,
+			"isID": true
+		},
+		"canonical": "-isbn: String {readOnly, id}"
+	},
+	{
+		"kind": "attribute",
+		"input": "+x: int {unique, readOnly}",
+		"expected": {
+			"name": "x",
+			"type": "int",
+			"visibility": "public",
+			"isStatic": false,
+			"isReadOnly": true,
+			"isDerived": false,
+			"isOrdered": false,
+			"isUnique": true,
+			"isID": false
+		},
+		"canonical": "+x: int {readOnly, unique}"
+	},
+	{
+		"kind": "attribute",
 		"input": "+name: String[0..1",
-		"expected": { "raw": "+name: String[0..1" }
+		"expected": {
+			"raw": "+name: String[0..1"
+		}
 	},
 	{
 		"kind": "operation",
 		"input": "+broken(a: int",
-		"expected": { "raw": "+broken(a: int" }
+		"expected": {
+			"raw": "+broken(a: int"
+		}
 	}
 ]
