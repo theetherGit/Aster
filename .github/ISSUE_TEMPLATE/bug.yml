@@ -1,0 +1,37 @@
+name: Bug
+description: Something does not work the way the spec or the UI says it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: What you did, step by step, keyboard or mouse.
+      placeholder: '1. Open … 2. Press C … 3. …'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: A screenshot or a short recording helps; drop it here.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Browser and OS
+      placeholder: 'Chrome 131 on macOS 15; Firefox 132 on Windows 11'
+    validations:
+      required: true
+  - type: dropdown
+    id: input
+    attributes:
+      label: How were you working?
+      options: [Keyboard only, Mouse, Screen reader, Touch]

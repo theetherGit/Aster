@@ -1,0 +1,38 @@
+name: .mdj compatibility report
+description: A StarUML file that does not open, does not round-trip, or looks different in StarUML after a save from Aster.
+labels: [mdj, compatibility]
+body:
+  - type: markdown
+    attributes:
+      value: Attach the `.mdj` below (zip it if GitHub refuses the extension). If you cannot share it, say what is in it.
+  - type: textarea
+    id: file
+    attributes:
+      label: The file
+      description: Drag the .mdj (or a zip of it) into this field. Say which StarUML version wrote it.
+      placeholder: 'staruml-6.3 … (attach here)'
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong
+      options:
+        - It does not open ("Couldn't open")
+        - It opens but something is missing or misplaced
+        - After saving from Aster, StarUML shows a change I did not make
+        - After saving from Aster, StarUML reports an error or warning
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: Details
+      description: The import notice text, the element names involved, what StarUML showed.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: StarUML version and Aster version
+      placeholder: 'StarUML 7.0.1; Aster 0.1.0-preview.1'
