@@ -23,14 +23,29 @@
 <!-- Board 01: mark, project name, underline tabs; bordered controls on the right. -->
 <header class="flex h-11 items-center gap-2 border-b border-chrome-border bg-chrome-bg pr-3 pl-4">
 	<span class="mark" aria-hidden="true">
-		<svg
-			width="12"
-			height="12"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2.5"
-			stroke-linecap="round"><path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18" /></svg
+		<svg width="14" height="14" viewBox="0 0 100 100" fill="currentColor"
+			><rect x="43" y="4" width="14" height="38" rx="7" /><rect
+				x="43"
+				y="4"
+				width="14"
+				height="38"
+				rx="7"
+				transform="rotate(60 50 50)"
+			/><rect x="43" y="4" width="14" height="38" rx="7" transform="rotate(120 50 50)" /><rect
+				x="43"
+				y="4"
+				width="14"
+				height="38"
+				rx="7"
+				transform="rotate(180 50 50)"
+			/><rect x="43" y="4" width="14" height="38" rx="7" transform="rotate(240 50 50)" /><rect
+				x="43"
+				y="4"
+				width="14"
+				height="38"
+				rx="7"
+				transform="rotate(300 50 50)"
+			/><circle cx="50" cy="50" r="11" fill="#f2b233" /></svg
 		>
 	</span>
 	<h1 class="m-0 min-w-0 text-[15px]"><ProjectMenu /></h1>

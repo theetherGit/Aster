@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Aster, unsaved changes before opening another file</title>
+		<script src="./support.js"></script>
+	</head>
+	<body>
+		<x-dc>
+			<helmet>
+				<style>
+					body {
+						margin: 0;
+					}
+				</style>
+			</helmet>
+			<dc-import
+				name="Main"
+				state="unsaved"
+				theme="light"
+				explorer="{{ false }}"
+				hint-size="1280px,800px"
+			></dc-import>
+		</x-dc>
+		<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+			class Component extends DCLogic {
+			  renderVals() { return {}; }
+			}
+		</script>
+	</body>
+</html>

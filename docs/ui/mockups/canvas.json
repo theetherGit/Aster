@@ -1,0 +1,304 @@
+{
+	"v": 3,
+	"createdOnFiles": { "v": 1, "at": "2026-10-17T08:00:00Z" },
+	"title": "Aster UI Design",
+	"launch": { "view": "canvas" },
+	"pages": [],
+	"boards": {
+		"Main.dc.html": {
+			"x": 0,
+			"y": 0,
+			"w": 1280,
+			"h": 800,
+			"title": "01 Modern · dark",
+			"radius": 10
+		},
+		"ModernLight.dc.html": {
+			"x": 1360,
+			"y": 0,
+			"w": 1280,
+			"h": 800,
+			"title": "02 Modern · light",
+			"radius": 10
+		},
+		"Classic.dc.html": {
+			"x": 2720,
+			"y": 0,
+			"w": 1280,
+			"h": 800,
+			"title": "03 Classic (StarUML-like)",
+			"radius": 10
+		},
+
+		"Editing.dc.html": {
+			"x": 0,
+			"y": 1040,
+			"w": 1280,
+			"h": 800,
+			"title": "04 Inline UML text editing",
+			"radius": 10
+		},
+		"Picker.dc.html": {
+			"x": 1360,
+			"y": 1040,
+			"w": 1280,
+			"h": 800,
+			"title": "05 Relationship picker on connect",
+			"radius": 10
+		},
+		"Export.dc.html": {
+			"x": 2720,
+			"y": 1040,
+			"w": 1280,
+			"h": 800,
+			"title": "06 Export sheet",
+			"radius": 10
+		},
+
+		"Welcome.dc.html": {
+			"x": 0,
+			"y": 2080,
+			"w": 1280,
+			"h": 800,
+			"title": "07 Welcome screen",
+			"radius": 10
+		},
+		"Import.dc.html": {
+			"x": 1360,
+			"y": 2080,
+			"w": 1280,
+			"h": 800,
+			"title": "08 After .mdj import · unknowns notice",
+			"radius": 10
+		},
+
+		"TextView.dc.html": {
+			"x": 0,
+			"y": 3120,
+			"w": 1280,
+			"h": 800,
+			"title": "09 Text view · PlantUML dialect, in sync",
+			"radius": 10
+		},
+		"KeyboardNav.dc.html": {
+			"x": 1360,
+			"y": 3120,
+			"w": 1280,
+			"h": 800,
+			"title": "10 Keyboard focus · spatial nav + narration",
+			"radius": 10
+		},
+		"HighContrast.dc.html": {
+			"x": 2720,
+			"y": 3120,
+			"w": 1280,
+			"h": 800,
+			"title": "11 High-contrast theme",
+			"radius": 10
+		},
+
+		"Notation.dc.html": {
+			"x": 0,
+			"y": 4160,
+			"w": 1600,
+			"h": 1100,
+			"title": "12 UML notation reference",
+			"radius": 10
+		},
+
+		"Relationship.dc.html": {
+			"x": 0,
+			"y": 5500,
+			"w": 1280,
+			"h": 800,
+			"title": "13 Relationship selected · inspector",
+			"radius": 10
+		},
+		"NoteSelected.dc.html": {
+			"x": 1360,
+			"y": 5500,
+			"w": 1280,
+			"h": 800,
+			"title": "14 Note selected · inspector",
+			"radius": 10
+		},
+		"DiagramTab.dc.html": {
+			"x": 2720,
+			"y": 5500,
+			"w": 1280,
+			"h": 800,
+			"title": "15 Diagram tab · display defaults (light)",
+			"radius": 10
+		},
+
+		"Palette.dc.html": {
+			"x": 0,
+			"y": 6540,
+			"w": 1280,
+			"h": 800,
+			"title": "16 Command palette",
+			"radius": 10
+		},
+		"Shortcuts.dc.html": {
+			"x": 1360,
+			"y": 6540,
+			"w": 1280,
+			"h": 800,
+			"title": "17 Shortcut sheet (?)",
+			"radius": 10
+		},
+		"Empty.dc.html": {
+			"x": 2720,
+			"y": 6540,
+			"w": 1280,
+			"h": 800,
+			"title": "18 New empty diagram (light)",
+			"radius": 10
+		},
+
+		"Deleted.dc.html": {
+			"x": 0,
+			"y": 7580,
+			"w": 1280,
+			"h": 800,
+			"title": "19 Removed from diagram · undo toast",
+			"radius": 10
+		},
+		"Unsaved.dc.html": {
+			"x": 1360,
+			"y": 7580,
+			"w": 1280,
+			"h": 800,
+			"title": "20 Unsaved changes prompt (light)",
+			"radius": 10
+		},
+		"DropFile.dc.html": {
+			"x": 2720,
+			"y": 7580,
+			"w": 1280,
+			"h": 800,
+			"title": "21 File dragged over the window",
+			"radius": 10
+		},
+		"OpenError.dc.html": {
+			"x": 4080,
+			"y": 7580,
+			"w": 1280,
+			"h": 800,
+			"title": "22 File that won't open",
+			"radius": 10
+		}
+	},
+	"order": [
+		"Main.dc.html",
+		"ModernLight.dc.html",
+		"Classic.dc.html",
+		"Editing.dc.html",
+		"Picker.dc.html",
+		"Export.dc.html",
+		"Welcome.dc.html",
+		"Import.dc.html",
+		"TextView.dc.html",
+		"KeyboardNav.dc.html",
+		"HighContrast.dc.html",
+		"Notation.dc.html",
+		"Relationship.dc.html",
+		"NoteSelected.dc.html",
+		"DiagramTab.dc.html",
+		"Palette.dc.html",
+		"Shortcuts.dc.html",
+		"Empty.dc.html",
+		"Deleted.dc.html",
+		"Unsaved.dc.html",
+		"DropFile.dc.html",
+		"OpenError.dc.html"
+	],
+	"notes": {
+		"t1": {
+			"x": 0,
+			"y": -240,
+			"w": 240,
+			"text": "Aster — one app, two layouts",
+			"kind": "title1",
+			"maxW": 4000
+		},
+		"t2": {
+			"x": 0,
+			"y": 800,
+			"w": 240,
+			"text": "Editing, connecting, exporting",
+			"kind": "title1",
+			"maxW": 4000
+		},
+		"t3": {
+			"x": 0,
+			"y": 1840,
+			"w": 240,
+			"text": "First open and import",
+			"kind": "title1",
+			"maxW": 2640
+		},
+		"t4": {
+			"x": 0,
+			"y": 2880,
+			"w": 240,
+			"text": "Accessibility: three views of one model",
+			"kind": "title1",
+			"maxW": 4000
+		},
+		"t5": {
+			"x": 0,
+			"y": 3920,
+			"w": 240,
+			"text": "Notation on the paper",
+			"kind": "title1",
+			"maxW": 1600
+		},
+		"t6": {
+			"x": 0,
+			"y": 5260,
+			"w": 240,
+			"text": "Selection and the inspector",
+			"kind": "title1",
+			"maxW": 4000
+		},
+		"t7": {
+			"x": 0,
+			"y": 6300,
+			"w": 240,
+			"text": "Commands and a new diagram",
+			"kind": "title1",
+			"maxW": 4000
+		},
+		"t8": {
+			"x": 0,
+			"y": 7340,
+			"w": 240,
+			"text": "Undo, saving and opening files",
+			"kind": "title1",
+			"maxW": 5360
+		},
+		"n1": {
+			"x": 2720,
+			"y": 2080,
+			"w": 480,
+			"text": "Every app board is Main.dc.html with preset tweaks: layout (modern/classic), theme, panel state, overlay, inspector, text view, focus nav, contrast. The canvas content — the same Library diagram — is shared, so a notation change shows up on all of them at once. The notation sheet (12) is its own file.",
+			"fill": "blue"
+		},
+		"n2": {
+			"x": 2720,
+			"y": 2500,
+			"w": 480,
+			"text": "Decisions: paper stays white in every theme (UML is read on white); only selection, focus and connection previews use the accent on the paper; Classic uses StarUML's pale-yellow class fill and a line grid, Modern uses white fill and a dot grid.",
+			"fill": "gray"
+		},
+		"n3": {
+			"x": 4080,
+			"y": 3120,
+			"w": 480,
+			"text": "Focus (dashed ring, Book) is distinct from selection (solid outline, Loan). The narration bar is the aria-live region made visible for the mockup; in the app it is visually hidden unless the user turns on captions. High contrast: 2 px ink, yellow accent, black-on-yellow for primary buttons.",
+			"fill": "gray"
+		}
+	},
+	"designSystems": []
+}
