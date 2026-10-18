@@ -63,7 +63,7 @@ test('⌘O opens a .mdj through the file-input fallback, parsing in a Web Worker
 	// The per-diagram detail sits behind a disclosure.
 	await notice(page).getByRole('button', { name: 'Details' }).click();
 	await expect(notice(page)).toContainText('Business Goals: 4 classifiers, 3 relationships');
-	await notice(page).getByRole('button', { name: 'Close the import notice' }).click();
+	await notice(page).getByRole('button', { name: 'Dismiss' }).click();
 	await expect(notice(page)).toHaveCount(0);
 });
 

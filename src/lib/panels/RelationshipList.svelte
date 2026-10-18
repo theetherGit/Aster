@@ -62,9 +62,9 @@
 				>
 					<span class="min-w-0 flex-1 truncate text-[14px]">
 						{nameOf(r.sourceId)}
-						<span class="text-chrome-muted"
-							>{r.sourceEnd?.multiplicity ?? ''} {glyph(r)} {r.targetEnd?.multiplicity ?? ''}</span
-						>
+						<span class="text-chrome-muted">{r.sourceEnd?.multiplicity ?? ''}</span>
+						{glyph(r)}
+						<span class="text-chrome-muted">{r.targetEnd?.multiplicity ?? ''}</span>
 						{nameOf(r.targetId)}
 					</span>
 					<span class="shrink-0 text-chrome-muted">{t(`rel.${r.relationshipKind}`)}</span>

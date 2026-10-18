@@ -53,12 +53,20 @@
 		'dependency'
 	];
 	const STYLES: LineStyle[] = ['rectilinear', 'oblique', 'roundrect', 'curve'];
+	// Board 13 icons (docs/design/html/13), 22×14.
 	const STYLE_PATH: Record<LineStyle, string> = {
-		rectilinear: 'M2 13h7V3h7',
-		oblique: 'M2 13 14 3',
-		roundrect: 'M2 13h5a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2h5',
-		curve: 'M2 13C6 13 10 3 14 3'
+		rectilinear: 'M1 12H11V2H21',
+		oblique: 'M1 12L21 2',
+		roundrect: 'M1 12H7Q11 12 11 8V6Q11 2 15 2H21',
+		curve: 'M1 12C9 12 13 2 21 2'
 	};
+	const styleTitle = (style: LineStyle) =>
+		t('lineStyle.titled', { style: t(`lineStyle.${style}`), keys: t(`lineStyle.key.${style}`) });
+	const endField = (field: string, end: 'source' | 'target') =>
+		t('inspector.endField', {
+			field,
+			end: nameOf(end === 'source' ? rel.sourceId : rel.targetId)
+		});
 	const kindItems = KINDS.map((k) => ({ value: k, label: t(`ui.rel.${k}`) }));
 	const navItems = (['unspecified', 'navigable', 'notNavigable'] as const).map((n) => ({
 		value: n,
@@ -186,7 +194,7 @@
 		{#each ends as [end, e] (end)}
 			<input
 				class="field min-w-0"
-				aria-labelledby="ends-role end-{end}"
+				aria-label={endField(t('inspector.role'), end)}
 				id="{end}-role"
 				placeholder={t('vis.none')}
 				value={e.role ?? ''}
@@ -197,20 +205,18 @@
 		{#each ends as [end, e] (end)}
 			<input
 				class="field min-w-0 font-mono"
-				aria-labelledby="ends-mult end-{end}"
+				aria-label={endField(t('inspector.multiplicity'), end)}
 				id="{end}-mult"
 				value={e.multiplicity ?? ''}
 				onchange={(ev) => patchEnd(end, { multiplicity: text(ev.currentTarget.value) })}
 			/>
 		{/each}
-		<span class="text-chrome-muted" id="ends-nav">{t('inspector.navigability')}</span>
+		<span class="text-chrome-muted" id="ends-nav">{t('inspector.navigable')}</span>
 		{#each ends as [end, e] (end)}
 			<FieldSelect
 				id="{end}-nav"
 				class="min-w-0"
-				ariaLabel="{t('inspector.navigability')}, {nameOf(
-					end === 'source' ? rel.sourceId : rel.targetId
-				)}"
+				ariaLabel={endField(t('inspector.navigability'), end)}
 				value={e.navigable}
 				items={navItems}
 				onchange={(v) => patchEnd(end, { navigable: v as End['navigable'] })}
@@ -221,9 +227,7 @@
 			<FieldSelect
 				id="{end}-vis"
 				class="min-w-0"
-				ariaLabel="{t('inspector.visibility')}, {nameOf(
-					end === 'source' ? rel.sourceId : rel.targetId
-				)}"
+				ariaLabel={endField(t('inspector.visibility'), end)}
 				value={e.visibility ?? 'none'}
 				items={visItems}
 				onchange={(v) => patchEnd(end, { visibility: v === 'none' ? null : (v as Visibility) })}
@@ -248,12 +252,13 @@
 			<ToggleGroup.Item
 				value={style}
 				aria-label={t(`lineStyle.${style}`)}
+				title={styleTitle(style)}
 				class="flex h-14 flex-col items-center justify-center gap-1 border-r border-chrome-border text-[11px] text-chrome-muted last:border-r-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
 			>
 				<svg
-					width="16"
-					height="16"
-					viewBox="0 0 16 16"
+					width="22"
+					height="14"
+					viewBox="0 0 22 14"
 					fill="none"
 					stroke="currentColor"
 					stroke-width="1.5"
@@ -340,8 +345,18 @@
 						aria-label={t('inspector.resetLabel', { label: name })}
 						disabled={isDefault(l.key)}
 						onclick={() => run(setLabelOffset, { diagramId, id: rel.id, key: l.key, offset: null })}
-						>↺</button
 					>
+						<svg
+							width="13"
+							height="13"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7" /><path d="M4 4v4h4" /></svg
+						>
+					</button>
 				</li>
 			{/each}
 		</ul>

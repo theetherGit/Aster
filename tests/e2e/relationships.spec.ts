@@ -183,7 +183,7 @@ test.describe('on the notation fixture', () => {
 
 		// Only the source end navigable: the arrow appears at the source.
 		await inspector.locator('#target-nav').click();
-		await page.getByRole('option', { name: 'not navigable' }).click();
+		await page.getByRole('option', { name: 'no', exact: true }).click();
 		await expect(borrows.locator('.edge-line')).toHaveAttribute(
 			'marker-start',
 			'url(#aster-m-arrow)'

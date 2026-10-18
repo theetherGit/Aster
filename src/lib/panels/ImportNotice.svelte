@@ -88,11 +88,12 @@
 					class="mt-0.5 shrink-0 text-danger"
 					width="16"
 					height="16"
-					viewBox="0 0 16 16"
+					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
-					stroke-width="1.5"
-					aria-hidden="true"><circle cx="8" cy="8" r="6.25" /><path d="M8 4.75v4M8 11.2v.1" /></svg
+					stroke-width="2"
+					stroke-linecap="round"
+					aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v6M12 16.5v.5" /></svg
 				>
 			{/if}
 			<h2 id="import-notice-title" class="min-w-0 flex-1 text-[14px] font-semibold">
@@ -109,8 +110,19 @@
 					type="button"
 					class="icon-btn h-6 w-6 shrink-0"
 					aria-label={t('import.close')}
-					onclick={() => (files.notice = null)}>×</button
+					onclick={() => (files.notice = null)}
 				>
+					<svg
+						width="11"
+						height="11"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg
+					>
+				</button>
 			{/if}
 		</header>
 

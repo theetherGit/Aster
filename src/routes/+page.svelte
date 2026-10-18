@@ -76,18 +76,20 @@
 	<RelationshipPicker />
 	{#if files.dragging}
 		<!-- Board 21: the whole window is the drop target. -->
-		<div class="drop-overlay" aria-hidden="true">
-			<div class="drop-card">
+		<div class="drop-overlay">
+			<div class="drop-card" role="status">
 				<svg
-					width="28"
-					height="28"
-					viewBox="0 0 28 28"
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
-					stroke-width="1.6"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
 					aria-hidden="true"
-					><path d="M8 3.5h8l5 5v16H8z" /><path
-						d="M16 3.5v5h5M14 11v9m-3.5-3.5L14 20l3.5-3.5"
+					><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path
+						d="M12 11v6M9 14l3 3 3-3"
 					/></svg
 				>
 				<p class="drop-title">{t('file.dropTitle')}</p>
@@ -137,7 +139,8 @@
 		box-shadow: 0 12px 32px rgb(0 0 0 / 0.22);
 	}
 	.drop-card svg {
-		padding: 6px;
+		box-sizing: content-box;
+		padding: 8px;
 		color: var(--on-accent);
 		background: var(--accent);
 		border-radius: 8px;

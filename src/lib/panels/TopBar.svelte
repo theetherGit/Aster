@@ -24,16 +24,14 @@
 <header class="flex h-11 items-center gap-2 border-b border-chrome-border bg-chrome-bg pr-3 pl-4">
 	<span class="mark" aria-hidden="true">
 		<svg
-			width="14"
-			height="14"
-			viewBox="0 0 14 14"
+			width="12"
+			height="12"
+			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
-			stroke-width="1.8"
-			stroke-linecap="round"
+			stroke-width="2.5"
+			stroke-linecap="round"><path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18" /></svg
 		>
-			<path d="M7 1.5v11M2.2 4.25l9.6 5.5M2.2 9.75l9.6-5.5" />
-		</svg>
 	</span>
 	<h1 class="m-0 min-w-0 text-[15px]"><ProjectMenu /></h1>
 
@@ -59,14 +57,14 @@
 				onclick={() => projectStore.undo()}
 			>
 				<svg
-					width="16"
-					height="16"
-					viewBox="0 0 16 16"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
-					stroke-width="1.5"
-					aria-hidden="true"
-					><path d="M6 4 2.5 7.5 6 11" /><path d="M3 7.5h6.5a3 3 0 0 1 0 6H8" /></svg
+					stroke-width="2"
+					stroke-linecap="round"
+					aria-hidden="true"><path d="M9 14L4 9l5-5" /><path d="M4 9h11a5 5 0 0 1 0 10h-3" /></svg
 				>
 			</button>
 			<button
@@ -78,14 +76,14 @@
 				onclick={() => projectStore.redo()}
 			>
 				<svg
-					width="16"
-					height="16"
-					viewBox="0 0 16 16"
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
-					stroke-width="1.5"
-					aria-hidden="true"
-					><path d="m10 4 3.5 3.5L10 11" /><path d="M13 7.5H6.5a3 3 0 0 0 0 6H8" /></svg
+					stroke-width="2"
+					stroke-linecap="round"
+					aria-hidden="true"><path d="M15 14l5-5-5-5" /><path d="M20 9H9a5 5 0 0 0 0 10h3" /></svg
 				>
 			</button>
 		</div>
@@ -132,15 +130,14 @@
 			disabled
 		>
 			<svg
-				width="16"
-				height="16"
-				viewBox="0 0 16 16"
+				width="14"
+				height="14"
+				viewBox="0 0 24 24"
 				fill="none"
 				stroke="currentColor"
-				stroke-width="1.5"
+				stroke-width="2"
 				stroke-linecap="round"
-				stroke-linejoin="round"
-				aria-hidden="true"><path d="m3.5 4.5 3.5 3.5-3.5 3.5M8.5 11.5h4" /></svg
+				aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7" /></svg
 			>
 		</button>
 	</div>
