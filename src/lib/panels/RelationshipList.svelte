@@ -4,6 +4,7 @@
 	import type { Classifier, Relationship } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
+	import RelGlyph from './RelGlyph.svelte';
 
 	let { classifier }: { classifier: Classifier } = $props();
 
@@ -60,12 +61,12 @@
 					aria-label={t('inspector.selectRelationship', { summary: summary(r) })}
 					onclick={() => selection.set([r.id])}
 				>
-					<span class="min-w-0 flex-1 truncate text-[14px]">
-						{nameOf(r.sourceId)}
-						<span class="text-chrome-muted">{r.sourceEnd?.multiplicity ?? ''}</span>
-						{glyph(r)}
-						<span class="text-chrome-muted">{r.targetEnd?.multiplicity ?? ''}</span>
-						{nameOf(r.targetId)}
+					<span class="flex min-w-0 flex-1 items-center gap-1.5 text-[14px]">
+						<span class="truncate">{nameOf(r.sourceId)}</span>
+						<span class="shrink-0 text-chrome-muted">{r.sourceEnd?.multiplicity ?? ''}</span>
+						<RelGlyph rel={r} />
+						<span class="shrink-0 text-chrome-muted">{r.targetEnd?.multiplicity ?? ''}</span>
+						<span class="truncate">{nameOf(r.targetId)}</span>
 					</span>
 					<span class="shrink-0 text-chrome-muted">{t(`rel.${r.relationshipKind}`)}</span>
 				</button>

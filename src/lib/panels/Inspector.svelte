@@ -88,7 +88,7 @@
 		aria-label={classic ? t('classic.editors') : t('inspector.title')}
 		class={classic
 			? 'flex min-h-0 flex-1 flex-col overflow-auto border-t border-chrome-border bg-chrome-surface'
-			: 'w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
+			: 'inspector w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
 	>
 		<Tabs.Root bind:value={ui.inspectorTab}>
 			<Tabs.List
@@ -235,6 +235,17 @@
 {/if}
 
 <style>
+	/* Under 960 px the canvas would starve: the open inspector floats over it instead of beside it. */
+	@media (max-width: 959px) {
+		.inspector {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 20;
+			box-shadow: -8px 0 24px rgb(0 0 0 / 0.12);
+		}
+	}
 	/* Board 03: "Editors" and its three tabs on one 280 px row. */
 	:global(.editors-tabs .tab) {
 		padding: 0 7px;
