@@ -257,18 +257,23 @@ class Parser {
 	 * owned rules …) is kept item by item as Unknowns at that path. View subviews are
 	 * compartments and labels that export regenerates, so they stay in the record.
 	 */
-	keepSource(o: Json, walked: string[] = [], isView = false) {
+	keepSource(o: Json, walked: string[] = [], isView = false, index = -1) {
 		const own: Json = {};
 		const id = o._id as Id;
 		for (const [k, v] of Object.entries(o)) {
-			if (walked.includes(k)) continue;
+			if (walked.includes(k)) {
+				// An empty walked array is kept so export writes it back as it was.
+				if (Array.isArray(v) && v.length === 0) own[k] = v;
+				continue;
+			}
 			if (!isView && Array.isArray(v) && v.some((x) => isObj(x) && typeof x._type === 'string')) {
 				v.forEach((item, i) => this.keepUnknown(item, id, k, i));
 				continue;
 			}
 			own[k] = v;
 		}
-		this.unknown.push({ json: own, parentId: id, path: SOURCE_PATH, index: -1 });
+		// `index`: the object's position in its parent's array, so export can put it back in order.
+		this.unknown.push({ json: own, parentId: id, path: SOURCE_PATH, index });
 		if (typeof o._id === 'string') this.index.set(o._id, o);
 		// Index nested objects that stay inside the record (association ends, subviews, label views).
 		for (const [k, v] of Object.entries(own)) if (k !== '_parent') this.indexTree(v, false);
@@ -311,11 +316,11 @@ class Parser {
 			if (isObj(child) && child._type === 'UMLModel' && this.foldedModelId === null) {
 				// The first model is folded into the project (mapping table, UMLModel row).
 				this.foldedModelId = child._id as Id;
-				this.keepSource(child, ['ownedElements']);
+				this.keepSource(child, ['ownedElements'], false, i);
 				this.walkOwned(child, undefined);
 			} else if (isObj(child) && child._type === 'UMLModel') {
 				// Later models carry real content in the wild; they become packages so it shows.
-				this.mapPackage(child, undefined);
+				this.mapPackage(child, undefined, i);
 			} else {
 				this.keepUnknown(child, root._id as Id, 'ownedElements', i);
 			}
@@ -340,17 +345,17 @@ class Parser {
 			const type = isObj(child) ? str(child._type) : undefined;
 			if (!isObj(child) || type === undefined)
 				return this.keepUnknown(child, parentId, 'ownedElements', i);
-			if (type === 'UMLClassDiagram') return this.mapDiagram(child);
-			if (PACKAGES.has(type)) return this.mapPackage(child, packageId);
-			if (type in CLASSIFIERS) return this.mapClassifier(child, packageId);
+			if (type === 'UMLClassDiagram') return this.mapDiagram(child, i);
+			if (PACKAGES.has(type)) return this.mapPackage(child, packageId, i);
+			if (type in CLASSIFIERS) return this.mapClassifier(child, packageId, i);
 			if (type in RELATIONSHIPS)
 				return this.relationships.push({ json: child, parentId, index: i });
 			this.keepUnknown(child, parentId, 'ownedElements', i);
 		});
 	}
 
-	mapPackage(o: Json, parentId: Id | undefined) {
-		this.keepSource(o, ['ownedElements']);
+	mapPackage(o: Json, parentId: Id | undefined, index: number) {
+		this.keepSource(o, ['ownedElements'], false, index);
 		const p: Package = compact({
 			kind: 'package',
 			id: o._id as Id,
@@ -364,8 +369,8 @@ class Parser {
 		this.walkOwned(o, p.id);
 	}
 
-	mapClassifier(o: Json, packageId: Id | undefined) {
-		this.keepSource(o, ['ownedElements', 'attributes', 'operations', 'literals']);
+	mapClassifier(o: Json, packageId: Id | undefined, index: number) {
+		this.keepSource(o, ['ownedElements', 'attributes', 'operations', 'literals'], false, index);
 		const id = o._id as Id;
 		const type = o._type as string;
 		const c: Classifier = compact({
@@ -390,17 +395,17 @@ class Parser {
 		});
 		arr(o.attributes).forEach((a, i) =>
 			isObj(a) && a._type === 'UMLAttribute'
-				? c.attributes.push(this.mapAttribute(a))
+				? c.attributes.push(this.mapAttribute(a, i))
 				: this.keepUnknown(a, id, 'attributes', i)
 		);
 		arr(o.operations).forEach((op, i) =>
 			isObj(op) && op._type === 'UMLOperation'
-				? c.operations.push(this.mapOperation(op))
+				? c.operations.push(this.mapOperation(op, i))
 				: this.keepUnknown(op, id, 'operations', i)
 		);
 		arr(o.literals).forEach((l, i) =>
 			isObj(l) && l._type === 'UMLEnumerationLiteral'
-				? c.literals.push(this.mapLiteral(l))
+				? c.literals.push(this.mapLiteral(l, i))
 				: this.keepUnknown(l, id, 'literals', i)
 		);
 		// A class's own ownedElements hold its relationships, and occasionally nested classifiers.
@@ -414,8 +419,8 @@ class Parser {
 		);
 	}
 
-	mapAttribute(o: Json): Attribute {
-		this.keepSource(o, ['ownedElements']);
+	mapAttribute(o: Json, index: number): Attribute {
+		this.keepSource(o, ['ownedElements'], false, index);
 		this.ownedUnknowns(o);
 		const a: Attribute = compact({
 			id: o._id as Id,
@@ -440,8 +445,8 @@ class Parser {
 		return a;
 	}
 
-	mapOperation(o: Json): Operation {
-		this.keepSource(o, ['ownedElements', 'parameters']);
+	mapOperation(o: Json, index: number): Operation {
+		this.keepSource(o, ['ownedElements', 'parameters'], false, index);
 		this.ownedUnknowns(o);
 		const op: Operation = compact({
 			id: o._id as Id,
@@ -456,7 +461,7 @@ class Parser {
 		arr(o.parameters).forEach((p, i) => {
 			if (!isObj(p) || p._type !== 'UMLParameter')
 				return this.keepUnknown(p, op.id, 'parameters', i);
-			this.keepSource(p);
+			this.keepSource(p, [], false, i);
 			if (p.direction === 'return') {
 				// The return type is stored on the operation, not as a parameter (data-model.md).
 				this.late.push(() => {
@@ -483,8 +488,8 @@ class Parser {
 		return op;
 	}
 
-	mapLiteral(o: Json): Literal {
-		this.keepSource(o, ['ownedElements']);
+	mapLiteral(o: Json, index: number): Literal {
+		this.keepSource(o, ['ownedElements'], false, index);
 		this.ownedUnknowns(o);
 		const l: Literal = {
 			id: o._id as Id,
@@ -556,7 +561,7 @@ class Parser {
 			this.warnings.push({ code: 'relationshipEndpoint', type, name: str(o.name) ?? id });
 			return this.keepUnknown(o, parentId, 'ownedElements', index);
 		}
-		this.keepSource(o, ['ownedElements']);
+		this.keepSource(o, ['ownedElements'], false, index);
 		this.ownedUnknowns(o);
 		const r: Relationship = compact({
 			kind: 'relationship',
@@ -576,8 +581,8 @@ class Parser {
 
 	// ---- diagrams and views ------------------------------------------------
 
-	mapDiagram(o: Json) {
-		this.keepSource(o, ['ownedViews']);
+	mapDiagram(o: Json, index: number) {
+		this.keepSource(o, ['ownedViews'], false, index);
 		const d: Diagram = {
 			id: o._id as Id,
 			name: str(o.name) ?? '',
@@ -654,7 +659,7 @@ class Parser {
 					});
 					return hide(v, i);
 				}
-				this.keepSource(v, [], true);
+				this.keepSource(v, [], true, i);
 				viewToElement.set(v._id as string, el.id);
 				place(el.id, this.nodeLayout(v));
 				if (el.kind === 'classifier') report.nodes++;
@@ -662,7 +667,7 @@ class Parser {
 				return;
 			}
 			if (type === 'UMLNoteView' || type === 'UMLTextView') {
-				this.keepSource(v, [], true);
+				this.keepSource(v, [], true, i);
 				const id = v._id as Id;
 				const el: Note | TextElement =
 					type === 'UMLNoteView'
@@ -692,7 +697,7 @@ class Parser {
 				hide(v, i);
 				continue;
 			}
-			this.keepSource(v, [], true);
+			this.keepSource(v, [], true, i);
 			const swapped = this.swapped.has(rel.id);
 			const [tail, head] = [
 				viewToElement.get(refOf(v.tail) ?? ''),
@@ -731,7 +736,7 @@ class Parser {
 				continue;
 			}
 			// Note links are view-only: the note lists what it is linked to; the view's own fields stay in #source.
-			this.keepSource(v, [], true);
+			this.keepSource(v, [], true, i);
 			if (!note.linkedIds.includes(other)) note.linkedIds.push(other);
 		}
 
