@@ -188,6 +188,24 @@ test('display toggles: keys change the diagram defaults or the selection, and ro
 	expect(after.length).toBe(before.length + 1);
 });
 
+test('the top bar opens the palette; the toolbox links the one selected node', async ({ page }) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.getByRole('button', { name: 'Command palette' }).click();
+	await expect(page.getByRole('dialog', { name: 'Command palette' })).toBeVisible();
+	await page.keyboard.press('Escape');
+	const link = page
+		.getByRole('toolbar', { name: 'Toolbox' })
+		.getByRole('button', { name: 'Link (L)' });
+	await expect(link).toBeDisabled(); // nothing selected
+	await expect(page.getByRole('radio', { name: /Package/ })).toHaveCount(0); // M2, no placeholder
+	await node(page, 'Account').click();
+	await expect(link).toBeEnabled();
+	await link.click();
+	await expect(page.locator('.link-preview')).toBeVisible(); // the keyboard link has begun
+	await page.keyboard.press('Escape');
+});
+
 test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered, the paper stays white', async ({
 	page
 }) => {

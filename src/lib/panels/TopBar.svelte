@@ -140,10 +140,10 @@
 		</button>
 		<button
 			type="button"
-			class="group-box icon-btn disabled:hover:bg-transparent"
+			class="group-box icon-btn"
 			aria-label={t('ui.palette')}
-			title={t('ui.comingSoon')}
-			disabled
+			title={t('ui.paletteTitle')}
+			onclick={() => (ui.paletteOpen = true)}
 		>
 			<svg
 				width="14"

@@ -90,7 +90,7 @@
 					>
 					<Command.Input
 						bind:value={search}
-						class="h-11 min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-chrome-muted"
+						class="h-11 min-w-0 flex-1 bg-transparent text-[14px] placeholder:text-chrome-muted"
 						placeholder={t('palette.placeholder')}
 						aria-label={t('palette.search')}
 					/>

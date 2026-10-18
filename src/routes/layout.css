@@ -24,6 +24,8 @@
 	--paper-grid: #e0e0e6;
 	--paper-ink: #1b1b1b;
 	--paper-fill: #ffffff;
+	/* Edges of form controls (inputs, segments): 3:1 against bg and surface, unlike separators. */
+	--control-border: #7d7d89;
 	--control-radius: 6px;
 	--font-paper: 'Source Sans 3', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	/* Hairline figures (empty states): plates match the surface they sit on; "hi" is the brand amber. */
@@ -48,6 +50,7 @@
 	--accent-fill: #2f6fe4;
 	--warning: #e0a33a;
 	--danger: #f0705c;
+	--control-border: #74747f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,6 +65,7 @@
 		--accent-fill: #2f6fe4;
 		--warning: #e0a33a;
 		--danger: #f0705c;
+		--control-border: #74747f;
 	}
 }
 
@@ -81,6 +85,7 @@
 	--danger: #c43a2c;
 	--paper-grid: #e9e9e9;
 	--paper-fill: #ffffe0;
+	--control-border: #7d7d89;
 	--control-radius: 3px;
 }
 
@@ -118,6 +123,13 @@ body {
 	outline: 2px dashed var(--accent);
 	outline-offset: 2px;
 }
+/* Text fields take a solid ring flush with their edge; the dashed ring marks keyboard focus elsewhere. */
+input:not([type='checkbox']):not([type='radio']):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 0;
+}
 
 /* 28 px square icon buttons: above the 24 px minimum target. */
 .icon-btn {
@@ -144,7 +156,7 @@ body {
 	padding: 0 8px;
 	color: var(--chrome-text);
 	background: var(--chrome-bg);
-	border: 1px solid var(--chrome-border);
+	border: 1px solid var(--control-border);
 	border-radius: var(--radius-control);
 }
 .field:focus-visible {

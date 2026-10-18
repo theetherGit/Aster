@@ -103,10 +103,8 @@
 						>{t('classic.tab.documentation')}</Tabs.Trigger
 					>
 				{:else}
+					<!-- The Text tab (ui.md) arrives with the Text view in M2; no placeholder until then. -->
 					<Tabs.Trigger value="properties" class="tab">{t('inspector.tab.properties')}</Tabs.Trigger
-					>
-					<Tabs.Trigger value="text" class="tab" disabled title={t('ui.comingSoon')}
-						>{t('inspector.tab.text')}</Tabs.Trigger
 					>
 					<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
 				{/if}

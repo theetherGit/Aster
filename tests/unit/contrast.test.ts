@@ -42,7 +42,9 @@ const TEXT_PAIRS: [string, string][] = [
 const EDGE_PAIRS: [string, string][] = [
 	['accent', 'chrome-bg'],
 	['accent', 'chrome-surface'],
-	['accent', 'paper-bg']
+	['accent', 'paper-bg'],
+	['control-border', 'chrome-bg'],
+	['control-border', 'chrome-surface']
 ];
 
 describe.each([

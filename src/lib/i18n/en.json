@@ -103,6 +103,8 @@
 	"ui.export": "Export",
 	"ui.exportTitle": "Export diagram (⌘⇧E)",
 	"ui.palette": "Command palette",
+	"ui.paletteTitle": "Command palette (⌘K)",
+	"ui.linkHint": "Select one element, then link (L)",
 	"ui.comingSoon": "Coming soon",
 	"ui.diagrams": "Diagrams",
 	"ui.canvas": "Diagram canvas",

@@ -123,12 +123,15 @@
 		border-radius: 50%;
 		opacity: 0;
 	}
+	/* A hollow ring: the link handle, distinct from the solid square selection handles. */
 	.classifier-node :global(.uml-handle::after) {
 		content: '';
 		position: absolute;
-		inset: 8px;
+		inset: 7px;
+		box-sizing: border-box;
+		border: 2px solid var(--accent);
 		border-radius: 50%;
-		background: var(--accent);
+		background: var(--paper-bg);
 	}
 	.classifier-node:hover :global(.uml-handle) {
 		opacity: 1;
