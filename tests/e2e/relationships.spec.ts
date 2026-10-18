@@ -33,7 +33,7 @@ async function classAt(page: Page, name: string, x: number, y: number) {
 test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their UML markers', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await classAt(page, 'Hub', 560, 600);
 	const spots = [
@@ -124,7 +124,7 @@ test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their 
 });
 
 test('Esc cancels the keyboard link at every step', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await classAt(page, 'Solo', 600, 420);
 	await page.keyboard.press('l');
@@ -146,7 +146,7 @@ test('Esc cancels the keyboard link at every step', async ({ page }) => {
 test('mouse: dropping a connection on a node opens the picker at the drop point', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	const customer = node(page, 'Customer');
 	await customer.hover();
 	const handle = (await customer.locator('.svelte-flow__handle-left').boundingBox())!;
@@ -171,7 +171,7 @@ test('mouse: dropping a connection on a node opens the picker at the drop point'
 
 test.describe('on the notation fixture', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/?fixture=notation');
+		await page.goto('/design/notation');
 		await expect(page.locator('.uml-edge')).toHaveCount(8);
 	});
 

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { labelsOnTheirLine } from './helpers';
 
 test.beforeEach(async ({ page }) => {
-	await page.goto('/?fixture=notation');
+	await page.goto('/design/notation');
 	await expect(page.locator('.uml-edge')).toHaveCount(8);
 	// Sizes and label placement depend on the bundled paper font: wait for it.
 	await page.evaluate(() => document.fonts.ready);

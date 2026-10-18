@@ -868,7 +868,7 @@ function mount({ stage, svg, read }, value) {
 
 	// Fitted to the flower with one petal lifted and tipped up at the slider's far end, so nothing leaves the frame.
 	const ZT = LIFT + L * Math.sin(rad(32) + CUP) + T;
-	const C = Cam(45, 0.5, 3.3);
+	const C = Cam(45, 0.5, 3.8);
 	const E = REACH - 4;
 	fit(
 		C,

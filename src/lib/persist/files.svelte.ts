@@ -18,10 +18,11 @@ import { MdjError, type ParseReport } from '#lib/mdj/parse.ts';
 import { serializeMdjText } from '#lib/mdj/serialize.ts';
 import { parseInWorker } from '#lib/mdj/worker.ts';
 import { createDiagram, createProject } from '#lib/model/project.ts';
+import type { Project } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
-import { findBySourceHash, openSaved } from './autosave.svelte.ts';
+import { findBySourceHash, mintSlug, openSaved, persist } from './autosave.svelte.ts';
 
 export type FileFormat = 'mdj' | 'aster';
 
@@ -122,10 +123,22 @@ export async function pickFile(): Promise<OpenedFile | null> {
 function startFresh() {
 	ui.link = null;
 	ui.picker = null;
-	ui.welcome = false;
 	ui.sampleStrip = false;
 	selection.editing = null;
 	selection.clear();
+	persist.slug = null;
+}
+
+/** A bundled project (the sample, the notation fixture) under its reserved route, unnamed until edited. */
+export function loadFixture(project: Project, route: 'sample' | 'notation') {
+	startFresh();
+	projectStore.load(project);
+	files.current = null;
+	files.origin = null;
+	files.savedVersion = projectStore.version;
+	files.lastSavedAt = null;
+	files.bannerDismissed = false;
+	persist.route = route;
 }
 
 /** Open a file: `.aster` validates and loads; `.mdj` restores its autosave on a hash match, else parses. */
@@ -158,6 +171,7 @@ export async function openFile(f: OpenedFile) {
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = null;
 		files.bannerDismissed = false;
+		mintSlug();
 	} catch (e) {
 		files.notice = {
 			kind: 'failed',
@@ -215,6 +229,7 @@ export function newProject(): Promise<void> {
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = null;
 		files.bannerDismissed = false;
+		persist.route = 'new';
 		// After the menu that triggered this closes and puts focus back on its trigger.
 		requestAnimationFrame(() => canvasFocus.focus());
 	});
@@ -276,6 +291,7 @@ export async function saveFile(as = false): Promise<boolean> {
 		files.current = { name, format, handle };
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = Date.now();
+		mintSlug();
 		return true;
 	} catch (e) {
 		files.notice = {

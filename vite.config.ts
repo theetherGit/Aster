@@ -12,7 +12,8 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter()
+			// `/design/<slug>` is resolved on the client; unknown paths get the fallback shell.
+			adapter: adapter({ fallback: '404.html' })
 		})
 	],
 	test: {

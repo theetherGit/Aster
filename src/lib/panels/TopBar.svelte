@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { useSvelteFlow } from '@xyflow/svelte';
 	import { Tabs } from 'bits-ui';
+	import { resolve } from '$app/paths';
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -22,8 +23,8 @@
 
 <!-- Board 01: mark, project name, underline tabs; bordered controls on the right. -->
 <header class="flex h-11 items-center gap-2 border-b border-chrome-border bg-chrome-bg pr-3 pl-4">
-	<span class="mark" aria-hidden="true">
-		<svg width="14" height="14" viewBox="0 0 100 100" fill="currentColor"
+	<a href={resolve('/')} class="mark" aria-label={t('ui.home')}>
+		<svg width="14" height="14" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"
 			><rect x="43" y="4" width="14" height="38" rx="7" /><rect
 				x="43"
 				y="4"
@@ -47,7 +48,7 @@
 				transform="rotate(300 50 50)"
 			/><circle cx="50" cy="50" r="11" fill="#f2b233" /></svg
 		>
-	</span>
+	</a>
 	<h1 class="m-0 min-w-0 text-[15px]"><ProjectMenu /></h1>
 
 	<Tabs.List aria-label={t('ui.diagrams')} class="ml-3 flex h-full items-stretch">

@@ -8,7 +8,7 @@ async function typeInto(page: Page, editor: Locator, text: string) {
 }
 
 test.beforeEach(async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.mouse.move(640, 420);
 });

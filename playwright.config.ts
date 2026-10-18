@@ -8,14 +8,7 @@ export default defineConfig({
 	// Unhinted text in the test browser, so glyph advances (and so layout) match across platforms.
 	use: {
 		launchOptions: { args: ['--font-render-hinting=none'] },
-		trace: 'retain-on-failure',
-		// A returning visitor: the welcome screen (board 07) only shows in the test that asks for it.
-		storageState: {
-			cookies: [],
-			origins: [
-				{ origin: 'http://localhost:4173', localStorage: [{ name: 'aster:seen', value: '1' }] }
-			]
-		}
+		trace: 'retain-on-failure'
 	},
 	webServer: {
 		command: 'pnpm build && pnpm preview',

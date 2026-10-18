@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { canvasOf, create, node, position } from './helpers';
 
 test.beforeEach(async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(page.getByRole('heading', { level: 1, name: 'Library' })).toBeVisible();
 	await expect(node(page, 'Account')).toBeVisible();
 });

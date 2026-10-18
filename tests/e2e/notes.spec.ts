@@ -13,7 +13,7 @@ test('notes: N creates one, text commits with ⌘↩, L links it to a class, the
 	await page.addInitScript(() => {
 		Object.defineProperty(window, 'showSaveFilePicker', { value: undefined, configurable: true });
 	});
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.mouse.move(700, 500);
 	await page.keyboard.press('n');
@@ -79,7 +79,7 @@ test('notes: N creates one, text commits with ⌘↩, L links it to a class, the
 });
 
 test('documentation preview renders the Markdown subset', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await node(page, 'Customer').click();
 	const inspector = page.getByRole('complementary', { name: 'Inspector' });
 	const doc = inspector.getByLabel('Documentation', { exact: true });

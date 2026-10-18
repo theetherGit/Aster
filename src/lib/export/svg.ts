@@ -60,6 +60,53 @@ const esc = (s: string) =>
 	s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const n = (v: number) => String(Math.round(v * 100) / 100);
 
+/**
+ * A classifier's rendered rectangle from its content alone (ui.md, Node metrics), for drawing a
+ * diagram that is not on a canvas: the welcome's sample card. Width is the layout's or the widest
+ * line, never under the 160 px minimum the node keeps on screen.
+ */
+export function contentRect(
+	c: Classifier,
+	flags: Diagram['defaults'],
+	l: { x: number; y: number; w: number }
+): Rect {
+	const header = flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c);
+	let h = header ? STEREO_ROW : NAME_ROW;
+	let w = Math.max(textWidth(c.name, 13) * 1.06, header ? textWidth(`«${header}»`, 12) : 0);
+	const kinds: MemberKind[] = compartmentsFor(c).filter(
+		(k) =>
+			!(k === 'attribute' && flags.suppressAttributes) &&
+			!(k === 'operation' && flags.suppressOperations) &&
+			!(k === 'literal' && flags.suppressLiterals)
+	);
+	for (const kind of kinds) {
+		const members = membersOf(c, kind);
+		if (!members.length) {
+			h += EMPTY;
+			continue;
+		}
+		h += PAD_Y * 2 + members.length * MEMBER_ROW;
+		for (const m of members)
+			w = Math.max(
+				w,
+				textWidth(renderMember(kind, m, { ...flags, guillemets: true, keywords: false }), 12)
+			);
+	}
+	return { x: l.x, y: l.y, w: Math.max(160, l.w, Math.ceil(w + PAD_X * 2)), h };
+}
+
+/** Every classifier's content rectangle in a diagram, keyed by id. */
+export function contentRects(project: Project, diagram: Diagram): Map<Id, Rect> {
+	const out = new Map<Id, Rect>();
+	for (const id of diagram.elementIds) {
+		const el = project.elements.get(id);
+		const l = diagram.layout.get(id);
+		if (el?.kind === 'classifier' && l?.kind === 'node')
+			out.set(id, contentRect(el, diagram.defaults, l));
+	}
+	return out;
+}
+
 function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], out: string[]) {
 	const header = flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c);
 	const nameH = header ? STEREO_ROW : NAME_ROW;

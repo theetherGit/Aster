@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('properties panel edits dispatch the same commands as inline editing', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	const customer = page.locator('.classifier-node[data-name="Customer"]');
 	await customer.click();
 	const inspector = page.getByRole('complementary', { name: 'Inspector' });

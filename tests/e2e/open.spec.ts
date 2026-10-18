@@ -30,7 +30,7 @@ test('⌘O opens a .mdj through the file-input fallback, parsing in a Web Worker
 	});
 	const workers: string[] = [];
 	page.on('worker', (w) => workers.push(w.url()));
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 
 	const chooser = page.waitForEvent('filechooser');
@@ -77,7 +77,7 @@ test('⌘O uses the File System Access picker where it exists', async ({ page })
 			]
 		});
 	}, text);
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.keyboard.press('ControlOrMeta+o');
 	await expect(notice(page)).toContainText('Opened picked.mdj');
@@ -106,7 +106,7 @@ for (const name of [
 			);
 		});
 
-		await page.goto('/');
+		await page.goto('/design/sample');
 		await expect(canvasOf(page)).toBeFocused();
 		await drop(page, name, text);
 		await expect(notice(page)).toContainText(`Opened ${name}`);
@@ -141,7 +141,7 @@ for (const name of [
 test('recent files reopen from the project menu; a file that is not StarUML reports instead of opening', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	for (const name of ['public-vrview.mdj', 'public-twitter-stream.mdj']) {
 		await drop(page, name, readFileSync(fixture(name), 'utf8'));

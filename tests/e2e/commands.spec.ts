@@ -26,7 +26,7 @@ async function drop(page: Page, name: string, text: string) {
 test('command palette (board 16): ⌘K, filter, Enter runs on the selection; ⌘⇧P is the alias', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await node(page, 'Customer').click();
 	await expect(lines(page, 'Customer', 'attribute').first()).toHaveText('# attribute0: String');
@@ -58,7 +58,7 @@ test('command palette (board 16): ⌘K, filter, Enter runs on the selection; ⌘
 test('shortcut sheet (board 17) opens on ?, is generated from the registry and filters', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.keyboard.press('Shift+/');
 	const sheet = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
@@ -79,7 +79,7 @@ test('shortcut sheet (board 17) opens on ?, is generated from the registry and f
 });
 
 test('inspector rail (boards 18–19), ⌘\\, zoom keys and diagram switching', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	// Nothing selected: the 40 px rail with one button.
 	const rail = page.getByRole('complementary', { name: 'Inspector, collapsed' });
@@ -132,7 +132,7 @@ test('display toggles: keys change the diagram defaults or the selection, and ro
 	await page.addInitScript(() => {
 		Object.defineProperty(window, 'showSaveFilePicker', { value: undefined, configurable: true });
 	});
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await drop(
 		page,
@@ -191,7 +191,7 @@ test('display toggles: keys change the diagram defaults or the selection, and ro
 test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered, the paper stays white', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	const theme = () => page.evaluate(() => document.documentElement.dataset.theme);
 	const paper = () =>

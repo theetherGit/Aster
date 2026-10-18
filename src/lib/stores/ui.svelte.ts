@@ -35,8 +35,6 @@ class Ui {
 	lastRelationshipKind: RelationshipKind = $state('association');
 	/** ⌘⇧D repeats the last kind created. */
 	lastCreated: ClassifierKind | null = $state(null);
-	/** Board 07 welcome: first visit until the user picks something. */
-	welcome = $state(false);
 	/** Owner's first-run ruling (#1): the sample shows a strip until the user starts their own work. */
 	sampleStrip = $state(false);
 	/** Board 06 export sheet, board 16 palette, board 17 shortcut sheet. */

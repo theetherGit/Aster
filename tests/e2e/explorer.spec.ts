@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, ⌘E / ⌘D', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	const canvas = page.getByRole('application', { name: 'Diagram canvas: Main' });
 	await expect(canvas).toBeFocused();
 

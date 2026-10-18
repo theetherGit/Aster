@@ -25,7 +25,7 @@ async function drop(page: Page, name: string, text: string) {
 test('200 classes and 300 edges: opens, draws, and pans for 3 s under the frame budget', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	const t0 = Date.now();
 	await drop(page, 'large.mdj', JSON.stringify(largeMdj()));
@@ -80,7 +80,7 @@ test('first paint under 1 s on a 4× throttled CPU', async ({ page, browserName 
 	test.skip(browserName !== 'chromium', 'CPU throttling is a CDP feature');
 	const cdp = await page.context().newCDPSession(page);
 	await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	const fcp = await page.evaluate(
 		() => performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? -1

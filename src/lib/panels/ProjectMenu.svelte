@@ -23,7 +23,6 @@
 	const openEntry = (id: string, name: string) =>
 		guardUnsaved(name, async () => {
 			await openSaved(id);
-			ui.welcome = false;
 			ui.sampleStrip = false;
 		});
 </script>

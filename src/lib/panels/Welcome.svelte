@@ -1,61 +1,51 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { hairline } from '#lib/actions/hairline.ts';
-	import { canvasRects } from '#lib/canvas/focus.ts';
+	import { contentRects } from '#lib/export/svg.ts';
 	import { aster } from '#lib/figures/aster.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { sampleProject } from '#lib/model/fixtures.ts';
 	import {
 		clearRecent,
-		markSeen,
+		loadRecent,
 		openSaved,
 		persist,
 		thumbnailOf
 	} from '#lib/persist/autosave.svelte.ts';
-	import { newProject, openFromPicker } from '#lib/persist/files.svelte.ts';
-	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import { files, loadFixture, openFromPicker } from '#lib/persist/files.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { ago } from './time.ts';
 
 	// Boards 07 (first visit) and 23 (returning): two columns, the mark and the two actions on the
-	// left, the sample card and Recent on the right. The sample waits behind (owner's #1).
+	// left, the sample card and Recent on the right. Every action ends in `/design/<route>`.
+	const design = () => goto(resolve('/design/[slug]', { slug: persist.route ?? 'new' }));
 	function explore() {
-		ui.welcome = false;
+		loadFixture(sampleProject(), 'sample');
 		ui.sampleStrip = true;
-		markSeen();
+		return design();
+	}
+	async function open() {
+		await openFromPicker();
+		if (files.current) await design();
 	}
 	async function recent(id: string) {
-		if (await openSaved(id)) {
-			ui.welcome = false;
-			markSeen();
-		}
+		if (await openSaved(id)) await design();
 	}
 
-	// The sample card's picture: the bundled sample through the Recent list's renderer. The sample
-	// is what the canvas shows under the welcome, so once it is measured its rects make the picture
-	// match it exactly; until then (a few frames after load) the layout's sizes would crop it.
+	// The sample card's picture: the bundled sample through the Recent list's renderer, with node
+	// sizes from the same metrics the canvas uses, since no canvas is on this page.
 	let sampleThumb = $state<string>();
 	let newButton: HTMLButtonElement;
 	onMount(() => {
 		newButton.focus();
+		loadRecent();
 		const sample = sampleProject();
-		const underneath = projectStore.project.id === sample.id;
-		const layout = sample.diagrams[0].layout;
-		// The canvas answers with the layout's sizes until Svelte Flow has measured; measured nodes differ.
-		const measured = (rects: ReadonlyMap<string, { h: number }>) =>
-			[...layout].some(([id, l]) => l.kind === 'node' && rects.get(id)?.h !== l.h);
-		let frame = 0;
-		let tries = 0;
-		const draw = () => {
-			const rects = underneath ? canvasRects.get() : new Map();
-			if (underneath && !measured(rects) && tries++ < 60) {
-				frame = requestAnimationFrame(draw);
-				return;
-			}
-			thumbnailOf(sample, sample.diagrams[0].id, rects, 560).then((png) => (sampleThumb = png));
-		};
-		draw();
-		return () => cancelAnimationFrame(frame);
+		const diagram = sample.diagrams[0];
+		thumbnailOf(sample, diagram.id, contentRects(sample, diagram), 560).then(
+			(png) => (sampleThumb = png)
+		);
 	});
 
 	// `.mdj` and `.aster` in the tagline are set in monospace, as on the board.
@@ -66,7 +56,7 @@
 	<div class="columns">
 		<div class="left">
 			<div
-				class="w-[200px]"
+				class="figure"
 				use:hairline={{ figure: aster, label: t('welcome.figure'), intensity: 0.4, play: false }}
 			></div>
 			<h1 id="welcome-title" class="mt-2 text-[28px] leading-tight font-semibold tracking-tight">
@@ -82,12 +72,12 @@
 					type="button"
 					class="action primary"
 					bind:this={newButton}
-					onclick={() => newProject().then(markSeen)}
+					onclick={() => goto(resolve('/design/[slug]', { slug: 'new' }))}
 				>
 					<span>{t('welcome.new')}</span>
 					<kbd>{t('file.newShortcut')}</kbd>
 				</button>
-				<button type="button" class="action" onclick={() => openFromPicker().then(markSeen)}>
+				<button type="button" class="action" onclick={open}>
 					<span class="inline-flex items-baseline gap-1.5">
 						<span>{t('welcome.open')}</span>
 						<span class="text-[12.5px] text-chrome-muted">{t('welcome.openFormats')}</span>
@@ -181,18 +171,47 @@
 		color: var(--chrome-text);
 		background: var(--chrome-bg);
 	}
+	/* The board's composition (440 : 560, gap 64, 1064 wide at 1280 px), zoomed as a whole in
+	   steps with the window, so a wide screen gets a larger welcome, not a wider margin. */
 	.columns {
+		--welcome-zoom: 1;
 		display: grid;
-		grid-template-columns: minmax(0, 440px) minmax(0, 560px);
+		grid-template-columns: minmax(0, 11fr) minmax(0, 14fr);
 		gap: 64px;
 		align-items: center;
-		padding: 24px;
+		width: min(100% - 48px, 1064px);
+		padding: 24px 0;
+		zoom: var(--welcome-zoom);
+	}
+	@media (min-width: 1440px) {
+		.columns {
+			--welcome-zoom: 1.2;
+		}
+	}
+	@media (min-width: 1800px) {
+		.columns {
+			--welcome-zoom: 1.4;
+		}
+	}
+	@media (min-width: 2200px) {
+		.columns {
+			--welcome-zoom: 1.6;
+		}
+	}
+	@media (min-width: 2600px) {
+		.columns {
+			--welcome-zoom: 1.8;
+		}
 	}
 	@media (max-width: 900px) {
 		.columns {
 			grid-template-columns: minmax(0, 560px);
 			gap: 40px;
+			width: min(100% - 48px, 560px);
 		}
+	}
+	.figure {
+		width: 200px;
 	}
 	.left {
 		display: flex;

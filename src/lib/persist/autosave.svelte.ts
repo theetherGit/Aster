@@ -10,9 +10,11 @@ import { canvasRects } from '#lib/canvas/focus.ts';
 import type { CommandStackSnapshot } from '#lib/commands/types.ts';
 import { blobToDataUrl, svgToPng } from '#lib/export/image.ts';
 import { diagramToSvg } from '#lib/export/svg.ts';
+import { t } from '#lib/i18n/index.ts';
 import type { Id, Project } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { files, type FileFormat } from './files.svelte.ts';
+import { uniqueSlug } from './slug.ts';
 
 /** Autosave record, version 2: the project as an `.aster` document (docs/file-format.md) plus history. */
 export interface Saved {
@@ -29,6 +31,8 @@ export interface Saved {
 	at: number;
 	thumbnail?: string;
 	bannerDismissed: boolean;
+	/** The project's `/design/<slug>`; null for an unnamed draft. */
+	slug?: string | null;
 }
 /** The first records (before the .aster format) held the Project by structured clone. */
 interface SavedV1 extends Omit<Saved, 'version' | 'file' | 'fileFormat'> {
@@ -44,6 +48,7 @@ export interface RecentEntry {
 	sourceHash?: string;
 	at: number;
 	thumbnail?: string;
+	slug?: string | null;
 }
 
 const KEY = (key: string) => `aster:project:${key}`;
@@ -53,8 +58,6 @@ const KEY = (key: string) => `aster:project:${key}`;
  */
 const recordKey = (p: Project) => (files.current ? `${p.id}@${files.current.name}` : p.id);
 const RECENT = 'aster:recent';
-const LAST = 'aster:last';
-const SEEN = 'aster:seen';
 export const DEBOUNCE_MS = 300;
 const RECENT_MAX = 10;
 export const currentKey = () => recordKey(projectStore.project);
@@ -69,16 +72,35 @@ class Persist {
 	recent: RecentEntry[] = $state([]);
 	/** The autosave record of the open project has been read or written (restore finished). */
 	ready = $state(false);
+	/** The open project's slug, once it has a name; null for a draft. */
+	slug: string | null = $state(null);
+	/** What `/design/<route>` the open project answers to: its slug, or `new`, `sample`, `notation`. Null before anything loads. */
+	route: string | null = $state(null);
 }
 export const persist = new Persist();
 
 let pending: Promise<void> | null = null;
 
 /** The open project to IndexedDB, now. */
+/** Mint the slug once the project has a name: its file, or a project name that is not the untitled default. */
+export function mintSlug() {
+	if (persist.slug) return;
+	const p = projectStore.project;
+	const name = files.current?.name ?? (p.name !== t('model.untitled') ? p.name : null);
+	if (!name) return;
+	const key = recordKey(p);
+	persist.slug = uniqueSlug(
+		name,
+		persist.recent.filter((r) => r.id !== key).map((r) => r.slug)
+	);
+	persist.route = persist.slug;
+}
+
 export async function saveNow(): Promise<void> {
 	const p = projectStore.project;
 	const diagram = projectStore.diagram;
 	persist.saving = true;
+	mintSlug();
 	const thumb = await thumbnailOf(p, diagram.id);
 	const record: Saved = {
 		version: 2,
@@ -91,18 +113,19 @@ export async function saveNow(): Promise<void> {
 		version_: projectStore.version,
 		at: Date.now(),
 		thumbnail: thumb,
-		bannerDismissed: files.bannerDismissed
+		bannerDismissed: files.bannerDismissed,
+		slug: persist.slug
 	};
 	const key = recordKey(p);
 	await set(KEY(key), record);
-	await set(LAST, key);
 	const entry: RecentEntry = {
 		id: key,
 		name: p.name,
 		fileName: record.fileName,
 		...(files.origin && { sourceHash: files.origin.sourceHash }),
 		at: record.at,
-		thumbnail: record.thumbnail
+		thumbnail: record.thumbnail,
+		slug: persist.slug
 	};
 	persist.recent = [entry, ...persist.recent.filter((r) => r.id !== key)].slice(0, RECENT_MAX);
 	await set(RECENT, $state.snapshot(persist.recent));
@@ -172,9 +195,24 @@ export function startAutosave(): () => void {
 /** The autosave entry made from exactly these .mdj bytes, when there is one. */
 export const findBySourceHash = (hash: string) => persist.recent.find((r) => r.sourceHash === hash);
 
+/** A record is a draft when nothing names it: no file, and the untitled default as its name. */
+const isDraft = (r: RecentEntry) => !r.fileName && r.name === t('model.untitled');
+
 export async function loadRecent(): Promise<RecentEntry[]> {
-	persist.recent = (await get<RecentEntry[]>(RECENT)) ?? [];
-	return persist.recent;
+	const recent = (await get<RecentEntry[]>(RECENT)) ?? [];
+	// Entries from before slugs: a named one gets its slug now, so it is never taken for the draft.
+	let migrated = false;
+	for (const r of recent) {
+		if (r.slug || isDraft(r)) continue;
+		r.slug = uniqueSlug(
+			r.fileName ?? r.name,
+			recent.filter((o) => o !== r).map((o) => o.slug)
+		);
+		migrated = true;
+	}
+	persist.recent = recent;
+	if (migrated) await set(RECENT, $state.snapshot(recent));
+	return recent;
 }
 
 /** Open a project from its autosave record, with its undo history. */
@@ -206,14 +244,23 @@ export async function openSaved(id: string): Promise<boolean> {
 	files.bannerDismissed = record.bannerDismissed;
 	persist.at = record.at;
 	persist.ready = true;
+	// The record's slug, or the one the Recent list minted for an older record; a draft has none.
+	persist.slug = record.slug ?? persist.recent.find((r) => r.id === id)?.slug ?? null;
+	persist.route = persist.slug ?? 'new';
+	mintSlug();
 	return true;
 }
 
-/** Returning visit: the last project. First visit: nothing (the caller shows the welcome). */
-export async function restoreLast(): Promise<boolean> {
-	await loadRecent();
-	const last = await get<string>(LAST);
-	return last ? openSaved(last) : false;
+/** `/design/<slug>`: the project with that slug, when this browser has it. */
+export async function openBySlug(slug: string): Promise<boolean> {
+	const entry = persist.recent.find((r) => r.slug === slug);
+	return entry ? openSaved(entry.id) : false;
+}
+
+/** `/design/new` on a reload: the newest unnamed draft, when there is one. */
+export async function openDraft(): Promise<boolean> {
+	const draft = persist.recent.find((r) => !r.slug && isDraft(r));
+	return draft ? openSaved(draft.id) : false;
 }
 
 export async function forget(id: string) {
@@ -226,10 +273,5 @@ export async function forget(id: string) {
 export async function clearRecent() {
 	await Promise.all(persist.recent.map((r) => del(KEY(r.id))));
 	persist.recent = [];
-	await Promise.all([del(RECENT), del(LAST)]);
+	await del(RECENT);
 }
-
-/** First visit flag, synchronous so the welcome can show before IndexedDB answers. */
-export const firstVisit = () =>
-	typeof localStorage !== 'undefined' && localStorage.getItem(SEEN) === null;
-export const markSeen = () => localStorage.setItem(SEEN, '1');

@@ -65,7 +65,7 @@ const end = (e: Partial<End> = {}): End => ({
 /**
  * Every notation the canvas draws, laid out for a 1280 × 720 window: the six relationship
  * kinds, navigability arrows, the ownership dot, end labels, a «use» dependency, all four
- * line styles and a self-association. Loaded with `?fixture=notation`.
+ * line styles and a self-association. Loaded at `/design/notation`.
  */
 export function notationProject(): Project {
 	const project = createProject({ id: 'notation', name: 'UML notation' });

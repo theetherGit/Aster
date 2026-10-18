@@ -35,7 +35,7 @@ test.beforeEach(async ({ page }) => {
 test('autosave: close mid-edit and reopen loses nothing, undo history included', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.mouse.move(600, 400);
 	await create(page, 'c', 'Book');
@@ -56,7 +56,7 @@ test('autosave: close mid-edit and reopen loses nothing, undo history included',
 test('⌘S downloads the native .aster for an Aster-born project; the save states follow', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	// Untouched sample: nothing to lose, no dot. The first edit makes it "never saved": amber.
 	await expect(page.getByTestId('save-state')).toHaveCount(0);
@@ -100,7 +100,7 @@ test('⌘S downloads the native .aster for an Aster-born project; the save state
 });
 
 test('an .aster file opens by drop and round-trips the project', async ({ page }) => {
-	await page.goto('/?fixture=notation');
+	await page.goto('/design/notation');
 	await expect(page.locator('.uml-edge')).toHaveCount(8);
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
@@ -110,7 +110,7 @@ test('an .aster file opens by drop and round-trips the project', async ({ page }
 	const text = (await downloadText(await download)).toString('utf8');
 	await page.keyboard.press('Escape');
 
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await drop(page, 'notation-copy.aster', text);
 	await expect(page).toHaveTitle('notation-copy.aster – Aster');
@@ -134,7 +134,7 @@ test('an .aster file opens by drop and round-trips the project', async ({ page }
 test('the opened .mdj wins: the same bytes restore the autosave with its edits, changed bytes parse fresh', async ({
 	page
 }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	const text = readFileSync(fixture('public-vrview.mdj'), 'utf8');
 	await drop(page, 'public-vrview.mdj', text);
@@ -164,7 +164,7 @@ test('the opened .mdj wins: the same bytes restore the autosave with its edits, 
 });
 
 test('board 20: opening another file over unsaved edits asks first', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	const download = page.waitForEvent('download');
 	await page.keyboard.press('ControlOrMeta+s');
@@ -189,7 +189,7 @@ test('board 20: opening another file over unsaved edits asks first', async ({ pa
 test('export sheet (board 06): SVG with the font embedded, 2× PNG under 2 MB, copy button', async ({
 	page
 }) => {
-	await page.goto('/?fixture=notation');
+	await page.goto('/design/notation');
 	await expect(page.locator('.uml-edge')).toHaveCount(8);
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
@@ -225,7 +225,7 @@ test('export sheet (board 06): SVG with the font embedded, 2× PNG under 2 MB, c
 });
 
 test('⌘N starts an untitled project with an empty class diagram (board 18)', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.getByTestId('project-name').click();
 	await page.getByRole('menuitem', { name: 'New diagram' }).click();
@@ -241,10 +241,8 @@ test('⌘N starts an untitled project with an empty class diagram (board 18)', a
 	await expect(page.getByText('An empty class diagram')).toHaveCount(0);
 });
 
-test.describe('first visit', () => {
-	test.use({ storageState: { cookies: [], origins: [] } });
-
-	test('welcome screen (board 07), then the sample with its strip', async ({ page }) => {
+test.describe('the welcome at /', () => {
+	test('boards 07 and 23, then the sample with its strip', async ({ page }) => {
 		await page.goto('/');
 		const welcome = page.getByRole('region', { name: 'Aster' });
 		await expect(welcome).toBeVisible();
@@ -256,10 +254,41 @@ test.describe('first visit', () => {
 		// Hairline figure at rest, exposed as an image with a meaningful name.
 		await expect(welcome.getByRole('img', { name: /nothing open yet/ })).toBeVisible();
 		await welcome.getByRole('button', { name: 'Open sample' }).click();
+		await expect(page).toHaveURL(/\/design\/sample$/);
 		await expect(welcome).toHaveCount(0);
 		await expect(page.getByText('Sample. Press ⌘N for your own.')).toBeVisible();
 		await expect(node(page, 'Account')).toBeVisible();
+		// The first edit names it: the URL follows, and a reload finds it by slug.
+		await page.mouse.move(600, 400);
+		await create(page, 'c', 'Book');
+		await page.keyboard.press('Escape');
+		await awaitAutosave(page);
+		await expect(page).toHaveURL(/\/design\/library$/);
 		await page.reload();
-		await expect(page.getByRole('region', { name: 'Aster' })).toHaveCount(0);
+		await expect(node(page, 'Book')).toBeVisible();
+		// `new` is never the named project, even when it is the only record.
+		await page.goto('/design/new');
+		await expect(page.getByText('An empty class diagram')).toBeVisible();
+		await page.goto('/design/library');
+		await expect(node(page, 'Book')).toBeVisible();
+		// Home again: the mark links to the welcome, which lists the project.
+		await page.getByRole('link', { name: 'Aster: start page' }).click();
+		await expect(page).toHaveURL(/\/$/);
+		await expect(page.getByRole('button', { name: /Library/ })).toBeVisible();
+	});
+
+	test('/design/new starts empty and stays the draft until named', async ({ page }) => {
+		await page.goto('/');
+		await page.getByRole('button', { name: /New diagram/ }).click();
+		await expect(page).toHaveURL(/\/design\/new$/);
+		await expect(page.getByText('An empty class diagram')).toBeVisible();
+		await page.mouse.move(600, 400);
+		await create(page, 'c', 'Thing');
+		await page.keyboard.press('Escape');
+		await awaitAutosave(page);
+		await expect(page).toHaveURL(/\/design\/new$/);
+		await page.reload();
+		await expect(node(page, 'Thing')).toBeVisible();
+		await expect(page).toHaveURL(/\/design\/new$/);
 	});
 });
