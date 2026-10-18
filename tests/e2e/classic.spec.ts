@@ -72,7 +72,7 @@ test('the Classic menus come from the registry and run commands', async ({ page 
 	const menubar = page.getByRole('menubar', { name: 'Menu' });
 	await menubar.getByRole('menuitem', { name: 'File' }).click();
 	const file = page.getByRole('menu');
-	await expect(file.getByRole('menuitem', { name: /New diagram/ })).toContainText('⌘N');
+	await expect(file.getByRole('menuitem', { name: /New diagram/ })).toHaveText(/⌘N|Ctrl\+N/); // per platform
 	await expect(file.getByRole('menuitem', { name: /^Save/ }).first()).toBeVisible();
 	await page.keyboard.press('Escape');
 
