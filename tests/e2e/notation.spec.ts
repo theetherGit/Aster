@@ -83,6 +83,8 @@ test('node sizes and label widths match the bundled font on every platform', asy
 		'tree/targetRole': 47.2,
 		'tree/sourceMultiplicity': 23.9
 	};
+	// Hinting still nudges advances by a few percent between platforms; a fallback font would be
+	// 10–20 % off, so 6 % separates "bundled font in use" from "not".
 	for (const [key, w] of Object.entries(widths))
-		expect(Math.abs(labels[key] - w), key).toBeLessThanOrEqual(1);
+		expect(Math.abs(labels[key] - w), key).toBeLessThanOrEqual(Math.max(1, w * 0.06));
 });
