@@ -877,25 +877,26 @@ var HL = (() => {
 </script>
 <script type="module" id="hl-figure">
 /**
- * Aster: the Aster mark as a thing on a desk. Six full-round petals, each a
- * thin plate hinged at the hub, around a raised amber disc. The pointer's
- * angle picks the nearest petal: it lifts off the ground on the 700ms curve
- * and tilts, by springs, so the point under the pointer rises most, the tip
- * when the pointer is out, the near edge when it is to one side. The disc is
- * the amber: bright at rest, dimming in two steps as the pointer goes out a
- * petal and brightening again as it comes back in. The slider is the tilt.
+ * Aster: the Aster mark as a flower on a desk. Six pointed petals, each a thin
+ * plate with a vein, hinged under a flat amber disc and cupped upward at rest,
+ * one of them raised and bright, as the mark is drawn. The pointer's angle
+ * picks the nearest petal: it lifts on the 700ms curve and tilts, by springs,
+ * so the point under the pointer rises most, the tip when the pointer is out,
+ * the near edge when it is to one side. The disc is the amber: it brightens as
+ * the pointer comes in over it, and the petals rest. The slider is the tilt.
  *
  * The pattern: one of many, picked by angle. A tween for which, springs for
  * where, and a hit test on the ground plane, the rest pose, so a petal lifting
  * out from under the pointer cannot flip the choice.
  */
 const {
-  Cam, circ, clamp, facing, fit, hull, poly, prism, proj, rad, rrect, spring, stepS,
+  Cam, circ, clamp, facing, fit, poly, prism, proj, rad, spring, stepS,
   tdone, tset, tval, tween, disposer, flatDot, mk, place, pointer, put, register, solid, unproj,
 } = HL;
 
-const N = 6, W = 14, L = 38, R0 = 8, T = 2.4, R = 11, HD = 7, LIFT = 4, ROLL = 0.5;
-const CUP = rad(6); // every petal rests tipped up a little, like a flower's, so rest is never flat
+const N = 6, W = 16, L = 42, R0 = 4, T = 1.2, R = 11, HD = 3, LIFT = 5, ROLL = 0.5;
+const CUP = rad(12); // every petal rests cupped upward, like a flower's, so rest is never flat
+const REST_K = 5, REST_LIFT = 3; // the mark's raised petal: upper left, a little off the ground
 const PHI0 = rad(225); // petal 1 points up the screen at the 2:1 camera
 const STEP = rad(360 / N);
 const REACH = R0 + L + 4;
@@ -904,6 +905,23 @@ const REACH = R0 + L + 4;
 function axes(k) {
   const a = PHI0 + k * STEP;
   return { ax: [Math.cos(a), Math.sin(a)], sd: [-Math.sin(a), Math.cos(a)], a };
+}
+
+/** A pointed petal as a ring of samples {u, v, nu, nv}: two cubics from the base to the tip, widest at two fifths, as the mark draws it. */
+function lens(v0, len, half, n) {
+  const c = half * 1.33; // the control points' offset gives a maximum width of about three quarters of it
+  const side = (s) => {
+    const out = [];
+    for (let i = 1; i < n; i++) {
+      const t = i / n, mt = 1 - t;
+      const u = s * 3 * c * mt * t * (mt + t), v = v0 + len * (3 * mt * mt * t * 0.29 + 3 * mt * t * t * 0.71 + t * t * t);
+      const du = s * 3 * c * (mt * mt - t * t), dv = len * (3 * mt * mt * 0.29 + 6 * mt * t * (0.71 - 0.29) + 3 * t * t * (1 - 0.71));
+      const m = Math.hypot(du, dv);
+      out.push({ u, v, nu: (s * dv) / m, nv: (-s * du) / m });
+    }
+    return out;
+  };
+  return [{ u: 0, v: v0, nu: 0, nv: -1 }, ...side(1), { u: 0, v: v0 + len, nu: 0, nv: 1 }, ...side(-1).reverse()];
 }
 
 /** Local petal point (u across, v along from the hinge, w through the plate) rolled by rho, pitched by th and lifted, in world. */
@@ -917,7 +935,7 @@ function mount({ stage, svg, read }, value) {
   const bag = disposer();
   let tilt = rad(value);
 
-  // Fitted to the mark with one petal lifted and tipped up at the slider's far end, so nothing leaves the frame.
+  // Fitted to the flower with one petal lifted and tipped up at the slider's far end, so nothing leaves the frame.
   const ZT = LIFT + L * Math.sin(rad(32) + CUP) + T;
   const C = Cam(45, 0.5, 3.3);
   const E = REACH - 4;
@@ -925,33 +943,35 @@ function mount({ stage, svg, read }, value) {
   const P = proj(C), front = facing(C);
 
   const g = mk("g", {}, svg);
-  const ring = rrect(-W / 2, R0, W / 2, R0 + L, W / 2, 6);
+  const ring = lens(R0, L, W / 2, 9), vein = lens(R0 + 2, L * 0.72, W / 2 * 0.55, 7);
 
   // petals, far to near, so a near plate covers a far one
   const petals = [];
   for (let k = 0; k < N; k++) {
     const ax = axes(k), mid = world(ax, 0, 0, 0, 0, R0 + L / 2, 0);
-    petals.push({ k, ax, depth: mid[0] + mid[1], th: spring(CUP), rho: spring(0), z: tween(0), last: null });
+    petals.push({ k, ax, depth: mid[0] + mid[1], th: spring(CUP), rho: spring(0), z: tween(k === REST_K ? REST_LIFT : 0), last: null });
   }
   for (const p of petals.slice().sort((a, b) => a.depth - b.depth)) {
     p.grp = mk("g", {}, g);
     p.back = mk("path", { class: "lo" }, p.grp);
     p.face = mk("path", { class: "sil" }, p.grp);
+    p.vein = mk("path", { class: "nf lo" }, p.grp);
   }
 
-  // the disc, which never moves: a short cylinder with its crease, and the amber as a dot on its top
+  // the disc, which never moves: a flat cylinder with its crease, and the amber as a dot on its top
   const disc = solid(g);
   put(disc, prism(P, front, circ(R, 28), circ(R - 1.2, 28), 0, HD));
-  const amber = flatDot(g, C, 2.6, "dot");
+  const amber = flatDot(g, C, 3, "dot");
   place(amber, P(0, 0, HD));
 
   function draw(p, th, rho, lift) {
     const l = p.last;
     if (l && Math.abs(l[0] - th) < 1e-4 && Math.abs(l[1] - rho) < 1e-4 && Math.abs(l[2] - lift) < 1e-3) return;
     p.last = [th, rho, lift];
-    const at = (w) => ring.map((q) => P(...world(p.ax, th, rho, lift, q.u, q.v, w)));
-    p.back.setAttribute("d", poly(at(0)));
-    p.face.setAttribute("d", poly(at(T)));
+    const at = (r, w) => r.map((q) => P(...world(p.ax, th, rho, lift, q.u, q.v, w)));
+    p.back.setAttribute("d", poly(at(ring, 0)));
+    p.face.setAttribute("d", poly(at(ring, T)));
+    p.vein.setAttribute("d", poly(at(vein, T)));
   }
 
   const B = register(stage, (dt, now) => {
@@ -965,8 +985,8 @@ function mount({ stage, svg, read }, value) {
   });
   bag.add(B.unregister);
 
-  let act = -2, level = "";
-  /** Sets the amber's step: bright over the disc and at rest, medium near it, dim out at a tip. One highlight: the disc rim only when no petal is lit. */
+  let act = -3, level = "";
+  /** The amber's step: bright over the disc, medium near it or at rest, dim out at a tip. The disc rim lights only when no petal is lit. */
   function glow(lv) {
     if (lv === level) return;
     level = lv;
@@ -983,13 +1003,16 @@ function mount({ stage, svg, read }, value) {
     return { k, d, x, y };
   }
 
+  /** Lit petal and its lift: at rest the mark's raised petal, a little; under the pointer the chosen one, fully. */
+  const lit = (k) => (act === -2 ? k === REST_K : k === act);
   function setActive(h) {
     const now = performance.now();
     if (h.k !== act) {
       act = h.k;
       for (const p of petals) {
-        tset(p.z, p.k === act ? LIFT : 0, now, 0);
-        p.face.classList.toggle("hi", p.k === act);
+        tset(p.z, p.k === act ? LIFT : act === -2 && p.k === REST_K ? REST_LIFT : 0, now, 0);
+        p.face.classList.toggle("hi", lit(p.k));
+        p.vein.classList.toggle("lo", !lit(p.k));
       }
       read.textContent = act === -2 ? "rest" : act === -1 ? "centre" : "petal " + (act + 1);
     }
@@ -1003,11 +1026,11 @@ function mount({ stage, svg, read }, value) {
         p.th.t = CUP; p.rho.t = 0;
       }
     }
-    glow(act === -2 || act === -1 ? "hi" : h.d < R0 + L / 2 ? "m" : "off");
+    glow(act === -1 ? "hi" : act === -2 || h.d < R0 + L / 2 ? "m" : "off");
     B.wake();
   }
 
-  glow("hi");
+  setActive({ k: -2, d: 0, x: 0, y: 0 });
   bag.add(pointer(stage, { move: (pt) => setActive(hit(pt)), leave: () => setActive({ k: -2, d: 0, x: 0, y: 0 }) }));
   bag.add(() => svg.replaceChildren());
 
