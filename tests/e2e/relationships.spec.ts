@@ -183,7 +183,7 @@ test.describe('on the notation fixture', () => {
 
 		// Only the source end navigable: the arrow appears at the source.
 		await inspector.locator('#target-nav').click();
-		await page.getByRole('option', { name: 'Not navigable' }).click();
+		await page.getByRole('option', { name: 'not navigable' }).click();
 		await expect(borrows.locator('.edge-line')).toHaveAttribute(
 			'marker-start',
 			'url(#aster-m-arrow)'
@@ -282,8 +282,8 @@ test.describe('on the notation fixture', () => {
 		// Panel equivalent: distance and angle fields.
 		await page.mouse.click((await pointOnEdge(comp, 0.5)).x, (await pointOnEdge(comp, 0.5)).y);
 		const inspector = page.getByRole('complementary', { name: 'Inspector' });
-		await inspector.getByLabel('Source role distance').fill('60');
-		await inspector.getByLabel('Source role distance').press('Enter');
+		await inspector.getByLabel('role, Book end distance').fill('60');
+		await inspector.getByLabel('role, Book end distance').press('Enter');
 		const far = (await label.boundingBox())!;
 		expect(far.y).toBeLessThan(before.y - 20);
 	});

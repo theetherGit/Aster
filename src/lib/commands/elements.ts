@@ -298,3 +298,19 @@ export const resizeNode: Factory<{ diagramId: Id; id: Id; w: number; h: number }
 		return resizeNode(p, { diagramId, id, ...previous });
 	}
 }));
+
+/** Documentation of any element that carries it (classifier, relationship, package). */
+export const setDocumentation: Factory<{ id: Id; documentation: string }> = define(
+	'setDocumentation',
+	(project, { id, documentation }) => ({
+		label: t('cmd.setDocumentation', { name: nameOf(project, id) }),
+		touches: [id],
+		apply(p): Command {
+			const el = getElement(p, id);
+			if (!('documentation' in el)) throw new Error(`${id} has no documentation`);
+			const previous = el.documentation;
+			el.documentation = documentation;
+			return setDocumentation(p, { id, documentation: previous });
+		}
+	})
+);

@@ -22,8 +22,10 @@
 		if (v && v !== value) onchange(v);
 	}}
 >
-	<Select.Trigger {id} aria-label={ariaLabel} class="field text-left {className}"
-		>{current}</Select.Trigger
+	<Select.Trigger
+		{id}
+		aria-label={ariaLabel}
+		class="field truncate text-left whitespace-nowrap {className}">{current}</Select.Trigger
 	>
 	<Select.Portal>
 		<Select.Content class="menu" sideOffset={4}>

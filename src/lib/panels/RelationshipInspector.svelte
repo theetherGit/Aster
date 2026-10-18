@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ToggleGroup } from 'bits-ui';
 	import { DEFAULT_OFFSETS } from '#lib/canvas/edges/geometry.ts';
 	import { labelsFor } from '#lib/canvas/edges/notation.ts';
 	import {
@@ -6,6 +7,7 @@
 		batch,
 		moveWaypoint,
 		removeWaypoint,
+		setDocumentation,
 		setEnd,
 		setLabelOffset,
 		setLineStyle,
@@ -16,7 +18,7 @@
 	} from '#lib/commands/index.ts';
 	import { serialise } from '#lib/commands/registry.ts';
 	import { t } from '#lib/i18n/index.ts';
-	import { elementName } from '#lib/model/project.ts';
+	import { elementName, isAssociationKind } from '#lib/model/project.ts';
 	import type {
 		EdgeLayout,
 		End,
@@ -51,8 +53,13 @@
 		'dependency'
 	];
 	const STYLES: LineStyle[] = ['rectilinear', 'oblique', 'roundrect', 'curve'];
+	const STYLE_PATH: Record<LineStyle, string> = {
+		rectilinear: 'M2 13h7V3h7',
+		oblique: 'M2 13 14 3',
+		roundrect: 'M2 13h5a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2h5',
+		curve: 'M2 13C6 13 10 3 14 3'
+	};
 	const kindItems = KINDS.map((k) => ({ value: k, label: t(`ui.rel.${k}`) }));
-	const styleItems = STYLES.map((s) => ({ value: s, label: t(`lineStyle.${s}`) }));
 	const navItems = (['unspecified', 'navigable', 'notNavigable'] as const).map((n) => ({
 		value: n,
 		label: t(`nav.${n}`)
@@ -79,9 +86,17 @@
 				] as ['source' | 'target', End, string][])
 			: []
 	);
-	const labelKeys = $derived(labelsFor(rel, projectStore.diagram.defaults).map((l) => l.key));
+	const labelKeys = $derived(labelsFor(rel, projectStore.diagram.defaults));
 	const offsetOf = (key: LabelKey) => layout?.labelOffsets[key] ?? DEFAULT_OFFSETS[key];
+	const isDefault = (key: LabelKey) => !layout?.labelOffsets[key];
 	const deg = (rad: number) => Math.round((rad * 180) / Math.PI);
+	const labelName = (key: LabelKey, at: 'source' | 'target' | 'mid') =>
+		at === 'mid'
+			? t('inspector.labelMiddle', { label: t(`label.${key}`) })
+			: t('inspector.labelEnd', {
+					label: t(`label.${key}`),
+					end: nameOf(at === 'source' ? rel.sourceId : rel.targetId)
+				});
 
 	function setOffset(key: LabelKey, patch: { distance?: number; degrees?: number }) {
 		const o = offsetOf(key);
@@ -105,7 +120,6 @@
 	}
 	function addPoint() {
 		if (!layout) return;
-		// Half way between the last waypoint (or the source) and the target, by layout position.
 		const at = (id: string) => {
 			const l = projectStore.diagram.layout.get(id);
 			return l?.kind === 'node' ? { x: l.x + l.w / 2, y: l.y + l.h / 2 } : { x: 0, y: 0 };
@@ -125,8 +139,11 @@
 	}
 </script>
 
-<div class="grid grid-cols-[88px_1fr] items-center gap-x-2 gap-y-2">
-	<label for="rel-kind">{t('inspector.kind')}</label>
+<!-- Board 13: kind and name side by side, both ends as columns, line style as icons. -->
+<h2 class="section">{t(`ui.rel.${rel.relationshipKind}`)}</h2>
+<div class="grid grid-cols-2 gap-x-3 gap-y-1">
+	<label for="rel-kind" class="text-chrome-muted">{t('inspector.kind')}</label>
+	<label for="rel-name" class="text-chrome-muted">{t('inspector.name')}</label>
 	<FieldSelect
 		id="rel-kind"
 		value={rel.relationshipKind}
@@ -134,81 +151,130 @@
 		onchange={(v) =>
 			run(setRelationshipKind, { id: rel.id, relationshipKind: v as RelationshipKind })}
 	/>
-
-	<label for="rel-name">{t('inspector.name')}</label>
 	<input
 		id="rel-name"
 		class="field"
+		placeholder={t('vis.none')}
 		value={rel.name ?? ''}
 		onchange={(e) =>
 			text(e.currentTarget.value) !== (rel.name ?? null) &&
 			run(setRelationshipName, { id: rel.id, name: text(e.currentTarget.value) })}
 	/>
-
-	<label for="rel-stereotype">{t('inspector.stereotype')}</label>
-	<input
-		id="rel-stereotype"
-		class="field"
-		value={rel.stereotype ?? ''}
-		onchange={(e) =>
-			text(e.currentTarget.value) !== (rel.stereotype ?? null) &&
-			run(setRelationshipStereotype, { id: rel.id, stereotype: text(e.currentTarget.value) })}
-	/>
-
-	{#if layout}
-		<label for="rel-style">{t('inspector.lineStyle')}</label>
-		<FieldSelect
-			id="rel-style"
-			value={layout.lineStyle}
-			items={styleItems}
-			onchange={(v) => run(setLineStyle, { diagramId, id: rel.id, lineStyle: v as LineStyle })}
+	{#if !isAssociationKind(rel.relationshipKind)}
+		<label for="rel-stereotype" class="text-chrome-muted">{t('inspector.stereotype')}</label>
+		<span></span>
+		<input
+			id="rel-stereotype"
+			class="field"
+			placeholder={t('vis.none')}
+			value={rel.stereotype ?? ''}
+			onchange={(e) =>
+				text(e.currentTarget.value) !== (rel.stereotype ?? null) &&
+				run(setRelationshipStereotype, { id: rel.id, stereotype: text(e.currentTarget.value) })}
 		/>
 	{/if}
 </div>
 
-{#each ends as [end, e, owner] (end)}
-	<fieldset class="mt-4 grid grid-cols-[88px_1fr] items-center gap-x-2 gap-y-2">
-		<legend class="mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
-			>{t('inspector.end', { name: owner })}</legend
-		>
-		<label for="{end}-role">{t('inspector.role')}</label>
-		<input
-			id="{end}-role"
-			class="field"
-			value={e.role ?? ''}
-			onchange={(ev) => patchEnd(end, { role: text(ev.currentTarget.value) })}
-		/>
-		<label for="{end}-mult">{t('inspector.multiplicity')}</label>
-		<input
-			id="{end}-mult"
-			class="field font-mono"
-			value={e.multiplicity ?? ''}
-			onchange={(ev) => patchEnd(end, { multiplicity: text(ev.currentTarget.value) })}
-		/>
-		<label for="{end}-nav">{t('inspector.navigability')}</label>
-		<FieldSelect
-			id="{end}-nav"
-			value={e.navigable}
-			items={navItems}
-			onchange={(v) => patchEnd(end, { navigable: v as End['navigable'] })}
-		/>
-		<label for="{end}-vis">{t('inspector.visibility')}</label>
-		<FieldSelect
-			id="{end}-vis"
-			value={e.visibility ?? 'none'}
-			items={visItems}
-			onchange={(v) => patchEnd(end, { visibility: v === 'none' ? null : (v as Visibility) })}
-		/>
-	</fieldset>
-{/each}
+{#if ends.length}
+	<h2 class="section">{t('inspector.ends')}</h2>
+	<div class="grid grid-cols-[64px_1fr_1fr] items-center gap-x-2 gap-y-2 text-[12px]">
+		<span></span>
+		{#each ends as [end, , owner] (end)}<span class="truncate font-semibold" id="end-{end}"
+				>{owner}</span
+			>{/each}
+		<span class="text-chrome-muted" id="ends-role">{t('inspector.role')}</span>
+		{#each ends as [end, e] (end)}
+			<input
+				class="field min-w-0"
+				aria-labelledby="ends-role end-{end}"
+				id="{end}-role"
+				placeholder={t('vis.none')}
+				value={e.role ?? ''}
+				onchange={(ev) => patchEnd(end, { role: text(ev.currentTarget.value) })}
+			/>
+		{/each}
+		<span class="text-chrome-muted" id="ends-mult">{t('inspector.multiplicity')}</span>
+		{#each ends as [end, e] (end)}
+			<input
+				class="field min-w-0 font-mono"
+				aria-labelledby="ends-mult end-{end}"
+				id="{end}-mult"
+				value={e.multiplicity ?? ''}
+				onchange={(ev) => patchEnd(end, { multiplicity: text(ev.currentTarget.value) })}
+			/>
+		{/each}
+		<span class="text-chrome-muted" id="ends-nav">{t('inspector.navigability')}</span>
+		{#each ends as [end, e] (end)}
+			<FieldSelect
+				id="{end}-nav"
+				class="min-w-0"
+				ariaLabel="{t('inspector.navigability')}, {nameOf(
+					end === 'source' ? rel.sourceId : rel.targetId
+				)}"
+				value={e.navigable}
+				items={navItems}
+				onchange={(v) => patchEnd(end, { navigable: v as End['navigable'] })}
+			/>
+		{/each}
+		<span class="text-chrome-muted" id="ends-vis">{t('inspector.visibility')}</span>
+		{#each ends as [end, e] (end)}
+			<FieldSelect
+				id="{end}-vis"
+				class="min-w-0"
+				ariaLabel="{t('inspector.visibility')}, {nameOf(
+					end === 'source' ? rel.sourceId : rel.targetId
+				)}"
+				value={e.visibility ?? 'none'}
+				items={visItems}
+				onchange={(v) => patchEnd(end, { visibility: v === 'none' ? null : (v as Visibility) })}
+			/>
+		{/each}
+	</div>
+{/if}
 
 {#if layout}
+	<h2 class="section">{t('inspector.lineStyle')}</h2>
+	<ToggleGroup.Root
+		type="single"
+		value={layout.lineStyle}
+		onValueChange={(v: string) =>
+			v &&
+			v !== layout?.lineStyle &&
+			run(setLineStyle, { diagramId, id: rel.id, lineStyle: v as LineStyle })}
+		class="grid grid-cols-4 overflow-hidden rounded-control border border-chrome-border"
+		aria-label={t('inspector.lineStyle')}
+	>
+		{#each STYLES as style (style)}
+			<ToggleGroup.Item
+				value={style}
+				aria-label={t(`lineStyle.${style}`)}
+				class="flex h-14 flex-col items-center justify-center gap-1 border-r border-chrome-border text-[11px] text-chrome-muted last:border-r-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
+			>
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					aria-hidden="true"><path d={STYLE_PATH[style]} /></svg
+				>
+				<span>{t(`lineStyle.${style}`)}</span>
+			</ToggleGroup.Item>
+		{/each}
+	</ToggleGroup.Root>
+
 	<!-- Non-drag path for waypoints (accessibility.md: every drag has an equivalent). -->
-	<fieldset class="mt-4 min-w-0">
-		<legend class="mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
-			>{t('inspector.waypoints')}</legend
+	<div class="mt-4 flex items-center justify-between">
+		<h2 class="section mt-0">{t('inspector.waypoints')}</h2>
+		<button
+			type="button"
+			class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
+			onclick={addPoint}>+ {t('inspector.addWaypoint')}</button
 		>
-		<ul class="flex flex-col gap-1">
+	</div>
+	{#if layout.waypoints.length}
+		<ul class="mt-1 flex flex-col gap-1">
 			{#each layout.waypoints as w, i (i)}
 				<li class="flex items-center gap-1">
 					<input
@@ -234,45 +300,73 @@
 				</li>
 			{/each}
 		</ul>
-		<button
-			type="button"
-			class="mt-1 h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-			onclick={addPoint}>+ {t('inspector.addWaypoint')}</button
-		>
-	</fieldset>
+	{:else}
+		<p class="mt-1 text-chrome-muted">{t('inspector.noWaypoints')}</p>
+	{/if}
 
 	{#if labelKeys.length}
-		<!-- Non-drag path for label positions. -->
-		<fieldset class="mt-4 min-w-0">
-			<legend class="mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
-				>{t('inspector.labels')}</legend
-			>
-			<ul class="flex flex-col gap-1">
-				{#each labelKeys as key (key)}
-					<li class="grid grid-cols-[1fr_64px_64px] items-center gap-1">
-						<span class="truncate">{t(`label.${key}`)}</span>
-						<input
-							type="number"
-							class="field min-w-0"
-							aria-label={t('inspector.labelDistance', { label: t(`label.${key}`) })}
-							value={Math.round(offsetOf(key).distance)}
-							onchange={(e) => setOffset(key, { distance: e.currentTarget.valueAsNumber })}
-						/>
-						<input
-							type="number"
-							class="field min-w-0"
-							aria-label={t('inspector.labelAngle', { label: t(`label.${key}`) })}
-							value={deg(offsetOf(key).alpha)}
-							onchange={(e) => setOffset(key, { degrees: e.currentTarget.valueAsNumber })}
-						/>
-					</li>
-				{/each}
-			</ul>
+		<div class="mt-4 flex items-center justify-between">
+			<h2 class="section mt-0">{t('inspector.labels')}</h2>
 			<button
 				type="button"
-				class="mt-1 h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
+				class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
 				onclick={resetLabels}>{t('inspector.resetLabels')}</button
 			>
-		</fieldset>
+		</div>
+		<ul class="mt-1 flex flex-col gap-1">
+			{#each labelKeys as l (l.key)}
+				{@const name = labelName(l.key, l.at)}
+				<li class="grid grid-cols-[auto_1fr_52px_52px_24px] items-center gap-1 text-[12px]">
+					<span class="font-mono">{l.lines.at(-1)}</span>
+					<span class="truncate text-chrome-muted">{name}</span>
+					<input
+						type="number"
+						class="field h-6 min-w-0 px-1 text-[12px]"
+						aria-label={t('inspector.labelDistance', { label: name })}
+						value={Math.round(offsetOf(l.key).distance)}
+						onchange={(e) => setOffset(l.key, { distance: e.currentTarget.valueAsNumber })}
+					/>
+					<input
+						type="number"
+						class="field h-6 min-w-0 px-1 text-[12px]"
+						aria-label={t('inspector.labelAngle', { label: name })}
+						value={deg(offsetOf(l.key).alpha)}
+						onchange={(e) => setOffset(l.key, { degrees: e.currentTarget.valueAsNumber })}
+					/>
+					<button
+						type="button"
+						class="icon-btn h-6 w-6"
+						aria-label={t('inspector.resetLabel', { label: name })}
+						disabled={isDefault(l.key)}
+						onclick={() => run(setLabelOffset, { diagramId, id: rel.id, key: l.key, offset: null })}
+						>↺</button
+					>
+				</li>
+			{/each}
+		</ul>
 	{/if}
 {/if}
+
+<h2 class="section"><label for="rel-doc">{t('inspector.documentation')}</label></h2>
+<textarea
+	id="rel-doc"
+	class="field h-20 w-full resize-y py-1"
+	placeholder={t('inspector.markdown')}
+	value={rel.documentation}
+	onchange={(e) =>
+		e.currentTarget.value !== rel.documentation &&
+		run(setDocumentation, { id: rel.id, documentation: e.currentTarget.value })}></textarea>
+
+<style>
+	.section {
+		margin: 16px 0 6px;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--chrome-muted);
+	}
+	.section:first-child {
+		margin-top: 0;
+	}
+</style>

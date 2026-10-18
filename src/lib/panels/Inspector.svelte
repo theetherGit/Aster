@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { Select, Tabs } from 'bits-ui';
-	import { renameClassifier, setClassifierFlags, setClassifierKind } from '#lib/commands/index.ts';
+	import {
+		renameClassifier,
+		setClassifierFlags,
+		setClassifierKind,
+		setDocumentation
+	} from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { MemberKind } from '#lib/mdj/expression.ts';
 	import { elementName } from '#lib/model/project.ts';
@@ -9,6 +14,7 @@
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import MemberList from './MemberList.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
+	import RelationshipList from './RelationshipList.svelte';
 
 	// Commands mutate elements in place, so references never change; cloning the selected
 	// element on every project version gives Svelte a new value to react to.
@@ -142,6 +148,19 @@
 				{#each memberKinds as kind (kind)}
 					<MemberList classifier={c} {kind} />
 				{/each}
+				<RelationshipList classifier={c} />
+				<h2 class="mt-4 mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
+					<label for="cls-doc">{t('inspector.documentation')}</label>
+				</h2>
+				<textarea
+					id="cls-doc"
+					class="field h-20 w-full resize-y py-1"
+					placeholder={t('inspector.markdown')}
+					value={c.documentation}
+					onchange={(e) =>
+						e.currentTarget.value !== c.documentation &&
+						projectStore.run(setDocumentation, { id: c.id, documentation: e.currentTarget.value })}
+				></textarea>
 			{:else if single?.kind === 'relationship'}
 				<RelationshipInspector rel={single} />
 			{:else if single && single.kind !== 'classifier'}

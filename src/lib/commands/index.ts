@@ -7,6 +7,7 @@ export {
 	deleteFromModel,
 	moveNode,
 	setNodePositions,
+	setDocumentation,
 	renameClassifier,
 	resizeNode,
 	restoreElements,

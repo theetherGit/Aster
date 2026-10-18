@@ -8,7 +8,8 @@ import {
 	moveNode,
 	renameClassifier,
 	resizeNode,
-	setClassifierFlags
+	setClassifierFlags,
+	setDocumentation
 } from '#lib/commands/index.ts';
 import { UNDO_LIMIT } from '#lib/commands/types.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
@@ -228,5 +229,15 @@ describe('coalesced moves stay small', () => {
 		expect(getNodeLayout(d, 'Account')).toMatchObject({ x: 120, y: 80 });
 		stack.redo();
 		expect(getNodeLayout(d, 'Account')).toMatchObject({ x: 420, y: 680 });
+	});
+});
+
+describe('setDocumentation', () => {
+	it('sets and restores documentation on any element that has it', () => {
+		const { project, stack } = setup();
+		stack.run(setDocumentation(project, { id: 'Customer', documentation: 'A library member.' }));
+		expect(getClassifier(project, 'Customer').documentation).toBe('A library member.');
+		stack.undo();
+		expect(getClassifier(project, 'Customer').documentation).toBe('');
 	});
 });
