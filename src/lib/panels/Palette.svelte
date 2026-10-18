@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Command, Dialog } from 'bits-ui';
+	import { sieve } from '@lucasmarkes/hairline';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
 	import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
@@ -96,9 +98,14 @@
 				</div>
 				<Command.List class="max-h-[50vh] overflow-auto p-1" aria-label={t('palette.list')}>
 					<Command.Viewport>
-						<Command.Empty class="px-3 py-6 text-center text-chrome-muted"
-							>{t('palette.empty')}</Command.Empty
-						>
+						<Command.Empty class="px-3 py-5">
+							<EmptyState
+								figure={sieve}
+								title={t('palette.empty')}
+								label={t('palette.emptyFigure')}
+								size={160}
+							/>
+						</Command.Empty>
 						{#each GROUPS as group (group)}
 							{@const items = available.filter((c) => c.group === group)}
 							{#if items.length}

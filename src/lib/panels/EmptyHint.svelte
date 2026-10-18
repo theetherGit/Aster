@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { drawer } from '@lucasmarkes/hairline';
+	import { hairline } from '#lib/actions/hairline.ts';
 	import { t } from '#lib/i18n/index.ts';
 	// Board 18: an empty class diagram says what the keys do. Pointer events pass through to the paper.
 	const KEYS: [string, string][] = [
@@ -9,7 +11,11 @@
 	];
 </script>
 
-<div class="hint" aria-hidden="true">
+<div class="hint">
+	<div
+		class="mb-3 w-[200px]"
+		use:hairline={{ figure: drawer, label: t('empty.figure'), intensity: 0.4, play: false }}
+	></div>
 	<p class="text-[17px] font-semibold">{t('empty.title')}</p>
 	<p class="mt-1 text-[13px]">{t('empty.body')}</p>
 	<dl class="keys">
@@ -27,6 +33,7 @@
 
 <style>
 	.hint {
+		--hairline-plate: var(--paper-bg);
 		position: absolute;
 		inset: 0;
 		display: flex;

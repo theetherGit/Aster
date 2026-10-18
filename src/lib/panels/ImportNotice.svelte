@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Collapsible } from 'bits-ui';
+	import { plug } from '@lucasmarkes/hairline';
+	import { hairline } from '#lib/actions/hairline.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import type { ParseReport, ParseWarning } from '#lib/mdj/parse.ts';
 	import { files, openFromPicker } from '#lib/persist/files.svelte.ts';
@@ -129,6 +131,15 @@
 		</header>
 
 		{#if notice.kind === 'failed'}
+			<div
+				class="mx-auto my-3 w-[200px]"
+				use:hairline={{
+					figure: plug,
+					label: t('import.failedFigure'),
+					intensity: 0.4,
+					play: false
+				}}
+			></div>
 			<p class="body">
 				{t(notice.invalid ? 'import.failedBody' : 'import.failedOther', {
 					project: projectStore.project.name

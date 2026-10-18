@@ -43,6 +43,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
+		"@lucasmarkes/hairline": "0.5.1",
 		"@xyflow/svelte": "^1.7.0",
 		"bits-ui": "^2.19.5",
 		"elkjs": "^0.12.0",

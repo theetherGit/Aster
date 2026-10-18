@@ -25,6 +25,13 @@
 	--paper-ink: #1b1b1b;
 	--paper-fill: #ffffff;
 	--font-paper: 'Source Sans 3', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	/* Hairline figures (empty states): plates match the surface they sit on; "hi" is the brand amber. */
+	--hairline-plate: var(--chrome-surface);
+	--hairline-hi: #f2b233;
+	--hairline-edge: var(--chrome-muted);
+	--hairline-mid: color-mix(in srgb, var(--chrome-muted) 55%, var(--chrome-bg));
+	--hairline-lo: var(--chrome-border);
+	--hairline-stroke: 0.9;
 	/* Every UML stroke on paper: edges, markers, node borders, compartment lines (ui.md: 1 px). */
 	--uml-stroke: 1px;
 }

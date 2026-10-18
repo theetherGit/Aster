@@ -473,5 +473,11 @@
 	"toast.dismiss": "Dismiss",
 	"welcome.pressBefore": "Press",
 	"welcome.pressAfter": "any time for every shortcut",
+	"welcome.figure": "An app window taken apart into its layers: Aster has nothing open yet",
+	"empty.figure": "An empty three-drawer cabinet: this diagram has no elements yet",
+	"palette.emptyFigure": "Three sieves over an empty pan: no command matched",
+	"sheet.empty": "No shortcut matches \"{filter}\"",
+	"sheet.emptyFigure": "Three sieves over an empty pan: no shortcut matched",
+	"import.failedFigure": "A plug pulled out of its socket: the file could not be opened",
 	"footer.counts": "{classifiers} classifiers · {relationships} relationships"
 }

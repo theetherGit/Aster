@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
+	import { sieve } from '@lucasmarkes/hairline';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
 	import { COMMANDS, type Group } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
@@ -64,6 +66,16 @@
 			<p class="mt-2 flex items-center gap-2 text-[12px] text-chrome-muted">
 				<span class="star" aria-hidden="true"></span>{t('sheet.legend')}
 			</p>
+			{#if rows.length === 0}
+				<div class="py-8">
+					<EmptyState
+						figure={sieve}
+						title={t('sheet.empty', { filter })}
+						label={t('sheet.emptyFigure')}
+						size={160}
+					/>
+				</div>
+			{/if}
 			<div class="mt-3 grid min-h-0 flex-1 grid-cols-3 gap-6 overflow-auto">
 				{#each COLUMNS as column, ci (ci)}
 					<div>

@@ -125,6 +125,7 @@ test('an .aster file opens by drop and round-trips the project', async ({ page }
 	);
 	const notice = page.getByTestId('import-notice');
 	await expect(notice).toContainText("Couldn't open bad.aster");
+	await expect(notice.getByRole('img', { name: /could not be opened/ })).toBeVisible();
 	await notice.getByRole('button', { name: 'Show details' }).click();
 	await expect(notice).toContainText('$.project.colour: unknown field');
 });
@@ -230,6 +231,7 @@ test('⌘N starts an untitled project with an empty class diagram (board 18)', a
 	await expect(page.getByTestId('project-name')).toHaveText('Untitled');
 	await expect(page.getByRole('tab', { name: 'Class diagram' })).toBeVisible();
 	await expect(page.getByText('An empty class diagram')).toBeVisible();
+	await expect(page.getByRole('img', { name: /no elements yet/ })).toBeVisible();
 	await expect(page.getByTestId('footer-save')).toHaveText('not saved to a file yet');
 	await expect(page.getByRole('region', { name: 'Not saved to a file' })).toHaveCount(0); // nothing typed yet
 	await page.mouse.move(600, 400);
@@ -248,6 +250,8 @@ test.describe('first visit', () => {
 		await expect(welcome.getByRole('button', { name: /New diagram/ })).toBeVisible();
 		await expect(welcome.getByRole('button', { name: /Open \.mdj/ })).toBeVisible();
 		await expect(welcome).toContainText('Files you open appear here');
+		// Hairline figure at rest, exposed as an image with a meaningful name.
+		await expect(welcome.getByRole('img', { name: /nothing open yet/ })).toBeVisible();
 		await welcome.getByRole('button', { name: 'Or explore the sample diagram' }).click();
 		await expect(welcome).toHaveCount(0);
 		await expect(page.getByText('Sample. Press ⌘N for your own.')).toBeVisible();

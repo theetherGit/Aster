@@ -50,6 +50,7 @@ test('command palette (board 16): ⌘K, filter, Enter runs on the selection; ⌘
 	await expect(palette).toBeVisible();
 	await palette.getByRole('combobox', { name: 'Search commands' }).fill('zzzz');
 	await expect(palette).toContainText('No matching command');
+	await expect(palette.getByRole('img', { name: /no command matched/ })).toBeVisible();
 	await page.keyboard.press('Escape');
 	await expect(palette).toHaveCount(0);
 });
@@ -69,6 +70,9 @@ test('shortcut sheet (board 17) opens on ?, is generated from the registry and f
 	await expect(sheet).toContainText('Zoom to selection');
 	await expect(sheet).not.toContainText('Save / save as');
 	await expect(sheet).not.toContainText('New class');
+	await sheet.getByLabel('Filter shortcuts').fill('qqq');
+	await expect(sheet).toContainText('No shortcut matches "qqq"');
+	await expect(sheet.getByRole('img', { name: /no shortcut matched/ })).toBeVisible();
 	await page.keyboard.press('Escape');
 	await expect(sheet).toHaveCount(0);
 	await expect(canvasOf(page)).toBeFocused();
