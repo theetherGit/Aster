@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { t } from '#lib/i18n/index.ts';
+	import ImportNotice from '#lib/panels/ImportNotice.svelte';
 	import Welcome from '#lib/panels/Welcome.svelte';
 	import { persist } from '#lib/persist/autosave.svelte.ts';
 	import { files, openDropped } from '#lib/persist/files.svelte.ts';
@@ -35,3 +36,4 @@
 />
 
 <Welcome />
+<ImportNotice />

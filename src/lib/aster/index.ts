@@ -3,7 +3,12 @@
  * `migrate` for future versions, `lossReport` (empty in v1 by construction) and the byte hash
  * that ties an mdj-born project to its source file.
  */
-import type { Diagram, Layout, Project } from '#lib/model/types.ts';
+import {
+	DEFAULT_DISPLAY_FLAGS,
+	type Diagram,
+	type Layout,
+	type Project
+} from '#lib/model/types.ts';
 import { ASTER_SCHEMA, ASTER_VERSION, type AsterFile, type AsterOrigin } from './format.ts';
 import { AsterError, validateAsterFile } from './schema.ts';
 
@@ -33,13 +38,52 @@ export function serializeAster(project: Project, origin?: AsterOrigin): AsterFil
 export const serializeAsterText = (project: Project, origin?: AsterOrigin) =>
 	JSON.stringify(serializeAster(project, origin), null, '\t');
 
+/**
+ * Fields the model gained after the first v1 documents were written, with the value a missing
+ * one means. Filled before validation, so a strict reader still opens every file Aster has saved:
+ * `isOrdered`, `isUnique`, `isID` on attributes and ends (2026-10-18), `index` on `#source`
+ * records, and any display flag a diagram's defaults lack.
+ */
+function fill(json: unknown): unknown {
+	if (typeof json !== 'object' || json === null) return json;
+	const p = (json as { project?: Record<string, unknown> }).project;
+	if (!p || typeof p !== 'object') return json;
+	const obj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+	const def = (o: Record<string, unknown>, k: string, v: unknown) => {
+		if (o[k] === undefined) o[k] = v;
+	};
+	if (obj(p.elements))
+		for (const el of Object.values(p.elements)) {
+			if (!obj(el)) continue;
+			if (el.kind === 'classifier' && Array.isArray(el.attributes))
+				for (const a of el.attributes)
+					if (obj(a)) {
+						def(a, 'isOrdered', false);
+						def(a, 'isUnique', false);
+						def(a, 'isID', false);
+					}
+			if (el.kind === 'relationship')
+				for (const e of [el.sourceEnd, el.targetEnd])
+					if (obj(e)) {
+						def(e, 'isOrdered', false);
+						def(e, 'isUnique', false);
+					}
+		}
+	if (Array.isArray(p.unknown)) p.unknown.forEach((u, i) => obj(u) && def(u, 'index', i));
+	if (Array.isArray(p.diagrams))
+		for (const d of p.diagrams)
+			if (obj(d) && obj(d.defaults))
+				for (const [k, v] of Object.entries(DEFAULT_DISPLAY_FLAGS)) def(d.defaults, k, v);
+	return json;
+}
+
 /** Older documents to the current shape. v1 is the first version; the switch is where v2 goes. */
 export function migrate(json: unknown): unknown {
 	const version =
 		typeof json === 'object' && json !== null ? (json as { version?: unknown }).version : undefined;
 	switch (version) {
 		case ASTER_VERSION:
-			return json;
+			return fill(json);
 		default:
 			throw new AsterError(
 				typeof version === 'number' && version > ASTER_VERSION

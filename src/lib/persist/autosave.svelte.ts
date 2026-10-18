@@ -226,7 +226,19 @@ export async function openSaved(id: string): Promise<boolean> {
 	let project: Project;
 	let origin = null;
 	if (record.version === 2) {
-		const parsed = parseAster(record.file);
+		let parsed: ReturnType<typeof parseAster>;
+		try {
+			parsed = parseAster(record.file);
+		} catch (e) {
+			// A record this build cannot read (board 22): say so, leave what is open alone.
+			files.notice = {
+				kind: 'failed',
+				file: record.fileName ?? t('model.untitled'),
+				message: e instanceof Error ? e.message : String(e),
+				invalid: true
+			};
+			return false;
+		}
 		project = parsed.project;
 		origin = parsed.origin ?? null;
 	} else project = record.project;

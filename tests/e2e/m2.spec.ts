@@ -111,3 +111,20 @@ test('board 15: the Diagram tab holds defaults; a class overrides them in Proper
 	await expect(node(page, 'Person').locator('[data-compartment="attribute"]')).toHaveCount(1);
 	await expect(inspector).toContainText('Follows the diagram');
 });
+
+test('a file that will not open says so on the welcome too (board 22)', async ({ page }) => {
+	await page.goto('/');
+	await expect(page.getByRole('button', { name: /New diagram/ })).toBeFocused();
+	const dt = await page.evaluateHandle(() => {
+		const dt = new DataTransfer();
+		dt.items.add(
+			new File(['{"version":1,"project":{}}'], 'broken.aster', { type: 'application/json' })
+		);
+		return dt;
+	});
+	await page.dispatchEvent('body', 'dragover', { dataTransfer: dt });
+	await page.dispatchEvent('body', 'drop', { dataTransfer: dt });
+	const notice = page.getByTestId('import-notice');
+	await expect(notice).toContainText("Couldn't open broken.aster");
+	await expect(page).toHaveURL(/\/$/); // still on the welcome
+});

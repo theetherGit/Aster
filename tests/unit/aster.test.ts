@@ -22,6 +22,36 @@ const files = readdirSync(dir)
 	.filter((f) => f.endsWith('.mdj'))
 	.sort();
 
+describe('.aster written by an earlier Aster', () => {
+	it('opens a file from before isOrdered / isUnique / isID and #source index existed', () => {
+		const json = JSON.parse(serializeAsterText(notationProject()));
+		for (const el of Object.values(json.project.elements) as Record<string, unknown>[]) {
+			if (el.kind === 'classifier')
+				for (const a of el.attributes as Record<string, unknown>[]) {
+					delete a.isOrdered;
+					delete a.isUnique;
+					delete a.isID;
+				}
+			if (el.kind === 'relationship')
+				for (const e of [el.sourceEnd, el.targetEnd] as (Record<string, unknown> | undefined)[])
+					if (e) {
+						delete e.isOrdered;
+						delete e.isUnique;
+					}
+		}
+		json.project.unknown.push({ json: {}, parentId: null, path: '#source' });
+		delete json.project.diagrams[0].defaults.wordWrap;
+		const { project } = parseAster(JSON.stringify(json));
+		const els = [...project.elements.values()];
+		const cls = els.find((e) => e.kind === 'classifier' && e.attributes.length > 0);
+		expect(cls && cls.kind === 'classifier' && cls.attributes[0].isOrdered).toBe(false);
+		const rel = els.find((e) => e.kind === 'relationship' && !!e.targetEnd);
+		expect(rel && rel.kind === 'relationship' && rel.targetEnd?.isUnique).toBe(false);
+		expect(project.unknown.at(-1)?.index).toBe(project.unknown.length - 1);
+		expect(project.diagrams[0].defaults.wordWrap).toBe(false);
+	});
+});
+
 describe('.aster round trip', () => {
 	it.each(files)('%s: parse → serializeAster → parseAster equals the project', (file) => {
 		const { project } = parseMdjText(readFileSync(new URL(file, dir), 'utf8'));
