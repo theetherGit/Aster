@@ -145,9 +145,6 @@
 	.glyph path {
 		fill: var(--chrome-surface);
 	}
-	:global([data-highlighted]) .glyph path {
-		fill: var(--accent);
-	}
 	.glyph path.filled {
 		fill: currentColor;
 	}

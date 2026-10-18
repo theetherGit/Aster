@@ -24,19 +24,23 @@ test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, ‚å
 
 	await page.keyboard.press('ArrowDown');
 	await expect(items.nth(1)).toBeFocused();
+	await expect(items.nth(1)).toHaveAttribute('aria-expanded', 'true'); // the open diagram
 	await page.keyboard.press('ArrowDown');
 	const account = items.nth(2);
 	await expect(account).toBeFocused();
+	await expect(account).toHaveAttribute('aria-level', '3');
 	await expect(account).toHaveAttribute('aria-expanded', 'false');
-	await expect(account).toHaveAttribute('aria-posinset', '2');
-	await expect(account).toHaveAttribute('aria-setsize', '3');
+	await expect(account).toHaveAttribute('aria-posinset', '1');
+	await expect(account).toHaveAttribute('aria-setsize', '2');
+	await expect(account).toHaveText(/abstract/); // board 01: the hint says what the name does not
+	await expect(items.last()).not.toHaveText(/Class/);
 
 	await page.keyboard.press('ArrowRight');
 	await expect(account).toHaveAttribute('aria-expanded', 'true');
 	await expect(account).toBeFocused();
 	await page.keyboard.press('ArrowRight');
 	await expect(items.nth(3)).toBeFocused();
-	await expect(items.nth(3)).toHaveAttribute('aria-level', '3');
+	await expect(items.nth(3)).toHaveAttribute('aria-level', '4');
 	await expect(items.nth(3)).toHaveText(/# \{static\} attribute0: String/);
 	await page.keyboard.press('ArrowLeft');
 	await expect(account).toBeFocused();

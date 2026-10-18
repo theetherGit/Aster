@@ -127,8 +127,7 @@
 		border-radius: 50%;
 		background: var(--accent);
 	}
-	.classifier-node:hover :global(.uml-handle),
-	.classifier-node.selected :global(.uml-handle) {
+	.classifier-node:hover :global(.uml-handle) {
 		opacity: 1;
 	}
 	.classifier-node :global(.uml-handle.svelte-flow__handle-top) {
@@ -171,11 +170,14 @@
 		height: 22px;
 		text-align: center;
 	}
+	/* Board 01/13: hollow 6 px corner handles. */
 	.handle {
 		position: absolute;
-		width: 6px;
-		height: 6px;
-		background: var(--accent);
+		box-sizing: border-box;
+		width: 7px;
+		height: 7px;
+		background: var(--paper-bg);
+		border: 1.5px solid var(--accent);
 	}
 	.handle.tl {
 		top: -4px;

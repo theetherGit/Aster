@@ -100,8 +100,8 @@
 <style>
 	.footer {
 		position: absolute;
-		bottom: 10px;
-		left: 14px;
+		bottom: 18px;
+		left: 22px;
 		z-index: 5;
 		font-size: 12px;
 		color: var(--chrome-muted);

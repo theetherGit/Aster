@@ -26,7 +26,7 @@
 <Toolbar.Root
 	orientation="vertical"
 	aria-label={t('ui.toolbox')}
-	class="absolute top-3 left-3 z-10 rounded-[10px] border border-chrome-border bg-chrome-bg p-1 shadow-lg"
+	class="absolute top-3 left-3 z-10 rounded-[10px] border border-chrome-border bg-chrome-bg p-1.5 shadow-lg"
 >
 	<Toolbar.Group
 		type="single"
@@ -40,7 +40,7 @@
 				disabled={!tool.ready}
 				aria-label={label(tool)}
 				title={tool.ready ? label(tool) : t('ui.comingSoon')}
-				class="flex h-8 w-8 items-center justify-center rounded-control text-[13px] font-semibold text-chrome-text hover:bg-chrome-surface disabled:opacity-40 data-[state=on]:bg-accent data-[state=on]:text-on-accent"
+				class="flex h-8 w-8 items-center justify-center rounded-control text-[13px] font-semibold text-chrome-text hover:bg-chrome-surface disabled:opacity-40 data-[state=on]:bg-accent/15 data-[state=on]:text-accent"
 			>
 				<svg
 					width="16"

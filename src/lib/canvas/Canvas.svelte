@@ -209,6 +209,7 @@
 		nodesFocusable={false}
 		edgesFocusable={false}
 		disableKeyboardA11y
+		proOptions={{ hideAttribution: true }}
 		connectionMode={ConnectionMode.Loose}
 		connectionLineType={ConnectionLineType.Straight}
 		onbeforeconnect={() => false}

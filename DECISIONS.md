@@ -115,3 +115,10 @@ One line per deviation from `docs/spec/`, with the reason, added in the same cha
 - 2026-10-18 · open · the drop target is the whole window, with board 21's centred card; the file's name is not shown while dragging and the "stays in Recent" line waits for persistence · browsers reveal the name only on drop.
 - 2026-10-18 · shell · the footer shows the active diagram's classifier and relationship counts; the autosave time joins it with persistence · board 01.
 - 2026-10-18 · shell · toolbox buttons use the board's icons instead of letters · board 01.
+- 2026-10-18 · shell · top bar per board 01: app mark, project name without a chevron until hover, underline diagram tabs, bordered undo/redo, zoom and Export groups; the "+" new-diagram tab and the unsaved dot wait for Day 5 (new diagram, persistence) · board 01.
+- 2026-10-18 · shell · the Explorer toggle button leaves the top bar; the Explorer opens from the project menu or ⌘B and closes from its header's ⌘B button · board 01 has no toggle button, and the menu item keeps a pointer path.
+- 2026-10-18 · shell · the active tool, menu highlights and the picker's highlighted row are an accent tint, not solid accent · board 01 and 05.
+- 2026-10-18 · canvas · selection corner handles are hollow (paper fill, accent border); the four connection dots show on hover only · boards 01 and 13.
+- 2026-10-18 · canvas · the Svelte Flow attribution badge is hidden (MIT licence, credit in README) · no board shows it.
+- 2026-10-18 · explorer · classifiers and packages sit under each diagram that shows them, so a classifier on two diagrams has two rows; elements on no diagram sit under the project; the open diagram starts expanded · features.md's "diagrams → packages → classifiers" and board 01, replacing the flat list.
+- 2026-10-18 · explorer · the kind hint shows only when the name does not say it (abstract, interface, enum, data type, primitive); abstract names are italic · board 01.

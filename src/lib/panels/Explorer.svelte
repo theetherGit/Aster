@@ -5,18 +5,32 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import { ROOT, buildRows, parentIndex, rowIdFor, typeAheadIndex } from './tree.ts';
+	import { ui } from '#lib/stores/ui.svelte.ts';
+	import {
+		ROOT,
+		buildRows,
+		diagramRowId,
+		parentIndex,
+		rowIdFor,
+		typeAheadIndex,
+		type TreeRow
+	} from './tree.ts';
 
 	// Read-only tree (editing from the tree is M2). role="tree" with a roving tabindex and
 	// the ARIA Authoring Practices keyboard. Hand-built: no primitive fits it.
-	const expanded = new SvelteSet<string>([ROOT]);
+	// Board 01: the project and the open diagram start expanded.
+	const expanded = new SvelteSet<string>([ROOT, diagramRowId(projectStore.activeDiagramId)]);
 	let focusedId = $state(ROOT);
 	let treeEl: HTMLUListElement;
 	let buffer = '';
 	let bufferTimer = 0;
 
 	const rows = $derived(buildRows(projectStore.project, expanded));
-	const selectedRowId = $derived(selection.size === 1 ? rowIdFor(selection.list[0]) : null);
+	// The selected element's row in the open diagram (or under the project when unplaced).
+	const selectedId = $derived(selection.size === 1 ? selection.list[0] : null);
+	const isSelectedRow = (row: TreeRow) =>
+		row.elementId === selectedId &&
+		(!row.diagramId || row.diagramId === projectStore.activeDiagramId);
 	const focusedIndex = $derived(
 		Math.max(
 			0,
@@ -94,9 +108,13 @@
 	$effect(() => {
 		explorerFocus.reveal = (id) => {
 			expanded.add(ROOT);
+			const did = projectStore.activeDiagramId;
+			const onDiagram = id ? projectStore.diagram.elementIds.includes(id) : false;
+			const scope = onDiagram ? did : undefined;
+			if (onDiagram) expanded.add(diagramRowId(did));
 			const el = id ? projectStore.project.elements.get(id) : undefined;
-			if (el?.kind === 'relationship') expanded.add(rowIdFor(el.sourceId));
-			focusRow(id ? rowIdFor(id) : ROOT);
+			if (el?.kind === 'relationship') expanded.add(rowIdFor(el.sourceId, scope));
+			focusRow(id ? rowIdFor(id, scope) : ROOT);
 		};
 		if (explorerFocus.pending) {
 			const id = explorerFocus.pending;
@@ -113,9 +131,18 @@
 	aria-label={t('explorer.title')}
 	class="flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface"
 >
-	<h2 class="px-3 pt-3 pb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
-		{t('explorer.title')}
-	</h2>
+	<div class="flex items-center justify-between pr-2 pl-4">
+		<h2 class="py-3 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
+			{t('explorer.title')}
+		</h2>
+		<button
+			type="button"
+			class="icon-btn w-auto px-1.5 text-[11px] text-chrome-muted"
+			aria-label={t('explorer.hide')}
+			title={t('explorer.hide')}
+			onclick={() => (ui.panels.outline = false)}>{t('explorer.shortcut')}</button
+		>
+	</div>
 	<ul role="tree" aria-label={t('explorer.tree')} bind:this={treeEl} class="pb-3" {onkeydown}>
 		{#each rows as row, i (row.id)}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -126,10 +153,10 @@
 				aria-setsize={row.setsize}
 				aria-posinset={row.posinset}
 				aria-expanded={row.hasChildren ? row.expanded : undefined}
-				aria-selected={row.id === selectedRowId}
+				aria-selected={isSelectedRow(row)}
 				tabindex={row.id === focusedId ? 0 : -1}
-				class="row flex h-7 items-center gap-1 pr-2 text-chrome-text aria-selected:bg-accent/10"
-				style:padding-left="{(row.level - 1) * 14 + 6}px"
+				class="row flex h-7 items-center gap-1 pr-3 text-chrome-text aria-selected:bg-accent/10 aria-selected:shadow-[inset_3px_0_0_var(--accent)]"
+				style:padding-left="{(row.level - 1) * 12 + 4}px"
 				onclick={() => onclick(i)}
 				ondblclick={() => {
 					if (row.elementId) canvasFocus.focus();
@@ -140,7 +167,7 @@
 						type="button"
 						tabindex="-1"
 						aria-hidden="true"
-						class="flex h-6 w-6 shrink-0 items-center justify-center rounded-control text-chrome-muted hover:bg-chrome-bg"
+						class="flex h-6 w-5 shrink-0 items-center justify-center rounded-control text-chrome-muted hover:bg-chrome-bg"
 						onclick={(e) => {
 							e.stopPropagation();
 							toggle(i);
@@ -155,10 +182,10 @@
 						>
 					</button>
 				{:else}
-					<span class="w-6 shrink-0"></span>
+					<span class="w-5 shrink-0"></span>
 				{/if}
-				<span class="truncate">{row.label}</span>
-				{#if row.hint}<span class="ml-auto shrink-0 text-[11px] text-chrome-muted">{row.hint}</span
+				<span class="truncate" class:italic={row.italic}>{row.label}</span>
+				{#if row.hint}<span class="ml-2 shrink-0 text-[12px] text-chrome-muted">{row.hint}</span
 					>{/if}
 			</li>
 		{/each}

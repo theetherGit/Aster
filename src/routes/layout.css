@@ -121,8 +121,7 @@ body {
 	cursor: default;
 }
 .menu-item[data-highlighted] {
-	background: var(--accent);
-	color: var(--on-accent);
+	background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 .tab {
 	height: 32px;
