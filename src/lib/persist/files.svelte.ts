@@ -57,18 +57,25 @@ export async function pickFile(): Promise<OpenedFile | null> {
 		}
 	}
 	return new Promise((resolve) => {
+		// Attached while the chooser is open: a detached input has nothing keeping it alive.
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.mdj,application/json';
+		input.hidden = true;
+		document.body.append(input);
+		const done = (file: OpenedFile | null) => {
+			input.remove();
+			resolve(file);
+		};
 		input.addEventListener(
 			'change',
 			async () => {
 				const f = input.files?.[0];
-				resolve(f ? { name: f.name, data: await f.arrayBuffer() } : null);
+				done(f ? { name: f.name, data: await f.arrayBuffer() } : null);
 			},
 			{ once: true }
 		);
-		input.addEventListener('cancel', () => resolve(null), { once: true });
+		input.addEventListener('cancel', () => done(null), { once: true });
 		input.click();
 	});
 }

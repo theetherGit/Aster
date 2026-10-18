@@ -6,7 +6,7 @@ export default defineConfig({
 	// CI never writes a missing baseline: record it with the "Linux visual baselines" workflow.
 	updateSnapshots: process.env.CI ? 'none' : 'missing',
 	// Unhinted text in the test browser, so glyph advances (and so layout) match across platforms.
-	use: { launchOptions: { args: ['--font-render-hinting=none'] } },
+	use: { launchOptions: { args: ['--font-render-hinting=none'] }, trace: 'retain-on-failure' },
 	webServer: {
 		command: 'pnpm build && pnpm preview',
 		port: 4173,
