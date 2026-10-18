@@ -76,10 +76,21 @@
 		return { x: Math.round(p.x), y: Math.round(p.y) };
 	}
 
-	/** Paper position under the pointer, or the viewport centre when the pointer is elsewhere. */
+	/**
+	 * Paper position under the pointer, or the viewport centre when the pointer is elsewhere.
+	 * The pointer is tracked on the window and tested against the canvas rectangle: an overlay
+	 * (a menu, a dialog) opening under the mouse must not make the canvas forget where it was.
+	 */
 	function cursorPosition() {
-		if (pointer) return toPaper(pointer);
 		const r = el.getBoundingClientRect();
+		if (
+			pointer &&
+			pointer.x >= r.left &&
+			pointer.x <= r.right &&
+			pointer.y >= r.top &&
+			pointer.y <= r.bottom
+		)
+			return toPaper(pointer);
 		return toPaper({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
 	}
 
@@ -90,13 +101,20 @@
 			? { x: n.internals.positionAbsolute.x, y: n.internals.positionAbsolute.y, w, h }
 			: null;
 	};
-	/** Rendered rectangles of the nodes on the diagram, for keyboard targeting. */
+	/**
+	 * Rectangles of the nodes on the diagram, for keyboard targeting, placement and export: as
+	 * rendered, or from the layout for a node Svelte Flow has not measured yet (just created).
+	 */
 	function rects(): Map<Id, Rect> {
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- built per call, never observed
 		const out = new Map<Id, Rect>();
 		for (const n of flow.nodes) {
 			const r = rectOf(getInternalNode(n.id));
 			if (r) out.set(n.id, r);
+			else {
+				const l = layout.map.get(n.id);
+				if (l?.kind === 'node') out.set(n.id, { x: l.x, y: l.y, w: l.w, h: l.h });
+			}
 		}
 		return out;
 	}
@@ -172,6 +190,8 @@
 	});
 </script>
 
+<svelte:window onpointermove={(e) => (pointer = { x: e.clientX, y: e.clientY })} />
+
 <!-- One Tab stop for the whole diagram (docs/spec/keyboard.md, accessibility.md): a focusable
      role="application" region whose keys the app routes. Not a fake button, so the
      non-interactive-element warnings do not apply. -->
@@ -190,8 +210,6 @@
 			rects,
 			openPicker
 		})}
-	onpointermove={(e) => (pointer = { x: e.clientX, y: e.clientY })}
-	onpointerleave={() => (pointer = null)}
 >
 	<Markers />
 	<SvelteFlow

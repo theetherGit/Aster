@@ -51,8 +51,11 @@ test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their 
 		await classAt(page, `S${i + 1}`, spots[i][0], spots[i][1]);
 		await page.keyboard.press('l');
 		await expect(linkHint(page)).toBeVisible();
-		for (let k = 0; k < 6 && !(await hubTargeted()); k++) await page.keyboard.press('ArrowDown');
-		expect(await hubTargeted()).toBe(true);
+		for (let k = 0; k < 6 && !(await hubTargeted()); k++) {
+			await page.keyboard.press('ArrowDown');
+			await page.waitForTimeout(30); // let the highlight render before reading it
+		}
+		await expect(node(page, 'Hub')).toHaveClass(/link-target/);
 		await page.keyboard.press('Enter');
 		await expect(picker(page)).toBeVisible();
 		await expect(picker(page).getByRole('menuitem')).toHaveCount(6);

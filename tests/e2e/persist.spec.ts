@@ -53,7 +53,7 @@ test('autosave: close mid-edit and reopen loses nothing, undo history included',
 	await expect(node(page, 'Book')).toHaveCount(0);
 });
 
-test('⌘S downloads a .mdj when there is no file handle; the save states follow', async ({
+test('⌘S downloads the native .aster for an Aster-born project; the save states follow', async ({
 	page
 }) => {
 	await page.goto('/');
@@ -67,21 +67,98 @@ test('⌘S downloads a .mdj when there is no file handle; the save states follow
 	const download = page.waitForEvent('download');
 	await page.keyboard.press('ControlOrMeta+s');
 	const d = await download;
-	expect(d.suggestedFilename()).toBe('library.mdj');
+	expect(d.suggestedFilename()).toBe('library.aster');
 	const json = JSON.parse((await downloadText(d)).toString('utf8'));
-	expect(json._type).toBe('Project');
-	expect(json.name).toBe('Library');
-	const classes = JSON.stringify(json).match(/"_type":"UMLClass"/g) ?? [];
-	expect(classes.length).toBe(3); // Account, Customer, Book
+	expect(json.$schema).toBe('https://asteruml.app/schema/v1.json');
+	expect(json.version).toBe(1);
+	expect(json.project.name).toBe('Library');
+	expect(Object.keys(json.project.elements)).toHaveLength(3); // Account, Customer, Book
+	expect(json.origin).toBeUndefined();
 
 	// Saved: no dot, the file name in the footer and the title.
 	await expect(page.getByTestId('save-state')).toHaveCount(0);
-	await expect(page).toHaveTitle('library.mdj – Aster');
-	await expect(page.getByTitle('Copy the file name')).toHaveText('library.mdj');
+	await expect(page).toHaveTitle('library.aster – Aster');
+	await expect(page.getByTitle('Copy the file name')).toHaveText('library.aster');
 	// Unsaved: an edit brings the accent dot and the bullet in the title.
 	await page.keyboard.press('Delete');
 	await expect(page.getByTestId('save-state')).toHaveAttribute('data-state', 'unsaved');
-	await expect(page).toHaveTitle('library.mdj • – Aster');
+	await expect(page).toHaveTitle('library.aster • – Aster');
+
+	// The export sheet's .mdj row is a plain download and leaves the file alone.
+	await page.keyboard.press('ControlOrMeta+Shift+e');
+	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('radio', { name: '.mdj' }).click();
+	await expect(sheet.getByTestId('export-name')).toHaveText('library.mdj');
+	const mdj = page.waitForEvent('download');
+	await sheet.getByRole('button', { name: 'Download' }).click();
+	const mdjJson = JSON.parse((await downloadText(await mdj)).toString('utf8'));
+	expect(mdjJson._type).toBe('Project');
+	// ⌫ removed Book from the diagram only (keyboard.md): the model still has three classes.
+	expect((JSON.stringify(mdjJson).match(/"_type":"UMLClass"/g) ?? []).length).toBe(3);
+	await expect(page).toHaveTitle('library.aster • – Aster');
+});
+
+test('an .aster file opens by drop and round-trips the project', async ({ page }) => {
+	await page.goto('/?fixture=notation');
+	await expect(page.locator('.uml-edge')).toHaveCount(8);
+	await page.keyboard.press('ControlOrMeta+Shift+e');
+	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('radio', { name: '.aster' }).click();
+	const download = page.waitForEvent('download');
+	await sheet.getByRole('button', { name: 'Download' }).click();
+	const text = (await downloadText(await download)).toString('utf8');
+	await page.keyboard.press('Escape');
+
+	await page.goto('/');
+	await expect(canvasOf(page)).toBeFocused();
+	await drop(page, 'notation-copy.aster', text);
+	await expect(page).toHaveTitle('notation-copy.aster – Aster');
+	await expect(page.locator('.classifier-node')).toHaveCount(8);
+	await expect(page.locator('.uml-edge')).toHaveCount(8);
+	await expect(page.getByTestId('project-name')).toHaveText('UML notation');
+
+	// Strict validation reports the path, not a stack trace (board 22).
+	await drop(
+		page,
+		'bad.aster',
+		'{"version":1,"project":{"id":"x","name":"y","elements":{},"diagrams":[],"unknown":[],"importedIds":[],"colour":"red"}}'
+	);
+	const notice = page.getByTestId('import-notice');
+	await expect(notice).toContainText("Couldn't open bad.aster");
+	await notice.getByRole('button', { name: 'Show details' }).click();
+	await expect(notice).toContainText('$.project.colour: unknown field');
+});
+
+test('the opened .mdj wins: the same bytes restore the autosave with its edits, changed bytes parse fresh', async ({
+	page
+}) => {
+	await page.goto('/');
+	await expect(canvasOf(page)).toBeFocused();
+	const text = readFileSync(fixture('public-vrview.mdj'), 'utf8');
+	await drop(page, 'public-vrview.mdj', text);
+	await expect(page.getByTestId('import-notice')).toContainText('Opened public-vrview.mdj');
+	await expect(page.locator('.classifier-node')).toHaveCount(2);
+	await page.mouse.move(600, 600);
+	await create(page, 'c', 'Extra');
+	await page.keyboard.press('Escape');
+	await awaitAutosave(page);
+
+	// Same bytes again: the prompt (board 20) first, then the autosave comes back, undo included.
+	await drop(page, 'public-vrview.mdj', text);
+	await page.getByRole('alertdialog').getByRole('button', { name: "Don't save" }).click();
+	await expect(page.getByTestId('import-notice')).toContainText(
+		'Opened public-vrview.mdj from this browser'
+	);
+	await expect(node(page, 'Extra')).toBeVisible();
+	await expect(page.getByRole('button', { name: /^Undo: / })).toBeEnabled();
+
+	// Changed in StarUML (any byte differs): parsed fresh, the edit is not applied over it.
+	await drop(page, 'public-vrview.mdj', text.replace('"name"', '"name" '));
+	const dialog = page.getByRole('alertdialog');
+	if (await dialog.isVisible()) await dialog.getByRole('button', { name: "Don't save" }).click();
+	await expect(page.getByTestId('import-notice')).toContainText('Opened public-vrview.mdj');
+	await expect(node(page, 'Extra')).toHaveCount(0);
+	await expect(page.locator('.classifier-node')).toHaveCount(2);
 });
 
 test('board 20: opening another file over unsaved edits asks first', async ({ page }) => {
@@ -96,7 +173,7 @@ test('board 20: opening another file over unsaved edits asks first', async ({ pa
 
 	await drop(page, 'public-vrview.mdj', readFileSync(fixture('public-vrview.mdj'), 'utf8'));
 	const dialog = page.getByRole('alertdialog');
-	await expect(dialog).toContainText('Save changes to library.mdj?');
+	await expect(dialog).toContainText('Save changes to library.aster?');
 	await expect(dialog).toContainText("You're opening public-vrview.mdj.");
 	await dialog.getByRole('button', { name: 'Cancel' }).click();
 	await expect(node(page, 'Book')).toBeVisible();

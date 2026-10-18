@@ -3,11 +3,12 @@ import { canvasRects } from '#lib/canvas/focus.ts';
 import { t } from '#lib/i18n/index.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
+import { fileText } from '#lib/persist/files.svelte.ts';
 import { copyPng, download, embeddedFontCss, svgBlob, svgToPng } from './image.ts';
 import { diagramToSvg, slug } from './svg.ts';
 
 export interface ExportOptions {
-	format: 'png' | 'svg';
+	format: 'png' | 'svg' | 'mdj' | 'aster';
 	scale: 1 | 2;
 	background: 'white' | 'transparent';
 	selectionOnly: boolean;
@@ -19,7 +20,11 @@ export const DEFAULT_EXPORT: ExportOptions = {
 	selectionOnly: false
 };
 
+export const isImage = (f: ExportOptions['format']) => f === 'png' || f === 'svg';
+
+/** Images are named after the diagram, files after the project (docs/file-format.md). */
 export function fileName(o: ExportOptions) {
+	if (!isImage(o.format)) return `${slug(projectStore.project.name)}.${o.format}`;
 	return `${slug(projectStore.diagram.name)}${o.format === 'png' && o.scale === 2 ? '@2x' : ''}.${o.format}`;
 }
 
@@ -35,6 +40,8 @@ export async function render(o: ExportOptions) {
 }
 
 export async function exportBlob(o: ExportOptions): Promise<Blob> {
+	// The file-format rows are plain downloads through the serializers; they never change files.current.
+	if (!isImage(o.format)) return new Blob([fileText(o.format)], { type: 'application/json' });
 	const r = await render(o);
 	return o.format === 'svg' ? svgBlob(r.svg) : svgToPng(r.svg, r.width, r.height, o.scale);
 }

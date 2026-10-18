@@ -1,18 +1,29 @@
 /**
- * Files: open (⌘O picker, File System Access when available, an <input type=file> otherwise;
- * drops on the window), save (⌘S back to the handle, else a download), save as (⌘⇧S), the
- * unsaved-changes guard (board 20) and the three save states (ui.md: saved, unsaved, never saved).
+ * Files (docs/file-format.md): open `.mdj`, `.aster` or `.aster.json` (⌘O picker with File System
+ * Access when available, an <input type=file> otherwise; drops on the window), save back in the
+ * format the file was opened as (⌘S to the handle, else a download), save a copy (⌘⇧S), the
+ * unsaved-changes guard (board 20) and the three save states (ui.md).
  */
+import {
+	AsterError,
+	hashBytes,
+	parseAster,
+	serializeAsterText,
+	type AsterOrigin
+} from '#lib/aster/index.ts';
 import { canvasFocus } from '#lib/canvas/focus.ts';
+import { slug } from '#lib/export/svg.ts';
 import { t } from '#lib/i18n/index.ts';
 import { MdjError, type ParseReport } from '#lib/mdj/parse.ts';
 import { serializeMdjText } from '#lib/mdj/serialize.ts';
 import { parseInWorker } from '#lib/mdj/worker.ts';
-import { slug } from '#lib/export/svg.ts';
 import { createDiagram, createProject } from '#lib/model/project.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
+import { findBySourceHash, openSaved } from './autosave.svelte.ts';
+
+export type FileFormat = 'mdj' | 'aster';
 
 export interface OpenedFile {
 	name: string;
@@ -23,6 +34,7 @@ export interface OpenedFile {
 export type ImportNotice =
 	| { kind: 'opening'; file: string }
 	| { kind: 'opened'; file: string; report: ParseReport }
+	| { kind: 'restored'; file: string }
 	| { kind: 'failed'; file: string; message: string; invalid: boolean };
 
 /** Board 20: what the user was about to do when the prompt opened. */
@@ -35,8 +47,11 @@ export interface PendingAction {
 class Files {
 	notice: ImportNotice | null = $state(null);
 	dragging = $state(false);
-	/** The file this project lives in, when it has one. */
-	current: { name: string; handle?: FileSystemFileHandle } | null = $state(null);
+	/** The file this project lives in, when it has one, and the format ⌘S writes. */
+	current: { name: string; format: FileFormat; handle?: FileSystemFileHandle } | null =
+		$state(null);
+	/** For an mdj-born project: the hash of the .mdj bytes last read or written. */
+	origin: AsterOrigin | null = $state(null);
 	/** projectStore.version when the file was last written. */
 	savedVersion = $state(0);
 	lastSavedAt: number | null = $state(null);
@@ -58,8 +73,12 @@ class Files {
 
 export const files = new Files();
 
-const ACCEPT = { 'application/json': ['.mdj'] };
-const TYPES = [{ description: 'StarUML model', accept: ACCEPT }];
+const TYPES = [
+	{ description: 'Aster project', accept: { 'application/json': ['.aster', '.aster.json'] } },
+	{ description: 'StarUML model', accept: { 'application/json': ['.mdj'] } }
+];
+export const formatOf = (name: string): FileFormat =>
+	/\.aster(\.json)?$/i.test(name) ? 'aster' : 'mdj';
 
 /** ⌘O: ask for a file. Resolves to null when the user cancels. */
 export async function pickFile(): Promise<OpenedFile | null> {
@@ -77,7 +96,7 @@ export async function pickFile(): Promise<OpenedFile | null> {
 		// Attached while the chooser is open: a detached input has nothing keeping it alive.
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.accept = '.mdj,application/json';
+		input.accept = '.mdj,.aster,.aster.json,application/json';
 		input.hidden = true;
 		document.body.append(input);
 		const done = (file: OpenedFile | null) => {
@@ -106,24 +125,42 @@ function startFresh() {
 	selection.clear();
 }
 
-/** Parse in the worker, then make the result the open project; the notice shows the report. */
+/** Open a file: `.aster` validates and loads; `.mdj` restores its autosave on a hash match, else parses. */
 export async function openFile(f: OpenedFile) {
 	files.notice = { kind: 'opening', file: f.name };
+	const format = formatOf(f.name);
 	try {
-		const result = await parseInWorker(f.data);
-		startFresh();
-		projectStore.load(result.project, result.openDiagramId);
-		files.current = { name: f.name, handle: f.handle };
+		if (format === 'aster') {
+			const { project, origin } = parseAster(new TextDecoder('utf-8').decode(f.data));
+			startFresh();
+			projectStore.load(project);
+			files.origin = origin ?? null;
+			files.notice = null;
+		} else {
+			// The opened file wins: an autosave made from these exact bytes carries the edits
+			// (and undo history) since; a file changed in StarUML never matches.
+			const sourceHash = await hashBytes(f.data);
+			const saved = findBySourceHash(sourceHash);
+			if (saved && (await openSaved(saved.id))) {
+				files.notice = { kind: 'restored', file: f.name };
+			} else {
+				const result = await parseInWorker(f.data);
+				startFresh();
+				projectStore.load(result.project, result.openDiagramId);
+				files.origin = { kind: 'staruml', sourceHash, fileName: f.name };
+				files.notice = { kind: 'opened', file: f.name, report: result.report };
+			}
+		}
+		files.current = { name: f.name, format, handle: f.handle };
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = null;
 		files.bannerDismissed = false;
-		files.notice = { kind: 'opened', file: f.name, report: result.report };
 	} catch (e) {
 		files.notice = {
 			kind: 'failed',
 			file: f.name,
 			message: e instanceof Error ? e.message : String(e),
-			invalid: e instanceof MdjError
+			invalid: e instanceof MdjError || e instanceof AsterError
 		};
 	} finally {
 		canvasFocus.focus();
@@ -171,6 +208,7 @@ export function newProject(): Promise<void> {
 		startFresh();
 		projectStore.load(project);
 		files.current = null;
+		files.origin = null;
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = null;
 		files.bannerDismissed = false;
@@ -179,46 +217,67 @@ export function newProject(): Promise<void> {
 	});
 }
 
-const suggestedName = () => files.current?.name ?? `${slug(projectStore.project.name)}.mdj`;
+/** The text of the project in a format. */
+export const fileText = (format: FileFormat) =>
+	format === 'mdj'
+		? serializeMdjText(projectStore.project)
+		: serializeAsterText(projectStore.project, files.origin ?? undefined);
 
-/** ⌘S writes back to the opened handle; ⌘⇧S (or no handle) asks where, or downloads. */
+const suggestedName = (format: FileFormat) =>
+	files.current?.format === format
+		? files.current.name
+		: `${slug(projectStore.project.name)}.${format}`;
+
+/**
+ * ⌘S writes back in the format the file was opened as (an Aster-born project writes `.aster`);
+ * ⌘⇧S or no handle asks where, either format, or downloads. A written `.mdj` becomes the origin.
+ */
 export async function saveFile(as = false): Promise<boolean> {
 	if (files.saving) return false;
 	files.saving = true;
 	try {
-		const text = serializeMdjText(projectStore.project);
+		let format: FileFormat = files.current?.format ?? 'aster';
 		let handle = as ? undefined : files.current?.handle;
 		if (!handle && window.showSaveFilePicker) {
 			try {
-				handle = await window.showSaveFilePicker({ suggestedName: suggestedName(), types: TYPES });
+				handle = await window.showSaveFilePicker({
+					suggestedName: suggestedName(format),
+					types: format === 'aster' ? TYPES : [TYPES[1], TYPES[0]]
+				});
+				format = formatOf(handle.name);
 			} catch (e) {
 				if (e instanceof DOMException && e.name === 'AbortError') return false;
 				throw e;
 			}
 		}
+		const text = fileText(format);
+		let name: string;
 		if (handle) {
 			const w = await handle.createWritable();
 			await w.write(text);
 			await w.close();
-			files.current = { name: handle.name, handle };
+			name = handle.name;
 		} else {
+			name = suggestedName(format);
 			const a = document.createElement('a');
 			a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-			a.download = suggestedName();
+			a.download = name;
 			a.hidden = true;
 			document.body.append(a);
 			a.click();
 			a.remove();
 			setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-			files.current = { name: a.download };
 		}
+		if (format === 'mdj')
+			files.origin = { kind: 'staruml', sourceHash: await hashBytes(text), fileName: name };
+		files.current = { name, format, handle };
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = Date.now();
 		return true;
 	} catch (e) {
 		files.notice = {
 			kind: 'failed',
-			file: suggestedName(),
+			file: files.current?.name ?? '',
 			message: e instanceof Error ? e.message : String(e),
 			invalid: false
 		};

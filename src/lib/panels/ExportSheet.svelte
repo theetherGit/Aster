@@ -6,6 +6,7 @@
 		copyDiagramAsPng,
 		downloadExport,
 		fileName,
+		isImage,
 		render,
 		type ExportOptions
 	} from '#lib/export/actions.ts';
@@ -30,6 +31,10 @@
 		void projectStore.version;
 		const o = $state.snapshot(options);
 		let live = true;
+		if (!isImage(o.format)) {
+			preview = null;
+			return;
+		}
 		render(o).then((r) => {
 			if (!live) return;
 			const px = r.width * r.height * o.scale * o.scale;
@@ -83,6 +88,8 @@
 				>
 					<ToggleGroup.Item value="png" class="segment-item">PNG</ToggleGroup.Item>
 					<ToggleGroup.Item value="svg" class="segment-item">SVG</ToggleGroup.Item>
+					<ToggleGroup.Item value="mdj" class="segment-item">.mdj</ToggleGroup.Item>
+					<ToggleGroup.Item value="aster" class="segment-item">.aster</ToggleGroup.Item>
 				</ToggleGroup.Root>
 				<ToggleGroup.Root
 					type="single"
@@ -90,14 +97,14 @@
 					onValueChange={(v: string) => v && (options.scale = Number(v) as ExportOptions['scale'])}
 					aria-label={t('export.scale')}
 					class="segment"
-					disabled={options.format === 'svg'}
+					disabled={options.format !== 'png'}
 				>
 					<ToggleGroup.Item value="1" class="segment-item">1×</ToggleGroup.Item>
 					<ToggleGroup.Item value="2" class="segment-item">2×</ToggleGroup.Item>
 				</ToggleGroup.Root>
 			</div>
 
-			<fieldset class="mt-4 flex flex-col gap-2">
+			<fieldset class="mt-4 flex flex-col gap-2" disabled={!isImage(options.format)}>
 				<label class="flex items-center gap-2"
 					><input type="radio" name="bg" value="white" bind:group={options.background} />{t(
 						'export.white'
@@ -123,7 +130,7 @@
 				class="mt-4 flex items-center justify-between gap-3 rounded-control border border-chrome-border bg-chrome-bg px-3 py-2 text-[12px]"
 			>
 				<span class="truncate font-mono" data-testid="export-name">{fileName(options)}</span>
-				{#if preview}
+				{#if preview && isImage(options.format)}
 					<span class="shrink-0 text-chrome-muted"
 						>{t('export.size', {
 							width: fmt(preview.width),
@@ -138,7 +145,7 @@
 				<button
 					type="button"
 					class="h-8 rounded-control border border-chrome-border px-3 hover:bg-chrome-bg disabled:opacity-50"
-					disabled={busy}
+					disabled={busy || !isImage(options.format)}
 					onclick={() =>
 						run(async (o) => {
 							copied = await copyDiagramAsPng(o);

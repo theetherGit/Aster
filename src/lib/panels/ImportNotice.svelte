@@ -101,6 +101,8 @@
 					{t('import.opening', { file: notice.file })}
 				{:else if notice.kind === 'opened'}
 					{t('import.opened', { file: notice.file })}
+				{:else if notice.kind === 'restored'}
+					{t('import.restored', { file: notice.file })}
 				{:else}
 					{t('import.failed', { file: notice.file })}
 				{/if}
@@ -149,6 +151,8 @@
 					>
 				</Collapsible.Root>
 			</div>
+		{:else if notice.kind === 'restored'}
+			<p class="body">{t('import.restoredBody')}</p>
 		{:else if notice.kind === 'opened'}
 			{@const r = notice.report}
 			{@const kept = keptSentence(r)}

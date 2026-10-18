@@ -275,6 +275,8 @@
 	"import.failedOther": "It couldn't be read, so nothing was loaded. {project} is unchanged.",
 	"import.chooseAnother": "Choose another file…",
 	"import.showDetails": "Show details",
+	"import.restored": "Opened {file} from this browser",
+	"import.restoredBody": "This file was opened here before and nothing changed it since, so your edits and undo history came back with it.",
 	"file.dropTitle": "Drop to open",
 	"file.dropHint": "A StarUML .mdj file",
 	"model.untitled": "Untitled",
