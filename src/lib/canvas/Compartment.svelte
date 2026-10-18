@@ -37,6 +37,7 @@
 	{#each members as m, i (m.id)}
 		<li
 			class="member"
+			class:editing={editing === i}
 			class:static={'isStatic' in m && m.isStatic}
 			class:raw={'raw' in m && m.raw !== undefined}
 			class:abstract={'isAbstract' in m && m.isAbstract}
@@ -59,7 +60,7 @@
 		</li>
 	{/each}
 	{#if editing !== null && editing >= members.length}
-		<li class="member">
+		<li class="member editing">
 			{#key editing}
 				<LineEditor
 					id={classifierId}
@@ -73,7 +74,12 @@
 	{/if}
 </ul>
 {#if summary}
-	<div class="chip nodrag nopan" class:warn={!summary.ok} role="status">{summary.text}</div>
+	<!-- Board 04: parse state, then the keys that matter right now. -->
+	<div class="chip nodrag nopan" class:warn={!summary.ok}>
+		<span class="dot" aria-hidden="true"></span>
+		<span class="chip-summary" role="status">{summary.parts.join(t('member.summary.join'))}</span>
+		<span class="chip-hint">{t(`member.hints.${kind}`)}</span>
+	</div>
 {/if}
 
 <style>
@@ -90,6 +96,12 @@
 	.member {
 		height: 20px;
 	}
+	/* The open line is a full-width accent band (ui.md selection tint); no border on the input. */
+	.member.editing {
+		margin: 0 -10px;
+		padding: 0 10px;
+		background: color-mix(in srgb, var(--accent) 8%, transparent);
+	}
 	.member.static {
 		text-decoration: underline;
 	}
@@ -104,21 +116,36 @@
 	/* Parse summary chip under the node while a line is open (board 04). */
 	.chip {
 		position: absolute;
-		top: calc(100% + 6px);
+		top: calc(100% + 10px);
 		left: 0;
-		max-width: 320px;
-		padding: 2px 8px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		height: 30px;
+		padding: 0 12px 0 10px;
 		font-family: var(--font-sans);
-		font-size: 11px;
-		line-height: 16px;
-		white-space: normal;
+		font-size: 12px;
+		white-space: nowrap;
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-radius: 4px;
-		box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+		border-radius: 6px;
+		box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
 	}
-	.chip.warn {
-		border-color: var(--warning);
+	.dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: #3fb950;
+	}
+	.chip.warn .dot {
+		background: var(--warning);
+	}
+	.chip-summary {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	}
+	.chip-hint {
+		margin-left: 4px;
+		color: var(--chrome-muted);
 	}
 </style>

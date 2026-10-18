@@ -1,34 +1,33 @@
 import { t } from '#lib/i18n/index.ts';
 import { isRaw, parseMember, type MemberKind } from '#lib/mdj/expression.ts';
 
-/** One line describing how a member line parses, for the status chip under the node. */
-export function summarise(kind: MemberKind, text: string): { ok: boolean; text: string } {
+/**
+ * Board 04: the chip under a node while a line is open. Short segments joined with " · "
+ * (visibility, type, default, flags), green when the line parses and amber when it is kept
+ * as text.
+ */
+export function summarise(kind: MemberKind, text: string): { ok: boolean; parts: string[] } {
 	const p = parseMember(kind, text);
-	if (isRaw(p)) return { ok: false, text: t('member.summary.raw') };
-	if (kind === 'literal') return { ok: true, text: t('member.summary.literal', { name: p.name }) };
-	const flags: string[] = [];
-	if ('isStatic' in p && p.isStatic) flags.push(t('member.flag.static'));
-	if ('isAbstract' in p && p.isAbstract) flags.push(t('member.flag.abstract'));
-	if ('isDerived' in p && p.isDerived) flags.push(t('member.flag.derived'));
-	if ('isReadOnly' in p && p.isReadOnly) flags.push(t('member.flag.readOnly'));
-	if ('isQuery' in p && p.isQuery) flags.push(t('member.flag.query'));
-	const flagText = flags.length ? `, ${flags.join(', ')}` : '';
-	const vis = t(`vis.${(p as { visibility: 'public' }).visibility}`);
-	if (kind === 'attribute' && 'isReadOnly' in p) {
-		const type = p.type ? t('member.summary.typed', { type: p.type }) : '';
-		return {
-			ok: true,
-			text: t('member.summary.attribute', { vis, name: p.name, type, flags: flagText })
-		};
-	}
+	if (isRaw(p)) return { ok: false, parts: [t('member.summary.raw')] };
+	if (kind === 'literal') return { ok: true, parts: [t('member.summary.literal')] };
+	const parts: string[] = [t(`vis.${(p as { visibility: 'public' }).visibility}`)];
 	if ('parameters' in p) {
-		const type = p.returnType ? t('member.summary.returns', { type: p.returnType }) : '';
-		const key =
-			p.parameters.length === 1 ? 'member.summary.params.one' : 'member.summary.operation';
-		return {
-			ok: true,
-			text: t(key, { vis, name: p.name, count: p.parameters.length, type, flags: flagText })
-		};
+		if (p.returnType) parts.push(t('member.summary.returns', { type: p.returnType }));
+		if (p.parameters.length)
+			parts.push(
+				t(p.parameters.length === 1 ? 'member.summary.params.one' : 'member.summary.params', {
+					count: p.parameters.length
+				})
+			);
+	} else if ('type' in p) {
+		if (p.type) parts.push(p.type);
+		if (p.defaultValue !== undefined)
+			parts.push(t('member.summary.default', { value: p.defaultValue }));
 	}
-	return { ok: true, text };
+	if ('isStatic' in p && p.isStatic) parts.push(t('member.flag.static'));
+	if ('isAbstract' in p && p.isAbstract) parts.push(t('member.flag.abstract'));
+	if ('isDerived' in p && p.isDerived) parts.push(t('member.flag.derived'));
+	if ('isReadOnly' in p && p.isReadOnly) parts.push(t('member.flag.readOnly'));
+	if ('isQuery' in p && p.isQuery) parts.push(t('member.flag.query'));
+	return { ok: true, parts };
 }

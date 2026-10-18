@@ -178,17 +178,19 @@
 {/if}
 
 <style>
+	/* Board 04: monospace, no box of its own; the row band around it marks the open line. */
 	:global(.line-input) {
 		box-sizing: border-box;
 		width: 100%;
 		min-width: 140px;
 		height: 20px;
-		padding: 0 4px;
+		padding: 0;
 		font: inherit;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 		color: inherit;
-		background: var(--paper-fill);
-		border: 1px solid var(--accent);
-		border-radius: 2px;
+		background: transparent;
+		border: none;
+		border-radius: 0;
 		outline: none;
 	}
 </style>

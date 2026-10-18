@@ -168,7 +168,9 @@
 	}
 	.name-row :global(.line-input) {
 		height: 22px;
+		padding: 0 4px;
 		text-align: center;
+		background: color-mix(in srgb, var(--accent) 8%, transparent);
 	}
 	/* Board 01/13: hollow 6 px corner handles. */
 	.handle {

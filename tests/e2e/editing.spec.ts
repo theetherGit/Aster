@@ -20,7 +20,7 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 
 	await create(page, 'c', 'Book');
 	await typeInto(page, attr, '- isbn: String');
-	await expect(page.getByRole('status')).toHaveText('private attribute isbn of type String');
+	await expect(page.getByRole('status')).toHaveText('private · String');
 	await page.keyboard.press('Enter');
 	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String']);
 	await expect(attr).toHaveValue('');
