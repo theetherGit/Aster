@@ -12,7 +12,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "+name"
+		"canonical": "+ name"
 	},
 	{
 		"kind": "attribute",
@@ -28,7 +28,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "-balance: double"
+		"canonical": "- balance: double"
 	},
 	{
 		"kind": "attribute",
@@ -44,7 +44,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "#items: List<Item>"
+		"canonical": "# items: List<Item>"
 	},
 	{
 		"kind": "attribute",
@@ -61,7 +61,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "~count: int = 0"
+		"canonical": "~ count: int = 0"
 	},
 	{
 		"kind": "attribute",
@@ -78,7 +78,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "+tags: String[*]"
+		"canonical": "+ tags: String[*]"
 	},
 	{
 		"kind": "attribute",
@@ -95,7 +95,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "-copies: Copy[1..*]"
+		"canonical": "- copies: Copy[1..*]"
 	},
 	{
 		"kind": "attribute",
@@ -112,7 +112,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "+{static} MAX_LOANS: int = 5"
+		"canonical": "+ {static} MAX_LOANS: int = 5"
 	},
 	{
 		"kind": "attribute",
@@ -128,7 +128,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "+/age: int"
+		"canonical": "+ /age: int"
 	},
 	{
 		"kind": "attribute",
@@ -144,7 +144,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "-id: UUID {readOnly}"
+		"canonical": "- id: UUID {readOnly}"
 	},
 	{
 		"kind": "attribute",
@@ -161,7 +161,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "<<key>> -isbn: String"
+		"canonical": "<<key>> - isbn: String"
 	},
 	{
 		"kind": "attribute",
@@ -178,7 +178,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "+title: String = \"untitled\""
+		"canonical": "+ title: String = \"untitled\""
 	},
 	{
 		"kind": "operation",
@@ -191,7 +191,7 @@
 			"isAbstract": false,
 			"isQuery": false
 		},
-		"canonical": "+borrow()"
+		"canonical": "+ borrow()"
 	},
 	{
 		"kind": "operation",
@@ -205,7 +205,7 @@
 			"isAbstract": false,
 			"isQuery": false
 		},
-		"canonical": "+getBalance(): double"
+		"canonical": "+ getBalance(): double"
 	},
 	{
 		"kind": "operation",
@@ -231,7 +231,7 @@
 			"isAbstract": false,
 			"isQuery": false
 		},
-		"canonical": "+deposit(amount: double, note: String = \"\"): void"
+		"canonical": "+ deposit(amount: double, note: String = \"\"): void"
 	},
 	{
 		"kind": "operation",
@@ -245,7 +245,7 @@
 			"isAbstract": true,
 			"isQuery": false
 		},
-		"canonical": "+{abstract} area(): double"
+		"canonical": "+ {abstract} area(): double"
 	},
 	{
 		"kind": "operation",
@@ -265,7 +265,7 @@
 			"isAbstract": false,
 			"isQuery": false
 		},
-		"canonical": "+{static} of(value: int): Money"
+		"canonical": "+ {static} of(value: int): Money"
 	},
 	{
 		"kind": "operation",
@@ -290,7 +290,7 @@
 			"isAbstract": false,
 			"isQuery": true
 		},
-		"canonical": "-validate(out errors: List<String>, inout state: State): boolean {query}"
+		"canonical": "- validate(out errors: List<String>, inout state: State): boolean {query}"
 	},
 	{
 		"kind": "operation",
@@ -315,7 +315,7 @@
 			"isAbstract": false,
 			"isQuery": false
 		},
-		"canonical": "<<create>> +Book(isbn: String, title: String)"
+		"canonical": "<<create>> + Book(isbn: String, title: String)"
 	},
 	{
 		"kind": "literal",
@@ -349,7 +349,7 @@
 			"isUnique": false,
 			"isID": false
 		},
-		"canonical": "-copies: Copy[1..*] {ordered}"
+		"canonical": "- copies: Copy[1..*] {ordered}"
 	},
 	{
 		"kind": "attribute",
@@ -365,7 +365,7 @@
 			"isUnique": false,
 			"isID": true
 		},
-		"canonical": "+code: String {id}"
+		"canonical": "+ code: String {id}"
 	},
 	{
 		"kind": "attribute",
@@ -382,7 +382,7 @@
 			"isUnique": true,
 			"isID": false
 		},
-		"canonical": "#tags: Tag[*] {ordered, unique}"
+		"canonical": "# tags: Tag[*] {ordered, unique}"
 	},
 	{
 		"kind": "attribute",
@@ -398,7 +398,7 @@
 			"isUnique": false,
 			"isID": true
 		},
-		"canonical": "-isbn: String {readOnly, id}"
+		"canonical": "- isbn: String {readOnly, id}"
 	},
 	{
 		"kind": "attribute",
@@ -414,7 +414,7 @@
 			"isUnique": true,
 			"isID": false
 		},
-		"canonical": "+x: int {readOnly, unique}"
+		"canonical": "+ x: int {readOnly, unique}"
 	},
 	{
 		"kind": "attribute",

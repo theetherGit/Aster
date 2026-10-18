@@ -43,7 +43,7 @@ describe('explorer tree rows', () => {
 			level: 3,
 			posinset: 4,
 			setsize: 4,
-			label: '+operation1(value: int): void'
+			label: '+ operation1(value: int): void'
 		});
 		expect(parentIndex(rows, rows.length - 1)).toBe(ids.indexOf(rowIdFor('Customer')));
 	});

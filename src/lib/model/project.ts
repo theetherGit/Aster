@@ -162,7 +162,7 @@ export function nextMemberText(c: Classifier, kind: 'attribute' | 'operation' | 
 	);
 	for (let n = 1; ; n++) {
 		const text = t(`model.defaultMember.${kind}`, { n });
-		if (!names.has(text.replace(/^[+\-#~]/, '').replace(/\(\)$/, ''))) return text;
+		if (!names.has(text.replace(/^[+\-#~]\s*/, '').replace(/\(\)$/, ''))) return text;
 	}
 }
 

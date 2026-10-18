@@ -23,18 +23,14 @@ export function compartmentsFor(c: Classifier): MemberKind[] {
 	const attrs = c.attributes.length > 0;
 	const ops = c.operations.length > 0;
 	switch (c.classifierKind) {
-		case 'interface':
-			return [...(attrs ? (['attribute'] as const) : []), 'operation'];
 		case 'enum':
 			return [
 				'literal',
 				...(attrs ? (['attribute'] as const) : []),
 				...(ops ? (['operation'] as const) : [])
 			];
-		case 'dataType':
-		case 'primitiveType':
-			return ['attribute', ...(ops ? (['operation'] as const) : [])];
 		default:
+			// Board 12: empty compartments collapse to an 8 px strip rather than disappearing.
 			return ['attribute', 'operation'];
 	}
 }
@@ -109,7 +105,8 @@ export function lineEnter(id: Id, kind: MemberKind, index: number, text: string)
 export function nameEnter(id: Id, text: string) {
 	commitName(id, text);
 	const c = classifier(id);
-	const [first] = compartmentsFor(c);
+	// Interfaces are operations by default (features.md); the rest start with their first compartment.
+	const first = c.classifierKind === 'interface' ? 'operation' : compartmentsFor(c)[0];
 	edit(id, { part: first, index: membersOf(c, first).length });
 }
 

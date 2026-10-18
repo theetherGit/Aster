@@ -37,7 +37,7 @@ test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, ‚å
 	await page.keyboard.press('ArrowRight');
 	await expect(items.nth(3)).toBeFocused();
 	await expect(items.nth(3)).toHaveAttribute('aria-level', '3');
-	await expect(items.nth(3)).toHaveText(/#\{static\} attribute0: String/);
+	await expect(items.nth(3)).toHaveText(/# \{static\} attribute0: String/);
 	await page.keyboard.press('ArrowLeft');
 	await expect(account).toBeFocused();
 	await page.keyboard.press('ArrowLeft');

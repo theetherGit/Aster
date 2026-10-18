@@ -18,6 +18,7 @@ type Line = {
 	canonical?: string;
 };
 
+const parseMdj_op = (line: string) => parseMember('operation', line) as never;
 const parse = (kind: Line['kind'], input: string) =>
 	kind === 'parameter' ? parseParameter(input) : parseMember(kind, input);
 
@@ -94,7 +95,13 @@ describe('expression edge cases', () => {
 		const op = parseMember('operation', '+f(a: int): int {query}');
 		expect(
 			renderOperation(op as never, { showOperationSignature: false, showProperty: false })
-		).toBe('+f()');
+		).toBe('+ f()');
+		// On paper, static and abstract show as underline and italics, not as keywords.
+		const sa = parseMdj_op('+ {static} f() {abstract, query}');
+		expect(renderOperation(sa, { keywords: false })).toBe('+ f() {query}');
+		expect(
+			renderAttribute(parseMember('attribute', '+ {static} MAX: int') as never, { keywords: false })
+		).toBe('+ MAX: int');
 	});
 
 	it('memberFromText keeps unparseable text under raw and the previous name', () => {

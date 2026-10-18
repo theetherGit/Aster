@@ -223,7 +223,6 @@
 		data-line-style={style}
 		data-waypoints={layout.waypoints.length}
 	>
-		{#if selected}<path class="edge-halo" {d} />{/if}
 		<path
 			class="edge-line"
 			{d}
@@ -279,6 +278,17 @@
 			{/each}
 		{/if}
 		{#if selected}
+			<!-- Board 12: square marks at both ends of a selected relationship (view only until reconnect lands). -->
+			{#each [points[0], points[points.length - 1]] as p, i (i)}
+				<rect
+					class="edge-end"
+					x={p.x - 3 / zoom}
+					y={p.y - 3 / zoom}
+					width={6 / zoom}
+					height={6 / zoom}
+					stroke-width={1 / zoom}
+				/>
+			{/each}
 			{#each waypoints as w, i (i)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<g
@@ -307,13 +317,14 @@
 		stroke: var(--paper-ink);
 		stroke-width: var(--uml-stroke);
 	}
-	.edge-halo {
-		fill: none;
+	/* Board 12: the selected line itself turns accent. */
+	.uml-edge.selected .edge-line {
 		stroke: var(--accent);
-		stroke-width: 6;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-		opacity: 0.3;
+	}
+	.edge-end {
+		fill: var(--paper-bg);
+		stroke: var(--accent);
+		pointer-events: none;
 	}
 	.edge-hit {
 		fill: none;

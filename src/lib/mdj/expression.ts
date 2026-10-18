@@ -166,11 +166,15 @@ export interface RenderOptions {
 	showProperty?: boolean;
 	/** Draw stereotypes as «x» (paper) instead of <<x>> (text). */
 	guillemets?: boolean;
+	/** `false` on paper: static and abstract show as underline and italics, not as {static} / {abstract}. */
+	keywords?: boolean;
 }
 
 const stereo = (s: string | undefined, o: RenderOptions) =>
 	s ? (o.guillemets ? `«${s}» ` : `<<${s}>> `) : '';
-const vis = (v: Visibility, o: RenderOptions) => (o.showVisibility === false ? '' : SYM_OF[v]);
+// Canonical form has a space after the visibility symbol (data-model.md, board 12).
+const vis = (v: Visibility, o: RenderOptions) =>
+	o.showVisibility === false ? '' : `${SYM_OF[v]} `;
 
 export function renderParameter(p: Parameter): string {
 	let s = p.direction === 'in' ? '' : `${p.direction} `;
@@ -183,7 +187,7 @@ export function renderParameter(p: Parameter): string {
 export function renderAttribute(a: ParsedAttribute | Attribute, o: RenderOptions = {}): string {
 	if ('raw' in a && a.raw !== undefined) return a.raw;
 	let s = stereo(a.stereotype, o) + vis(a.visibility, o);
-	if (a.isStatic) s += '{static} ';
+	if (a.isStatic && o.keywords !== false) s += '{static} ';
 	if (a.isDerived) s += '/';
 	s += a.name;
 	if (a.type && o.showType !== false) s += `: ${a.type}`;
@@ -202,8 +206,10 @@ export function renderAttribute(a: ParsedAttribute | Attribute, o: RenderOptions
 export function renderOperation(op: ParsedOperation | Operation, o: RenderOptions = {}): string {
 	if ('raw' in op && op.raw !== undefined) return op.raw;
 	let s = stereo(op.stereotype, o) + vis(op.visibility, o);
-	if (op.isStatic) s += '{static} ';
-	else if (op.isAbstract) s += '{abstract} ';
+	if (o.keywords !== false) {
+		if (op.isStatic) s += '{static} ';
+		else if (op.isAbstract) s += '{abstract} ';
+	}
 	s += op.name;
 	if (o.showOperationSignature === false) s += '()';
 	else {
@@ -211,7 +217,7 @@ export function renderOperation(op: ParsedOperation | Operation, o: RenderOption
 		if (op.returnType) s += `: ${op.returnType}`;
 	}
 	const trailing = [
-		...(op.isStatic && op.isAbstract ? ['abstract'] : []),
+		...(op.isStatic && op.isAbstract && o.keywords !== false ? ['abstract'] : []),
 		...(op.isQuery ? ['query'] : [])
 	];
 	if (trailing.length && o.showProperty !== false) s += ` {${trailing.join(', ')}}`;

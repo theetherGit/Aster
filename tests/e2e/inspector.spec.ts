@@ -10,11 +10,11 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 
 	// Member text: change visibility in the panel, compartment text follows.
 	const first = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
-	await expect(first).toHaveValue('#{static} attribute0: String');
-	await first.fill('-{static} attribute0: String');
+	await expect(first).toHaveValue('# {static} attribute0: String');
+	await first.fill('- {static} attribute0: String');
 	await first.press('Enter');
 	await expect(customer.locator('[data-compartment="attribute"] li').first()).toHaveText(
-		'-{static} attribute0: String'
+		'- attribute0: String'
 	);
 
 	// Member visibility from the panel: the compartment text changes within one frame.
@@ -32,12 +32,12 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 				)
 			)
 	);
-	expect(nextFrame).toBe('#attribute1: int');
+	expect(nextFrame).toBe('# attribute1: int');
 
 	// Reorder and remove; focus stays in the panel after a remove.
 	await inspector.getByRole('button', { name: 'Move attribute0 down' }).click();
 	await expect(customer.locator('[data-compartment="attribute"] li').nth(1)).toHaveText(
-		'-{static} attribute0: String'
+		'- attribute0: String'
 	);
 	await inspector.getByRole('button', { name: 'Remove attribute1' }).click();
 	await expect(customer.locator('[data-compartment="attribute"] li')).toHaveCount(1);
@@ -68,5 +68,5 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	for (let i = 0; i < 10; i++) await undo.click();
 	await expect(
 		page.locator('.classifier-node[data-name="Customer"] [data-compartment="attribute"] li').first()
-	).toHaveText('#{static} attribute0: String');
+	).toHaveText('# attribute0: String');
 });

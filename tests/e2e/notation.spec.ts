@@ -55,7 +55,7 @@ test('node sizes and label widths match the bundled font on every platform', asy
 		Member: [160, 71],
 		Library: [160, 71],
 		Book: [160, 91],
-		Searchable: [160, 75],
+		Searchable: [160, 83],
 		Loan: [160, 96],
 		LoanStatus: [160, 115],
 		Category: [160, 71]

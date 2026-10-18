@@ -250,12 +250,13 @@ export function midFrame(points: Pt[], style: LineStyle): Frame {
  */
 export const DEFAULT_OFFSETS: Record<LabelKey, LabelOffset> = {
 	name: { alpha: Math.PI / 2, distance: 15 },
-	sourceRole: { alpha: Math.PI / 6, distance: 30 },
-	sourceMultiplicity: { alpha: -Math.PI / 6, distance: 25 },
-	sourceProperty: { alpha: Math.PI / 4, distance: 40 },
-	targetRole: { alpha: -Math.PI / 6, distance: 30 },
-	targetMultiplicity: { alpha: Math.PI / 6, distance: 25 },
-	targetProperty: { alpha: -Math.PI / 4, distance: 40 }
+	// Board 12: multiplicity above the line, role below (StarUML's own defaults are the reverse).
+	sourceRole: { alpha: -Math.PI / 6, distance: 30 },
+	sourceMultiplicity: { alpha: Math.PI / 6, distance: 25 },
+	sourceProperty: { alpha: -Math.PI / 4, distance: 40 },
+	targetRole: { alpha: Math.PI / 6, distance: 30 },
+	targetMultiplicity: { alpha: -Math.PI / 6, distance: 25 },
+	targetProperty: { alpha: Math.PI / 4, distance: 40 }
 };
 
 export function polar(frame: Frame, o: LabelOffset): Pt {

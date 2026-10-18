@@ -18,7 +18,8 @@
 
 	let draft = $state('');
 	const summary = $derived(editing === null ? null : summarise(kind, draft));
-	const text = (m: Member) => renderMember(kind, m, { ...flags, guillemets: true });
+	const text = (m: Member) =>
+		renderMember(kind, m, { ...flags, guillemets: true, keywords: false });
 
 	function ondblclick(e: MouseEvent, index: number) {
 		e.stopPropagation();
@@ -95,9 +96,10 @@
 	.member.abstract {
 		font-style: italic;
 	}
-	/* Thin warning underline for lines kept verbatim; box-shadow so it stacks with static. */
+	/* Board 12: a line kept as typed gets an amber wavy underline. */
 	.member.raw {
-		box-shadow: inset 0 -1px var(--warning);
+		text-decoration: underline wavy var(--warning);
+		text-decoration-skip-ink: none;
 	}
 	/* Parse summary chip under the node while a line is open (board 04). */
 	.chip {
