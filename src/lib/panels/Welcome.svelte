@@ -4,8 +4,8 @@
 	import { newProject, openFromPicker } from '#lib/persist/files.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { ago } from './time.ts';
-	import { exploded } from '@lucasmarkes/hairline';
 	import { hairline } from '#lib/actions/hairline.ts';
+	import { aster } from '#lib/figures/aster.ts';
 
 	// Board 07: first visit. Three cards; the sample diagram waits behind (owner's #1).
 	function explore() {
@@ -25,7 +25,7 @@
 	<div class="inner">
 		<div
 			class="mx-auto mb-4 w-[200px]"
-			use:hairline={{ figure: exploded, label: t('welcome.figure'), intensity: 0.4, play: false }}
+			use:hairline={{ figure: aster, label: t('welcome.figure'), intensity: 0.4, play: false }}
 		></div>
 		<h2 id="welcome-title" class="text-[28px] font-semibold">{t('welcome.title')}</h2>
 		<p class="mt-1 text-[14px] text-chrome-muted">{t('welcome.tagline')}</p>

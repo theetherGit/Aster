@@ -473,7 +473,7 @@
 	"toast.dismiss": "Dismiss",
 	"welcome.pressBefore": "Press",
 	"welcome.pressAfter": "any time for every shortcut",
-	"welcome.figure": "An app window taken apart into its layers: Aster has nothing open yet",
+	"welcome.figure": "The Aster mark, six petals around an amber centre; the petal nearest the pointer lifts. Aster has nothing open yet",
 	"empty.figure": "An empty three-drawer cabinet: this diagram has no elements yet",
 	"palette.emptyFigure": "Three sieves over an empty pan: no command matched",
 	"sheet.empty": "No shortcut matches \"{filter}\"",
