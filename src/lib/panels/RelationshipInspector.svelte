@@ -176,7 +176,7 @@
 </div>
 
 {#if ends.length}
-	<h2 class="section">{t('inspector.ends')}</h2>
+	<h2 class="section mt-4">{t('inspector.ends')}</h2>
 	<div class="grid grid-cols-[64px_1fr_1fr] items-center gap-x-2 gap-y-2 text-[12px]">
 		<span></span>
 		{#each ends as [end, , owner] (end)}<span class="truncate font-semibold" id="end-{end}"
@@ -233,7 +233,7 @@
 {/if}
 
 {#if layout}
-	<h2 class="section">{t('inspector.lineStyle')}</h2>
+	<h2 class="section mt-4">{t('inspector.lineStyle')}</h2>
 	<ToggleGroup.Root
 		type="single"
 		value={layout.lineStyle}
@@ -270,7 +270,8 @@
 		<button
 			type="button"
 			class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-			onclick={addPoint}>+ {t('inspector.addWaypoint')}</button
+			aria-label={t('inspector.addWaypoint')}
+			onclick={addPoint}>+ {t('inspector.addShort')}</button
 		>
 	</div>
 	{#if layout.waypoints.length}
@@ -347,7 +348,7 @@
 	{/if}
 {/if}
 
-<h2 class="section"><label for="rel-doc">{t('inspector.documentation')}</label></h2>
+<h2 class="section mt-4"><label for="rel-doc">{t('inspector.documentation')}</label></h2>
 <textarea
 	id="rel-doc"
 	class="field h-20 w-full resize-y py-1"
@@ -356,17 +357,3 @@
 	onchange={(e) =>
 		e.currentTarget.value !== rel.documentation &&
 		run(setDocumentation, { id: rel.id, documentation: e.currentTarget.value })}></textarea>
-
-<style>
-	.section {
-		margin: 16px 0 6px;
-		font-size: 11px;
-		font-weight: 600;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-		color: var(--chrome-muted);
-	}
-	.section:first-child {
-		margin-top: 0;
-	}
-</style>

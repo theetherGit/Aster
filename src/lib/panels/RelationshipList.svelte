@@ -49,20 +49,24 @@
 </script>
 
 {#if rels.length}
-	<h2 class="mt-4 mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
-		{t('inspector.relationships')}
-	</h2>
+	<h2 class="section mt-5">{t('inspector.relationships')}</h2>
 	<ul class="flex flex-col">
 		{#each rels as r (r.id)}
 			<li>
 				<button
 					type="button"
-					class="flex h-7 w-full items-center gap-2 rounded-control px-1 text-left hover:bg-chrome-bg aria-pressed:bg-accent/10"
+					class="-mx-1 flex h-8 w-[calc(100%+8px)] items-center gap-2 rounded-control px-1 text-left hover:bg-chrome-bg aria-pressed:bg-accent/10"
 					aria-pressed={selection.has(r.id)}
 					aria-label={t('inspector.selectRelationship', { summary: summary(r) })}
 					onclick={() => selection.set([r.id])}
 				>
-					<span class="min-w-0 flex-1 truncate">{summary(r)}</span>
+					<span class="min-w-0 flex-1 truncate text-[14px]">
+						{nameOf(r.sourceId)}
+						<span class="text-chrome-muted"
+							>{r.sourceEnd?.multiplicity ?? ''} {glyph(r)} {r.targetEnd?.multiplicity ?? ''}</span
+						>
+						{nameOf(r.targetId)}
+					</span>
 					<span class="shrink-0 text-chrome-muted">{t(`rel.${r.relationshipKind}`)}</span>
 				</button>
 			</li>

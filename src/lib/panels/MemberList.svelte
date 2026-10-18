@@ -70,79 +70,85 @@
 	}
 </script>
 
-<fieldset class="mt-4 min-w-0">
-	<legend class="mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
-		>{t(`inspector.${kind}s`)}</legend
-	>
+<!-- Board 01: heading with "+ Add" at the right; flat rows whose controls appear on hover or focus. -->
+<fieldset class="mt-5 min-w-0">
+	<div class="mb-1 flex items-center justify-between">
+		<legend class="section float-left mb-0">{t(`inspector.${kind}s`)}</legend>
+		<button
+			type="button"
+			bind:this={addButton}
+			class="h-7 rounded-control border border-chrome-border px-2 text-[12px] hover:bg-chrome-bg"
+			aria-label={t('inspector.add', { kind: t(`member.${kind}`) })}
+			onclick={add}
+		>
+			+ {t('inspector.addShort')}
+		</button>
+	</div>
 	<ul class="flex flex-col gap-1">
 		{#each members as m, i (m.id)}
-			<li class="flex items-center gap-1">
+			<li class="group relative flex items-center">
 				<input
-					class="field min-w-0 flex-1 font-mono"
+					class="field h-8 min-w-0 flex-1 font-mono text-[13px]"
 					class:raw={'raw' in m && m.raw !== undefined}
 					aria-label={t(`member.line.${kind}`)}
 					title={'raw' in m && m.raw !== undefined ? t('inspector.unparsed') : undefined}
 					value={renderMember(kind, m)}
 					onchange={(e) => commit(m, e.currentTarget.value)}
 				/>
-				{#if hasVisibility && 'visibility' in m}
-					<Select.Root
-						type="single"
-						value={m.visibility}
-						items={visItems}
-						onValueChange={(v: string) => setVisibility(m, v as Visibility)}
-					>
-						<Select.Trigger
-							class="field h-6 w-9 shrink-0 px-0 text-center font-mono"
-							aria-label={t('inspector.memberVisibility', { name: m.name })}
-							disabled={isRaw(m)}
+				<span
+					class="absolute right-1 flex items-center gap-0.5 rounded-control bg-chrome-bg pl-1 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100"
+				>
+					{#if hasVisibility && 'visibility' in m}
+						<Select.Root
+							type="single"
+							value={m.visibility}
+							items={visItems}
+							onValueChange={(v: string) => setVisibility(m, v as Visibility)}
 						>
-							{SYMBOL[m.visibility]}
-						</Select.Trigger>
-						<Select.Portal>
-							<Select.Content class="menu" sideOffset={4}>
-								<Select.Viewport>
-									{#each visItems as item (item.value)}
-										<Select.Item value={item.value} label={item.label} class="menu-item">
-											{item.label}
-										</Select.Item>
-									{/each}
-								</Select.Viewport>
-							</Select.Content>
-						</Select.Portal>
-					</Select.Root>
-				{/if}
-				<button
-					type="button"
-					class="icon-btn h-6 w-6"
-					aria-label={t('inspector.moveUp', { name: m.name })}
-					disabled={i === 0}
-					onclick={() => move(m, -1, i)}>↑</button
-				>
-				<button
-					type="button"
-					class="icon-btn h-6 w-6"
-					aria-label={t('inspector.moveDown', { name: m.name })}
-					disabled={i === members.length - 1}
-					onclick={() => move(m, 1, i)}>↓</button
-				>
-				<button
-					type="button"
-					class="icon-btn h-6 w-6 text-danger"
-					aria-label={t('inspector.remove', { name: m.name })}
-					onclick={() => remove(m)}>×</button
-				>
+							<Select.Trigger
+								class="field h-6 w-7 shrink-0 px-0 text-center font-mono"
+								aria-label={t('inspector.memberVisibility', { name: m.name })}
+								disabled={isRaw(m)}
+							>
+								{SYMBOL[m.visibility]}
+							</Select.Trigger>
+							<Select.Portal>
+								<Select.Content class="menu" sideOffset={4}>
+									<Select.Viewport>
+										{#each visItems as item (item.value)}
+											<Select.Item value={item.value} label={item.label} class="menu-item">
+												{item.label}
+											</Select.Item>
+										{/each}
+									</Select.Viewport>
+								</Select.Content>
+							</Select.Portal>
+						</Select.Root>
+					{/if}
+					<button
+						type="button"
+						class="icon-btn h-6 w-6"
+						aria-label={t('inspector.moveUp', { name: m.name })}
+						disabled={i === 0}
+						onclick={() => move(m, -1, i)}>↑</button
+					>
+					<button
+						type="button"
+						class="icon-btn h-6 w-6"
+						aria-label={t('inspector.moveDown', { name: m.name })}
+						disabled={i === members.length - 1}
+						onclick={() => move(m, 1, i)}>↓</button
+					>
+					<button
+						type="button"
+						class="icon-btn h-6 w-6 text-danger"
+						aria-label={t('inspector.remove', { name: m.name })}
+						onclick={() => remove(m)}>×</button
+					>
+				</span>
 			</li>
 		{/each}
 	</ul>
-	<button
-		type="button"
-		bind:this={addButton}
-		class="mt-1 h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-		onclick={add}
-	>
-		+ {t('inspector.add', { kind: t(`member.${kind}`) })}
-	</button>
 </fieldset>
 
 <style>

@@ -14,6 +14,7 @@
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import MemberList from './MemberList.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
+	import FieldSelect from './FieldSelect.svelte';
 	import RelationshipList from './RelationshipList.svelte';
 
 	// Commands mutate elements in place, so references never change; cloning the selected
@@ -61,74 +62,71 @@
 		<Tabs.Content value="properties" class="p-4">
 			{#if classifier}
 				{@const c = classifier}
-				<div class="grid grid-cols-[88px_1fr] items-center gap-x-2 gap-y-2">
-					<label for="insp-name">{t('inspector.name')}</label>
-					<input
-						id="insp-name"
-						class="field"
-						value={c.name}
-						onchange={(e) => commitName(e.currentTarget.value)}
-					/>
-
-					<label for="insp-kind">{t('inspector.kind')}</label>
-					<Select.Root
-						type="single"
-						value={c.classifierKind}
-						items={kindItems}
-						onValueChange={(v: string) =>
-							projectStore.run(setClassifierKind, {
-								id: c.id,
-								classifierKind: v as ClassifierKind
-							})}
+				<!-- Board 01: the kind is the section heading (and the kind picker); name below it. -->
+				<Select.Root
+					type="single"
+					value={c.classifierKind}
+					items={kindItems}
+					onValueChange={(v: string) =>
+						projectStore.run(setClassifierKind, {
+							id: c.id,
+							classifierKind: v as ClassifierKind
+						})}
+				>
+					<Select.Trigger
+						id="insp-kind"
+						aria-label={t('inspector.kind')}
+						class="section group -mx-1 flex h-6 items-center gap-1 rounded-control px-1 hover:bg-chrome-bg"
 					>
-						<Select.Trigger id="insp-kind" class="field text-left"
-							>{t(`ui.kind.${c.classifierKind}`)}</Select.Trigger
+						{t(`ui.kind.${c.classifierKind}`)}
+						<svg
+							class="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-data-[state=open]:opacity-100"
+							width="10"
+							height="10"
+							viewBox="0 0 10 10"
+							aria-hidden="true"
+							fill="currentColor"><path d="M1 3l4 4 4-4z" /></svg
 						>
-						<Select.Portal>
-							<Select.Content class="menu" sideOffset={4}>
-								<Select.Viewport>
-									{#each kindItems as item (item.value)}
-										<Select.Item value={item.value} label={item.label} class="menu-item"
-											>{item.label}</Select.Item
-										>
-									{/each}
-								</Select.Viewport>
-							</Select.Content>
-						</Select.Portal>
-					</Select.Root>
+					</Select.Trigger>
+					<Select.Portal>
+						<Select.Content class="menu" sideOffset={4}>
+							<Select.Viewport>
+								{#each kindItems as item (item.value)}
+									<Select.Item value={item.value} label={item.label} class="menu-item"
+										>{item.label}</Select.Item
+									>
+								{/each}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
+				<label for="insp-name" class="sr-only">{t('inspector.name')}</label>
+				<input
+					id="insp-name"
+					class="field h-9 w-full text-[14px]"
+					value={c.name}
+					onchange={(e) => commitName(e.currentTarget.value)}
+				/>
 
-					<label for="insp-stereotype">{t('inspector.stereotype')}</label>
+				<div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1">
+					<label for="insp-stereotype" class="text-chrome-muted">{t('inspector.stereotype')}</label>
+					<label for="insp-visibility" class="text-chrome-muted">{t('inspector.visibility')}</label>
 					<input
 						id="insp-stereotype"
-						class="field"
+						class="field min-w-0"
+						placeholder={t('vis.none')}
 						value={c.stereotype ?? ''}
 						onchange={(e) => flags({ stereotype: e.currentTarget.value.trim() || null })}
 					/>
-
-					<label for="insp-visibility">{t('inspector.visibility')}</label>
-					<Select.Root
-						type="single"
+					<FieldSelect
+						id="insp-visibility"
+						class="min-w-0"
 						value={c.visibility}
 						items={visItems}
-						onValueChange={(v: string) => flags({ visibility: v as Visibility })}
-					>
-						<Select.Trigger id="insp-visibility" class="field text-left"
-							>{t(`vis.${c.visibility}`)}</Select.Trigger
-						>
-						<Select.Portal>
-							<Select.Content class="menu" sideOffset={4}>
-								<Select.Viewport>
-									{#each visItems as item (item.value)}
-										<Select.Item value={item.value} label={item.label} class="menu-item"
-											>{item.label}</Select.Item
-										>
-									{/each}
-								</Select.Viewport>
-							</Select.Content>
-						</Select.Portal>
-					</Select.Root>
-
-					<span></span>
+						onchange={(v) => flags({ visibility: v as Visibility })}
+					/>
+				</div>
+				<div class="mt-3 flex items-center gap-5">
 					<label class="flex h-6 items-center gap-2"
 						><input
 							type="checkbox"
@@ -136,7 +134,6 @@
 							onchange={(e) => flags({ isAbstract: e.currentTarget.checked })}
 						/>{t('inspector.abstract')}</label
 					>
-					<span></span>
 					<label class="flex h-6 items-center gap-2"
 						><input
 							type="checkbox"
@@ -149,9 +146,7 @@
 					<MemberList classifier={c} {kind} />
 				{/each}
 				<RelationshipList classifier={c} />
-				<h2 class="mt-4 mb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
-					<label for="cls-doc">{t('inspector.documentation')}</label>
-				</h2>
+				<h2 class="section mt-5"><label for="cls-doc">{t('inspector.documentation')}</label></h2>
 				<textarea
 					id="cls-doc"
 					class="field h-20 w-full resize-y py-1"
