@@ -6,7 +6,9 @@ import type {
 	ClassifierKind,
 	DisplayFlags,
 	EdgeLayout,
-	Relationship
+	Note,
+	Relationship,
+	TextElement
 } from '#lib/model/types.ts';
 import { projectStore } from './project.svelte.ts';
 import { selection, type EditTarget } from './selection.svelte.ts';
@@ -26,115 +28,195 @@ export interface ClassifierNodeData extends Record<string, unknown> {
 }
 export type ClassifierFlowNode = Node<ClassifierNodeData, ClassifierKind>;
 
+/** Notes and free text: view-only elements with their own layout (features.md). */
+export interface NoteNodeData extends Record<string, unknown> {
+	element: Note | TextElement;
+	width: number;
+	height: number;
+	editing: boolean;
+	link: 'source' | 'target' | 'both' | null;
+	hovered: boolean;
+}
+export type NoteFlowNode = Node<NoteNodeData, 'note' | 'text'>;
+export type FlowNode = ClassifierFlowNode | NoteFlowNode;
+
 export interface RelationshipEdgeData extends Record<string, unknown> {
 	relationship: Relationship;
 	layout: EdgeLayout;
 	flags: DisplayFlags;
 }
 export type RelationshipFlowEdge = Edge<RelationshipEdgeData, 'uml'>;
+/** A note link: dashed, no arrowhead, derived from `Note.linkedIds`. */
+export type NoteLinkFlowEdge = Edge<{ noteId: string; targetId: string }, 'noteLink'>;
+export type FlowEdge = RelationshipFlowEdge | NoteLinkFlowEdge;
+
+const linkRole = (id: string): 'source' | 'target' | 'both' | null =>
+	!ui.link
+		? null
+		: ui.link.sourceId === id && ui.link.targetId === id
+			? 'both'
+			: ui.link.sourceId === id
+				? 'source'
+				: ui.link.targetId === id
+					? 'target'
+					: null;
 
 class Flow {
 	/** Svelte Flow nodes, derived from project + layout only. Never mutated. */
-	nodes: ClassifierFlowNode[] = $derived.by(() => {
+	nodes: FlowNode[] = $derived.by(() => {
 		const project = projectStore.project;
 		const diagram = projectStore.diagram;
-		const out: ClassifierFlowNode[] = [];
+		const out: FlowNode[] = [];
 		for (const id of diagram.elementIds) {
 			const el = project.elements.get(id);
 			const l = diagram.layout.get(id);
-			if (!el || !l || el.kind !== 'classifier' || l.kind !== 'node') continue;
-			const flags = { ...diagram.defaults, ...l.flags };
-			out.push({
-				id,
-				type: el.classifierKind,
-				position: { x: l.x, y: l.y },
-				data: {
-					// Commands mutate the model in place; a per-version snapshot gives the node
-					// new references to react to.
-					// ponytail: clones every classifier per command; per-element version stamps if 500-node perf needs it
-					classifier: structuredClone(el),
-					flags,
-					minWidth: Math.max(160, l.w),
-					minHeight: flags.autoResize === false ? l.h : 0,
-					editing: null,
-					link: null,
-					hovered: false
-				},
-				focusable: false
-			});
+			if (!el || !l || l.kind !== 'node') continue;
+			if (el.kind === 'classifier') {
+				const flags = { ...diagram.defaults, ...l.flags };
+				out.push({
+					id,
+					type: el.classifierKind,
+					position: { x: l.x, y: l.y },
+					data: {
+						// Commands mutate the model in place; a per-version snapshot gives the node
+						// new references to react to.
+						// ponytail: clones every classifier per command; per-element version stamps if 500-node perf needs it
+						classifier: structuredClone(el),
+						flags,
+						minWidth: Math.max(160, l.w),
+						minHeight: flags.autoResize === false ? l.h : 0,
+						editing: null,
+						link: null,
+						hovered: false
+					},
+					focusable: false
+				});
+			} else if (el.kind === 'note' || el.kind === 'text') {
+				out.push({
+					id,
+					type: el.kind,
+					position: { x: l.x, y: l.y },
+					data: {
+						element: structuredClone(el),
+						width: l.w,
+						height: l.h,
+						editing: false,
+						link: null,
+						hovered: false
+					},
+					focusable: false
+				});
+			}
 		}
 		return out;
 	});
 
 	/** Svelte Flow edges, derived from project + layout only. An edge shows only with both its nodes. */
-	edges: RelationshipFlowEdge[] = $derived.by(() => {
+	edges: FlowEdge[] = $derived.by(() => {
 		const project = projectStore.project;
 		const diagram = projectStore.diagram;
-		const out: RelationshipFlowEdge[] = [];
+		const out: FlowEdge[] = [];
+		const drawn = (nodeId: string) => {
+			const k = project.elements.get(nodeId)?.kind;
+			return (
+				diagram.layout.get(nodeId)?.kind === 'node' &&
+				(k === 'classifier' || k === 'note' || k === 'text')
+			);
+		};
+		const name = (nodeId: string) => {
+			const n = project.elements.get(nodeId);
+			return n ? elementName(n) : nodeId;
+		};
 		for (const id of diagram.elementIds) {
 			const el = project.elements.get(id);
 			const l = diagram.layout.get(id);
-			if (!el || !l || el.kind !== 'relationship' || l.kind !== 'edge') continue;
-			// Drawn only between drawn nodes: classifiers for now (package frames come later).
-			const drawn = (nodeId: string) =>
-				diagram.layout.get(nodeId)?.kind === 'node' &&
-				project.elements.get(nodeId)?.kind === 'classifier';
-			if (!drawn(el.sourceId) || !drawn(el.targetId)) continue;
-			const name = (nodeId: string) => {
-				const n = project.elements.get(nodeId);
-				return n ? elementName(n) : nodeId;
-			};
-			out.push({
-				id,
-				type: 'uml',
-				source: el.sourceId,
-				target: el.targetId,
-				// Every node has these handles; the edge draws itself border to border regardless.
-				sourceHandle: 'r',
-				targetHandle: 'l',
-				data: {
-					relationship: structuredClone(el),
-					layout: structuredClone(l),
-					flags: { ...diagram.defaults }
-				},
-				ariaLabel: t('edge.label', {
-					source: name(el.sourceId),
-					target: name(el.targetId),
-					kind: t(`rel.${el.relationshipKind}`)
-				}),
-				focusable: false,
-				interactionWidth: 0
-			});
+			if (!el || !l) continue;
+			if (el.kind === 'relationship' && l.kind === 'edge') {
+				// Drawn only between drawn classifiers (package frames come later).
+				const cls = (x: string) => project.elements.get(x)?.kind === 'classifier' && drawn(x);
+				if (!cls(el.sourceId) || !cls(el.targetId)) continue;
+				out.push({
+					id,
+					type: 'uml',
+					source: el.sourceId,
+					target: el.targetId,
+					// Every node has these handles; the edge draws itself border to border regardless.
+					sourceHandle: 'r',
+					targetHandle: 'l',
+					data: {
+						relationship: structuredClone(el),
+						layout: structuredClone(l),
+						flags: { ...diagram.defaults }
+					},
+					ariaLabel: t('edge.label', {
+						source: name(el.sourceId),
+						target: name(el.targetId),
+						kind: t(`rel.${el.relationshipKind}`)
+					}),
+					focusable: false,
+					interactionWidth: 0
+				});
+			} else if (el.kind === 'note' && l.kind === 'node') {
+				for (const targetId of el.linkedIds) {
+					if (!drawn(targetId)) continue;
+					out.push({
+						id: `${id}~${targetId}`,
+						type: 'noteLink',
+						source: id,
+						target: targetId,
+						sourceHandle: 'r',
+						targetHandle: 'l',
+						data: { noteId: id, targetId },
+						ariaLabel: t('edge.noteLink', { target: name(targetId) }),
+						focusable: false,
+						selectable: false,
+						interactionWidth: 0
+					});
+				}
+			}
 		}
 		return out;
 	});
 
-	canvasEdges: RelationshipFlowEdge[] = $derived(
+	canvasEdges: FlowEdge[] = $derived(
 		this.edges.map((e) => ({ ...e, selected: selection.has(e.id) }))
 	);
 
-	/** The nodes as the canvas shows them: selection and inline-editing state folded in. */
-	canvasNodes: ClassifierFlowNode[] = $derived.by(() => {
+	/** The nodes as the canvas shows them: selection, inline editing and link state folded in. */
+	canvasNodes: FlowNode[] = $derived.by(() => {
 		const h = ui.hoveredEdge ? projectStore.project.elements.get(ui.hoveredEdge) : undefined;
 		const hoveredEnds = h?.kind === 'relationship' ? [h.sourceId, h.targetId] : [];
-		return this.nodes.map((n) => ({
-			...n,
-			selected: selection.has(n.id),
-			data: {
-				...n.data,
+		return this.nodes.map((n): FlowNode => {
+			const common = {
+				selected: selection.has(n.id),
 				hovered: hoveredEnds.includes(n.id),
-				editing: selection.editing?.id === n.id ? selection.editing.target : null,
-				link: !ui.link
-					? null
-					: ui.link.sourceId === n.id && ui.link.targetId === n.id
-						? 'both'
-						: ui.link.sourceId === n.id
-							? 'source'
-							: ui.link.targetId === n.id
-								? 'target'
-								: null
+				link: linkRole(n.id)
+			};
+			if (n.type === 'note' || n.type === 'text') {
+				const node = n as NoteFlowNode;
+				return {
+					...node,
+					selected: common.selected,
+					data: {
+						...node.data,
+						hovered: common.hovered,
+						link: common.link,
+						editing: selection.editing?.id === n.id && selection.editing.target.part === 'text'
+					}
+				};
 			}
-		}));
+			const node = n as ClassifierFlowNode;
+			return {
+				...node,
+				selected: common.selected,
+				data: {
+					...node.data,
+					hovered: common.hovered,
+					link: common.link,
+					editing: selection.editing?.id === n.id ? selection.editing.target : null
+				}
+			};
+		});
 	});
 
 	/** Names offered by type completion: every classifier plus the usual primitives. */

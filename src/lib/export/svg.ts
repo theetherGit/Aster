@@ -19,7 +19,16 @@ import { textWidth } from '#lib/canvas/edges/measure.ts';
 import { MARKER_LENGTH, labelsFor, markersFor } from '#lib/canvas/edges/notation.ts';
 import { membersOf } from '#lib/commands/index.ts';
 import { renderMember, type MemberKind } from '#lib/mdj/expression.ts';
-import type { Classifier, Diagram, Id, Project, Relationship } from '#lib/model/types.ts';
+import type {
+	Classifier,
+	Diagram,
+	Id,
+	Note,
+	Project,
+	Relationship,
+	TextElement
+} from '#lib/model/types.ts';
+import { clipToRect } from '#lib/canvas/edges/geometry.ts';
 
 export interface SvgOptions {
 	/** Only these elements (and the edges between them); null for the whole diagram. */
@@ -151,6 +160,22 @@ function edgeSvg(
 	for (const p of points) bounds.push({ x: p.x, y: p.y, w: 0, h: 0 });
 }
 
+function noteSvg(el: Note | TextElement, r: Rect, out: string[]) {
+	const lines = el.text.split(/\r?\n/);
+	if (el.kind === 'note') {
+		const f = 12; // folded corner (ui.md)
+		out.push(
+			`<g class="note"><path d="M${n(r.x)},${n(r.y)} H${n(r.x + r.w - f)} L${n(r.x + r.w)},${n(r.y + f)} V${n(r.y + r.h)} H${n(r.x)} Z" fill="${PAPER}" stroke="${INK}"/><path d="M${n(r.x + r.w - f)},${n(r.y)} V${n(r.y + f)} H${n(r.x + r.w)}" fill="none" stroke="${INK}"/>`
+		);
+	} else out.push('<g class="text">');
+	lines.forEach((line, i) =>
+		out.push(
+			`<text x="${n(r.x + PAD_X)}" y="${n(r.y + PAD_Y + 12 + i * 16)}" font-size="12">${esc(line)}</text>`
+		)
+	);
+	out.push('</g>');
+}
+
 const MARKERS = `<marker id="aster-m-triangle" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="7" orient="auto-start-reverse" overflow="visible"><path d="M0,0 L14,7 L0,14 Z" fill="${PAPER}" stroke="${INK}"/></marker><marker id="aster-m-diamond-hollow" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="10" refX="14" refY="4" orient="auto-start-reverse" overflow="visible"><path d="M0,4 L7,0 L14,4 L7,8 Z" fill="${PAPER}" stroke="${INK}"/></marker><marker id="aster-m-diamond-filled" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="10" refX="14" refY="4" orient="auto-start-reverse" overflow="visible"><path d="M0,4 L7,0 L14,4 L7,8 Z" fill="${INK}" stroke="${INK}"/></marker><marker id="aster-m-arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="12" refY="5" orient="auto-start-reverse" overflow="visible"><path d="M0,0 L12,5 L0,10" fill="none" stroke="${INK}"/></marker>`;
 
 /** The diagram (or the elements in `only`) as SVG text, cropped to its content plus padding. */
@@ -173,6 +198,31 @@ export function diagramToSvg(
 	const body: string[] = [];
 	const bounds: Rect[] = [...shown.values()];
 	for (const [c, r] of nodes) nodeSvg(c, r, diagram.defaults, body);
+	// Notes and text, and the dashed links from notes to what they annotate.
+	const notes: [Note | TextElement, Rect][] = [];
+	for (const id of diagram.elementIds) {
+		if (opts.only && !opts.only.has(id)) continue;
+		const el = project.elements.get(id);
+		const l = diagram.layout.get(id);
+		if ((el?.kind !== 'note' && el?.kind !== 'text') || l?.kind !== 'node') continue;
+		const r = rects.get(id) ?? { x: l.x, y: l.y, w: l.w, h: l.h };
+		notes.push([el, r]);
+		shown.set(id, r);
+		bounds.push(r);
+	}
+	for (const [el, r] of notes) {
+		noteSvg(el, r, body);
+		if (el.kind !== 'note') continue;
+		for (const targetId of el.linkedIds) {
+			const t = shown.get(targetId);
+			if (!t) continue;
+			const a = clipToRect(r, { x: t.x + t.w / 2, y: t.y + t.h / 2 });
+			const b = clipToRect(t, { x: r.x + r.w / 2, y: r.y + r.h / 2 });
+			body.push(
+				`<line class="note-link" x1="${n(a.x)}" y1="${n(a.y)}" x2="${n(b.x)}" y2="${n(b.y)}" stroke="${INK}" stroke-dasharray="6 4"/>`
+			);
+		}
+	}
 	for (const id of diagram.elementIds) {
 		const el = project.elements.get(id);
 		const l = diagram.layout.get(id);

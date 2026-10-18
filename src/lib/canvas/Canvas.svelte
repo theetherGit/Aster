@@ -15,19 +15,17 @@
 	} from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
 	import { untrack } from 'svelte';
-	import { moveNode } from '#lib/commands/index.ts';
+	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { ClassifierKind, Id } from '#lib/model/types.ts';
-	import {
-		flow,
-		type ClassifierFlowNode,
-		type RelationshipFlowEdge
-	} from '#lib/stores/flow.svelte.ts';
+	import { flow, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
 	import { layout } from '#lib/stores/layout.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import ClassifierNode from './ClassifierNode.svelte';
+	import NoteNode from './NoteNode.svelte';
+	import NoteLinkEdge from './edges/NoteLinkEdge.svelte';
 	import { createClassifierAt, createNoteAt, createTextAt, startLink } from './actions.ts';
 	import Markers from './edges/Markers.svelte';
 	import UmlEdge from './edges/UmlEdge.svelte';
@@ -41,9 +39,11 @@
 		interface: ClassifierNode,
 		enum: ClassifierNode,
 		dataType: ClassifierNode,
-		primitiveType: ClassifierNode
+		primitiveType: ClassifierNode,
+		note: NoteNode,
+		text: NoteNode
 	};
-	const edgeTypes = { uml: UmlEdge };
+	const edgeTypes = { uml: UmlEdge, noteLink: NoteLinkEdge };
 	const {
 		screenToFlowPosition,
 		flowToScreenPosition,
@@ -149,17 +149,32 @@
 		}
 		return out;
 	}
-	/** Open the relationship picker over the target node's centre. */
+	/** Open the relationship picker over the target node's centre; a note at either end links instead. */
 	function openPicker(sourceId: Id, targetId: Id) {
+		if (linkIfNote(sourceId, targetId)) return;
 		const r = rects().get(targetId);
 		if (!r) return;
 		const p = flowToScreenPosition(center(r));
 		ui.picker = { sourceId, targetId, x: p.x, y: p.y };
 	}
+	/** Note links have no kinds (UML): a connection touching a note is made on the spot. */
+	function linkIfNote(a: Id, b: Id): boolean {
+		const kind = (id: Id) => projectStore.project.elements.get(id)?.kind;
+		const noteId = kind(a) === 'note' ? a : kind(b) === 'note' ? b : null;
+		if (!noteId) return false;
+		const targetId = noteId === a ? b : a;
+		if (targetId !== noteId && kind(targetId) !== 'text') {
+			ui.link = null;
+			projectStore.run(linkNote, { noteId, targetId });
+			selection.set([noteId]);
+		} else ui.link = null;
+		canvasFocus.focus();
+		return true;
+	}
 
 	// Svelte Flow moves its own copy of the nodes while dragging; the model follows through
 	// coalesced moveNode commands, and the derived nodes replace Svelte Flow's copy.
-	const onnodedrag: NodeTargetEventWithPointer<MouseEvent | TouchEvent, ClassifierFlowNode> = ({
+	const onnodedrag: NodeTargetEventWithPointer<MouseEvent | TouchEvent, FlowNode> = ({
 		targetNode,
 		nodes
 	}) => {
@@ -176,10 +191,7 @@
 		});
 	};
 
-	const onselectionchange: OnSelectionChange<ClassifierFlowNode, RelationshipFlowEdge> = ({
-		nodes,
-		edges
-	}) => {
+	const onselectionchange: OnSelectionChange<FlowNode, FlowEdge> = ({ nodes, edges }) => {
 		selection.set([...nodes.map((n) => n.id), ...edges.map((e) => e.id)]);
 	};
 
@@ -195,7 +207,8 @@
 		if (!from || !p) return;
 		const hit = document.elementFromPoint(p.clientX, p.clientY)?.closest('.svelte-flow__node');
 		const to = hit?.getAttribute('data-id');
-		if (to) ui.picker = { sourceId: from, targetId: to, x: p.clientX, y: p.clientY };
+		if (to && !linkIfNote(from, to))
+			ui.picker = { sourceId: from, targetId: to, x: p.clientX, y: p.clientY };
 	};
 
 	function onpaneclick({ event }: { event: MouseEvent | TouchEvent }) {

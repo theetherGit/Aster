@@ -707,13 +707,44 @@ class Serializer {
 			const v = this.emitEdgeView(d, rel, l, rec, vid);
 			children.push({ json: v, index: rec ? this.indexOf(vid) : Number.POSITIVE_INFINITY });
 		}
-		// Note links are view-only and unchanged by Aster: written back while both ends are shown.
+		// Note links come from Note.linkedIds: an existing view (either direction) is kept as it
+		// was, a new link gets a view, a link that is gone takes its view with it.
 		const shown = new Set(children.map((c) => c.json._id as string));
-		for (const [vid, r] of this.records) {
-			if (r._type !== 'UMLNoteLinkView' || refOf(r._parent) !== d.id) continue;
-			const [h, t] = [refOf(r.head), refOf(r.tail)];
-			if (h && t && shown.has(h) && shown.has(t))
-				children.push({ json: clone(r), index: this.indexOf(vid) });
+		const linkRecords = [...this.records.entries()].filter(
+			([, r]) => r._type === 'UMLNoteLinkView' && refOf(r._parent) === d.id
+		);
+		for (const id of d.elementIds) {
+			const el = this.project.elements.get(id);
+			if (el?.kind !== 'note' || !shown.has(id)) continue;
+			for (const targetId of el.linkedIds) {
+				const otherVid = this.viewIdOf(d, targetId);
+				if (!shown.has(otherVid)) continue;
+				const found = linkRecords.find(([, r]) => {
+					const ends = new Set([refOf(r.head), refOf(r.tail)]);
+					return ends.has(id) && ends.has(otherVid);
+				});
+				if (found) {
+					children.push({ json: clone(found[1]), index: this.indexOf(found[0]) });
+					continue;
+				}
+				const a = this.nodeRect(d, id);
+				const b = this.nodeRect(d, targetId);
+				const c = (rr: Rect) => ({ x: rr.x + rr.w / 2, y: rr.y + rr.h / 2 });
+				const points = a && b ? fmtPoints([clipToRect(b, c(a)), clipToRect(a, c(b))]) : '';
+				children.push({
+					json: {
+						_type: 'UMLNoteLinkView',
+						_id: newId(),
+						_parent: ref(d.id),
+						font: FONT,
+						head: ref(id),
+						tail: ref(otherVid),
+						lineStyle: 1,
+						points
+					},
+					index: Number.POSITIVE_INFINITY
+				});
+			}
 		}
 		this.setArray(o, d.id, 'ownedViews', children);
 		this.spliceRest(o, d.id, [...WALKED]);

@@ -61,7 +61,9 @@ export function deleteSelection(fromModel: boolean) {
 export function startEditing() {
 	if (selection.size !== 1) return;
 	const [id] = selection.list;
-	if (projectStore.project.elements.get(id)?.kind === 'classifier') edit(id, { part: 'name' });
+	const kind = projectStore.project.elements.get(id)?.kind;
+	if (kind === 'classifier') edit(id, { part: 'name' });
+	else if (kind === 'note' || kind === 'text') edit(id, { part: 'text' });
 }
 
 /** L: start a keyboard link from the one selected node. */

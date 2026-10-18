@@ -7,7 +7,6 @@
 		batch,
 		moveWaypoint,
 		removeWaypoint,
-		setDocumentation,
 		setEnd,
 		setLabelOffset,
 		setLineStyle,
@@ -29,6 +28,7 @@
 		Visibility
 	} from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import Documentation from './Documentation.svelte';
 	import FieldSelect from './FieldSelect.svelte';
 
 	let { rel }: { rel: Relationship } = $props();
@@ -380,15 +380,7 @@
 	{/if}
 {/if}
 
-<h2 class="section mt-4"><label for="rel-doc">{t('inspector.documentation')}</label></h2>
-<textarea
-	id="rel-doc"
-	class="field h-20 w-full resize-y py-1"
-	placeholder={t('inspector.markdown')}
-	value={rel.documentation}
-	onchange={(e) =>
-		e.currentTarget.value !== rel.documentation &&
-		run(setDocumentation, { id: rel.id, documentation: e.currentTarget.value })}></textarea>
+<Documentation id={rel.id} documentation={rel.documentation} field="rel-doc" />
 
 <style>
 	.chip {

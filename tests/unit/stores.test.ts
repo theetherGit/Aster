@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addClassifier, moveNode } from '#lib/commands/index.ts';
 import { createClassifier } from '#lib/model/project.ts';
-import { flow } from '#lib/stores/flow.svelte.ts';
+import { flow, type ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 
@@ -10,7 +10,7 @@ describe('stores', () => {
 		const before = flow.nodes.map((n) => n.id);
 		expect(before).toEqual(['Account', 'Customer']);
 		expect(flow.nodes[0].position).toEqual({ x: 120, y: 80 });
-		expect(flow.nodes[0].data.classifier.name).toBe('Account');
+		expect((flow.nodes[0] as ClassifierFlowNode).data.classifier.name).toBe('Account');
 
 		projectStore.run(addClassifier, {
 			diagramId: 'd1',

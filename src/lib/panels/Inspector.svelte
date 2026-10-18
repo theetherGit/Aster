@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { Select, Tabs } from 'bits-ui';
-	import {
-		renameClassifier,
-		setClassifierFlags,
-		setClassifierKind,
-		setDocumentation
-	} from '#lib/commands/index.ts';
+	import { renameClassifier, setClassifierFlags, setClassifierKind } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { MemberKind } from '#lib/mdj/expression.ts';
 	import { elementName } from '#lib/model/project.ts';
@@ -17,6 +12,8 @@
 	import FieldSelect from './FieldSelect.svelte';
 	import RelationshipList from './RelationshipList.svelte';
 	import DiagramTab from './DiagramTab.svelte';
+	import Documentation from './Documentation.svelte';
+	import NoteInspector from './NoteInspector.svelte';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 
 	// Commands mutate elements in place, so references never change; cloning the selected
@@ -179,20 +176,11 @@
 						<MemberList classifier={c} {kind} />
 					{/each}
 					<RelationshipList classifier={c} />
-					<h2 class="section mt-5"><label for="cls-doc">{t('inspector.documentation')}</label></h2>
-					<textarea
-						id="cls-doc"
-						class="field h-20 w-full resize-y py-1"
-						placeholder={t('inspector.markdown')}
-						value={c.documentation}
-						onchange={(e) =>
-							e.currentTarget.value !== c.documentation &&
-							projectStore.run(setDocumentation, {
-								id: c.id,
-								documentation: e.currentTarget.value
-							})}></textarea>
+					<Documentation id={c.id} documentation={c.documentation} field="cls-doc" />
 				{:else if single?.kind === 'relationship'}
 					<RelationshipInspector rel={single} />
+				{:else if single && (single.kind === 'note' || single.kind === 'text')}
+					<NoteInspector element={single} />
 				{:else if single && single.kind !== 'classifier'}
 					<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
 					<h2 class="mt-1 text-[15px] font-semibold">{elementName(single)}</h2>
