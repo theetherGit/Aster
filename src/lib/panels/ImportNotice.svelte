@@ -211,7 +211,7 @@
 <style>
 	.notice {
 		position: absolute;
-		top: 12px;
+		top: calc(12px + var(--canvas-inset-top, 0px));
 		right: 12px;
 		z-index: 20;
 		box-sizing: border-box;

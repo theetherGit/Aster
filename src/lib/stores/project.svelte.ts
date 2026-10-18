@@ -1,5 +1,5 @@
 import { Stack } from '#lib/commands/index.ts';
-import type { Command } from '#lib/commands/types.ts';
+import type { Command, CommandStackSnapshot } from '#lib/commands/types.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
 import { getDiagram } from '#lib/model/project.ts';
 import type { Diagram, Id, Project } from '#lib/model/types.ts';
@@ -46,15 +46,23 @@ class ProjectStore {
 		return this.#stack.redoLabel;
 	}
 
-	/** Make `project` the open project, showing `diagramId` (or its first diagram). */
-	load(project: Project, diagramId?: Id | null) {
+	/**
+	 * Make `project` the open project, showing `diagramId` (or its first diagram), with its undo
+	 * history when a snapshot comes along (autosave restore).
+	 */
+	load(project: Project, diagramId?: Id | null, history?: CommandStackSnapshot) {
 		this.#project = project;
 		this.#stack = new Stack(() => this.#project);
+		if (history) this.#stack.restore(history);
 		this.activeDiagramId =
 			(diagramId && project.diagrams.some((d) => d.id === diagramId)
 				? diagramId
 				: project.diagrams[0]?.id) ?? '';
 		this.version++;
+	}
+	/** The undo and redo stacks as data, for autosave. */
+	snapshot(): CommandStackSnapshot {
+		return this.#stack.snapshot();
 	}
 
 	/** The only way state changes: build a command from a factory and run it. */

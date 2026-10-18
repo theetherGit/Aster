@@ -62,3 +62,11 @@ export async function labelsOnTheirLine(page: Page) {
 		})
 	);
 }
+
+/** Wait for the next autosave to finish (the footer carries the time of the last one). */
+export async function awaitAutosave(page: Page) {
+	const before = await page.getByTestId('footer-save').getAttribute('data-saved');
+	await expect
+		.poll(() => page.getByTestId('footer-save').getAttribute('data-saved'), { timeout: 10_000 })
+		.not.toBe(before);
+}

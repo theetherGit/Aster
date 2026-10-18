@@ -41,7 +41,7 @@ const nameOf = (o: unknown) => (isObj(o) ? o.name : undefined);
 
 describe.each(files)('%s', (file) => {
 	const source = readFileSync(new URL(file, dir), 'utf8');
-	const json = JSON.parse(source.replace(/^﻿/, '')) as J;
+	const json = JSON.parse(source.replace(/^\uFEFF/, '')) as J;
 
 	it('serialises back to its source after a no-op load', () => {
 		const { project } = parseMdjText(source);

@@ -23,7 +23,8 @@
 <Toolbar.Root
 	orientation="vertical"
 	aria-label={t('ui.toolbox')}
-	class="absolute top-3 left-3 z-10 rounded-[10px] border border-chrome-border bg-chrome-bg p-1.5 shadow-lg"
+	style="top: calc(12px + var(--canvas-inset-top, 0px))"
+	class="absolute left-3 z-10 rounded-[10px] border border-chrome-border bg-chrome-bg p-1.5 shadow-lg"
 >
 	<Toolbar.Group
 		type="single"

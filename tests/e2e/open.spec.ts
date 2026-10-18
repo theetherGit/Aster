@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 import { parseMdjText } from '../../src/lib/mdj/parse.ts';
-import { canvasOf, position } from './helpers';
+import { awaitAutosave, canvasOf, position } from './helpers';
 
 const fixture = (name: string) =>
 	fileURLToPath(new URL(`../../fixtures/mdj/${name}`, import.meta.url));
@@ -146,16 +146,20 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 	for (const name of ['public-vrview.mdj', 'public-twitter-stream.mdj']) {
 		await drop(page, name, readFileSync(fixture(name), 'utf8'));
 		await expect(notice(page)).toContainText(`Opened ${name}`);
+		await awaitAutosave(page);
 	}
+	// Recents come from autosave; the open project is not listed.
 	await page.getByTestId('project-name').click();
 	const menu = page.getByRole('menu');
 	await expect(menu.getByRole('menuitem')).toHaveText([
+		/New diagram/,
 		/Open…/,
-		'public-twitter-stream.mdj',
+		/^Save/,
+		/Save as…/,
 		'public-vrview.mdj'
 	]);
 	await menu.getByRole('menuitem', { name: 'public-vrview.mdj' }).click();
-	await expect(notice(page)).toContainText('Opened public-vrview.mdj');
+	await expect(page).toHaveTitle(/public-vrview\.mdj/);
 	await expect(page.locator('.classifier-node')).toHaveCount(2);
 
 	await drop(page, 'bad.mdj', '{"_type":"UMLModel"}');

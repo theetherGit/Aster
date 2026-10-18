@@ -116,9 +116,9 @@
 
 		<button
 			type="button"
-			class="group-box h-8 px-3 text-[13px] font-medium text-chrome-text hover:bg-chrome-surface disabled:opacity-50 disabled:hover:bg-transparent"
-			disabled
-			title={t('ui.comingSoon')}
+			class="group-box h-8 px-3 text-[13px] font-medium text-chrome-text hover:bg-chrome-surface"
+			title={t('ui.exportTitle')}
+			onclick={() => (ui.exportOpen = true)}
 		>
 			{t('ui.export')}
 		</button>

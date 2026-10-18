@@ -1,5 +1,5 @@
 import type { ClassifierKind, Id, LineStyle } from '#lib/model/types.ts';
-import { openFromPicker } from '#lib/persist/files.svelte.ts';
+import { newProject, openFromPicker, saveFile } from '#lib/persist/files.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
@@ -14,6 +14,7 @@ import {
 import type { Rect } from './edges/geometry.ts';
 import { canvasFocus, explorerFocus } from './focus.ts';
 import { nearestInDirection, type Direction } from './link.ts';
+import { copyDiagramAsPng } from '#lib/export/actions.ts';
 
 const inTextField = (e: KeyboardEvent) =>
 	e.target instanceof Element &&
@@ -40,6 +41,15 @@ export function handleGlobalKey(e: KeyboardEvent) {
 	const key = e.key.toLowerCase();
 	if (key === 'o' && !e.shiftKey) {
 		openFromPicker();
+	} else if (key === 's') {
+		saveFile(e.shiftKey);
+	} else if (key === 'n' && !e.shiftKey) {
+		// Browsers keep ⌘N for a new window; the binding works where it is allowed to (keyboard.md).
+		newProject();
+	} else if (key === 'e' && e.shiftKey) {
+		ui.exportOpen = true;
+	} else if (key === 'c' && e.shiftKey && !inTextField(e)) {
+		copyDiagramAsPng();
 	} else if (key === 'b' && !e.shiftKey) {
 		ui.panels.outline = !ui.panels.outline;
 	} else if (key === 'e' && !e.shiftKey) {
