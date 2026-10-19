@@ -31,6 +31,14 @@ class ProjectStore {
 	get diagram(): Diagram {
 		return getDiagram(this.project, this.activeDiagramId);
 	}
+	/**
+	 * The diagrams' ids and names as fresh objects each version. Commands mutate diagrams in
+	 * place, so a keyed list over the diagrams themselves gets the same items back and keeps an
+	 * old name after a rename made elsewhere (owner's report: the tab strip).
+	 */
+	get diagramNames(): { id: Id; name: string }[] {
+		return this.project.diagrams.map(({ id, name }) => ({ id, name }));
+	}
 	get canUndo() {
 		void this.version;
 		return this.#stack.canUndo;

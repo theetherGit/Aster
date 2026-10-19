@@ -151,3 +151,29 @@ test('the tab row stays put while the panel scrolls; scrollbars are thin and the
 	await expect(strip).toHaveCSS('scrollbar-width', 'none');
 	await expect(strip).toHaveCSS('overflow-y', 'hidden');
 });
+
+test('a diagram renamed in the Diagram tab is renamed in the tab strip and Working Diagrams', async ({
+	page
+}) => {
+	// Owner's report: the Outline followed the rename, the top bar's tab kept the old name.
+	await page.goto('/design/sample');
+	await page.locator('.classifier-node[data-name="Account"]').click();
+	const inspector = page.getByRole('complementary', { name: 'Inspector' });
+	await inspector.getByRole('tab', { name: 'Diagram' }).click();
+	const name = inspector.getByLabel('Diagram name');
+	await name.fill('Overview');
+	await name.press('Enter');
+	await expect(page.getByRole('tablist', { name: 'Diagrams' }).getByRole('tab')).toHaveText([
+		'Overview'
+	]);
+
+	await page.evaluate(() => localStorage.setItem('aster:layout', 'classic'));
+	await page.reload();
+	await page.getByRole('tab', { name: 'Style' }).click();
+	const classicName = page.getByLabel('Diagram name');
+	await classicName.fill('Main view');
+	await classicName.press('Enter');
+	await expect(page.getByRole('list', { name: 'Diagrams' }).getByRole('button')).toHaveText([
+		'Main view'
+	]);
+});

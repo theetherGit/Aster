@@ -11,7 +11,7 @@
 <section aria-labelledby="working-diagrams-title">
 	<PanelTitle id="working-diagrams-title">{t('classic.workingDiagrams')}</PanelTitle>
 	<ul class="py-1" aria-label={t('ui.diagrams')}>
-		{#each projectStore.project.diagrams as d (d.id)}
+		{#each projectStore.diagramNames as d (d.id)}
 			<li>
 				<button
 					type="button"

@@ -91,7 +91,7 @@
 		aria-label={t('ui.diagrams')}
 		class="ms-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto overflow-y-hidden"
 	>
-		{#each projectStore.project.diagrams as d (d.id)}
+		{#each projectStore.diagramNames as d (d.id)}
 			{#if ui.renaming === d.id}
 				<InlineName
 					value={d.name}
