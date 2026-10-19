@@ -22,9 +22,10 @@ import type { Project } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
+import { formatOf, sniffFormat, type FileFormat } from './format.ts';
 import { findBySourceHash, mintSlug, openSaved, persist } from './autosave.svelte.ts';
 
-export type FileFormat = 'mdj' | 'aster';
+export { formatOf, type FileFormat };
 
 export interface OpenedFile {
 	name: string;
@@ -92,9 +93,6 @@ const OPEN_TYPES = [
 	},
 	...TYPES
 ];
-export const formatOf = (name: string): FileFormat =>
-	/\.aster(\.json)?$/i.test(name) ? 'aster' : 'mdj';
-
 /** ⌘O: ask for a file. Resolves to null when the user cancels. */
 export async function pickFile(): Promise<OpenedFile | null> {
 	if (window.showOpenFilePicker) {
@@ -155,7 +153,8 @@ export function loadFixture(project: Project, route: 'sample' | 'notation') {
 /** Open a file: `.aster` validates and loads; `.mdj` restores its autosave on a hash match, else parses. */
 export async function openFile(f: OpenedFile) {
 	files.notice = { kind: 'opening', file: f.name };
-	const format = formatOf(f.name);
+	// By content first: a StarUML file renamed `.aster` still opens as StarUML (and the reverse).
+	const format = sniffFormat(f.name, new TextDecoder('utf-8').decode(f.data.slice(0, 1024)));
 	try {
 		if (format === 'aster') {
 			const { project, origin } = parseAster(new TextDecoder('utf-8').decode(f.data));

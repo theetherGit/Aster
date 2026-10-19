@@ -315,7 +315,7 @@
 	"inspector.followDefaults": "Follow diagram",
 	"inspector.overridesRow": "Set on this class, not the diagram",
 	"inspector.relationshipSummary": "{source} {sourceMultiplicity} {glyph} {targetMultiplicity} {target}",
-	"import.failedBody": "It isn't a StarUML project file (.mdj), so nothing was loaded. {project} is unchanged.",
+	"import.failedBody": "It isn't a project file Aster can read, so nothing was loaded. {project} is unchanged.",
 	"import.failedOther": "It couldn't be read, so nothing was loaded. {project} is unchanged.",
 	"import.chooseAnother": "Choose another file…",
 	"import.showDetails": "Show details",
