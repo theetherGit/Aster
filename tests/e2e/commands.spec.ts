@@ -271,3 +271,96 @@ test('the "+" after the tabs adds a numbered class diagram, switches to it, and 
 	await page.keyboard.press('ControlOrMeta+Shift+z');
 	await expect(tabs.getByRole('tab')).toHaveCount(2);
 });
+
+test('rename the project in place: menu item or F2, Enter commits, the title and the URL follow', async ({
+	page
+}) => {
+	await page.goto('/design/new');
+	await expect(canvasOf(page)).toBeFocused();
+	const trigger = page.getByTestId('project-menu');
+	await trigger.click();
+	await page.getByRole('menuitem', { name: 'Rename project…' }).click();
+	const field = page.getByRole('textbox', { name: 'Project name' });
+	await expect(field).toBeFocused();
+	await expect(field).toHaveValue('Untitled');
+	await page.keyboard.type('Billing');
+	await page.keyboard.press('Enter');
+	await expect(page.getByTestId('project-name')).toHaveText('Billing');
+	await expect(trigger).toBeFocused();
+	await expect(page).toHaveTitle(/^Billing/);
+	await expect(page).toHaveURL(/\/design\/billing$/);
+	// F2 on the name opens the editor; Esc keeps the old name.
+	await page.keyboard.press('F2');
+	await page.keyboard.type('Nope');
+	await page.keyboard.press('Escape');
+	await expect(page.getByTestId('project-name')).toHaveText('Billing');
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(page.getByTestId('project-name')).toHaveText('Untitled');
+});
+
+test('diagram tabs rename in place and delete from their context menu with an undo toast', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const tabs = page.getByRole('tablist', { name: 'Diagrams' });
+	const main = tabs.getByRole('tab', { name: 'Main' });
+	// A lone diagram cannot be deleted.
+	await main.click({ button: 'right' });
+	await expect(page.getByRole('menuitem', { name: 'Delete diagram' })).toHaveAttribute(
+		'data-disabled',
+		''
+	);
+	await page.keyboard.press('Escape');
+	// Double-click renames; the inspector's Diagram tab and the tab agree.
+	await main.dblclick();
+	const field = page.getByRole('textbox', { name: 'Diagram name' });
+	await expect(field).toBeFocused();
+	await page.keyboard.type('Overview');
+	await page.keyboard.press('Enter');
+	const overview = tabs.getByRole('tab', { name: 'Overview' });
+	await expect(overview).toHaveAttribute('aria-selected', 'true');
+	await expect(overview).toBeFocused();
+	// F2 on a focused tab opens the same editor; Esc reverts.
+	await page.keyboard.press('F2');
+	await page.keyboard.type('Zzz');
+	await page.keyboard.press('Escape');
+	await expect(tabs.getByRole('tab', { name: 'Overview' })).toBeVisible();
+	// Add one, delete it from its menu, undo from the toast.
+	await page.getByRole('button', { name: 'Add diagram' }).click();
+	const second = tabs.getByRole('tab', { name: 'Class diagram 2' });
+	await second.click({ button: 'right' });
+	await page.getByRole('menuitem', { name: 'Delete diagram' }).click();
+	await expect(tabs.getByRole('tab')).toHaveCount(1);
+	await expect(tabs.getByRole('tab', { name: 'Overview' })).toHaveAttribute(
+		'aria-selected',
+		'true'
+	);
+	const toast = page.getByTestId('toast');
+	await expect(toast).toContainText('Class diagram 2 deleted');
+	await toast.getByRole('button', { name: /Undo/ }).click();
+	await expect(tabs.getByRole('tab')).toHaveCount(2);
+});
+
+test('the Outline opens by default on a wide window, stays closed on a narrow one, and has a rail', async ({
+	browser
+}) => {
+	const wide = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+	const page = await wide.newPage();
+	await page.goto('/design/sample');
+	const tree = page.getByRole('tree', { name: 'Model tree' });
+	await expect(tree).toBeVisible();
+	await page.keyboard.press('ControlOrMeta+b');
+	await expect(tree).toHaveCount(0);
+	const rail = page.getByRole('complementary', { name: 'Outline, collapsed' });
+	await rail.getByRole('button', { name: 'Show Outline' }).click();
+	await expect(tree).toBeVisible();
+	await wide.close();
+
+	const narrow = await browser.newContext({ viewport: { width: 1100, height: 800 } });
+	const page2 = await narrow.newPage();
+	await page2.goto('/design/sample');
+	await expect(page2.getByRole('tree', { name: 'Model tree' })).toHaveCount(0);
+	await expect(page2.getByRole('button', { name: 'Show Outline' })).toBeVisible();
+	await narrow.close();
+});

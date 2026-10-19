@@ -3,6 +3,8 @@ import {
 	Stack,
 	addClassifier,
 	addDiagram,
+	deleteDiagram,
+	renameProject,
 	addToDiagram,
 	deleteFromDiagram,
 	deleteFromModel,
@@ -263,5 +265,28 @@ describe('addDiagram', () => {
 		expect(project.diagrams.map((d) => d.id)).toEqual(['d1']);
 		stack.redo();
 		expect(project.diagrams.map((d) => d.id)).toEqual(['d0', 'd1']);
+	});
+});
+
+describe('renameProject and deleteDiagram', () => {
+	it('renameProject swaps the name and back', () => {
+		const { project, stack } = setup();
+		stack.run(renameProject(project, { name: 'Billing' }));
+		expect(project.name).toBe('Billing');
+		stack.undo();
+		expect(project.name).toBe('Library');
+	});
+	it('deleteDiagram drops the views, keeps the model, and undo restores them in place', () => {
+		const { project, stack } = setup();
+		stack.run(addDiagram(project, { diagramId: 'd2', name: 'Second' }));
+		const before = structural(project);
+		const elements = project.elements.size;
+		stack.run(deleteDiagram(project, { diagramId: 'd1' }));
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d2']);
+		expect(project.elements.size).toBe(elements);
+		stack.undo();
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d1', 'd2']);
+		expect(structural(project)).toEqual(before);
+		expect(getDiagram(project, 'd1').layout.size).toBeGreaterThan(0);
 	});
 });

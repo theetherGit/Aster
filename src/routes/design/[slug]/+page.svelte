@@ -14,6 +14,7 @@
 	import ImportNotice from '#lib/panels/ImportNotice.svelte';
 	import Palette from '#lib/panels/Palette.svelte';
 	import ShortcutSheet from '#lib/panels/ShortcutSheet.svelte';
+	import Tip from '#lib/panels/Tip.svelte';
 	import Toast from '#lib/panels/Toast.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
 	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
@@ -46,7 +47,7 @@
 	import { announce } from '#lib/stores/live.svelte.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
-	import { byId } from '#lib/app/commands.svelte.ts';
+	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
 	import { resolve } from '$app/paths';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
@@ -244,6 +245,35 @@
 					{/if}
 				{:else if ui.panels.outline}
 					<div class="contents" data-panel="outline"><Explorer /></div>
+				{:else}
+					<!-- The Outline's rail, the mirror of the inspector's: one button to bring it back. -->
+					<aside
+						aria-label={t('explorer.collapsed')}
+						class="flex w-10 shrink-0 justify-center border-r border-chrome-border bg-chrome-surface pt-2"
+					>
+						<Tip text={t('explorer.show')} key={format(byId('view.outline')!.keys[0])}>
+							{#snippet children({ props })}
+								<button
+									{...props}
+									type="button"
+									class="icon-btn"
+									aria-label={t('explorer.show')}
+									onclick={() => runCommand('view.outline')}
+								>
+									<svg
+										width="14"
+										height="14"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										aria-hidden="true"
+										><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16" /></svg
+									>
+								</button>
+							{/snippet}
+						</Tip>
+					</aside>
 				{/if}
 				<main
 					id="canvas"

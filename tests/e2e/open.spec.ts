@@ -152,6 +152,7 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 	await page.getByTestId('project-name').click();
 	const menu = page.getByRole('menu');
 	await expect(menu.getByRole('menuitem')).toHaveText([
+		/Rename project…/,
 		/New diagram/,
 		/Open…/,
 		/^Save/,

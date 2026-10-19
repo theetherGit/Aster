@@ -45,8 +45,11 @@ export {
 export {
 	FLAG_LABEL,
 	addDiagram,
+	deleteDiagram,
 	removeDiagram,
 	renameDiagram,
+	renameProject,
+	restoreDiagram,
 	setDiagramDefaults,
 	setNodeFlags
 } from './display.ts';

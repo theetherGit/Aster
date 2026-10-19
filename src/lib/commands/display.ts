@@ -1,7 +1,7 @@
 /** Display toggles (features.md): per-diagram defaults and per-node overrides; diagram rename. */
 import { t } from '#lib/i18n/index.ts';
 import { createDiagram, getDiagram, getNodeLayout } from '#lib/model/project.ts';
-import type { DisplayFlags, Id } from '#lib/model/types.ts';
+import type { Diagram, DisplayFlags, Id, Layout } from '#lib/model/types.ts';
 import { define, type Factory } from './registry.ts';
 import type { Command } from './types.ts';
 
@@ -109,6 +109,69 @@ export const removeDiagram: Factory<{ diagramId: Id }> = define(
 			const index = p.diagrams.findIndex((d) => d.id === diagramId);
 			const [d] = p.diagrams.splice(index, 1);
 			return addDiagram(p, { diagramId, name: d.name, index });
+		}
+	})
+);
+
+/** The project's own name (StarUML's project field, not the file name). */
+export const renameProject: Factory<{ name: string }> = define(
+	'renameProject',
+	(project, { name }) => ({
+		label: t('cmd.renameProject', { name }),
+		touches: [],
+		apply(p): Command {
+			const previous = p.name;
+			p.name = name;
+			return renameProject(p, { name: previous });
+		}
+	})
+);
+
+/** A diagram's views, as plain data the undo stack can keep: the model elements stay put. */
+interface DiagramSnapshot {
+	id: Id;
+	name: string;
+	diagramKind: Diagram['diagramKind'];
+	elementIds: Id[];
+	layout: [Id, Layout][];
+	defaults: DisplayFlags;
+}
+const snapshot = (d: Diagram): DiagramSnapshot => ({
+	id: d.id,
+	name: d.name,
+	diagramKind: d.diagramKind,
+	elementIds: [...d.elementIds],
+	layout: [...d.layout.entries()],
+	defaults: { ...d.defaults }
+});
+
+/** Delete a diagram and every view on it; the model keeps its elements (StarUML semantics). */
+export const deleteDiagram: Factory<{ diagramId: Id }> = define(
+	'deleteDiagram',
+	(project, { diagramId }) => ({
+		label: t('cmd.deleteDiagram', { name: getDiagram(project, diagramId).name }),
+		touches: [],
+		apply(p): Command {
+			const index = p.diagrams.findIndex((d) => d.id === diagramId);
+			const [d] = p.diagrams.splice(index, 1);
+			return restoreDiagram(p, { index, diagram: snapshot(d) });
+		}
+	})
+);
+
+export const restoreDiagram: Factory<{ index: number; diagram: DiagramSnapshot }> = define(
+	'restoreDiagram',
+	(project, { index, diagram }) => ({
+		label: t('cmd.restoreDiagram', { name: diagram.name }),
+		touches: [],
+		apply(p): Command {
+			p.diagrams.splice(index, 0, {
+				...diagram,
+				elementIds: [...diagram.elementIds],
+				layout: new Map(diagram.layout),
+				defaults: { ...diagram.defaults }
+			});
+			return deleteDiagram(p, { diagramId: diagram.id });
 		}
 	})
 );

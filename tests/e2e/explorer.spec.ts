@@ -7,7 +7,7 @@ test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, ‚å
 	const canvas = page.getByRole('application', { name: 'Diagram canvas: Main' });
 	await expect(canvas).toBeFocused();
 
-	await page.keyboard.press('ControlOrMeta+b');
+	// The Outline is open by default on a 1280 px window.
 	const tree = page.getByRole('tree', { name: 'Model tree' });
 	await expect(tree).toBeVisible();
 	const items = tree.getByRole('treeitem');

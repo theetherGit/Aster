@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { DropdownMenu } from 'bits-ui';
 	import { onMount } from 'svelte';
+	import { tick } from 'svelte';
 	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
+	import { renameProject } from '#lib/commands/index.ts';
+	import InlineName from './InlineName.svelte';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { currentKey, openSaved, persist } from '#lib/persist/autosave.svelte.ts';
@@ -17,6 +20,11 @@
 		return c ? [c] : [];
 	});
 	const outline = byId('view.outline');
+	async function renamed() {
+		ui.renaming = null;
+		await tick();
+		document.querySelector<HTMLElement>('[data-testid="project-menu"]')?.focus();
+	}
 	const key = (id: string) => {
 		const k = byId(id)?.keys[0];
 		return k ? format(k) : '';
@@ -49,78 +57,100 @@
 </script>
 
 <!-- Project name as the menu for New, Open, Save and Recent (Modern has no menu bar). -->
-<DropdownMenu.Root>
-	<Tip text={stateTitle}>
-		{#snippet children({ props })}
-			<DropdownMenu.Trigger
-				{...props}
-				class="group flex h-8 min-w-0 items-center gap-1.5 rounded-control px-2 font-semibold hover:bg-chrome-surface"
-			>
-				<span class="truncate" data-testid="project-name" title={projectStore.project.name}
-					>{projectStore.project.name}</span
+{#if ui.renaming === 'project'}
+	<InlineName
+		value={projectStore.project.name}
+		label={t('ui.projectName')}
+		class="h-8 w-56 text-[15px] font-semibold"
+		oncommit={(name) => projectStore.run(renameProject, { name })}
+		ondone={renamed}
+	/>
+{:else}
+	<DropdownMenu.Root>
+		<Tip text={stateTitle}>
+			{#snippet children({ props })}
+				<DropdownMenu.Trigger
+					{...props}
+					data-testid="project-menu"
+					class="group flex h-8 min-w-0 items-center gap-1.5 rounded-control px-2 font-semibold hover:bg-chrome-surface"
+					onkeydown={(e: KeyboardEvent) => {
+						if (e.key === 'F2') {
+							e.preventDefault();
+							runCommand('project.rename');
+						}
+					}}
 				>
-				{#if files.state === 'unsaved' || files.state === 'never'}
-					<span
-						class="dot"
-						class:never={files.state === 'never'}
-						data-testid="save-state"
-						data-state={files.state}
-						role="img"
-						aria-label={stateTitle}
-					></span>
-				{/if}
-				<svg
-					class="text-chrome-muted group-hover:text-chrome-text group-data-[state=open]:text-chrome-text"
-					width="10"
-					height="10"
-					viewBox="0 0 10 10"
-					aria-hidden="true"
-					fill="currentColor"><path d="M1 3l4 4 4-4z" /></svg
-				>
-			</DropdownMenu.Trigger>
-		{/snippet}
-	</Tip>
-	<DropdownMenu.Portal>
-		<DropdownMenu.Content class="menu min-w-65" sideOffset={4} align="start">
-			{#each ROWS as c (c.id)}
-				<DropdownMenu.Item class="menu-item" onSelect={() => runCommand(c.id)}>
-					<span>{c.label()}</span>
-					<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(c.id)}</kbd>
-				</DropdownMenu.Item>
-			{/each}
-			{#if outline}
-				<DropdownMenu.CheckboxItem
-					class="menu-item"
-					checked={ui.panels.outline}
-					onCheckedChange={() => outline.run()}
-				>
-					{#snippet children({ checked })}
-						<span class="w-4 text-[11px]">{checked ? '✓' : ''}</span>
-						<span>{outline.label()}</span>
-						<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(outline.id)}</kbd>
-					{/snippet}
-				</DropdownMenu.CheckboxItem>
-			{/if}
-			<DropdownMenu.Separator class="my-1 h-px bg-chrome-border" />
-			<DropdownMenu.Group>
-				<DropdownMenu.GroupHeading
-					class="px-2 py-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
-					>{t('file.recent')}</DropdownMenu.GroupHeading
-				>
-				{#each persist.recent.filter((r) => r.id !== currentKey()) as r (r.id)}
-					<DropdownMenu.Item
-						class="menu-item"
-						onSelect={() => openEntry(r.id, r.fileName ?? r.name)}
+					<span class="truncate" data-testid="project-name" title={projectStore.project.name}
+						>{projectStore.project.name}</span
 					>
-						<span class="truncate" title={r.fileName ?? r.name}>{r.fileName ?? r.name}</span>
+					{#if files.state === 'unsaved' || files.state === 'never'}
+						<span
+							class="dot"
+							class:never={files.state === 'never'}
+							data-testid="save-state"
+							data-state={files.state}
+							role="img"
+							aria-label={stateTitle}
+						></span>
+					{/if}
+					<svg
+						class="text-chrome-muted group-hover:text-chrome-text group-data-[state=open]:text-chrome-text"
+						width="10"
+						height="10"
+						viewBox="0 0 10 10"
+						aria-hidden="true"
+						fill="currentColor"><path d="M1 3l4 4 4-4z" /></svg
+					>
+				</DropdownMenu.Trigger>
+			{/snippet}
+		</Tip>
+		<DropdownMenu.Portal>
+			<DropdownMenu.Content class="menu min-w-65" sideOffset={4} align="start">
+				<DropdownMenu.Item class="menu-item" onSelect={() => runCommand('project.rename')}>
+					<span>{t('ui.renameProject')}</span>
+				</DropdownMenu.Item>
+				<DropdownMenu.Separator class="my-1 h-px bg-chrome-border" />
+				{#each ROWS as c (c.id)}
+					<DropdownMenu.Item class="menu-item" onSelect={() => runCommand(c.id)}>
+						<span>{c.label()}</span>
+						<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(c.id)}</kbd>
 					</DropdownMenu.Item>
-				{:else}
-					<DropdownMenu.Item class="menu-item" disabled>{t('file.recentEmpty')}</DropdownMenu.Item>
 				{/each}
-			</DropdownMenu.Group>
-		</DropdownMenu.Content>
-	</DropdownMenu.Portal>
-</DropdownMenu.Root>
+				{#if outline}
+					<DropdownMenu.CheckboxItem
+						class="menu-item"
+						checked={ui.panels.outline}
+						onCheckedChange={() => outline.run()}
+					>
+						{#snippet children({ checked })}
+							<span class="w-4 text-[11px]">{checked ? '✓' : ''}</span>
+							<span>{outline.label()}</span>
+							<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(outline.id)}</kbd>
+						{/snippet}
+					</DropdownMenu.CheckboxItem>
+				{/if}
+				<DropdownMenu.Separator class="my-1 h-px bg-chrome-border" />
+				<DropdownMenu.Group>
+					<DropdownMenu.GroupHeading
+						class="px-2 py-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
+						>{t('file.recent')}</DropdownMenu.GroupHeading
+					>
+					{#each persist.recent.filter((r) => r.id !== currentKey()) as r (r.id)}
+						<DropdownMenu.Item
+							class="menu-item"
+							onSelect={() => openEntry(r.id, r.fileName ?? r.name)}
+						>
+							<span class="truncate" title={r.fileName ?? r.name}>{r.fileName ?? r.name}</span>
+						</DropdownMenu.Item>
+					{:else}
+						<DropdownMenu.Item class="menu-item" disabled>{t('file.recentEmpty')}</DropdownMenu.Item
+						>
+					{/each}
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Portal>
+	</DropdownMenu.Root>
+{/if}
 
 <style>
 	.dot {

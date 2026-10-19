@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { useSvelteFlow } from '@xyflow/svelte';
-	import { Tabs } from 'bits-ui';
+	import { ContextMenu, Tabs } from 'bits-ui';
+	import { tick } from 'svelte';
+	import { renameDiagram } from '#lib/commands/index.ts';
 	import { resolve } from '$app/paths';
 	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import InlineName from './InlineName.svelte';
 	import ProjectMenu from './ProjectMenu.svelte';
 	import Tip from './Tip.svelte';
 
@@ -26,6 +29,18 @@
 		const k = byId(id)?.keys[0];
 		return k ? format(k) : undefined;
 	};
+	// Tab rename (double-click, F2, context menu) runs the registry command on that diagram; when
+	// the editor closes, focus goes back to the tab it came from.
+	const rename = (id: string) => {
+		projectStore.activeDiagramId = id;
+		runCommand('diagram.rename');
+	};
+	const canDelete = $derived(projectStore.project.diagrams.length > 1);
+	async function renamed(id: string) {
+		ui.renaming = null;
+		await tick();
+		document.querySelector<HTMLElement>(`[role="tab"][data-value="${id}"]`)?.focus();
+	}
 	// aria-description is not in Svelte's attribute typings yet, so it goes in through a spread.
 	const describe = (text: string | undefined): Record<string, string | undefined> => ({
 		'aria-description': text
@@ -68,12 +83,51 @@
 		class="ml-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto"
 	>
 		{#each projectStore.project.diagrams as d (d.id)}
-			<Tabs.Trigger
-				value={d.id}
-				class="-mb-px shrink-0 border-b-2 border-transparent px-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text"
-			>
-				{d.name}
-			</Tabs.Trigger>
+			{#if ui.renaming === d.id}
+				<InlineName
+					value={d.name}
+					label={t('ui.diagramName')}
+					class="my-1.5 h-8 w-40 shrink-0 text-[13px]"
+					oncommit={(name) => projectStore.run(renameDiagram, { diagramId: d.id, name })}
+					ondone={() => renamed(d.id)}
+				/>
+			{:else}
+				<ContextMenu.Root>
+					<ContextMenu.Trigger>
+						{#snippet child({ props })}
+							<Tabs.Trigger
+								{...props}
+								value={d.id}
+								class="-mb-px shrink-0 border-b-2 border-transparent px-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text"
+								ondblclick={() => rename(d.id)}
+								onkeydown={(e: KeyboardEvent) => {
+									if (e.key === 'F2') {
+										e.preventDefault();
+										rename(d.id);
+									}
+								}}
+							>
+								{d.name}
+							</Tabs.Trigger>
+						{/snippet}
+					</ContextMenu.Trigger>
+					<ContextMenu.Portal>
+						<ContextMenu.Content class="menu">
+							<ContextMenu.Item class="menu-item" onSelect={() => rename(d.id)}
+								>{t('ui.renameDiagram')}</ContextMenu.Item
+							>
+							<ContextMenu.Item
+								class="menu-item data-[disabled]:opacity-50"
+								disabled={!canDelete}
+								onSelect={() => {
+									projectStore.activeDiagramId = d.id;
+									runCommand('diagram.delete');
+								}}>{t('ui.deleteDiagram')}</ContextMenu.Item
+							>
+						</ContextMenu.Content>
+					</ContextMenu.Portal>
+				</ContextMenu.Root>
+			{/if}
 		{/each}
 	</Tabs.List>
 	<!-- Board 01: the "+" after the last tab; outside the scroll region so it is always in reach. -->

@@ -17,6 +17,22 @@ const storedTheme = new PersistedState<Theme>('aster:theme', 'system', {
 	}
 });
 
+/** The Outline drawer: open by default on a wide window, remembered per browser afterwards. */
+const storedOutline = new PersistedState<boolean>(
+	'aster:outline',
+	typeof window !== 'undefined' && window.innerWidth >= 1280,
+	{ serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' } }
+);
+class Panels {
+	get outline() {
+		return storedOutline.current;
+	}
+	set outline(v: boolean) {
+		storedOutline.current = v;
+	}
+	inspector = $state(true);
+}
+
 class Ui {
 	zoom = $state(1);
 	/** System-following with a remembered override (features.md, themes). */
@@ -33,7 +49,9 @@ class Ui {
 		storedLayout.current = v;
 		if (v === 'modern' && this.inspectorTab === 'documentation') this.inspectorTab = 'properties';
 	}
-	panels = $state({ outline: false, inspector: true });
+	panels = new Panels();
+	/** An in-place name editor is open: the project name, or a diagram tab by id. */
+	renaming: 'project' | Id | null = $state(null);
 	/** Classic's six panels, StarUML's Ctrl+1–6 (keyboard.md). */
 	classic = $state({
 		sidebar: true,

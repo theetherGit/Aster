@@ -14,7 +14,13 @@ import {
 	startEditing,
 	stopEditing
 } from '#lib/canvas/actions.ts';
-import { addDiagram, batch, setDiagramDefaults, setNodeFlags } from '#lib/commands/index.ts';
+import {
+	addDiagram,
+	batch,
+	deleteDiagram,
+	setDiagramDefaults,
+	setNodeFlags
+} from '#lib/commands/index.ts';
 import { serialise } from '#lib/commands/registry.ts';
 import { copyDiagramAsPng } from '#lib/export/actions.ts';
 import { t, type MessageKey } from '#lib/i18n/index.ts';
@@ -369,6 +375,14 @@ export const COMMANDS: AppCommand[] = [
 		run: () => void saveFile()
 	},
 	{
+		id: 'project.rename',
+		group: 'file',
+		label: () => t('ui.renameProject'),
+		keys: [],
+		context: 'global',
+		run: () => (ui.renaming = 'project')
+	},
+	{
 		id: 'file.saveAs',
 		group: 'file',
 		label: () => t('file.saveAs'),
@@ -527,6 +541,33 @@ export const COMMANDS: AppCommand[] = [
 			const diagramId = newId();
 			projectStore.run(addDiagram, { diagramId, name: `${base} ${n}` });
 			projectStore.activeDiagramId = diagramId;
+			canvasFocus.focus();
+		}
+	},
+	{
+		id: 'diagram.rename',
+		group: 'view',
+		label: () => t('ui.renameDiagram'),
+		keys: [],
+		context: 'global',
+		run: () => (ui.renaming = projectStore.activeDiagramId)
+	},
+	{
+		// Deletes the views; the model keeps its elements. Undo from the toast, no confirm (board 19).
+		id: 'diagram.delete',
+		group: 'view',
+		label: () => t('ui.deleteDiagram'),
+		keys: [],
+		context: 'global',
+		when: () => projectStore.project.diagrams.length > 1,
+		run: () => {
+			const diagrams = projectStore.project.diagrams;
+			const index = diagrams.findIndex((d) => d.id === projectStore.activeDiagramId);
+			const name = diagrams[index].name;
+			const next = diagrams[index === 0 ? 1 : index - 1].id;
+			projectStore.run(deleteDiagram, { diagramId: diagrams[index].id });
+			projectStore.activeDiagramId = next;
+			ui.toast = { text: t('toast.diagramDeleted', { name }), undo: true, at: Date.now() };
 			canvasFocus.focus();
 		}
 	},

@@ -314,7 +314,6 @@ test.describe('on the notation fixture', () => {
 		page
 	}) => {
 		await expect(canvasOf(page)).toBeFocused();
-		await page.keyboard.press('ControlOrMeta+b');
 		const tree = page.getByRole('tree', { name: 'Model tree' });
 		const member = tree.getByRole('treeitem', { name: /^Member/ });
 		await member.click();
