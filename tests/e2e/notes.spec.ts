@@ -1,5 +1,5 @@
 import { expect, test, type Download } from '@playwright/test';
-import { canvasOf, node } from './helpers';
+import { canvasOf, expectKeyboardOnCanvas, node } from './helpers';
 
 async function downloadText(d: Download) {
 	const chunks: Buffer[] = [];
@@ -28,7 +28,7 @@ test('notes: N creates one, text commits with ⌘↩, L links it to a class, the
 	await expect(note).toHaveCount(1);
 	await expect(note).toContainText('Overdue after 14 days;');
 	await expect(note).toHaveClass(/selected/);
-	await expect(canvasOf(page)).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 
 	// L from the note: arrows pick a class, Enter links straight away (no kind to pick).
 	await page.keyboard.press('l');

@@ -7,6 +7,7 @@
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { canvasFocus } from './focus.ts';
 	import { edit } from './inline.ts';
+	import { elementSummary } from './summary.ts';
 
 	// A note (folded corner, ui.md: 12 px, min 120×60) or a free text element; the same
 	// multi-line editor for both. ⌘↩ or leaving the field commits; Esc puts the text back.
@@ -15,6 +16,7 @@
 	const el = $derived(data.element);
 	const isNote = $derived(el.kind === 'note');
 	let draft = $state('');
+	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
 
 	function commit(refocus: boolean) {
 		if (draft !== el.text) projectStore.run(setElementText, { id, text: draft });
@@ -59,9 +61,14 @@
 
 <!-- The outer box is never clipped, so the selection, hover and link-target outlines and the
      corner handles draw whole; the sheet inside carries the fill, the border and the folded corner. -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
 	class="note-node"
+	role="group"
+	aria-label={summary}
+	tabindex={data.focus === 'self' ? 0 : -1}
+	data-focus-id={id}
+	data-part="self"
 	class:text={!isNote}
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
@@ -150,6 +157,17 @@
 	.note-node.link-target {
 		outline: 2px dashed var(--paper-accent);
 		outline-offset: 5px;
+	}
+	/* Keyboard focus ring beside the solid selection outline, as on classifiers. */
+	.note-node:not(.selected):focus-visible {
+		outline: none;
+	}
+	.note-node:focus-visible::after {
+		content: '';
+		position: absolute;
+		inset: -7px;
+		border: 2px dashed var(--paper-accent);
+		pointer-events: none;
 	}
 	.body {
 		margin: 0;

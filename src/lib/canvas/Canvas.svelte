@@ -32,8 +32,9 @@
 	import UmlEdge from './edges/UmlEdge.svelte';
 	import { center, type Rect } from './edges/geometry.ts';
 	import { canvasApi } from './api.ts';
-	import { canvasFocus, canvasRects } from './focus.ts';
+	import { canvasFocus, canvasRects, focusOwner } from './focus.ts';
 	import { handleCanvasKey } from './keyboard.ts';
+	import type { FocusPart } from '#lib/stores/selection.svelte.ts';
 
 	const nodeTypes = {
 		class: ClassifierNode,
@@ -51,6 +52,7 @@
 		getInternalNode,
 		getZoom,
 		setZoom,
+		setCenter,
 		fitView,
 		fitBounds
 	} = useSvelteFlow();
@@ -105,6 +107,61 @@
 			canvasFocus.el = null;
 			canvasRects.get = () => new Map();
 		};
+	});
+
+	/** The focused element's parts in Tab order, as rendered: itself, its name, its lines, its edges. */
+	function parts(id: Id): FocusPart[] {
+		const key = CSS.escape(id);
+		const own = [...el.querySelectorAll<HTMLElement>(`[data-focus-id="${key}"]`)].map(
+			(p) => p.dataset.part as FocusPart
+		);
+		const edges = [
+			...el.querySelectorAll<SVGGElement>(
+				`.uml-edge[data-source="${key}"], .uml-edge[data-target="${key}"]`
+			)
+		].map((g): FocusPart => `edge:${g.dataset.relId}`);
+		return [...new Set([...own, ...edges])];
+	}
+
+	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
+	function reveal(id: Id) {
+		const r = rects().get(id);
+		if (!r) return;
+		const box = el.getBoundingClientRect();
+		const a = flowToScreenPosition({ x: r.x, y: r.y });
+		const b = flowToScreenPosition({ x: r.x + r.w, y: r.y + r.h });
+		const m = 24;
+		if (a.x >= box.left + m && b.x <= box.right - m && a.y >= box.top + m && b.y <= box.bottom - m)
+			return;
+		setCenter(r.x + r.w / 2, r.y + r.h / 2, { zoom: getZoom(), duration: dur(160) });
+	}
+
+	// Roving focus in the DOM: after any re-render, the owner part takes real focus, but only while
+	// the diagram has the keyboard (a selection made from the inspector must not steal it).
+	$effect(() => {
+		const f = selection.focus;
+		void selection.editing;
+		void flow.canvasNodes;
+		if (!f || selection.editing) return;
+		const active = document.activeElement;
+		if (!(active === document.body || el.contains(active))) return;
+		let tries = 0;
+		const attempt = () => {
+			const owner = focusOwner(el);
+			if (owner) {
+				if (document.activeElement !== owner) owner.focus({ preventScroll: true });
+				reveal(f.id);
+			} else if (tries++ < 10) requestAnimationFrame(attempt);
+		};
+		attempt();
+	});
+	// Selection made by the pointer, the Outline or undo: focus follows a single selection.
+	$effect(() => {
+		const ids = selection.list;
+		if (ids.length !== 1) return;
+		const f = untrack(() => selection.focus);
+		const current = f ? (f.part.startsWith('edge:') ? f.part.slice(5) : f.id) : null;
+		if (current !== ids[0]) selection.focus = { id: ids[0], part: 'self' };
 	});
 
 	function toPaper(screen: { x: number; y: number }) {
@@ -258,8 +315,8 @@
 	class="aster-canvas"
 	role="application"
 	aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
-	tabindex="0"
-	onkeydown={(e) => handleCanvasKey(e, { rects, openPicker })}
+	tabindex={selection.focus ? -1 : 0}
+	onkeydown={(e) => handleCanvasKey(e, { rects, openPicker, parts })}
 >
 	<Markers />
 	<SvelteFlow

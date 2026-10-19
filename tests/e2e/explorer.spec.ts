@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { expectKeyboardOnCanvas } from './helpers';
 
 test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, ⌘E / ⌘D', async ({
 	page
@@ -60,7 +61,7 @@ test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, �
 	await expect(items.last()).toHaveAttribute('aria-selected', 'true');
 
 	await page.keyboard.press('ControlOrMeta+d');
-	await expect(canvas).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 
 	await page.locator('.classifier-node[data-name="Account"]').click();
 	await expect(items.nth(2)).toHaveAttribute('aria-selected', 'true');

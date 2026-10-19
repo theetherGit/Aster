@@ -9,6 +9,13 @@ export interface Editing {
 	target: EditTarget;
 }
 
+/** A part of a focused element (accessibility.md): the element itself, its name, one member line, or an attached edge. */
+export type FocusPart = 'self' | 'name' | `${MemberKind}:${number}` | `edge:${Id}`;
+export interface Focus {
+	id: Id;
+	part: FocusPart;
+}
+
 export const sameTarget = (a: EditTarget, b: EditTarget) =>
 	a.part === b.part &&
 	(a.part === 'name' || a.part === 'text' || a.index === (b as { index: number }).index);
@@ -16,6 +23,8 @@ export const sameTarget = (a: EditTarget, b: EditTarget) =>
 class Selection {
 	ids = new SvelteSet<Id>();
 	editing: Editing | null = $state(null);
+	/** Roving canvas focus: one element (and part) owns the keyboard inside the diagram. View state, never persisted. */
+	focus: Focus | null = $state(null);
 
 	get editingId(): Id | null {
 		return this.editing?.id ?? null;

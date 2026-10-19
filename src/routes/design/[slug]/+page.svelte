@@ -158,11 +158,19 @@
 		if (!panels.length) return;
 		const current = panels.findIndex((p) => p.contains(document.activeElement));
 		const next = panels[(current + (back ? -1 : 1) + panels.length) % panels.length];
-		const target = next.querySelector<HTMLElement>(
+		// The first candidate that takes focus: a disabled tab or a hidden control is skipped.
+		for (const target of next.querySelectorAll<HTMLElement>(
 			'[role="application"], [tabindex="0"], button:not([disabled]), input, textarea, select, a[href]'
-		);
-		target?.focus();
+		)) {
+			target.focus();
+			if (document.activeElement === target) return;
+		}
 	}
+	// Esc at the top of the canvas's levels hands focus on, the same as F6 (accessibility.md).
+	$effect(() => {
+		canvasFocus.leave = () => cyclePanels(false);
+		return () => (canvasFocus.leave = () => {});
+	});
 	function onkeydown(e: KeyboardEvent) {
 		if (e.key === 'F6') {
 			e.preventDefault();

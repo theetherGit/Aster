@@ -6,6 +6,7 @@ import {
 	deleteFromDiagram,
 	deleteFromModel,
 	moveNode,
+	resizeNode,
 	setLineStyle
 } from '#lib/commands/index.ts';
 import { serialise } from '#lib/commands/registry.ts';
@@ -13,10 +14,12 @@ import { t } from '#lib/i18n/index.ts';
 import { newId } from '#lib/model/ids.ts';
 import { createClassifier, elementName, nextClassName } from '#lib/model/project.ts';
 import type { ClassifierKind, Id, LineStyle, Point } from '#lib/model/types.ts';
+import type { MemberKind } from '#lib/mdj/expression.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
 import type { Rect } from './edges/geometry.ts';
+import { canvasFocus } from './focus.ts';
 import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
 import { freePosition } from './place.ts';
@@ -48,9 +51,33 @@ export function nudgeSelection(dx: number, dy: number) {
 	projectStore.run(moveNode, { diagramId: projectStore.activeDiagramId, ids, dx, dy });
 }
 
+/** ⇧+arrows: resize the one selected note by 8 px (keyboard.md; packages come with M3). */
+export function resizeSelection(dw: number, dh: number): boolean {
+	const ids = selectedWith('node').filter(
+		(id) => projectStore.project.elements.get(id)?.kind === 'note'
+	);
+	if (ids.length !== 1 || selection.size !== 1) return false;
+	const l = projectStore.diagram.layout.get(ids[0]);
+	if (l?.kind !== 'node') return false;
+	projectStore.run(resizeNode, {
+		diagramId: projectStore.activeDiagramId,
+		id: ids[0],
+		w: Math.max(120, l.w + dw),
+		h: Math.max(60, l.h + dh)
+	});
+	return true;
+}
+
 export function deleteSelection(fromModel: boolean) {
 	const ids = selection.list;
 	if (!ids.length) return;
+	// The focused element goes with the selection; the container takes the keyboard back.
+	if (selection.focus && ids.includes(selection.focus.id)) {
+		selection.focus = null;
+		requestAnimationFrame(() => {
+			if (document.activeElement === document.body) canvasFocus.focus();
+		});
+	}
 	const first = projectStore.project.elements.get(ids[0]);
 	const name =
 		ids.length === 1 && first ? elementName(first) : t('cmd.many', { count: ids.length });
@@ -66,12 +93,16 @@ export function deleteSelection(fromModel: boolean) {
 	};
 }
 
-/** F2 / ↩ on a selected classifier: edit its name. */
+/** F2 / ↩ on a selected classifier: edit its name, or the member line that has roving focus. */
 export function startEditing() {
 	if (selection.size !== 1) return;
 	const [id] = selection.list;
 	const kind = projectStore.project.elements.get(id)?.kind;
-	if (kind === 'classifier') edit(id, { part: 'name' });
+	const part = selection.focus?.id === id ? selection.focus.part : 'self';
+	const line = /^(attribute|operation|literal):(\d+)$/.exec(part);
+	if (kind === 'classifier' && line)
+		edit(id, { part: line[1] as MemberKind, index: Number(line[2]) });
+	else if (kind === 'classifier') edit(id, { part: 'name' });
 	else if (kind === 'note' || kind === 'text') edit(id, { part: 'text' });
 }
 

@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { canvasOf, create, lines, node } from './helpers';
+import { canvasOf, create, expectKeyboardOnCanvas, lines, node } from './helpers';
 
 /** Wait for an editor to own focus (a few frames after Enter), then type into it. */
 async function typeInto(page: Page, editor: Locator, text: string) {
@@ -47,7 +47,7 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await expect(lines(page, 'Book', 'operation')).toHaveText(['+ borrow(): void']);
 	await expect(op).toBeFocused();
 	await page.keyboard.press('Escape');
-	await expect(canvas).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 	await expect(canvas.locator('input')).toHaveCount(0);
 
 	// ⌘↩ from an operation line adds an attribute line; ⌘⇧↩ adds an operation line.
@@ -99,7 +99,7 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await page.keyboard.press('ControlOrMeta+a');
 	await page.keyboard.press('Backspace');
 	await page.keyboard.press('Enter');
-	await expect(canvas).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 	await expect(lines(page, 'Book', 'attribute')).toHaveCount(3);
 });
 
@@ -201,5 +201,5 @@ test('app chords reach the app from an inline editor: ⌘Z undoes, ⌘S saves, n
 	// (the step may have removed what was being edited) and the canvas takes focus.
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(lines(page, 'Book', 'attribute')).toHaveCount(0);
-	await expect(canvas).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 });

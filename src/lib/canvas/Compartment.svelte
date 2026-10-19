@@ -13,8 +13,10 @@
 		flags: DisplayFlags;
 		/** Index of the line being edited, possibly `members.length` for a new line. */
 		editing: number | null;
+		/** Index of the line that owns roving focus. */
+		focused: number | null;
 	}
-	let { classifierId, kind, members, flags, editing }: Props = $props();
+	let { classifierId, kind, members, flags, editing, focused }: Props = $props();
 
 	let draft = $state('');
 	const summary = $derived(editing === null ? null : summarise(kind, draft));
@@ -35,8 +37,12 @@
 	ondblclick={(e) => ondblclick(e, members.length)}
 >
 	{#each members as m, i (m.id)}
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 		<li
 			class="member"
+			tabindex={focused === i ? 0 : -1}
+			data-focus-id={classifierId}
+			data-part="{kind}:{i}"
 			class:editing={editing === i}
 			class:static={'isStatic' in m && m.isStatic}
 			class:raw={'raw' in m && m.raw !== undefined}

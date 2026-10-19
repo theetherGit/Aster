@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, test, type Download, type Page } from '@playwright/test';
-import { canvasOf, lines, node } from './helpers';
+import { canvasOf, expectKeyboardOnCanvas, lines, node } from './helpers';
 
 const fixture = (name: string) =>
 	fileURLToPath(new URL(`../../fixtures/mdj/${name}`, import.meta.url));
@@ -44,7 +44,7 @@ test('command palette (board 16): ⌘K, filter, Enter runs on the selection; ⌘
 	// Only the selected class changed: its lines lose the visibility symbol.
 	await expect(lines(page, 'Customer', 'attribute').first()).toHaveText('attribute0: String');
 	await expect(lines(page, 'Account', 'attribute').nth(1)).toHaveText('- attribute1: int');
-	await expect(canvasOf(page)).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 
 	await page.keyboard.press('ControlOrMeta+Shift+p');
 	await expect(palette).toBeVisible();
@@ -203,7 +203,7 @@ test('the top bar opens the palette; the toolbox links the one selected node', a
 	await expect(link).toBeEnabled();
 	await link.click();
 	await expect(page.locator('.link-preview')).toBeVisible(); // the keyboard link has begun
-	await expect(canvasOf(page)).toBeFocused(); // so the arrows and Esc work at once
+	await expectKeyboardOnCanvas(page); // so the arrows and Esc work at once
 	// The pointer path: a click on another node picks it and opens the picker, as ↩ does.
 	await node(page, 'Customer').click();
 	const picker = page.getByRole('menu', { name: 'Relationship kind' });
@@ -213,7 +213,7 @@ test('the top bar opens the palette; the toolbox links the one selected node', a
 	await page.keyboard.press('Escape');
 	await expect(picker).toHaveCount(0);
 	await expect(page.locator('.link-preview')).toHaveCount(0);
-	await expect(canvasOf(page)).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 });
 
 test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered, the paper stays white', async ({

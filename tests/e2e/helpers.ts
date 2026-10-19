@@ -70,3 +70,10 @@ export async function awaitAutosave(page: Page) {
 		.poll(() => page.getByTestId('footer-save').getAttribute('data-saved'), { timeout: 10_000 })
 		.not.toBe(before);
 }
+
+/** The diagram has the keyboard: the container, or the element that owns roving focus inside it. */
+export async function expectKeyboardOnCanvas(page: Page) {
+	await expect
+		.poll(() => canvasOf(page).evaluate((el) => el.contains(document.activeElement)))
+		.toBe(true);
+}

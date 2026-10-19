@@ -11,6 +11,7 @@
 		removeWaypoint,
 		setLabelOffset
 	} from '#lib/commands/index.ts';
+	import { elementSummary } from '../summary.ts';
 	import type { LabelOffset, LabelKey } from '#lib/model/types.ts';
 	import type { RelationshipFlowEdge } from '#lib/stores/flow.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -216,6 +217,7 @@
 	}
 
 	const marker = (m: string | null) => (m ? `url(#aster-m-${m})` : undefined);
+	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
 </script>
 
 <!--
@@ -224,11 +226,19 @@
 -->
 {#if points.length >= 2}
 	<!-- Hovering the edge lights up both end nodes; the hit band below is what the pointer meets. -->
+	<!-- A part of each end node for roving focus (accessibility.md): Tab reaches it, ↩ and ⌫ act on it. -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<g
 		class="uml-edge"
 		class:selected
+		class:focused={data!.focused}
 		class:hovered={ui.hoveredEdge === id}
+		role="group"
+		aria-label={summary}
+		tabindex={data!.focused ? 0 : -1}
+		data-source={source}
+		data-target={target}
 		onpointerenter={() => (ui.hoveredEdge = id)}
 		onpointerleave={() => {
 			if (ui.hoveredEdge === id) ui.hoveredEdge = null;
@@ -238,6 +248,10 @@
 		data-line-style={style}
 		data-waypoints={layout.waypoints.length}
 	>
+		{#if data!.focused}
+			<!-- The dashed accent focus ring, as a halo along the line. -->
+			<path class="edge-focus" {d} style:stroke-width={6 / zoom} />
+		{/if}
 		<path
 			class="edge-line"
 			{d}
@@ -345,6 +359,16 @@
 	.edge-end {
 		fill: var(--paper-bg);
 		stroke: var(--paper-accent);
+		pointer-events: none;
+	}
+	.uml-edge:focus {
+		outline: none; /* the halo below is the ring */
+	}
+	.edge-focus {
+		fill: none;
+		stroke: var(--paper-accent);
+		stroke-dasharray: 6 4;
+		opacity: 0.45;
 		pointer-events: none;
 	}
 	.edge-hit {

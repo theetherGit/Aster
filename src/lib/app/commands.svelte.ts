@@ -5,11 +5,12 @@
  * Model commands stay in src/lib/commands; these call them.
  */
 import { canvasApi } from '#lib/canvas/api.ts';
-import { canvasFocus, explorerFocus } from '#lib/canvas/focus.ts';
+import { canvasFocus, explorerFocus, focusElement } from '#lib/canvas/focus.ts';
 import { rightOf } from '#lib/canvas/place.ts';
 import {
 	deleteSelection,
 	nudgeSelection,
+	resizeSelection,
 	setLineStyleForSelection,
 	startEditing,
 	stopEditing
@@ -151,6 +152,18 @@ const nudge = (id: string, key: string, dx: number, dy: number, big = false): Ap
 	run: () => nudgeSelection(dx * (big ? 8 : 1), dy * (big ? 8 : 1))
 });
 
+/** ⇧+arrows resize the selected note (keyboard.md § Canvas keyboard model); packages wait for M3. */
+const resize = (id: string, key: string, dw: number, dh: number): AppCommand => ({
+	id,
+	group: 'select',
+	label: () => t('cmd.resizeNote'),
+	keys: k(key),
+	context: 'canvas',
+	sheetOnly: true,
+	when: () => selection.list.some((x) => projectStore.project.elements.get(x)?.kind === 'note'),
+	run: () => resizeSelection(dw, dh)
+});
+
 const sheetRow = (
 	id: string,
 	group: Group,
@@ -165,6 +178,9 @@ const sheetRow = (
 	context: 'canvas',
 	sheetOnly: true,
 	staruml,
+	// Documentation for the sheet: the editor or the canvas router owns the key, so the row never
+	// dispatches (a dispatched no-op would swallow Tab and ⇧Tab on the canvas).
+	when: () => false,
 	run: () => {}
 });
 
@@ -256,12 +272,19 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('Esc'),
 		context: 'canvas',
 		sheetOnly: true,
+		// accessibility.md: editing → part → element → clear selection → leave the diagram.
 		run: () => {
+			const f = selection.focus;
 			if (selection.editing) stopEditing();
 			else if (ui.pinned || ui.tool !== 'select') {
 				ui.pinned = null;
 				ui.tool = 'select';
-			} else selection.clear();
+			} else if (f && f.part !== 'self') focusElement(f.id, 'self');
+			else if (selection.size) selection.clear();
+			else if (f) {
+				selection.focus = null;
+				canvasFocus.leave();
+			}
 		}
 	},
 	{
@@ -294,14 +317,18 @@ export const COMMANDS: AppCommand[] = [
 		context: 'canvas',
 		run: () => selection.set(projectStore.diagram.elementIds)
 	},
-	nudge('nudge.left', '←', -1, 0),
-	nudge('nudge.right', '→', 1, 0),
-	nudge('nudge.up', '↑', 0, -1),
-	nudge('nudge.down', '↓', 0, 1),
-	nudge('nudge.left.big', '⇧←', -1, 0, true),
-	nudge('nudge.right.big', '⇧→', 1, 0, true),
-	nudge('nudge.up.big', '⇧↑', 0, -1, true),
-	nudge('nudge.down.big', '⇧↓', 0, 1, true),
+	nudge('nudge.left', '⌘←', -1, 0),
+	nudge('nudge.right', '⌘→', 1, 0),
+	nudge('nudge.up', '⌘↑', 0, -1),
+	nudge('nudge.down', '⌘↓', 0, 1),
+	nudge('nudge.left.big', '⌘⇧←', -1, 0, true),
+	nudge('nudge.right.big', '⌘⇧→', 1, 0, true),
+	nudge('nudge.up.big', '⌘⇧↑', 0, -1, true),
+	nudge('nudge.down.big', '⌘⇧↓', 0, 1, true),
+	resize('resize.wider', '⇧→', 8, 0),
+	resize('resize.narrower', '⇧←', -8, 0),
+	resize('resize.taller', '⇧↓', 0, 8),
+	resize('resize.shorter', '⇧↑', 0, -8),
 	{
 		id: 'delete.view',
 		group: 'select',

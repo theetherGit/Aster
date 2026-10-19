@@ -43,3 +43,14 @@ export function firstTarget(rects: ReadonlyMap<Id, Rect>, sourceId: Id): Id {
 	}
 	return best;
 }
+
+/** Where roving focus starts when nothing has it: the top-left element (reading order). */
+export function firstElement(rects: ReadonlyMap<Id, Rect>): Id | null {
+	let best: Id | null = null;
+	let bestKey = Infinity;
+	for (const [id, r] of rects) {
+		const key = r.y * 4 + r.x; // rows first, then columns; a node a little lower but far left still reads first
+		if (key < bestKey) [best, bestKey] = [id, key];
+	}
+	return best;
+}

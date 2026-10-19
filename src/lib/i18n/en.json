@@ -588,5 +588,22 @@
 	"footer.classifierOne": "1 classifier",
 	"footer.classifiers": "{n} classifiers",
 	"footer.relationshipOne": "1 relationship",
-	"footer.relationships": "{n} relationships"
+	"footer.relationships": "{n} relationships",
+	"summary.classifier": "{kind} {name}",
+	"summary.abstract": "Abstract {kind}",
+	"summary.attributes": "{count} attributes",
+	"summary.attributes.one": "1 attribute",
+	"summary.operations": "{count} operations",
+	"summary.operations.one": "1 operation",
+	"summary.literals": "{count} literals",
+	"summary.literals.one": "1 literal",
+	"summary.relationships": "{count} relationships: {list}",
+	"summary.relationships.one": "1 relationship: {list}",
+	"summary.relationships.none": "no relationships",
+	"summary.relTo": "{kind} to {name}",
+	"summary.relFrom": "{kind} from {name}",
+	"summary.note": "Note: {text}",
+	"summary.text": "Text: {text}",
+	"summary.join": ", ",
+	"cmd.resizeNote": "Resize note 8 px"
 }

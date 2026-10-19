@@ -3,9 +3,11 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { membersOf } from '#lib/commands/index.ts';
 	import type { ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
+	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Compartment from './Compartment.svelte';
 	import LineEditor from './LineEditor.svelte';
 	import { compartmentsFor, edit, headerLabel } from './inline.ts';
+	import { elementSummary } from './summary.ts';
 
 	let { id, data, selected }: NodeProps<ClassifierFlowNode> = $props();
 
@@ -31,10 +33,24 @@
 	);
 	const editingIndex = (kind: (typeof compartments)[number]) =>
 		data.editing && data.editing.part === kind ? data.editing.index : null;
+	// Roving focus (accessibility.md): the node, its name and each line are parts; the one that
+	// owns focus is the diagram's single tabindex="0". `data-focus-id` + `data-part` find it again
+	// after any re-render, so focus is never lost.
+	const focusedIndex = (kind: (typeof compartments)[number]) => {
+		const m = data.focus && /^(\w+):(\d+)$/.exec(data.focus);
+		return m && m[1] === kind ? Number(m[2]) : null;
+	};
+	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
 	class="classifier-node"
+	role="group"
+	aria-label={summary}
+	tabindex={data.focus === 'self' ? 0 : -1}
+	data-focus-id={id}
+	data-part="self"
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
 	class:edge-hover={data.hovered}
@@ -63,7 +79,14 @@
 				selectAll
 			/>
 		{:else}
-			<span class="name" class:abstract={c.isAbstract}>{c.name}</span>
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+			<span
+				class="name"
+				class:abstract={c.isAbstract}
+				tabindex={data.focus === 'name' ? 0 : -1}
+				data-focus-id={id}
+				data-part="name">{c.name}</span
+			>
 		{/if}
 	</div>
 	{#each compartments as kind (kind)}
@@ -73,6 +96,7 @@
 			members={membersOf(c, kind)}
 			{flags}
 			editing={editingIndex(kind)}
+			focused={focusedIndex(kind)}
 		/>
 	{/each}
 	{#each HANDLES as h (h.id)}
@@ -106,6 +130,26 @@
 	}
 	.classifier-node.selected {
 		outline: 2px solid var(--paper-accent);
+	}
+	/* Keyboard focus: a 2 px dashed accent ring at 5 px offset (ui.md), drawn as a pseudo-element
+	   so it shows beside the solid selection outline on the same node. */
+	.classifier-node:focus-visible {
+		outline: 2px solid var(--paper-accent);
+	}
+	.classifier-node:not(.selected):focus-visible {
+		outline: none;
+	}
+	.classifier-node:focus-visible::after {
+		content: '';
+		position: absolute;
+		inset: -7px;
+		border: 2px dashed var(--paper-accent);
+		pointer-events: none;
+	}
+	.name:focus-visible,
+	.classifier-node :global(.member:focus-visible) {
+		outline: 2px dashed var(--paper-accent);
+		outline-offset: 1px;
 	}
 	/* The keyboard link target carries the focus-ring style (ui.md). */
 	.classifier-node.link-target {

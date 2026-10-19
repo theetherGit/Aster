@@ -11,7 +11,7 @@ import type {
 	TextElement
 } from '#lib/model/types.ts';
 import { projectStore } from './project.svelte.ts';
-import { selection, type EditTarget } from './selection.svelte.ts';
+import { selection, type EditTarget, type FocusPart } from './selection.svelte.ts';
 import { ui } from './ui.svelte.ts';
 
 export interface ClassifierNodeData extends Record<string, unknown> {
@@ -25,6 +25,8 @@ export interface ClassifierNodeData extends Record<string, unknown> {
 	link: 'source' | 'target' | 'both' | null;
 	/** An end of the edge under the pointer. */
 	hovered: boolean;
+	/** Which part of this node owns roving focus, or null. */
+	focus: FocusPart | null;
 }
 export type ClassifierFlowNode = Node<ClassifierNodeData, ClassifierKind>;
 
@@ -36,6 +38,7 @@ export interface NoteNodeData extends Record<string, unknown> {
 	editing: boolean;
 	link: 'source' | 'target' | 'both' | null;
 	hovered: boolean;
+	focus: FocusPart | null;
 }
 export type NoteFlowNode = Node<NoteNodeData, 'note' | 'text'>;
 export type FlowNode = ClassifierFlowNode | NoteFlowNode;
@@ -44,6 +47,8 @@ export interface RelationshipEdgeData extends Record<string, unknown> {
 	relationship: Relationship;
 	layout: EdgeLayout;
 	flags: DisplayFlags;
+	/** Roving focus sits on this edge (as an element, or as a part of one of its nodes). */
+	focused: boolean;
 }
 export type RelationshipFlowEdge = Edge<RelationshipEdgeData, 'uml'>;
 /** A note link: dashed, no arrowhead, derived from `Note.linkedIds`. */
@@ -87,7 +92,8 @@ class Flow {
 						minHeight: flags.autoResize === false ? l.h : 0,
 						editing: null,
 						link: null,
-						hovered: false
+						hovered: false,
+						focus: null
 					},
 					focusable: false
 				});
@@ -102,7 +108,8 @@ class Flow {
 						height: l.h,
 						editing: false,
 						link: null,
-						hovered: false
+						hovered: false,
+						focus: null
 					},
 					focusable: false
 				});
@@ -146,7 +153,8 @@ class Flow {
 					data: {
 						relationship: structuredClone(el),
 						layout: structuredClone(l),
-						flags: { ...diagram.defaults }
+						flags: { ...diagram.defaults },
+						focused: false
 					},
 					ariaLabel: t('edge.label', {
 						source: name(el.sourceId),
@@ -179,7 +187,13 @@ class Flow {
 	});
 
 	canvasEdges: FlowEdge[] = $derived(
-		this.edges.map((e) => ({ ...e, selected: selection.has(e.id) }))
+		this.edges.map((e): FlowEdge => {
+			const selected = selection.has(e.id);
+			if (e.type !== 'uml') return { ...e, selected };
+			const f = selection.focus;
+			const focused = !!f && ((f.id === e.id && f.part === 'self') || f.part === `edge:${e.id}`);
+			return { ...e, selected, data: { ...e.data!, focused } };
+		})
 	);
 
 	/** The nodes as the canvas shows them: selection, inline editing and link state folded in. */
@@ -187,10 +201,12 @@ class Flow {
 		const h = ui.hoveredEdge ? projectStore.project.elements.get(ui.hoveredEdge) : undefined;
 		const hoveredEnds = h?.kind === 'relationship' ? [h.sourceId, h.targetId] : [];
 		return this.nodes.map((n): FlowNode => {
+			const f = selection.focus;
 			const common = {
 				selected: selection.has(n.id),
 				hovered: hoveredEnds.includes(n.id),
-				link: linkRole(n.id)
+				link: linkRole(n.id),
+				focus: f?.id === n.id ? f.part : null
 			};
 			if (n.type === 'note' || n.type === 'text') {
 				const node = n as NoteFlowNode;
@@ -201,6 +217,7 @@ class Flow {
 						...node.data,
 						hovered: common.hovered,
 						link: common.link,
+						focus: common.focus,
 						editing: selection.editing?.id === n.id && selection.editing.target.part === 'text'
 					}
 				};
@@ -213,6 +230,7 @@ class Flow {
 					...node.data,
 					hovered: common.hovered,
 					link: common.link,
+					focus: common.focus,
 					editing: selection.editing?.id === n.id ? selection.editing.target : null
 				}
 			};

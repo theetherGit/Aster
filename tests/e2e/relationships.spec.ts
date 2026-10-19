@@ -1,5 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
-import { canvasOf, create, edgeOf, labelsOnTheirLine, node, pointOnEdge } from './helpers';
+import {
+	canvasOf,
+	create,
+	edgeOf,
+	expectKeyboardOnCanvas,
+	labelsOnTheirLine,
+	node,
+	pointOnEdge
+} from './helpers';
 
 const KINDS = [
 	'association',
@@ -27,7 +35,7 @@ async function classAt(page: Page, name: string, x: number, y: number) {
 	await create(page, 'c', name);
 	await expect(canvasOf(page).getByRole('combobox', { name: 'Attribute line' })).toBeFocused();
 	await page.keyboard.press('Escape');
-	await expect(canvasOf(page)).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 }
 
 test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their UML markers', async ({
@@ -67,7 +75,7 @@ test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their 
 		await page.keyboard.press(String(i + 1));
 		await expect(picker(page)).toHaveCount(0);
 		await expect(linkHint(page)).toHaveCount(0);
-		await expect(canvasOf(page)).toBeFocused();
+		await expectKeyboardOnCanvas(page);
 		await expect(edgeKind(page, kind)).toHaveCount(1);
 		await expect(edgeKind(page, kind)).toHaveClass(/selected/);
 	}
@@ -139,7 +147,7 @@ test('Esc cancels the keyboard link at every step', async ({ page }) => {
 	await page.keyboard.press('Escape');
 	await expect(picker(page)).toHaveCount(0);
 	await expect(linkHint(page)).toHaveCount(0);
-	await expect(canvasOf(page)).toBeFocused();
+	await expectKeyboardOnCanvas(page);
 	await expect(page.locator('.uml-edge')).toHaveCount(0);
 });
 
@@ -327,7 +335,7 @@ test.describe('on the notation fixture', () => {
 
 		// Delete from the diagram with the keyboard, then undo.
 		await page.keyboard.press('ControlOrMeta+d');
-		await expect(canvasOf(page)).toBeFocused();
+		await expectKeyboardOnCanvas(page);
 		await page.keyboard.press('Backspace');
 		await expect(edgeOf(page, 'gen')).toHaveCount(0);
 		await expect(tree.getByRole('treeitem', { name: /generalization to Person/ })).toBeVisible();

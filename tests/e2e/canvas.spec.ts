@@ -64,13 +64,13 @@ test('keyboard only: create, name, nudge, delete from diagram and model, undo, r
 	// ↩ on the name opens a new attribute line; Esc ends editing and focus returns to the canvas.
 	await expect(canvas.getByRole('combobox', { name: 'Attribute line' })).toBeFocused();
 	await page.keyboard.press('Escape');
-	await expect(canvas).toBeFocused();
+	await expect(book).toBeFocused(); // roving focus: the element, inside the canvas
 	await expect(book).toHaveClass(/selected/);
 
 	const start = await position(book);
-	await page.keyboard.press('ArrowRight');
-	await page.keyboard.press('ArrowRight');
-	await page.keyboard.press('Shift+ArrowDown');
+	await page.keyboard.press('ControlOrMeta+ArrowRight');
+	await page.keyboard.press('ControlOrMeta+ArrowRight');
+	await page.keyboard.press('ControlOrMeta+Shift+ArrowDown');
 	await expect.poll(() => position(book)).toEqual({ x: start.x + 2, y: start.y + 8 });
 
 	await page.keyboard.press('Backspace');
@@ -91,7 +91,7 @@ test('keyboard only: create, name, nudge, delete from diagram and model, undo, r
 	await page.keyboard.type('Nope');
 	await page.keyboard.press('Escape');
 	await expect(node(page, 'Book')).toBeVisible();
-	await expect(canvas).toBeFocused();
+	await expect(book).toBeFocused();
 
 	await page.keyboard.press('ControlOrMeta+Backspace');
 	await expect(book).toHaveCount(0);

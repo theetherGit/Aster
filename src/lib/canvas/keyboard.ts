@@ -8,7 +8,9 @@ import { matches } from '#lib/app/shortcuts.ts';
 import type { Id } from '#lib/model/types.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
 import type { Rect } from './edges/geometry.ts';
-import { nearestInDirection, type Direction } from './link.ts';
+import { focusElement } from './focus.ts';
+import { firstElement, nearestInDirection, type Direction } from './link.ts';
+import { selection, type FocusPart } from '#lib/stores/selection.svelte.ts';
 
 const inTextField = (e: KeyboardEvent) =>
 	e.target instanceof Element &&
@@ -46,6 +48,25 @@ const ARROWS: Record<string, Direction> = {
 export interface CanvasKeyContext {
 	rects: () => Map<Id, Rect>;
 	openPicker: (sourceId: Id, targetId: Id) => void;
+	/** An element's parts in Tab order, as rendered: self, name, each member line, each attached edge. */
+	parts: (id: Id) => FocusPart[];
+}
+
+/** Arrows: roving focus to the nearest element that way; the first press lands top-left. */
+function moveFocus(dir: Direction, rects: Map<Id, Rect>) {
+	const from = selection.focus?.id;
+	const next = from && rects.has(from) ? nearestInDirection(rects, from, dir) : firstElement(rects);
+	if (next) focusElement(next);
+}
+
+/** Tab / ⇧Tab: the next / previous part of the focused element, wrapping. */
+function cyclePart(back: boolean, ctx: CanvasKeyContext) {
+	const f = selection.focus;
+	if (!f) return;
+	const parts = ctx.parts(f.id);
+	const i = parts.indexOf(f.part);
+	if (parts.length < 2 || i < 0) return;
+	focusElement(f.id, parts[(i + (back ? -1 : 1) + parts.length) % parts.length]);
 }
 
 /** Bindings that fire only while the canvas has focus and nothing is being edited. */
@@ -65,6 +86,18 @@ export function handleCanvasKey(e: KeyboardEvent, ctx: CanvasKeyContext) {
 		} else if (e.key === 'Escape') {
 			ui.link = null;
 		} else return; // Tab and the rest keep their meaning; only the link's own keys are taken
+		e.preventDefault();
+		return;
+	}
+	// Roving focus (accessibility.md): bare arrows move between elements, Tab cycles parts.
+	const dir = ARROWS[e.key];
+	if (dir && !mod && !e.altKey && !e.shiftKey) {
+		moveFocus(dir, ctx.rects());
+		e.preventDefault();
+		return;
+	}
+	if (e.key === 'Tab' && !mod && !e.altKey && selection.focus) {
+		cyclePart(e.shiftKey, ctx);
 		e.preventDefault();
 		return;
 	}
