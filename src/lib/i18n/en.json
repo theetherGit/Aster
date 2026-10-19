@@ -675,5 +675,7 @@
 	"quickFind.diagram": "diagram",
 	"quickFind.on": "{kind} on {diagrams}",
 	"quickFind.empty": "Nothing by that name",
-	"quickFind.emptyFigure": "Three sieves over an empty pan: nothing found"
+	"quickFind.emptyFigure": "Three sieves over an empty pan: nothing found",
+	"toast.rawKeptOne": "{from} is now {to}. 1 unparsed line still says {from}.",
+	"toast.rawKept": "{from} is now {to}. {count} unparsed lines still say {from}."
 }

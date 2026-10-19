@@ -15,11 +15,12 @@ import {
 import { t } from '#lib/i18n/index.ts';
 import { memberFromText, renderMember, type MemberKind } from '#lib/mdj/expression.ts';
 import { newId } from '#lib/model/ids.ts';
-import { createClassifier, getClassifier } from '#lib/model/project.ts';
+import { createClassifier, getClassifier, rawMentions } from '#lib/model/project.ts';
 import type { Classifier, Id } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { announceAssertive } from '#lib/stores/live.svelte.ts';
 import { selection, type EditTarget } from '#lib/stores/selection.svelte.ts';
+import { ui } from '#lib/stores/ui.svelte.ts';
 import { canvasApi } from './api.ts';
 import { canvasFocus } from './focus.ts';
 import { freePosition, rightOf } from './place.ts';
@@ -67,11 +68,27 @@ export function endEditing() {
 	canvasFocus.focus();
 }
 
+/**
+ * Rename a class everywhere it is a type (owner's ruling #8). Unparsed lines keep the old name;
+ * when any still say it, a toast counts them, with undo.
+ */
+export function renameClass(id: Id, name: string) {
+	const from = classifier(id).name;
+	projectStore.run(renameClassifier, { id, name });
+	const kept = rawMentions(projectStore.project, from);
+	if (kept)
+		ui.toast = {
+			text: t(kept === 1 ? 'toast.rawKeptOne' : 'toast.rawKept', { from, to: name, count: kept }),
+			undo: true,
+			at: Date.now()
+		};
+}
+
 export function commitName(id: Id, text: string) {
 	const name = text.trim();
 	const current = classifier(id).name;
 	if (!name) return announceAssertive(t('live.nameKept', { name: current }));
-	if (name !== current) projectStore.run(renameClassifier, { id, name });
+	if (name !== current) renameClass(id, name);
 }
 
 /**

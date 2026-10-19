@@ -1,13 +1,9 @@
 <script lang="ts">
+	import { renameClass } from '#lib/canvas/inline.ts';
 	import { Collapsible, Select, Tabs } from 'bits-ui';
 	import { byId, effective, runCommand } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
-	import {
-		renameClassifier,
-		setClassifierFlags,
-		setClassifierKind,
-		setNodeFlags
-	} from '#lib/commands/index.ts';
+	import { setClassifierFlags, setClassifierKind, setNodeFlags } from '#lib/commands/index.ts';
 	import { DEFAULT_DISPLAY_FLAGS, type DisplayFlags } from '#lib/model/types.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { MemberKind } from '#lib/mdj/expression.ts';
@@ -98,8 +94,7 @@
 		if (!classifier) return;
 		const name = input.value.trim();
 		if (!name) input.value = classifier.name;
-		else if (name !== classifier.name)
-			projectStore.run(renameClassifier, { id: classifier.id, name });
+		else if (name !== classifier.name) renameClass(classifier.id, name);
 	};
 	const flags = (f: Parameters<typeof setClassifierFlags>[1]['flags']) =>
 		classifier && projectStore.run(setClassifierFlags, { id: classifier.id, flags: f });

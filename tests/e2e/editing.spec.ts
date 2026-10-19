@@ -264,3 +264,36 @@ test('chip: a click on the suggestion applies it and keeps the line open', async
 	await expect(line).toBeFocused();
 	await expect(line).toHaveValue('- volume: Volume');
 });
+
+/** Owner's M2 ruling #8: a rename rewrites the types that name the class; raw lines are counted. */
+test('renaming a class rewrites the attribute types that name it and counts the raw lines left', async ({
+	page
+}) => {
+	await page.goto('/design/new');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	await page.mouse.move(300, 300);
+	await create(page, 'c', 'Customer');
+	await page.keyboard.press('Escape');
+	await page.mouse.move(700, 300);
+	await create(page, 'c', 'Loan');
+	await page.keyboard.type('- customer: Customer');
+	await page.keyboard.press('Enter');
+	await page.keyboard.type('x: Customer {');
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('Escape');
+
+	await node(page, 'Customer').click();
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('ControlOrMeta+a');
+	await page.keyboard.type('Client');
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('Escape');
+	await expect(lines(page, 'Loan', 'attribute').first()).toHaveText('- customer: Client');
+	await expect(lines(page, 'Loan', 'attribute').nth(1)).toContainText('x: Customer {');
+	await expect(page.getByTestId('toast')).toContainText(
+		'Customer is now Client. 1 unparsed line still says Customer.'
+	);
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(lines(page, 'Loan', 'attribute').first()).toHaveText('- customer: Customer');
+});

@@ -8,14 +8,13 @@
 	import { deleteSelection } from '#lib/canvas/actions.ts';
 	import { canvasApi } from '#lib/canvas/api.ts';
 	import { canvasFocus, explorerFocus } from '#lib/canvas/focus.ts';
-	import { commitLine } from '#lib/canvas/inline.ts';
+	import { commitLine, renameClass } from '#lib/canvas/inline.ts';
 	import { freePosition, rightOf } from '#lib/canvas/place.ts';
 	import {
 		addClassifier,
 		addMember,
 		deleteMember,
 		membersOf,
-		renameClassifier,
 		renameDiagram,
 		renameProject,
 		reorderMember,
@@ -134,8 +133,7 @@
 		if (row.type === 'project') projectStore.run(renameProject, { name: text });
 		else if (row.type === 'diagram')
 			projectStore.run(renameDiagram, { diagramId: row.diagramId!, name: text });
-		else if (row.type === 'classifier')
-			projectStore.run(renameClassifier, { id: row.elementId!, name: text });
+		else if (row.type === 'classifier') renameClass(row.elementId!, text);
 		else if (row.type === 'relationship')
 			projectStore.run(setRelationshipName, { id: row.elementId!, name: text });
 		else if (row.type === 'member') commitLine(row.owner!, row.memberKind!, row.memberIndex!, text);

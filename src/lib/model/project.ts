@@ -240,3 +240,15 @@ export function classifiersOf(project: Project): Classifier[] {
 	for (const el of project.elements.values()) if (el.kind === 'classifier') out.push(el);
 	return out;
 }
+
+/** Unparsed member lines that still mention `name` as a whole word (a rename leaves them as typed). */
+export function rawMentions(project: Project, name: string): number {
+	if (!name.trim()) return 0;
+	const word = new RegExp(`(^|[^\\w])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^\\w]|$)`);
+	let n = 0;
+	for (const el of project.elements.values())
+		if (el.kind === 'classifier')
+			for (const m of [...el.attributes, ...el.operations])
+				if (m.raw !== undefined && word.test(m.raw)) n++;
+	return n;
+}

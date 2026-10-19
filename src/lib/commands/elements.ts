@@ -109,19 +109,65 @@ export const addClassifier: Factory<{ diagramId: Id; classifier: Classifier; at:
 	}
 }));
 
-export const renameClassifier: Factory<{ id: Id; name: string }> = define<{ id: Id; name: string }>(
-	'renameClassifier',
-	(project, { id, name }) => ({
-		label: t('cmd.renameClassifier', { from: nameOf(project, id), to: name }),
-		touches: [id],
-		apply(p): Command {
-			const c = getClassifier(p, id);
-			const previous = c.name;
-			c.name = name;
-			return renameClassifier(p, { id, name: previous });
+/** A type slot that names a classifier: an attribute's type, an operation's return or parameter type. */
+export interface TypeRef {
+	classifierId: Id;
+	memberId: Id;
+	slot: 'type' | 'return' | number;
+}
+
+/** Every parsed type slot equal to `name` (owner's ruling #8; raw lines are left alone). */
+function typeRefs(p: Project, name: string): TypeRef[] {
+	if (!name.trim()) return [];
+	const out: TypeRef[] = [];
+	for (const el of p.elements.values()) {
+		if (el.kind !== 'classifier') continue;
+		for (const a of el.attributes)
+			if (a.raw === undefined && a.type === name)
+				out.push({ classifierId: el.id, memberId: a.id, slot: 'type' });
+		for (const o of el.operations) {
+			if (o.raw !== undefined) continue;
+			if (o.returnType === name) out.push({ classifierId: el.id, memberId: o.id, slot: 'return' });
+			o.parameters.forEach((x, i) => {
+				if (x.type === name) out.push({ classifierId: el.id, memberId: o.id, slot: i });
+			});
 		}
-	})
-);
+	}
+	return out;
+}
+function setTypeRef(p: Project, r: TypeRef, name: string) {
+	const c = getClassifier(p, r.classifierId);
+	if (r.slot === 'type') {
+		const a = c.attributes.find((m) => m.id === r.memberId);
+		if (a) a.type = name;
+		return;
+	}
+	const o = c.operations.find((m) => m.id === r.memberId);
+	if (!o) return;
+	if (r.slot === 'return') o.returnType = name;
+	else if (o.parameters[r.slot]) o.parameters[r.slot].type = name;
+}
+
+/**
+ * Renames a classifier and rewrites the parsed types that named it. The inverse carries the exact
+ * slots it changed, so undo never touches a type that already said the new name.
+ */
+export const renameClassifier: Factory<{ id: Id; name: string; refs?: TypeRef[] }> = define<{
+	id: Id;
+	name: string;
+	refs?: TypeRef[];
+}>('renameClassifier', (project, { id, name, refs }) => ({
+	label: t('cmd.renameClassifier', { from: nameOf(project, id), to: name }),
+	touches: [id, ...new Set((refs ?? []).map((r) => r.classifierId))],
+	apply(p): Command {
+		const c = getClassifier(p, id);
+		const previous = c.name;
+		const changed = refs ?? typeRefs(p, previous);
+		c.name = name;
+		for (const r of changed) setTypeRef(p, r, name);
+		return renameClassifier(p, { id, name: previous, refs: changed });
+	}
+}));
 
 export interface ClassifierFlags {
 	isAbstract?: boolean;

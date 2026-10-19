@@ -71,8 +71,8 @@ describe.each(files)('%s', (file) => {
 		new Stack(() => project).run(renameClassifier(project, { id: target.id, name: 'Renamed' }));
 		const out = serializeMdj(project);
 		const diffs = jsonDiff(json, out);
-		// Allowed: the class's own name, the name label text of its views, and type references
-		// to it that become strings (Aster keeps the old type name until M2's rename-references).
+		// Allowed: the class's own name, the name label text of its views, and the types that
+		// named it, which the rename rewrites (owner's ruling #8).
 		const allowed = (d: string) =>
 			/\.name: /.test(d) || /\.text: /.test(d) || /\.type: /.test(d) || /\.type\.\$ref: /.test(d);
 		expect(diffs.filter((d) => !allowed(d))).toEqual([]);
@@ -84,7 +84,17 @@ describe.each(files)('%s', (file) => {
 			diagrams: again.diagrams.map((d) => ({ ...d, layout: [...d.layout] }))
 		};
 		const renamed = before.elements.find((e) => e.id === target.id) as Classifier;
+		const old = renamed.name;
 		renamed.name = 'Renamed';
+		for (const el of before.elements) {
+			if (el.kind !== 'classifier') continue;
+			for (const a of el.attributes) if (a.raw === undefined && a.type === old) a.type = 'Renamed';
+			for (const o of el.operations) {
+				if (o.raw !== undefined) continue;
+				if (o.returnType === old) o.returnType = 'Renamed';
+				for (const x of o.parameters) if (x.type === old) x.type = 'Renamed';
+			}
+		}
 		expect(after.elements).toEqual(before.elements);
 		expect(after.diagrams).toEqual(before.diagrams);
 		void nameOf;
