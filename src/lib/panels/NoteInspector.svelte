@@ -6,6 +6,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import FieldSelect from './FieldSelect.svelte';
+	import Icon from './Icon.svelte';
 
 	// Board 14: the note's text, what it is linked to, and its size as the non-drag path.
 	let { element }: { element: Note | TextElement } = $props();
@@ -89,16 +90,7 @@
 							selection.set([element.id]);
 						}}
 					>
-						<svg
-							width="11"
-							height="11"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2.5"
-							stroke-linecap="round"
-							aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg
-						>
+						<Icon name="x" size={11} stroke={2.5} />
 					</button>
 				</li>
 			{/each}

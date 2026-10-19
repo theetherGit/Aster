@@ -12,6 +12,7 @@
 	import InlineName from './InlineName.svelte';
 	import ProjectMenu from './ProjectMenu.svelte';
 	import Tip from './Tip.svelte';
+	import Icon from './Icon.svelte';
 
 	// useSvelteFlow() copies zoomIn/zoomOut from the store it sees first, which is the
 	// provider's placeholder until the canvas mounts; setZoom/getZoom read the live store.
@@ -117,16 +118,19 @@
 						</ContextMenu.Trigger>
 						<ContextMenu.Portal>
 							<ContextMenu.Content class="menu">
-								<ContextMenu.Item class="menu-item" onSelect={() => rename(d.id)}
-									>{t('ui.renameDiagram')}</ContextMenu.Item
-								>
+								<ContextMenu.Item class="menu-item gap-2" onSelect={() => rename(d.id)}>
+									<Icon name="pencil" class="text-chrome-muted" />{t('ui.renameDiagram')}
+								</ContextMenu.Item>
 								<ContextMenu.Item
-									class="menu-item data-[disabled]:opacity-50"
+									class="menu-item gap-2 data-[disabled]:opacity-50"
 									disabled={!canDelete}
 									onSelect={() => {
 										projectStore.activeDiagramId = d.id;
 										runCommand('diagram.delete');
-									}}>{t('ui.deleteDiagram')}</ContextMenu.Item
+									}}
+									><Icon name="trash" class="text-chrome-muted" />{t(
+										'ui.deleteDiagram'
+									)}</ContextMenu.Item
 								>
 							</ContextMenu.Content>
 						</ContextMenu.Portal>
@@ -141,16 +145,7 @@
 								runCommand('diagram.delete');
 							}}
 						>
-							<svg
-								width="11"
-								height="11"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2.5"
-								stroke-linecap="round"
-								aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg
-							>
+							<Icon name="x" size={11} stroke={2.5} />
 						</button>
 					{/if}
 				</span>
@@ -167,16 +162,7 @@
 				aria-label={t('ui.addDiagram')}
 				onclick={() => runCommand('diagram.add')}
 			>
-				<svg
-					width="12"
-					height="12"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2.5"
-					stroke-linecap="round"
-					aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg
-				>
+				<Icon name="plus" size={12} stroke={2.5} />
 			</button>
 		{/snippet}
 	</Tip>
@@ -195,17 +181,7 @@
 						{...describe(projectStore.canUndo ? undefined : t('ui.nothingToUndo'))}
 						onclick={() => runCommand('edit.undo')}
 					>
-						<svg
-							width="14"
-							height="14"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							aria-hidden="true"
-							><path d="M9 14L4 9l5-5" /><path d="M4 9h11a5 5 0 0 1 0 10h-3" /></svg
-						>
+						<Icon name="undo" />
 					</button>
 				{/snippet}
 			</Tip>
@@ -220,17 +196,7 @@
 						{...describe(projectStore.canRedo ? undefined : t('ui.nothingToRedo'))}
 						onclick={() => runCommand('edit.redo')}
 					>
-						<svg
-							width="14"
-							height="14"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							aria-hidden="true"
-							><path d="M15 14l5-5-5-5" /><path d="M20 9H9a5 5 0 0 0 0 10h3" /></svg
-						>
+						<Icon name="redo" />
 					</button>
 				{/snippet}
 			</Tip>
@@ -244,7 +210,7 @@
 						type="button"
 						class="icon-btn"
 						aria-label={t('ui.zoomOut')}
-						onclick={() => zoomBy(1 / 1.2)}>−</button
+						onclick={() => zoomBy(1 / 1.2)}><Icon name="minus" /></button
 					>
 				{/snippet}
 			</Tip>
@@ -269,7 +235,7 @@
 						type="button"
 						class="icon-btn"
 						aria-label={t('ui.zoomIn')}
-						onclick={() => zoomBy(1.2)}>+</button
+						onclick={() => zoomBy(1.2)}><Icon name="plus" /></button
 					>
 				{/snippet}
 			</Tip>
@@ -291,16 +257,7 @@
 					aria-label={t('ui.palette')}
 					onclick={() => runCommand('view.palette')}
 				>
-					<svg
-						width="14"
-						height="14"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7" /></svg
-					>
+					<Icon name="terminal" />
 				</button>
 			{/snippet}
 		</Tip>

@@ -10,6 +10,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import Icon from './Icon.svelte';
 
 	// Board 16: Bits UI Command in a Dialog. The list is the registry, filtered by Bits.
 	const GROUPS: Group[] = ['display', 'create', 'edit', 'select', 'view', 'format', 'file'];
@@ -78,16 +79,7 @@
 				onStateChange={(s) => (matches = s.filtered.count)}
 			>
 				<div class="flex items-center gap-2 border-b border-chrome-border px-3">
-					<svg
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg
-					>
+					<Icon name="search" size={16} class="text-chrome-muted" />
 					<Command.Input
 						bind:value={search}
 						class="h-11 min-w-0 flex-1 bg-transparent text-[14px] placeholder:text-chrome-muted"

@@ -155,7 +155,7 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 		/Rename project…/,
 		/New diagram/,
 		/Open…/,
-		/^Save/,
+		/\bSave (⌘S|Ctrl\+S)$/,
 		/Save as…/,
 		'public-vrview.mdj'
 	]);

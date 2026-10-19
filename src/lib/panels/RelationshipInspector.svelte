@@ -30,6 +30,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Documentation from './Documentation.svelte';
 	import FieldSelect from './FieldSelect.svelte';
+	import Icon from './Icon.svelte';
 
 	let { rel }: { rel: Relationship } = $props();
 
@@ -293,7 +294,10 @@
 			type="button"
 			class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
 			aria-label={t('inspector.addWaypoint')}
-			onclick={addPoint}>+ {t('inspector.addShort')}</button
+			onclick={addPoint}
+			><span class="inline-flex items-center gap-1"
+				><Icon name="plus" size={12} />{t('inspector.addShort')}</span
+			></button
 		>
 	</div>
 	{#if layout.waypoints.length}
@@ -318,7 +322,8 @@
 						type="button"
 						class="icon-btn h-6 w-6 text-danger"
 						aria-label={t('inspector.removeWaypoint', { n: i + 1 })}
-						onclick={() => run(removeWaypoint, { diagramId, id: rel.id, index: i })}>×</button
+						onclick={() => run(removeWaypoint, { diagramId, id: rel.id, index: i })}
+						><Icon name="x" size={12} stroke={2.5} /></button
 					>
 				</li>
 			{/each}

@@ -23,6 +23,7 @@
 	import Documentation from './Documentation.svelte';
 	import NoteInspector from './NoteInspector.svelte';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import Icon from './Icon.svelte';
 
 	// Modern: the 300 px inspector with its rail. Classic: StarUML's Editors, tabs Style /
 	// Property / Documentation over the same fields (board 03).
@@ -112,16 +113,7 @@
 				if (selection.size === 0) ui.inspectorTab = 'diagram';
 			}}
 		>
-			<svg
-				width="14"
-				height="14"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				aria-hidden="true"
-				><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg
-			>
+			<Icon name="panel-right" />
 		</button>
 	</aside>
 {:else}

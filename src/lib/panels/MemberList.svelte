@@ -13,6 +13,7 @@
 	import { nextMemberText } from '#lib/model/project.ts';
 	import type { Classifier, Visibility } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import Icon from './Icon.svelte';
 
 	let { classifier, kind }: { classifier: Classifier; kind: MemberKind } = $props();
 
@@ -82,7 +83,9 @@
 			aria-label={t('inspector.add', { kind: t(`member.${kind}`) })}
 			onclick={add}
 		>
-			+ {t('inspector.addShort')}
+			<span class="inline-flex items-center gap-1"
+				><Icon name="plus" size={12} />{t('inspector.addShort')}</span
+			>
 		</button>
 	</div>
 	<ul class="flex flex-col gap-1" bind:this={list}>
@@ -138,20 +141,20 @@
 						class="icon-btn h-6 w-6 aria-disabled:text-chrome-muted aria-disabled:opacity-60"
 						aria-label={t('inspector.moveUp', { name: m.name })}
 						aria-disabled={i === 0}
-						onclick={() => move(m, -1, i)}>↑</button
+						onclick={() => move(m, -1, i)}><Icon name="arrow-up" size={12} /></button
 					>
 					<button
 						type="button"
 						class="icon-btn h-6 w-6 aria-disabled:text-chrome-muted aria-disabled:opacity-60"
 						aria-label={t('inspector.moveDown', { name: m.name })}
 						aria-disabled={i === members.length - 1}
-						onclick={() => move(m, 1, i)}>↓</button
+						onclick={() => move(m, 1, i)}><Icon name="arrow-down" size={12} /></button
 					>
 					<button
 						type="button"
 						class="icon-btn h-6 w-6 text-danger"
 						aria-label={t('inspector.remove', { name: m.name, owner: classifier.name })}
-						onclick={() => remove(m, i)}>×</button
+						onclick={() => remove(m, i)}><Icon name="x" size={12} stroke={2.5} /></button
 					>
 				</span>
 			</li>

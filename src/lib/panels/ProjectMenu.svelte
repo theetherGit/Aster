@@ -13,6 +13,7 @@
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import Tip from './Tip.svelte';
 	import { ago } from './time.ts';
+	import Icon, { type IconName } from './Icon.svelte';
 
 	// The rows are registry commands (label, key, run), so the menu never retypes a shortcut.
 	const ROWS = ['file.new', 'file.open', 'file.save', 'file.saveAs'].flatMap((id) => {
@@ -20,6 +21,12 @@
 		return c ? [c] : [];
 	});
 	const outline = byId('view.outline');
+	const ICONS: Record<string, IconName> = {
+		'file.new': 'file-plus',
+		'file.open': 'folder-open',
+		'file.save': 'save',
+		'file.saveAs': 'save-all'
+	};
 	async function renamed() {
 		ui.renaming = null;
 		await tick();
@@ -93,37 +100,36 @@
 							aria-label={stateTitle}
 						></span>
 					{/if}
-					<svg
+					<Icon
+						name="chevron-down"
+						size={12}
 						class="text-chrome-muted group-hover:text-chrome-text group-data-[state=open]:text-chrome-text"
-						width="10"
-						height="10"
-						viewBox="0 0 10 10"
-						aria-hidden="true"
-						fill="currentColor"><path d="M1 3l4 4 4-4z" /></svg
-					>
+					/>
 				</DropdownMenu.Trigger>
 			{/snippet}
 		</Tip>
 		<DropdownMenu.Portal>
 			<DropdownMenu.Content class="menu min-w-65" sideOffset={4} align="start">
-				<DropdownMenu.Item class="menu-item" onSelect={() => runCommand('project.rename')}>
+				<DropdownMenu.Item class="menu-item gap-2" onSelect={() => runCommand('project.rename')}>
+					<Icon name="pencil" class="text-chrome-muted" />
 					<span>{t('ui.renameProject')}</span>
 				</DropdownMenu.Item>
 				<DropdownMenu.Separator class="my-1 h-px bg-chrome-border" />
 				{#each ROWS as c (c.id)}
-					<DropdownMenu.Item class="menu-item" onSelect={() => runCommand(c.id)}>
+					<DropdownMenu.Item class="menu-item gap-2" onSelect={() => runCommand(c.id)}>
+						<Icon name={ICONS[c.id] ?? 'file-plus'} class="text-chrome-muted" />
 						<span>{c.label()}</span>
 						<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(c.id)}</kbd>
 					</DropdownMenu.Item>
 				{/each}
 				{#if outline}
 					<DropdownMenu.CheckboxItem
-						class="menu-item"
+						class="menu-item gap-2"
 						checked={ui.panels.outline}
 						onCheckedChange={() => outline.run()}
 					>
 						{#snippet children({ checked })}
-							<span class="w-4 text-[11px]">{checked ? '✓' : ''}</span>
+							<Icon name="panel-left" class={checked ? 'text-accent-text' : 'text-chrome-muted'} />
 							<span>{outline.label()}</span>
 							<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(outline.id)}</kbd>
 						{/snippet}

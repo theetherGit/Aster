@@ -5,6 +5,7 @@
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import Icon from './Icon.svelte';
 
 	// Board 19: one line, Undo, close; gone after a few seconds or on the next command. The timer
 	// pauses while the pointer or focus is on it (WCAG 2.2.1), and a toast that goes while it holds
@@ -53,7 +54,7 @@
 			>
 		{/if}
 		<button type="button" class="icon-btn h-7 w-7" aria-label={t('toast.dismiss')} onclick={dismiss}
-			>×</button
+			><Icon name="x" size={12} stroke={2.5} /></button
 		>
 	</div>
 {/if}

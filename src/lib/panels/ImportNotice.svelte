@@ -6,6 +6,7 @@
 	import type { ParseReport, ParseWarning } from '#lib/mdj/parse.ts';
 	import { files, openFromPicker } from '#lib/persist/files.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import Icon from './Icon.svelte';
 
 	// The import notice (board 08): top right, non-blocking, a short summary first and the
 	// per-diagram detail on request. Read out politely; failures assertively.
@@ -123,16 +124,7 @@
 					aria-label={t('import.close')}
 					onclick={() => (files.notice = null)}
 				>
-					<svg
-						width="11"
-						height="11"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2.5"
-						stroke-linecap="round"
-						aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg
-					>
+					<Icon name="x" size={11} stroke={2.5} />
 				</button>
 			{/if}
 		</header>

@@ -50,6 +50,7 @@
 	import { format } from '#lib/app/shortcuts.ts';
 	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
 	import { resolve } from '$app/paths';
+	import Icon from '#lib/panels/Icon.svelte';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
 	// the bundled sample with its strip, `notation` the UML notation fixture (visual regression and
@@ -261,16 +262,7 @@
 									aria-label={t('explorer.show')}
 									onclick={() => runCommand('view.outline')}
 								>
-									<svg
-										width="14"
-										height="14"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										aria-hidden="true"
-										><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16" /></svg
-									>
+									<Icon name="panel-left" />
 								</button>
 							{/snippet}
 						</Tip>
@@ -307,7 +299,8 @@
 								type="button"
 								class="icon-btn h-7 w-7"
 								aria-label={t('file.bannerDismiss')}
-								onclick={() => (files.bannerDismissed = true)}>×</button
+								onclick={() => (files.bannerDismissed = true)}
+								><Icon name="x" size={12} stroke={2.5} /></button
 							>
 						</div>
 					{/if}
@@ -323,7 +316,8 @@
 								type="button"
 								class="icon-btn h-7 w-7"
 								aria-label={t('welcome.sampleDismiss')}
-								onclick={() => (ui.sampleStrip = false)}>×</button
+								onclick={() => (ui.sampleStrip = false)}
+								><Icon name="x" size={12} stroke={2.5} /></button
 							>
 						</div>
 					{/if}

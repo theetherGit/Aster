@@ -9,6 +9,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import Icon from './Icon.svelte';
 	import {
 		ROOT,
 		buildRows,
@@ -200,13 +201,7 @@
 							toggle(i);
 						}}
 					>
-						<svg
-							width="10"
-							height="10"
-							viewBox="0 0 10 10"
-							class={row.expanded ? 'rotate-90' : ''}
-							fill="currentColor"><path d="M3 1l4 4-4 4z" /></svg
-						>
+						<Icon name="chevron-right" size={12} class={row.expanded ? 'rotate-90' : ''} />
 					</button>
 				{:else}
 					<span class="w-6 shrink-0"></span>

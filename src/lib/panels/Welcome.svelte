@@ -19,6 +19,7 @@
 	import { files, loadFixture, openFromPicker } from '#lib/persist/files.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { ago } from './time.ts';
+	import Icon from './Icon.svelte';
 
 	// Boards 07 (first visit) and 23 (returning): two columns, the mark and the two actions on the
 	// left, the sample card and Recent on the right. Every action ends in `/design/<route>`.
@@ -136,7 +137,7 @@
 					</div>
 					<button type="button" class="open-sample" onclick={explore}>
 						<span>{t('welcome.sample')}</span>
-						<span aria-hidden="true">→</span>
+						<Icon name="arrow-right" size={13} />
 					</button>
 				</div>
 			</div>
