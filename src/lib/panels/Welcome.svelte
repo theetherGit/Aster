@@ -99,6 +99,15 @@
 					<kbd class="key">?</kbd>
 					{t('welcome.pressAfter')}.
 				</p>
+				<p>
+					{t('welcome.byBefore')}<a class="link" href="https://ethercorps.io" rel="noopener"
+						>{t('welcome.byLink')}</a
+					>{t('welcome.byAfter')}<a
+						class="link"
+						href="https://github.com/theetherGit/Aster"
+						rel="noopener">{t('welcome.sourceLink')}</a
+					>.
+				</p>
 			</div>
 		</div>
 
