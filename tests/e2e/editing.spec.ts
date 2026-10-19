@@ -203,3 +203,64 @@ test('app chords reach the app from an inline editor: ⌘Z undoes, ⌘S saves, n
 	await expect(lines(page, 'Book', 'attribute')).toHaveCount(0);
 	await expectKeyboardOnCanvas(page);
 });
+
+/** features.md M2, "Create unknown type from the chip"; keyboard.md: ⌥↩ applies the chip's suggestion. */
+test('chip: owner: Client with no Client; ⌥↩ creates it to the right, ⌥↩ again links; one undo step each', async ({
+	page
+}) => {
+	await page.goto('/design/new');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	await page.mouse.move(300, 300);
+	await create(page, 'c', 'Book');
+	const line = canvas.getByRole('combobox', { name: 'Attribute line' });
+	await expect(line).toBeFocused();
+	await page.keyboard.type('owner: Client');
+	const chip = canvas.locator('.chip');
+	await expect(chip.getByRole('button', { name: /^Create class Client/ })).toBeVisible();
+
+	await page.keyboard.press('Alt+Enter');
+	const client = node(page, 'Client');
+	await expect(client).toBeVisible();
+	const book = await node(page, 'Book').boundingBox();
+	const placed = await client.boundingBox();
+	expect(placed!.x).toBeGreaterThan(book!.x + book!.width);
+	await expect(line).toBeFocused(); // still typing the line
+	await expect(chip.getByRole('button', { name: /^Link with association/ })).toBeVisible();
+
+	await page.keyboard.press('Alt+Enter');
+	const edges = page.locator('.uml-edge[data-kind="association"]');
+	await expect(edges).toHaveCount(1);
+	await expect(chip.getByRole('button')).toHaveCount(0);
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('Escape');
+	await expect(lines(page, 'Book', 'attribute')).toHaveCount(1);
+
+	// Undo: the line, then the link, then the class.
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(lines(page, 'Book', 'attribute')).toHaveCount(0);
+	await expect(edges).toHaveCount(1);
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(edges).toHaveCount(0);
+	await expect(client).toBeVisible();
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(client).toHaveCount(0);
+	await expect(node(page, 'Book')).toBeVisible();
+});
+
+test('chip: a click on the suggestion applies it and keeps the line open', async ({ page }) => {
+	await page.goto('/design/new');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	await page.mouse.move(300, 300);
+	await create(page, 'c', 'Shelf');
+	const line = canvas.getByRole('combobox', { name: 'Attribute line' });
+	await page.keyboard.type('- volume: Volume');
+	await canvas
+		.locator('.chip')
+		.getByRole('button', { name: /^Create class Volume/ })
+		.click();
+	await expect(node(page, 'Volume')).toBeVisible();
+	await expect(line).toBeFocused();
+	await expect(line).toHaveValue('- volume: Volume');
+});

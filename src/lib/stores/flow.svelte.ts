@@ -1,6 +1,6 @@
 import type { Edge, Node } from '@xyflow/svelte';
 import { t } from '#lib/i18n/index.ts';
-import { elementName } from '#lib/model/project.ts';
+import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type {
 	Classifier,
 	ClassifierKind,
@@ -240,17 +240,7 @@ class Flow {
 	/** Names offered by type completion: every classifier plus the usual primitives. */
 	typeNames: string[] = $derived.by(() => {
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local scratch set, never observed
-		const names = new Set([
-			'String',
-			'int',
-			'long',
-			'double',
-			'float',
-			'boolean',
-			'char',
-			'void',
-			'Date'
-		]);
+		const names = new Set<string>(PRIMITIVE_TYPES);
 		for (const el of projectStore.project.elements.values())
 			if (el.kind === 'classifier' && el.name) names.add(el.name);
 		return [...names].sort((a, b) => a.localeCompare(b));

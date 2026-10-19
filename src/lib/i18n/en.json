@@ -644,5 +644,10 @@
 	"validation.UML011": "All attributes and operations of interface must be public.",
 	"validation.ASTER001.abstract": "{name} is abstract but is drawn as the child. Flip?",
 	"validation.ASTER001.interface": "{name} is an interface but is drawn as the child. Flip?",
-	"cmd.validation": "Validation panel"
+	"cmd.validation": "Validation panel",
+	"cmd.quickFix": "Apply the chip's suggestion",
+	"member.suggest.create": "Create class {name}",
+	"member.suggest.link": "Link with association",
+	"member.suggest.available": "Suggestion: {action}, {key}",
+	"member.suggest.createAny": "Create class"
 }

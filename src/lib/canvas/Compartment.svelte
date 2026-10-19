@@ -2,9 +2,13 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { renderMember, type Member, type MemberKind } from '#lib/mdj/expression.ts';
 	import type { DisplayFlags, Id } from '#lib/model/types.ts';
+	import { byId } from '#lib/app/commands.svelte.ts';
+	import { ariaKeys, format } from '#lib/app/shortcuts.ts';
+	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import LineEditor from './LineEditor.svelte';
-	import { edit } from './inline.ts';
-	import { summarise } from './summary.ts';
+	import { applySuggestion, edit } from './inline.ts';
+	import { suggestFor, summarise } from './summary.ts';
 
 	interface Props {
 		classifierId: Id;
@@ -20,6 +24,20 @@
 
 	let draft = $state('');
 	const summary = $derived(editing === null ? null : summarise(kind, draft));
+	// features.md: a type that names nothing offers "Create class X"; then "Link with association".
+	const suggestion = $derived.by(() => {
+		if (editing === null) return null;
+		void projectStore.version;
+		return suggestFor(projectStore.project, projectStore.diagram, classifierId, kind, draft);
+	});
+	const quickFix = byId('edit.quickFix')!.keys[0];
+	const action = $derived(
+		suggestion?.kind === 'create'
+			? t('member.suggest.create', { name: suggestion.name })
+			: suggestion
+				? t('member.suggest.link')
+				: ''
+	);
 	const text = (m: Member) =>
 		renderMember(kind, m, { ...flags, guillemets: true, keywords: false });
 
@@ -86,10 +104,27 @@
 	<div class="chip nodrag nopan" class:warn={!summary.ok}>
 		<span class="dot" aria-hidden="true"></span>
 		<span class="chip-summary">{summary.parts.join(t('member.summary.join'))}</span>
-		<span class="chip-hint">{t(`member.hints.${kind}`)}</span>
-		<!-- Announced only when the parse state flips, not on every keystroke. -->
+		{#if suggestion}
+			<!-- A click applies without taking focus from the line (⌥↩ is the keyboard path). -->
+			<button
+				type="button"
+				class="suggest"
+				aria-keyshortcuts={ariaKeys(quickFix)}
+				onpointerdown={(e) => e.preventDefault()}
+				onclick={() => applySuggestion(classifierId, kind, draft)}
+				>{action} <Kbd quiet>{format(quickFix)}</Kbd></button
+			>
+		{:else}
+			<span class="chip-hint">{t(`member.hints.${kind}`)}</span>
+		{/if}
+		<!-- Announced when the parse state flips or a suggestion appears, not on every keystroke. -->
 		<span class="sr-only" role="status"
-			>{summary.ok ? t('member.summary.parsed') : t('member.summary.raw')}</span
+			>{summary.ok ? t('member.summary.parsed') : t('member.summary.raw')}{#if suggestion}
+				{t('member.suggest.available', {
+					action:
+						suggestion.kind === 'create' ? t('member.suggest.createAny') : t('member.suggest.link'),
+					key: format(quickFix)
+				})}{/if}</span
 		>
 	</div>
 {/if}
@@ -157,6 +192,23 @@
 	}
 	.chip-summary {
 		font-family: var(--font-mono);
+	}
+	.suggest {
+		display: inline-flex;
+		gap: var(--space-1);
+		align-items: center;
+		height: var(--control-min);
+		margin-left: var(--space-1);
+		padding: 0 var(--space-2);
+		font: inherit;
+		color: var(--accent-text);
+		border-radius: var(--control-radius);
+	}
+	.suggest:hover {
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
+	}
+	.suggest:focus-visible {
+		outline: 2px dashed var(--accent);
 	}
 	.chip-hint {
 		margin-left: var(--space-1);

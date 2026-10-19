@@ -9,6 +9,7 @@
 	import { menuItem } from '#lib/ui/styles.ts';
 	import {
 		addLineBelow,
+		applySuggestion,
 		commitLine,
 		commitName,
 		endEditing,
@@ -111,6 +112,9 @@
 			draft = initial;
 			commit();
 			endEditing();
+		} else if (e.key === 'Enter' && e.altKey && !mod) {
+			// keyboard.md ⌥↩: the chip's suggestion; the line stays open either way.
+			if (own.part !== 'name') applySuggestion(id, own.part, draft);
 		} else if (e.key === 'Enter' && mod) {
 			open = false;
 			addLineBelow(id, own as EditTarget, draft, e.shiftKey ? 'operation' : 'attribute');

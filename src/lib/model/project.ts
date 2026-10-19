@@ -21,6 +21,19 @@ import {
 // Create
 // ---------------------------------------------------------------------------
 
+/** Type names that are not classifiers: offered by completion, never "created" from the chip. */
+export const PRIMITIVE_TYPES = [
+	'String',
+	'int',
+	'long',
+	'double',
+	'float',
+	'boolean',
+	'char',
+	'void',
+	'Date'
+] as const;
+
 export function createProject(init: { id?: Id; name?: string } = {}): Project {
 	return {
 		id: init.id ?? newId(),

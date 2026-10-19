@@ -3,7 +3,9 @@
  * ⌘↩, ⌘⇧↩, ⌘↑/↓ and Esc do. Components only call these; every change is a command.
  */
 import {
+	addClassifier,
 	addMember,
+	connect,
 	deleteMember,
 	membersOf,
 	renameClassifier,
@@ -13,12 +15,15 @@ import {
 import { t } from '#lib/i18n/index.ts';
 import { memberFromText, renderMember, type MemberKind } from '#lib/mdj/expression.ts';
 import { newId } from '#lib/model/ids.ts';
-import { getClassifier } from '#lib/model/project.ts';
+import { createClassifier, getClassifier } from '#lib/model/project.ts';
 import type { Classifier, Id } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { announceAssertive } from '#lib/stores/live.svelte.ts';
 import { selection, type EditTarget } from '#lib/stores/selection.svelte.ts';
+import { canvasApi } from './api.ts';
 import { canvasFocus } from './focus.ts';
+import { freePosition, rightOf } from './place.ts';
+import { suggestFor } from './summary.ts';
 
 /** Compartments a node shows, in order, per docs/spec/features.md. */
 export function compartmentsFor(c: Classifier): MemberKind[] {
@@ -162,4 +167,33 @@ export function reorderLine(id: Id, kind: MemberKind, index: number, text: strin
 	if (to !== index)
 		projectStore.run(reorderMember, { classifierId: id, kind, memberId: list[index].id, to });
 	edit(id, { part: kind, index: to });
+}
+
+/**
+ * ⌥↩ or a click on the chip (features.md, "Create unknown type from the chip"): create the class
+ * the line's type names, in free space right of this one, or link this class to it with an
+ * association. One undo step each; the line stays open. False when there is nothing to apply.
+ */
+export function applySuggestion(id: Id, kind: MemberKind, text: string): boolean {
+	const diagramId = projectStore.activeDiagramId;
+	const s = suggestFor(projectStore.project, projectStore.diagram, id, kind, text);
+	if (!s) return false;
+	if (s.kind === 'create') {
+		const r = canvasApi.rects();
+		const here = r.get(id);
+		const at = (here && rightOf([here])) ?? { x: 0, y: 0 };
+		projectStore.run(addClassifier, {
+			diagramId,
+			classifier: createClassifier({ name: s.name }),
+			at: freePosition(at, r.values())
+		});
+	} else
+		projectStore.run(connect, {
+			diagramId,
+			id: newId(),
+			sourceId: id,
+			targetId: s.targetId,
+			kind: 'association'
+		});
+	return true;
 }

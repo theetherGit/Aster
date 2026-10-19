@@ -272,6 +272,7 @@ export const COMMANDS: AppCommand[] = [
 	},
 	sheetRow('edit.addAttribute', 'edit', 'cmd.addAttributeBelow', ['⌘↩'], true),
 	sheetRow('edit.addOperation', 'edit', 'cmd.addOperationBelow', ['⌘⇧↩'], true),
+	sheetRow('edit.quickFix', 'edit', 'cmd.quickFix', ['⌥↩']),
 	sheetRow('edit.compartment', 'edit', 'cmd.nextCompartment', ['Tab', '⇧Tab']),
 	sheetRow('edit.moveMember', 'edit', 'cmd.moveMember', ['⌘↑', '⌘↓']),
 	{

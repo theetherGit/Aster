@@ -1,6 +1,6 @@
 import { t, type MessageKey } from '#lib/i18n/index.ts';
 import { isRaw, parseMember, type MemberKind } from '#lib/mdj/expression.ts';
-import { elementName } from '#lib/model/project.ts';
+import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type { Diagram, Id, Project } from '#lib/model/types.ts';
 
 /**
@@ -85,4 +85,51 @@ export function elementSummary(
 		...(rels.length ? [sentence(rels.join(t('summary.relJoin'))) + '.'] : []),
 		...(opts.hint ? [t('summary.hint')] : [])
 	].join(' ');
+}
+
+/** What ⌥↩ (or a click on the chip) would do for the line being typed. */
+export type Suggestion =
+	{ kind: 'create'; name: string } | { kind: 'link'; targetId: Id; name: string };
+
+const PLAIN_TYPE = /^[A-Za-z_][\w]*$/;
+/**
+ * features.md, "Create unknown type from the chip": the first type on the line that names no
+ * classifier and no primitive is offered as "Create class X"; a type naming a class on this
+ * diagram that has no association with this one yet is offered as "Link with association".
+ * Generics (`List<X>`) and unparsed lines offer nothing.
+ */
+export function suggestFor(
+	project: Project,
+	diagram: Diagram,
+	classifierId: Id,
+	kind: MemberKind,
+	text: string
+): Suggestion | null {
+	if (kind === 'literal') return null;
+	const p = parseMember(kind, text);
+	if (isRaw(p)) return null;
+	const types =
+		'parameters' in p
+			? [p.returnType, ...p.parameters.map((x) => x.type)]
+			: ['type' in p ? p.type : undefined];
+	const names = new Map<string, Id>();
+	for (const el of project.elements.values())
+		if (el.kind === 'classifier' && el.name) names.set(el.name, el.id);
+	for (const raw of types) {
+		const type = raw?.trim();
+		if (!type || !PLAIN_TYPE.test(type) || (PRIMITIVE_TYPES as readonly string[]).includes(type))
+			continue;
+		const id = names.get(type);
+		if (!id) return { kind: 'create', name: type };
+		if (id === classifierId || !diagram.elementIds.includes(id)) continue;
+		const linked = [...project.elements.values()].some(
+			(r) =>
+				r.kind === 'relationship' &&
+				(r.sourceEnd || r.targetEnd) &&
+				((r.sourceId === classifierId && r.targetId === id) ||
+					(r.sourceId === id && r.targetId === classifierId))
+		);
+		if (!linked) return { kind: 'link', targetId: id, name: type };
+	}
+	return null;
 }
