@@ -6,6 +6,7 @@
 	import { live } from '#lib/stores/live.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { MediaQuery } from 'svelte/reactivity';
+	import { Tooltip } from 'bits-ui';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -33,7 +34,10 @@
 	<link rel="preload" href={paperFont} as="font" type="font/woff2" crossorigin="anonymous" />
 </svelte:head>
 
-{@render children()}
+<!-- One tooltip provider for every Tip: 600 ms on hover, none on focus, none between neighbours. -->
+<Tooltip.Provider delayDuration={600} skipDelayDuration={300}>
+	{@render children()}
+</Tooltip.Provider>
 
 <!-- accessibility.md, Announcements: one polite and one assertive region, mounted once. -->
 <div class="sr-only" aria-live="polite" data-testid="live">{live.text}</div>

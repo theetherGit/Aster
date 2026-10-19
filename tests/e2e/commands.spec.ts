@@ -99,7 +99,7 @@ test('inspector rail (boards 18–19), ⌘\\, zoom keys and diagram switching', 
 	await expect(inspector).toBeVisible();
 
 	// Zoom keys change the zoom readout; ⌘0 brings it back.
-	const zoom = page.getByRole('button', { name: 'Zoom to 100%' });
+	const zoom = page.getByTestId('zoom-level');
 	await page.keyboard.press('ControlOrMeta+=');
 	await expect(zoom).toHaveText('120%');
 	await page.keyboard.press('ControlOrMeta+-');
@@ -246,4 +246,28 @@ test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered
 	await page.keyboard.press('ControlOrMeta+Alt+t');
 	expect(await theme()).toBe('light'); // back to system
 	expect(await page.evaluate(() => localStorage.getItem('aster:theme'))).toBe('system');
+});
+
+test('the "+" after the tabs adds a numbered class diagram, switches to it, and undoes as one step', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const tabs = page.getByRole('tablist', { name: 'Diagrams' });
+	await expect(tabs.getByRole('tab')).toHaveCount(1);
+	await page.getByRole('button', { name: 'Add diagram' }).click();
+	await expect(tabs.getByRole('tab')).toHaveCount(2);
+	await expect(tabs.getByRole('tab', { name: 'Class diagram 2' })).toHaveAttribute(
+		'aria-selected',
+		'true'
+	);
+	await expect(canvasOf(page)).toBeFocused();
+	await expect(page.locator('.classifier-node')).toHaveCount(0);
+	// ⌘⇧[ goes back; undo removes the diagram again.
+	await page.keyboard.press('ControlOrMeta+Shift+[');
+	await expect(tabs.getByRole('tab', { name: 'Main' })).toHaveAttribute('aria-selected', 'true');
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(tabs.getByRole('tab')).toHaveCount(1);
+	await page.keyboard.press('ControlOrMeta+Shift+z');
+	await expect(tabs.getByRole('tab')).toHaveCount(2);
 });

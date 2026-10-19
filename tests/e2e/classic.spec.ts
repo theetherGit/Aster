@@ -10,7 +10,7 @@ test('⌘⇧L switches to Classic: StarUML panels, yellow classes, selection and
 	await node(page, 'Account').click();
 	await expect(node(page, 'Account')).toHaveClass(/selected/);
 	await page.keyboard.press('ControlOrMeta+Equal');
-	await expect(page.getByRole('button', { name: 'Zoom to 100%' })).toHaveText('120%');
+	await expect(page.getByTestId('zoom-level')).toHaveText('120%');
 
 	await canvasOf(page).focus();
 	await page.keyboard.press('ControlOrMeta+Shift+l');
@@ -133,5 +133,6 @@ test('the Classic toolbox: a relationship tool is Link with that kind, and switc
 	const undo = toolbar.getByRole('button', { name: 'Undo' });
 	await undo.focus();
 	await expect(undo).toHaveAttribute('aria-disabled', 'true');
-	await expect(page.getByRole('tooltip')).toHaveText(/Nothing to undo/);
+	// The previous tip may still be fading; the one for Undo is the newest.
+	await expect(page.getByRole('tooltip').last()).toHaveText(/Nothing to undo/);
 });

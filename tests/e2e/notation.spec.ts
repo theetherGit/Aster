@@ -24,7 +24,7 @@ test('no label sits on its own line', async ({ page }) => {
 
 test('labels stay legible at 50 % zoom and still clear their lines', async ({ page }) => {
 	for (let i = 0; i < 4; i++) await page.getByRole('button', { name: 'Zoom out' }).click();
-	await expect(page.getByRole('button', { name: 'Zoom to 100%' })).toHaveText(/^(4\d|50)%$/);
+	await expect(page.getByTestId('zoom-level')).toHaveText(/^(4\d|50)%$/);
 	await page.waitForTimeout(300);
 	const heights = await page
 		.locator('.edge-label text')

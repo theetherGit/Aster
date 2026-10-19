@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	Stack,
 	addClassifier,
+	addDiagram,
 	addToDiagram,
 	deleteFromDiagram,
 	deleteFromModel,
@@ -239,5 +240,28 @@ describe('setDocumentation', () => {
 		expect(getClassifier(project, 'Customer').documentation).toBe('A library member.');
 		stack.undo();
 		expect(getClassifier(project, 'Customer').documentation).toBe('');
+	});
+});
+
+describe('addDiagram', () => {
+	it('appends an empty class diagram and its inverse removes exactly it', () => {
+		const { project, stack } = setup();
+		const before = structural(project);
+		stack.run(addDiagram(project, { diagramId: 'd2', name: 'Class diagram 2' }));
+		expect(project.diagrams.map((d) => d.name)).toEqual(['Main', 'Class diagram 2']);
+		expect(getDiagram(project, 'd2').elementIds).toEqual([]);
+		stack.undo();
+		expect(structural(project)).toEqual(before);
+		stack.redo();
+		expect(project.diagrams[1].id).toBe('d2');
+	});
+	it('restores the diagram at its old place', () => {
+		const { project, stack } = setup();
+		stack.run(addDiagram(project, { diagramId: 'd0', name: 'First', index: 0 }));
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d0', 'd1']);
+		stack.undo();
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d1']);
+		stack.redo();
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d0', 'd1']);
 	});
 });

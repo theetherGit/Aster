@@ -14,10 +14,11 @@ import {
 	startEditing,
 	stopEditing
 } from '#lib/canvas/actions.ts';
-import { batch, setDiagramDefaults, setNodeFlags } from '#lib/commands/index.ts';
+import { addDiagram, batch, setDiagramDefaults, setNodeFlags } from '#lib/commands/index.ts';
 import { serialise } from '#lib/commands/registry.ts';
 import { copyDiagramAsPng } from '#lib/export/actions.ts';
 import { t, type MessageKey } from '#lib/i18n/index.ts';
+import { newId } from '#lib/model/ids.ts';
 import type { ClassifierKind, DisplayFlags, Id, LineStyle } from '#lib/model/types.ts';
 import { newProject, openFromPicker, saveFile } from '#lib/persist/files.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -509,6 +510,25 @@ export const COMMANDS: AppCommand[] = [
 		context: 'global',
 		inText: true,
 		run: () => (selection.size ? canvasApi.fitSelection() : canvasApi.fitAll())
+	},
+	{
+		// Board 01's "+" tab: a new class diagram named after the default, numbered past the last.
+		id: 'diagram.add',
+		group: 'view',
+		label: () => t('ui.addDiagram'),
+		keys: [],
+		context: 'global',
+		inText: true,
+		run: () => {
+			const base = t('model.newDiagramName');
+			const names = projectStore.project.diagrams.map((d) => d.name);
+			let n = projectStore.project.diagrams.length + 1;
+			while (names.includes(`${base} ${n}`)) n++;
+			const diagramId = newId();
+			projectStore.run(addDiagram, { diagramId, name: `${base} ${n}` });
+			projectStore.activeDiagramId = diagramId;
+			canvasFocus.focus();
+		}
 	},
 	{
 		id: 'diagram.next',

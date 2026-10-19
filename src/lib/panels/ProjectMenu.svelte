@@ -70,7 +70,7 @@
 					></span>
 				{/if}
 				<svg
-					class="opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 group-data-[state=open]:opacity-100"
+					class="text-chrome-muted group-hover:text-chrome-text group-data-[state=open]:text-chrome-text"
 					width="10"
 					height="10"
 					viewBox="0 0 10 10"

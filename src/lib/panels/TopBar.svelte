@@ -76,6 +76,29 @@
 			</Tabs.Trigger>
 		{/each}
 	</Tabs.List>
+	<!-- Board 01: the "+" after the last tab; outside the scroll region so it is always in reach. -->
+	<Tip text={t('ui.addDiagram')}>
+		{#snippet children({ props })}
+			<button
+				{...props}
+				type="button"
+				class="icon-btn shrink-0 text-chrome-muted"
+				aria-label={t('ui.addDiagram')}
+				onclick={() => runCommand('diagram.add')}
+			>
+				<svg
+					width="12"
+					height="12"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.5"
+					stroke-linecap="round"
+					aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg
+				>
+			</button>
+		{/snippet}
+	</Tip>
 
 	<div class="ml-auto flex shrink-0 items-center gap-2">
 		<div class="group-box">
@@ -146,11 +169,12 @@
 			</Tip>
 			<Tip text={t('ui.zoomReset')} key={key('zoom.reset')}>
 				{#snippet children({ props })}
+					<!-- Named by the percent it shows (WCAG 2.5.3); the tooltip says what a click does. -->
 					<button
 						{...props}
 						type="button"
 						class="icon-btn w-auto px-1 text-[13px] tabular-nums"
-						aria-label={t('ui.zoomReset')}
+						data-testid="zoom-level"
 						onclick={zoomReset}
 					>
 						{t('ui.zoomLevel', { percent: Math.round(ui.zoom * 100) })}
@@ -172,12 +196,7 @@
 
 		<Tip text={t('export.title')} key={key('file.export')}>
 			{#snippet children({ props })}
-				<button
-					{...props}
-					type="button"
-					class="group-box h-8 px-3 text-[13px] font-medium text-chrome-text hover:bg-chrome-surface"
-					onclick={() => runCommand('file.export')}
-				>
+				<button {...props} type="button" class="text-btn" onclick={() => runCommand('file.export')}>
 					{t('ui.export')}
 				</button>
 			{/snippet}
@@ -218,14 +237,28 @@
 		background: var(--accent-fill);
 		border-radius: 6px;
 	}
-	/* A bordered pill holding one or more 28 px controls. */
+	/* Board 01's text button (Export): the pill's edge with a word's worth of padding. */
+	.text-btn {
+		height: 32px;
+		padding: 0 12px;
+		font-size: 13px;
+		font-weight: 500;
+		color: var(--chrome-text);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-control);
+	}
+	.text-btn:hover {
+		background: var(--chrome-surface);
+		border-color: var(--accent);
+	}
+	/* A bordered pill holding one or more 28 px controls; the edge is a control edge (3:1), not a separator. */
 	.group-box {
 		display: inline-flex;
 		align-items: center;
 		gap: 2px;
 		height: 32px;
 		padding: 0 1px;
-		border: 1px solid var(--chrome-border);
+		border: 1px solid var(--control-border);
 		border-radius: var(--radius-control);
 	}
 </style>

@@ -42,5 +42,12 @@ export {
 	type ConnectArgs,
 	type EndPatch
 } from './relationships.ts';
-export { FLAG_LABEL, renameDiagram, setDiagramDefaults, setNodeFlags } from './display.ts';
+export {
+	FLAG_LABEL,
+	addDiagram,
+	removeDiagram,
+	renameDiagram,
+	setDiagramDefaults,
+	setNodeFlags
+} from './display.ts';
 export { addNote, addText, linkNote, setElementText, unlinkNote } from './notes.ts';

@@ -1,6 +1,6 @@
 /** Display toggles (features.md): per-diagram defaults and per-node overrides; diagram rename. */
 import { t } from '#lib/i18n/index.ts';
-import { getDiagram, getNodeLayout } from '#lib/model/project.ts';
+import { createDiagram, getDiagram, getNodeLayout } from '#lib/model/project.ts';
 import type { DisplayFlags, Id } from '#lib/model/types.ts';
 import { define, type Factory } from './registry.ts';
 import type { Command } from './types.ts';
@@ -77,6 +77,38 @@ export const renameDiagram: Factory<{ diagramId: Id; name: string }> = define(
 			const previous = d.name;
 			d.name = name;
 			return renameDiagram(p, { diagramId, name: previous });
+		}
+	})
+);
+
+/** A new, empty class diagram at the end of the list (board 01's "+" tab). */
+export const addDiagram: Factory<{ diagramId: Id; name: string; index?: number }> = define(
+	'addDiagram',
+	(project, { diagramId, name, index }) => ({
+		label: t('cmd.addDiagram', { name }),
+		touches: [],
+		apply(p): Command {
+			const at = index ?? p.diagrams.length;
+			p.diagrams.splice(at, 0, createDiagram({ id: diagramId, name }));
+			return removeDiagram(p, { diagramId });
+		}
+	})
+);
+
+/**
+ * The inverse of addDiagram. It is not offered as a user action: it keeps only the name and
+ * place, so it is right for a diagram whose own edits have already been undone (undo order
+ * guarantees that), not for deleting a diagram with content, which waits for its own command.
+ */
+export const removeDiagram: Factory<{ diagramId: Id }> = define(
+	'removeDiagram',
+	(project, { diagramId }) => ({
+		label: t('cmd.removeDiagram', { name: getDiagram(project, diagramId).name }),
+		touches: [],
+		apply(p): Command {
+			const index = p.diagrams.findIndex((d) => d.id === diagramId);
+			const [d] = p.diagrams.splice(index, 1);
+			return addDiagram(p, { diagramId, name: d.name, index });
 		}
 	})
 );
