@@ -168,8 +168,6 @@
 	"inspector.literals": "Literals",
 	"inspector.add": "Add {kind}",
 	"inspector.remove": "Delete {name} from {owner}",
-	"inspector.moveUp": "Move {name} up",
-	"inspector.moveDown": "Move {name} down",
 	"inspector.unparsed": "Kept as text; could not parse",
 	"inspector.memberVisibility": "Visibility of {name}: {value}",
 	"inspector.lineHint": "↩ next · Esc",

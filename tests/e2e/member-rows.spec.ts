@@ -35,12 +35,12 @@ test('rest, hover and editing: 30 px rows, actions beside the text, never over i
 	await expect(first).toHaveAttribute('title', '# {static} attribute0: String');
 	const rest = (await line.boundingBox())!;
 
-	// Hover: four 24 px actions; the text shrinks to make room.
+	// Hover: 24 px actions (visibility, remove; no move arrows, owner's request); the text
+	// shrinks to make room.
 	await first.hover();
+	await expect(first.getByRole('button')).toHaveCount(2);
 	const actions = [
 		first.getByRole('button', { name: /^Visibility of attribute0/ }),
-		first.getByRole('button', { name: 'Move attribute0 up' }),
-		first.getByRole('button', { name: 'Move attribute0 down' }),
 		first.getByRole('button', { name: 'Delete attribute0 from Account' })
 	];
 	for (const a of actions) {
@@ -50,7 +50,6 @@ test('rest, hover and editing: 30 px rows, actions beside the text, never over i
 	const hovered = (await line.boundingBox())!;
 	expect(hovered.width).toBeLessThan(rest.width);
 	expect(hovered.x + hovered.width).toBeLessThanOrEqual((await actions[0].boundingBox())!.x);
-	await expect(actions[1]).toHaveAttribute('aria-disabled', 'true');
 
 	// Editing: the row tints and shows its keys; the actions step aside.
 	await line.click();
@@ -87,9 +86,7 @@ test('↩ commits and moves to the next row, appending on the last; Esc reverts'
 	await expect(lines(page, 'Customer', 'attribute')).toHaveCount(3);
 });
 
-test('⌘↑ / ⌘↓ move the row and focus follows; ⌘⇧ jumps to the ends; buttons run the same', async ({
-	page
-}) => {
+test('⌘↑ / ⌘↓ move the row and focus follows; ⌘⇧ jumps to the ends', async ({ page }) => {
 	await open(page, 'Account');
 	const rows = attributeRows(page);
 	const canvasLines = lines(page, 'Account', 'attribute');
@@ -109,20 +106,6 @@ test('⌘↑ / ⌘↓ move the row and focus follows; ⌘⇧ jumps to the ends; 
 	await expect(rows.nth(0).getByRole('textbox')).toBeFocused();
 	await expect(canvasLines.nth(0)).toContainText('attribute0');
 	await expect(live(page)).toHaveText('Moved attribute0 to 1 of 10');
-
-	// The row's button: same command; focus stays on the button as it travels with the row.
-	// Esc first: while its line is edited a row shows its keys, not its buttons.
-	await page.keyboard.press('Escape');
-	await rows.nth(0).hover();
-	const down = inspectorOf(page).getByRole('button', { name: 'Move attribute0 down' });
-	await down.click();
-	await expect(down).toBeFocused();
-	await expect(canvasLines.nth(1)).toContainText('attribute0');
-	await expect(live(page)).toHaveText('Moved attribute0 to 2 of 10');
-	// ⌘↑ from the button: the row moves back and focus stays on the same button.
-	await page.keyboard.press('ControlOrMeta+ArrowUp');
-	await expect(down).toBeFocused();
-	await expect(canvasLines.nth(0)).toContainText('attribute0');
 });
 
 test('drag by the grip: lifted row, insertion line, origin dimmed; Esc and outside cancel', async ({

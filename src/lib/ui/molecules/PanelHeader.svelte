@@ -24,7 +24,8 @@
 	} = $props();
 </script>
 
-<div class="flex items-center justify-between gap-2 ps-4 pe-2">
+<!-- Sticky: the head stays put while its panel scrolls. -->
+<div class="sticky top-0 z-2 flex items-center justify-between gap-2 bg-chrome-surface ps-4 pe-2">
 	<h2
 		class="py-3 text-(length:--text-caption) font-semibold tracking-[0.05em] text-chrome-muted uppercase"
 		{id}

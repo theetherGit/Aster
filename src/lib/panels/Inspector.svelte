@@ -168,7 +168,8 @@
 		>
 			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist,
 			     nor a heading of its own (the aside is already named by it): a span in the title dress. -->
-			<div class="flex border-b border-chrome-border px-2">
+			<!-- The tab row stays put while the panel scrolls (owner's request). -->
+			<div class="sticky top-0 z-2 flex border-b border-chrome-border bg-chrome-surface px-2">
 				{#if classic}
 					<span class="editors-title">{t('classic.editors')}</span>
 				{/if}

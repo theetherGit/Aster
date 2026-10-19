@@ -78,7 +78,7 @@
 		projectStore.run(addMember, { classifierId: c.id, kind, member });
 	}
 
-	/** One command for keys, buttons and drag; focus travels with the row it was on. */
+	/** One command for keys and drag; focus travels with the row it was on. */
 	async function moveTo(id: Id, from: number, to: number) {
 		const all = model();
 		to = Math.max(0, Math.min(to, all.length - 1));
@@ -94,7 +94,7 @@
 		focused?.focus();
 	}
 
-	/** ⌘↑ / ⌘↓ one place, ⌘⇧↑ / ⌘⇧↓ to the ends (keyboard.md), from the line or any row button. */
+	/** ⌘↑ / ⌘↓ one place, ⌘⇧↑ / ⌘⇧↓ to the ends (keyboard.md), from the line or a row button. */
 	function moveKey(e: KeyboardEvent, id: Id, i: number) {
 		if (e.defaultPrevented || !(e.metaKey || e.ctrlKey) || e.altKey) return;
 		if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
@@ -226,8 +226,8 @@
 						data-editing={editing === m.id || undefined}
 						onkeydown={(e) => moveKey(e, m.id, i)}
 					>
-						<!-- Pointer only, and so hidden from assistive tech: ⌘↑ / ⌘↓ and the row's
-						     buttons are the same move by keyboard. -->
+						<!-- Pointer only, and so hidden from assistive tech: ⌘↑ / ⌘↓ are the same move
+						     by keyboard, the Outline's row menu by one click. -->
 						<span
 							class="grip absolute start-0 top-0.75 z-1 flex size-6 cursor-grab touch-none items-center justify-center text-chrome-muted"
 							data-grip
@@ -311,27 +311,6 @@
 									</DropdownMenu.Portal>
 								</DropdownMenu.Root>
 							{/if}
-							<!-- Edge rows use aria-disabled, not disabled: a real disabled button would drop focus. -->
-							<IconButton
-								label={t('inspector.moveUp', { name: m.name })}
-								icon="arrow-up"
-								iconSize={12}
-								size={24}
-								tip={false}
-								class="text-chrome-muted"
-								aria-disabled={i === 0 || undefined}
-								onclick={() => moveTo(m.id, i, i - 1)}
-							/>
-							<IconButton
-								label={t('inspector.moveDown', { name: m.name })}
-								icon="arrow-down"
-								iconSize={12}
-								size={24}
-								tip={false}
-								class="text-chrome-muted"
-								aria-disabled={i === members.length - 1 || undefined}
-								onclick={() => moveTo(m.id, i, i + 1)}
-							/>
 							<IconButton
 								label={t('inspector.remove', { name: m.name, owner: classifier.name })}
 								icon="x"

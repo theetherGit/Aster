@@ -47,6 +47,12 @@ body {
 	background: var(--chrome-bg);
 }
 
+/* Scrollbars follow the theme (owner's request): thin, the thumb on the 3:1 edge token, no track. */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--control-border) transparent;
+}
+
 :focus-visible {
 	outline: 2px dashed var(--accent);
 	outline-offset: 2px;

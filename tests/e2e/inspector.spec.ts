@@ -38,9 +38,10 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	);
 	expect(nextFrame).toBe('# attribute1: int');
 
-	// Reorder and remove; focus stays in the panel after a remove.
-	await inspector.getByRole('textbox', { name: 'Attribute line' }).first().hover();
-	await inspector.getByRole('button', { name: 'Move attribute0 down' }).click();
+	// Reorder (⌘↓ on the line) and remove; focus stays in the panel after a remove.
+	await inspector.getByRole('textbox', { name: 'Attribute line' }).first().focus();
+	await page.keyboard.press('ControlOrMeta+ArrowDown');
+	await page.keyboard.press('Escape');
 	await expect(customer.locator('[data-compartment="attribute"] li').nth(1)).toHaveText(
 		'- attribute0: String'
 	);
@@ -100,17 +101,16 @@ test('member-row buttons are not hit-testable until the row is hovered or focuse
 	}, at);
 	expect(hit).toBe('INPUT');
 	await expect(customer.locator('[data-compartment="attribute"] li')).toHaveCount(2);
-	// Focus inside the row reveals the buttons and makes them clickable; the edge button is
-	// aria-disabled, keeps focus and does nothing.
+	// Tab from the line reaches the row's buttons, which then show at full size.
 	await line.focus();
-	const up = inspector.getByRole('button', { name: 'Move attribute0 up' });
-	await expect(up).toHaveAttribute('aria-disabled', 'true');
-	await up.focus();
-	await page.keyboard.press('Enter');
-	await expect(up).toBeFocused();
-	await expect(customer.locator('[data-compartment="attribute"] li').first()).toHaveText(
-		'# attribute0: String'
-	);
+	await page.keyboard.press('Tab');
+	const vis = inspector.getByRole('button', { name: /^Visibility of attribute0/ });
+	await expect(vis).toBeFocused();
+	expect((await vis.boundingBox())!.width).toBe(24);
+	await page.keyboard.press('Tab');
+	await expect(
+		inspector.getByRole('button', { name: 'Delete attribute0 from Customer' })
+	).toBeFocused();
 });
 
 test('blank names and member lines revert instead of committing', async ({ page }) => {
@@ -130,4 +130,20 @@ test('blank names and member lines revert instead of committing', async ({ page 
 		'aria-disabled',
 		'true'
 	);
+});
+
+test('the tab row stays put while the panel scrolls; scrollbars are thin and themed', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1280, height: 600 });
+	await page.goto('/design/sample');
+	await page.locator('.classifier-node[data-name="Account"]').click();
+	const inspector = page.getByRole('complementary', { name: 'Inspector' });
+	await expect.poll(async () => (await page.locator('.inspector').boundingBox())?.width).toBe(300);
+	const tabs = inspector.getByRole('tablist');
+	const top = (await tabs.boundingBox())!.y;
+	await inspector.evaluate((el) => (el.scrollTop = 400));
+	expect(await inspector.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+	expect((await tabs.boundingBox())!.y).toBe(top);
+	await expect(inspector).toHaveCSS('scrollbar-width', 'thin');
 });
