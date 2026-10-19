@@ -46,6 +46,8 @@
 	},
 	"dependencies": {
 		"@lucasmarkes/hairline": "0.5.1",
+		"@shikijs/core": "^4.5.0",
+		"@shikijs/engine-javascript": "^4.5.0",
 		"@xyflow/svelte": "^1.7.0",
 		"bits-ui": "^2.19.5",
 		"cn": "0.5.0",

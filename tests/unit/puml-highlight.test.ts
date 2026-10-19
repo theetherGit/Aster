@@ -1,48 +1,84 @@
 import { describe, expect, it } from 'vitest';
 import { highlight } from '#lib/puml/highlight.ts';
 
-/** The Text view's colouring: keywords and arrows stand out, comments and directives recede. */
-const kinds = (line: string) =>
-	highlight(line)
-		.filter((t) => t.kind !== 'text')
-		.map((t) => [t.kind, t.text]);
+/** The Text view's colouring (Shiki, Aster's PlantUML grammar): what stands out, what recedes. */
+const kinds = (text: string) =>
+	highlight(text).map((line) =>
+		line.filter((t) => t.kind !== 'text' && t.text.trim()).map((t) => [t.kind, t.text.trim()])
+	);
 
 describe('PlantUML highlighting', () => {
-	it('marks declarations, stereotypes and the opening brace', () => {
-		expect(kinds('abstract class Person <<entity>> {')).toEqual([
+	it('marks declarations, their names, stereotypes and aliases', () => {
+		expect(kinds('abstract class Person <<entity>> {\n}')[0]).toEqual([
 			['keyword', 'abstract'],
 			['keyword', 'class'],
+			['name', 'Person'],
 			['stereotype', '<<entity>>']
 		]);
-		expect(kinds('enum LoanStatus { ACTIVE; RETURNED }')).toEqual([['keyword', 'enum']]);
+		expect(kinds('enum LoanStatus { ACTIVE; RETURNED }')[0]).toEqual([
+			['keyword', 'enum'],
+			['name', 'LoanStatus']
+		]);
+		expect(kinds('class "A B" as AB')[0]).toEqual([
+			['keyword', 'class'],
+			['name', '"A B"'],
+			['keyword', 'as'],
+			['name', 'AB']
+		]);
+	});
+
+	it('reads member lines inside a body: visibility, modifiers and types, never arrows', () => {
+		expect(
+			kinds('class Book {\n  -isbn: String\n  +{static} search(q: String): Book[*]\n}').slice(1, 3)
+		).toEqual([
+			[
+				['modifier', '-'],
+				['type', 'String']
+			],
+			[
+				['modifier', '+{static}'], // adjacent tokens of one kind arrive merged
+				['type', 'String'],
+				['type', 'Book[*]']
+			]
+		]);
 	});
 
 	it('marks arrows, multiplicities and labels in a relationship line', () => {
-		expect(kinds('Member "1" -- "0..*" Loan : loans')).toEqual([
+		expect(kinds('Member "1" -- "0..*" Loan : loans')[0]).toEqual([
 			['string', '"1"'],
 			['arrow', '--'],
 			['string', '"0..*"']
 		]);
-		expect(kinds('Loan ..> LoanStatus : <<use>>')).toEqual([
+		expect(kinds('Loan ..> LoanStatus : <<use>>')[0]).toEqual([
 			['arrow', '..>'],
 			['stereotype', '<<use>>']
 		]);
-		expect(kinds('Order *-up- OL')).toEqual([['arrow', '*-up-']]);
+		expect(kinds('Order *-up- OL')[0]).toEqual([['arrow', '*-up-']]);
 	});
 
-	it('marks comments and directives whole, and keeps every character', () => {
-		expect(kinds("' kept as typed")).toEqual([['comment', "' kept as typed"]]);
-		expect(kinds('@startuml')).toEqual([['directive', '@startuml']]);
-		for (const line of ['  +search(q: String): Book[*]', 'note "x" as N1', 'class "A B" as AB {'])
-			expect(
-				highlight(line)
-					.map((t) => t.text)
-					.join('')
-			).toBe(line);
+	it('marks comments, directives and note blocks', () => {
+		expect(kinds("' kept as typed\n@startuml")).toEqual([
+			[['comment', "' kept as typed"]],
+			[['directive', '@startuml']]
+		]);
+		expect(kinds('note as N1\n  free -- text\nend note')).toEqual([
+			[
+				['keyword', 'note'],
+				['keyword', 'as'],
+				['name', 'N1']
+			],
+			[],
+			[['keyword', 'end note']]
+		]);
 	});
 
-	it('does not read a member line as a relationship', () => {
-		expect(kinds('  -dueDate: Date')).toEqual([]);
-		expect(kinds('  +isOverdue(): boolean')).toEqual([]);
+	it('keeps every character of every line', () => {
+		const text =
+			'@startuml\n  +search(q: String): Book[*]\n\nnote "x" as N1\nclass "A B" as AB {\n}';
+		expect(
+			highlight(text)
+				.map((line) => line.map((t) => t.text).join(''))
+				.join('\n')
+		).toBe(text);
 	});
 });

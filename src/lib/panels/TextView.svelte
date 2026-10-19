@@ -6,7 +6,7 @@
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import { parsePuml, type PError } from '#lib/puml/parse.ts';
 	import { printDiagram } from '#lib/puml/print.ts';
-	import { highlight } from '#lib/puml/highlight.ts';
+	import type { Token } from '#lib/puml/highlight.ts';
 	import { exportPuml, pickPumlText } from '#lib/persist/files.svelte.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import { planSync } from '#lib/puml/sync.ts';
@@ -93,7 +93,14 @@
 	}
 	const lineCount = $derived(value.split('\n').length);
 	let layer: HTMLDivElement;
-	const coloured = $derived(value.split('\n').map(highlight));
+	// Shiki loads with the tab, not with the app; until then the lines show plain.
+	let highlight = $state<((text: string) => Token[][]) | null>(null);
+	$effect(() => {
+		import('#lib/puml/highlight.ts').then((m) => (highlight = m.highlight));
+	});
+	const coloured = $derived<Token[][]>(
+		highlight ? highlight(value) : value.split('\n').map((text) => [{ kind: 'text', text }])
+	);
 
 	/** Import here: a .puml file's text replaces this diagram's, applied at once (one undo step). */
 	async function importHere() {
@@ -196,13 +203,17 @@
 </div>
 
 <style>
-	/* The two colours hold 4.5:1 on the chrome in every theme (tokens.css, contrast test). */
+	/* Two colours beside the text's own, each 4.5:1 on the chrome in every theme (tokens.css,
+	   contrast test); design.md colours nothing else. Names and strings stay in the text colour. */
 	.tk-keyword,
-	.tk-arrow {
+	.tk-arrow,
+	.tk-type {
 		color: var(--accent-text);
 	}
 	.tk-comment,
-	.tk-directive {
+	.tk-directive,
+	.tk-stereotype,
+	.tk-modifier {
 		color: var(--chrome-muted);
 	}
 </style>
