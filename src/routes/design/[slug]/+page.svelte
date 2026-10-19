@@ -45,6 +45,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { announce } from '#lib/stores/live.svelte.ts';
+	import { motion } from '#lib/ui/motion.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
@@ -58,6 +59,7 @@
 	// manual review), anything else a project in this browser by its slug. The welcome may have
 	// loaded the project already, in which case `persist.route` is this slug and nothing reloads.
 	onMount(() => {
+		motion.leaving = false;
 		const slug = page.params.slug!;
 		const boot = async () => {
 			await loadRecent();
@@ -95,7 +97,11 @@
 	// Board 20 on the way out: leaving the editor with unsaved edits to a file asks first.
 	let leaving = false;
 	beforeNavigate((nav) => {
-		if (leaving || nav.type === 'leave' || !nav.to || files.state !== 'unsaved') return;
+		if (leaving || nav.type === 'leave' || !nav.to || files.state !== 'unsaved') {
+			// Panels do not slide shut on a page that is going away; the flag resets on the next mount.
+			motion.leaving = true;
+			return;
+		}
 		nav.cancel();
 		const url = nav.to.url;
 		guardUnsaved(null, async () => {

@@ -8,7 +8,11 @@ import { slide, type SlideParams, type TransitionConfig } from 'svelte/transitio
  * `transition:panelSlide|global`: the panels are created and destroyed by the page's own blocks,
  * and Svelte 5 transitions are local by default, so without `global` they never play.
  */
+/** Set while the editor route is being left: a panel sliding shut on a page that is going away is noise. */
+export const motion = { leaving: false };
+
 export function panelSlide(node: Element, params: SlideParams = {}): TransitionConfig {
-	if (matchMedia('(prefers-reduced-motion: reduce)').matches) return { duration: 0 };
+	if (motion.leaving || matchMedia('(prefers-reduced-motion: reduce)').matches)
+		return { duration: 0 };
 	return slide(node, { axis: 'x', duration: 160, easing: cubicOut, ...params });
 }

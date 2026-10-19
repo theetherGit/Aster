@@ -84,6 +84,8 @@ test('member-row buttons are not hit-testable until the row is hovered or focuse
 	const inspector = page.getByRole('complementary', { name: 'Inspector' });
 	const line = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
 	await expect(line).toBeVisible();
+	// The panel slides in over 160 ms; the hit test below needs its final place.
+	await expect.poll(async () => (await page.locator('.inspector').boundingBox())?.width).toBe(300);
 	await page.mouse.move(0, 0); // nothing hovered, nothing in the row focused
 	const box = (await line.boundingBox())!;
 	const at = { x: box.x + box.width - 8, y: box.y + box.height / 2 };
