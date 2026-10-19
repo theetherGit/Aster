@@ -21,7 +21,14 @@
 	import { menu, menuItem } from '#lib/ui/styles.ts';
 
 	// The rows are registry commands (label, key, run), so the menu never retypes a shortcut.
-	const ROWS = ['file.new', 'file.open', 'file.save', 'file.saveAs'].flatMap((id) => {
+	const ROWS = [
+		'file.new',
+		'file.open',
+		'file.save',
+		'file.saveAs',
+		'file.importPuml',
+		'file.exportPuml'
+	].flatMap((id) => {
 		const c = byId(id);
 		return c ? [c] : [];
 	});
@@ -30,7 +37,9 @@
 		'file.new': 'file-plus',
 		'file.open': 'folder-open',
 		'file.save': 'save',
-		'file.saveAs': 'save-all'
+		'file.saveAs': 'save-all',
+		'file.importPuml': 'folder-open',
+		'file.exportPuml': 'save'
 	};
 	async function renamed() {
 		ui.renaming = null;

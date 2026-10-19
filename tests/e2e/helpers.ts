@@ -77,3 +77,13 @@ export async function expectKeyboardOnCanvas(page: Page) {
 		.poll(() => canvasOf(page).evaluate((el) => el.contains(document.activeElement)))
 		.toBe(true);
 }
+
+/** Run a palette command by name: waits for the palette's field, so no keys go astray. */
+export async function fromPalette(page: Page, name: string) {
+	await page.keyboard.press('ControlOrMeta+k');
+	const input = page.getByRole('dialog', { name: 'Command palette' }).locator('input');
+	await expect(input).toBeFocused();
+	await page.keyboard.type(name);
+	await page.keyboard.press('Enter');
+	await expect(input).toHaveCount(0);
+}

@@ -157,6 +157,8 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 		/Open…/,
 		/\bSave (⌘S|Ctrl\+S)$/,
 		/Save as…/,
+		/Import PlantUML as a new project…/,
+		/Export the diagram as PlantUML/,
 		'public-vrview.mdj'
 	]);
 	await menu.getByRole('menuitem', { name: 'public-vrview.mdj' }).click();

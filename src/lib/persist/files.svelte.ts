@@ -104,11 +104,16 @@ const OPEN_TYPES: { description: string; accept: Record<string, string[]> }[] = 
 	...TYPES,
 	{ description: 'PlantUML class diagram', accept: { 'text/plain': ['.puml'] } }
 ];
+const PUML_TYPES = [{ description: 'PlantUML class diagram', accept: { 'text/plain': ['.puml'] } }];
+
 /** ⌘O: ask for a file. Resolves to null when the user cancels. */
-export async function pickFile(): Promise<OpenedFile | null> {
+export async function pickFile(
+	types = OPEN_TYPES,
+	accept = '.mdj,.aster,.aster.json,.puml,application/json'
+): Promise<OpenedFile | null> {
 	if (window.showOpenFilePicker) {
 		try {
-			const [handle] = await window.showOpenFilePicker({ types: OPEN_TYPES, multiple: false });
+			const [handle] = await window.showOpenFilePicker({ types, multiple: false });
 			const file = await handle.getFile();
 			return {
 				name: file.name,
@@ -125,7 +130,7 @@ export async function pickFile(): Promise<OpenedFile | null> {
 		// Attached while the chooser is open: a detached input has nothing keeping it alive.
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.accept = '.mdj,.aster,.aster.json,.puml,application/json';
+		input.accept = accept;
 		input.hidden = true;
 		document.body.append(input);
 		const done = (file: OpenedFile | null) => {
@@ -449,4 +454,19 @@ export function exportPuml() {
 	a.click();
 	a.remove();
 	setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/** Ask for a `.puml` file only. */
+const pickPuml = () => pickFile(PUML_TYPES, '.puml,text/plain');
+
+/** The Text view's import: a `.puml` file's text for this diagram, or null when cancelled. */
+export async function pickPumlText(): Promise<string | null> {
+	const f = await pickPuml();
+	return f ? new TextDecoder('utf-8').decode(f.data) : null;
+}
+
+/** The project menu's import: a `.puml` file as a new project (asking first about unsaved edits). */
+export async function importPumlProject() {
+	const f = await pickPuml();
+	if (f) await guardUnsaved(f.name, () => openPuml(f));
 }

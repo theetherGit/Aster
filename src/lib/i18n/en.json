@@ -722,5 +722,10 @@
 	"seo.title": "Aster · The open-source StarUML alternative",
 	"seo.headline": "The open-source StarUML alternative",
 	"seo.description": "Draw UML class diagrams in your browser. Opens and saves .mdj files, and nothing leaves your machine.",
-	"seo.imageAlt": "Aster: the open-source StarUML alternative. A UML class diagram in the browser: Member and Librarian generalize the abstract class Person."
+	"seo.imageAlt": "Aster: the open-source StarUML alternative. A UML class diagram in the browser: Member and Librarian generalize the abstract class Person.",
+	"inspector.nothingSelected": "Nothing selected. Pick an element on the diagram or in the Outline.",
+	"inspector.resize": "Resize the inspector",
+	"cmd.importPuml": "Import PlantUML as a new project…",
+	"text.import": "Import .puml into this diagram",
+	"text.export": "Export .puml"
 }

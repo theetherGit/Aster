@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TextView from './TextView.svelte';
+	import { isRtl, locale } from '#lib/i18n/locale.svelte.ts';
 	import SkipLink from '#lib/ui/atoms/SkipLink.svelte';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { renameClass } from '#lib/canvas/inline.ts';
@@ -102,10 +103,44 @@
 	};
 	const flags = (f: Parameters<typeof setClassifierFlags>[1]['flags']) =>
 		classifier && projectStore.run(setClassifierFlags, { id: classifier.id, flags: f });
+	// Owner's report: Properties chosen with nothing selected stays open; a new selection ends the
+	// hold, so clearing it later folds the panel to its rail as ui.md has it.
+	let held = $state(false);
+	$effect(() => {
+		if (selection.size > 0) held = false;
+	});
+
+	// 280 + 16 n: the range's steps land on ui.md's 360.
+	const TEXT_MIN = 280;
+	let innerWidth = $state(1280);
+	const textMax = $derived(Math.max(TEXT_MIN, Math.min(800, innerWidth - 400)));
+	/** The strip: drag toward the canvas to widen. */
+	function drag(e: PointerEvent) {
+		if (e.button !== 0) return;
+		e.preventDefault();
+		const strip = e.currentTarget as HTMLElement;
+		strip.setPointerCapture(e.pointerId);
+		const start = e.clientX;
+		const from = ui.textWidth;
+		const towardCanvas = isRtl(locale.current) ? 1 : -1;
+		const move = (ev: PointerEvent) => {
+			const w = from + (ev.clientX - start) * towardCanvas;
+			const snapped = TEXT_MIN + Math.round((w - TEXT_MIN) / 16) * 16;
+			ui.textWidth = Math.max(TEXT_MIN, Math.min(textMax, snapped));
+		};
+		const up = () => {
+			strip.removeEventListener('pointermove', move);
+			strip.removeEventListener('pointerup', up);
+		};
+		strip.addEventListener('pointermove', move);
+		strip.addEventListener('pointerup', up);
+	}
 </script>
 
+<svelte:window bind:innerWidth />
+
 <!-- Every field dispatches the same commands as inline editing (docs/spec/features.md, Properties panel). -->
-{#if !classic && (!ui.panels.inspector || (selection.size === 0 && ui.inspectorTab !== 'diagram' && ui.inspectorTab !== 'text'))}
+{#if !classic && (!ui.panels.inspector || (selection.size === 0 && ui.inspectorTab === 'properties' && !held))}
 	<!-- Boards 18–19: a 40 px rail with one button when nothing is selected or the panel is hidden. -->
 	<aside
 		aria-label={t('inspector.collapsed')}
@@ -124,7 +159,13 @@
 {:else}
 	{#snippet panel()}
 		<SkipLink label={t('app.skipToCanvas')} go={() => canvasFocus.focus()} />
-		<Tabs.Root bind:value={ui.inspectorTab}>
+		<Tabs.Root
+			bind:value={ui.inspectorTab}
+			onValueChange={(v) => {
+				// Chosen by the reader with nothing selected: stay open and say so (owner's report).
+				if (v === 'properties' && selection.size === 0) held = true;
+			}}
+		>
 			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist,
 			     nor a heading of its own (the aside is already named by it): a span in the title dress. -->
 			<div class="flex border-b border-chrome-border px-2">
@@ -284,7 +325,7 @@
 					<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
 					<h2 class="mt-1 text-(length:--text-lead) font-semibold">{elementName(single)}</h2>
 				{:else if selection.size === 0}
-					<p class="text-chrome-muted">{t('classic.noSelection')}</p>
+					<p class="text-chrome-muted">{t('inspector.nothingSelected')}</p>
 				{:else}
 					<p class="text-chrome-muted">{t('ui.selectedCount', { count: selection.size })}</p>
 				{/if}
@@ -320,11 +361,37 @@
 	{:else}
 		<!-- The slide animates this wrapper's width and clips; the panel keeps its 300 px inside. -->
 		<div transition:panelSlide|global class="inspector flex shrink-0 overflow-hidden">
+			{#if ui.inspectorTab === 'text'}
+				<!-- Owner's request: the Text tab resizes. The control is a real range input (keys, screen
+				     readers; its direction set so the arrow toward the canvas widens); the strip beside
+				     it is the pointer's handle, the same value. -->
+				<label class="contents">
+					<span class="sr-only">{t('inspector.resize')}</span>
+					<input
+						type="range"
+						class="peer sr-only"
+						dir={isRtl(locale.current) ? 'ltr' : 'rtl'}
+						min={TEXT_MIN}
+						max={textMax}
+						step="16"
+						bind:value={ui.textWidth}
+					/>
+				</label>
+				<div
+					data-testid="inspector-resize"
+					aria-hidden="true"
+					class="w-1.5 shrink-0 cursor-col-resize bg-transparent peer-focus-visible:bg-accent hover:bg-accent/40"
+					onpointerdown={drag}
+				></div>
+			{/if}
 			<aside
 				aria-label={t('inspector.title')}
 				class="{ui.inspectorTab === 'text'
-					? 'w-[360px]'
+					? ''
 					: 'w-[300px]'} shrink-0 overflow-auto border-s border-chrome-border bg-chrome-surface"
+				style:width={ui.inspectorTab === 'text'
+					? `${Math.min(ui.textWidth, textMax)}px`
+					: undefined}
 			>
 				{@render panel()}
 			</aside>

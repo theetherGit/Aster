@@ -23,6 +23,13 @@ const storedOutline = new PersistedState<boolean>(
 	typeof window !== 'undefined' && window.innerWidth >= 1280,
 	{ serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' } }
 );
+/** Owner's request: the Text tab's inspector width, resizable and remembered (ui.md's 360 by default). */
+const storedTextWidth = new PersistedState<number>('aster:textWidth', 360, {
+	serializer: {
+		serialize: (v) => String(v),
+		deserialize: (v) => (Number.isFinite(Number(v)) ? Number(v) : 360)
+	}
+});
 /** Owner's ruling #30: notation tooltips on paper, on by default, remembered. */
 const storedTips = new PersistedState<boolean>('aster:notationTips', true, {
 	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v !== '0' }
@@ -58,6 +65,12 @@ class Ui {
 		if (v === 'modern' && this.inspectorTab === 'documentation') this.inspectorTab = 'properties';
 	}
 	panels = new Panels();
+	get textWidth(): number {
+		return storedTextWidth.current;
+	}
+	set textWidth(v: number) {
+		storedTextWidth.current = Math.round(v);
+	}
 	get notationTips(): boolean {
 		return storedTips.current;
 	}
