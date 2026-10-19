@@ -6,7 +6,8 @@
 	import type { ParseReport, ParseWarning } from '#lib/mdj/parse.ts';
 	import { files, openFromPicker } from '#lib/persist/files.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
-	import Icon from './Icon.svelte';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 
 	// The import notice (board 08): top right, non-blocking, a short summary first and the
 	// per-diagram detail on request. Read out politely; failures assertively.
@@ -106,7 +107,7 @@
 					aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v6M12 16.5v.5" /></svg
 				>
 			{/if}
-			<h2 id="import-notice-title" class="min-w-0 flex-1 text-[14px] font-semibold">
+			<h2 id="import-notice-title" class="min-w-0 flex-1 text-(length:--text-field) font-semibold">
 				{#if notice.kind === 'opening'}
 					{t('import.opening', { file: notice.file })}
 				{:else if notice.kind === 'opened'}
@@ -118,14 +119,16 @@
 				{/if}
 			</h2>
 			{#if notice.kind !== 'opening'}
-				<button
-					type="button"
-					class="icon-btn h-6 w-6 shrink-0"
-					aria-label={t('import.close')}
+				<IconButton
+					label={t('import.close')}
+					icon="x"
+					size={24}
+					iconSize={11}
+					stroke={2.5}
+					tip={false}
+					class="shrink-0"
 					onclick={() => (files.notice = null)}
-				>
-					<Icon name="x" size={11} stroke={2.5} />
-				</button>
+				/>
 			{/if}
 		</header>
 
@@ -145,19 +148,16 @@
 				})}
 			</p>
 			<div class="mt-2 flex items-center gap-2">
-				<button
-					type="button"
-					class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-					onclick={() => openFromPicker()}>{t('import.chooseAnother')}</button
-				>
+				<Button size="sm" onclick={() => openFromPicker()}>{t('import.chooseAnother')}</Button>
 				<Collapsible.Root>
-					<Collapsible.Trigger
-						class="h-7 rounded-control px-1 text-chrome-muted hover:text-chrome-text hover:underline"
-						>{t('import.showDetails')}</Collapsible.Trigger
-					>
+					<Collapsible.Trigger>
+						{#snippet child({ props })}
+							<Button variant="ghost" size="sm" {...props}>{t('import.showDetails')}</Button>
+						{/snippet}
+					</Collapsible.Trigger>
 					<Collapsible.Content
 						><pre
-							class="mt-2 text-[11px] whitespace-pre-wrap text-chrome-muted">{notice.message}</pre></Collapsible.Content
+							class="mt-2 text-(length:--text-caption) whitespace-pre-wrap text-chrome-muted">{notice.message}</pre></Collapsible.Content
 					>
 				</Collapsible.Root>
 			</div>
@@ -173,10 +173,10 @@
 			</p>
 
 			<Collapsible.Root>
-				<Collapsible.Trigger
-					class="mt-2 h-6 rounded-control px-1 text-[12px] text-chrome-muted hover:text-chrome-text hover:underline"
-				>
-					{t('import.details')}
+				<Collapsible.Trigger>
+					{#snippet child({ props })}
+						<Button variant="ghost" size="sm" class="mt-2" {...props}>{t('import.details')}</Button>
+					{/snippet}
 				</Collapsible.Trigger>
 				<Collapsible.Content class="details">
 					<h3 class="label">{t('import.placed')}</h3>
@@ -225,33 +225,34 @@
 <style>
 	.notice {
 		position: absolute;
-		top: calc(12px + var(--canvas-inset-top, 0px));
-		right: 12px;
-		/* Above the welcome (z 30), so a failed open on `/` is never silent. */
-		z-index: 35;
+		top: calc(var(--space-3) + var(--canvas-inset-top, 0px));
+		right: var(--space-3);
+		/* Above the welcome, so a failed open on `/` is never silent. */
+		z-index: var(--z-notice);
 		box-sizing: border-box;
-		width: min(380px, calc(100% - 24px));
-		max-height: calc(100% - 24px);
+		width: min(380px, calc(100% - var(--space-6)));
+		max-height: calc(100% - var(--space-6));
 		overflow: auto;
-		padding: 12px 14px 12px 16px;
+		padding: var(--space-3) var(--space-4);
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-left: 4px solid var(--accent);
-		border-radius: 8px;
-		box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+		border-left: var(--space-1) solid var(--accent);
+		border-radius: var(--radius-menu);
+		box-shadow: var(--shadow-toast);
 	}
 	.notice.failed {
 		border-left-color: var(--danger);
 	}
 	.body {
-		margin-top: 4px;
+		margin-top: var(--space-1);
 		color: var(--chrome-muted);
 		line-height: 1.45;
 	}
+	/* The SectionHeading atom is an h2; under the notice's h2 these must stay h3 (heading order). */
 	.label {
-		margin-top: 10px;
-		font-size: 11px;
+		margin-top: var(--space-2);
+		font-size: var(--text-caption);
 		font-weight: 600;
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
@@ -259,7 +260,7 @@
 	}
 	ul {
 		margin: 2px 0 0;
-		padding-left: 16px;
+		padding-left: var(--space-4);
 		list-style: disc;
 	}
 	.warnings li::marker {

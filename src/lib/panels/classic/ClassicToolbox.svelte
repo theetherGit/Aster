@@ -4,7 +4,8 @@
 	import { t } from '#lib/i18n/index.ts';
 	import type { RelationshipKind } from '#lib/model/types.ts';
 	import { ui, type Tool } from '#lib/stores/ui.svelte.ts';
-	import Tip from '../Tip.svelte';
+	import PanelTitle from '#lib/ui/atoms/PanelTitle.svelte';
+	import Tip from '#lib/ui/atoms/Tooltip.svelte';
 
 	// Board 03: tools by group with labels, as StarUML lists them. Element tools are the Modern
 	// toolbox's; a relationship tool is the Link tool with that kind preset for the picker.
@@ -43,7 +44,7 @@
 </script>
 
 <section aria-labelledby="classic-toolbox-title" class="min-h-0 flex-1 overflow-auto">
-	<h2 id="classic-toolbox-title" class="panel-title">{t('ui.toolbox')}</h2>
+	<PanelTitle id="classic-toolbox-title">{t('ui.toolbox')}</PanelTitle>
 	<Toolbar.Root orientation="vertical" aria-label={t('ui.toolbox')} class="pb-2">
 		<div role="group" aria-labelledby="classic-group-annotations">
 			<p id="classic-group-annotations" class="group">{t('classic.group.annotations')}</p>
@@ -105,22 +106,25 @@
 </section>
 
 <style>
+	/* A group's caption names a toolbar group (aria-labelledby), so it is a <p>, not a heading:
+	   SectionHeading's h2 and fixed margins do not fit a 24 px list. Same dress, on tokens. */
 	.group {
-		padding: 8px 8px 4px;
-		font-size: 11px;
+		padding: var(--space-2) var(--space-2) var(--space-1);
+		font-size: var(--text-caption);
 		font-weight: 600;
 		letter-spacing: 0.04em;
 		color: var(--chrome-muted);
 		text-transform: uppercase;
 	}
+	/* Toolbar.Button and GroupItem own their elements (roving focus), so the row dress is by class. */
 	:global(.classic-tool) {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-2);
 		width: 100%;
-		height: 24px;
-		padding: 0 8px;
-		font-size: 12.5px;
+		height: var(--control-min);
+		padding: 0 var(--space-2);
+		font-size: var(--text-small);
 		color: var(--chrome-text);
 		border-left: 2px solid transparent;
 	}
@@ -146,6 +150,7 @@
 			outline-offset: -2px;
 		}
 	}
+	/* StarUML's tool glyphs: a 14 × 12 box in the current colour; geometry, not a token. */
 	.glyph {
 		display: inline-block;
 		width: 14px;

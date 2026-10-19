@@ -13,7 +13,11 @@
 	import { nextMemberText } from '#lib/model/project.ts';
 	import type { Classifier, Visibility } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
-	import Icon from './Icon.svelte';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import Field from '#lib/ui/atoms/Field.svelte';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 
 	let { classifier, kind }: { classifier: Classifier; kind: MemberKind } = $props();
 
@@ -24,7 +28,7 @@
 				? classifier.operations
 				: classifier.literals
 	);
-	let addButton: HTMLButtonElement;
+	let root: HTMLFieldSetElement;
 	let list: HTMLUListElement;
 
 	const SYMBOL: Record<Visibility, string> = {
@@ -62,9 +66,10 @@
 	async function remove(m: Member, i: number) {
 		projectStore.run(deleteMember, { classifierId: classifier.id, kind, memberId: m.id });
 		await tick();
-		// The row's buttons are gone: the row that took its place, else the one above, else Add.
+		// The row's buttons are gone: the row that took its place, else the one above, else Add
+		// (the fieldset's first button).
 		const inputs = list.querySelectorAll<HTMLInputElement>('input');
-		(inputs[Math.min(i, inputs.length - 1)] ?? addButton).focus();
+		(inputs[Math.min(i, inputs.length - 1)] ?? root.querySelector('button'))?.focus();
 	}
 	function add() {
 		const member = memberFromText(kind, nextMemberText(classifier, kind), newId());
@@ -73,31 +78,22 @@
 </script>
 
 <!-- Board 01: heading with "+ Add" at the right; flat rows whose controls appear on hover or focus. -->
-<fieldset class="mt-6 min-w-0" aria-labelledby="members-{kind}-title">
-	<div class="mb-1 flex items-center justify-between">
-		<h2 class="section mb-0" id="members-{kind}-title">{t(`inspector.${kind}s`)}</h2>
-		<button
-			type="button"
-			bind:this={addButton}
-			class="h-7 rounded-control border border-chrome-border px-2 text-[12px] hover:bg-chrome-bg"
-			aria-label={t('inspector.add', { kind: t(`member.${kind}`) })}
-			onclick={add}
-		>
-			<span class="inline-flex items-center gap-1"
-				><Icon name="plus" size={12} />{t('inspector.addShort')}</span
-			>
-		</button>
+<fieldset class="mt-6 min-w-0" aria-labelledby="members-{kind}-title" bind:this={root}>
+	<div class="head mb-1">
+		<SectionHeading first id="members-{kind}-title">{t(`inspector.${kind}s`)}</SectionHeading>
+		<Button size="sm" aria-label={t('inspector.add', { kind: t(`member.${kind}`) })} onclick={add}>
+			<Icon name="plus" size={12} />{t('inspector.addShort')}
+		</Button>
 	</div>
-	<ul class="flex flex-col gap-1" bind:this={list}>
+	<ul class="rows flex flex-col gap-1" bind:this={list}>
 		{#each members as m, i (m.id)}
 			<li class="group relative flex items-center">
-				<input
-					class="field h-8 min-w-0 flex-1 font-mono text-[13px]"
-					class:raw={isRaw(m)}
+				<Field
+					class="min-w-0 flex-1 font-mono {isRaw(m) ? 'raw' : ''}"
 					aria-label={t(`member.line.${kind}`)}
 					aria-describedby={isRaw(m) ? `member-${m.id}-raw` : undefined}
 					value={renderMember(kind, m)}
-					onchange={(e) => commit(m, e.currentTarget)}
+					onchange={(e: Event) => commit(m, e.currentTarget as HTMLInputElement)}
 				/>
 				{#if isRaw(m)}
 					<span class="sr-only" id="member-{m.id}-raw">{t('inspector.unparsed')}</span>
@@ -108,6 +104,8 @@
 					class="pointer-events-none absolute right-1 flex items-center gap-0.5 rounded-control bg-chrome-bg pl-1 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
 				>
 					{#if hasVisibility && 'visibility' in m}
+						<!-- The Select atom shows the chosen label; this trigger shows the symbol, so it
+						     stays a Bits Select in the field dress. -->
 						<Select.Root
 							type="single"
 							value={m.visibility}
@@ -136,26 +134,34 @@
 						</Select.Root>
 					{/if}
 					<!-- Edge rows use aria-disabled, not disabled: a real disabled button would drop focus. -->
-					<button
-						type="button"
-						class="icon-btn h-6 w-6 aria-disabled:text-chrome-muted aria-disabled:opacity-60"
-						aria-label={t('inspector.moveUp', { name: m.name })}
-						aria-disabled={i === 0}
-						onclick={() => move(m, -1, i)}><Icon name="arrow-up" size={12} /></button
-					>
-					<button
-						type="button"
-						class="icon-btn h-6 w-6 aria-disabled:text-chrome-muted aria-disabled:opacity-60"
-						aria-label={t('inspector.moveDown', { name: m.name })}
-						aria-disabled={i === members.length - 1}
-						onclick={() => move(m, 1, i)}><Icon name="arrow-down" size={12} /></button
-					>
-					<button
-						type="button"
-						class="icon-btn h-6 w-6 text-danger"
-						aria-label={t('inspector.remove', { name: m.name, owner: classifier.name })}
-						onclick={() => remove(m, i)}><Icon name="x" size={12} stroke={2.5} /></button
-					>
+					<IconButton
+						label={t('inspector.moveUp', { name: m.name })}
+						icon="arrow-up"
+						iconSize={12}
+						size={24}
+						tip={false}
+						aria-disabled={i === 0 || undefined}
+						onclick={() => move(m, -1, i)}
+					/>
+					<IconButton
+						label={t('inspector.moveDown', { name: m.name })}
+						icon="arrow-down"
+						iconSize={12}
+						size={24}
+						tip={false}
+						aria-disabled={i === members.length - 1 || undefined}
+						onclick={() => move(m, 1, i)}
+					/>
+					<IconButton
+						label={t('inspector.remove', { name: m.name, owner: classifier.name })}
+						icon="x"
+						iconSize={12}
+						stroke={2.5}
+						size={24}
+						tip={false}
+						class="text-danger"
+						onclick={() => remove(m, i)}
+					/>
 				</span>
 			</li>
 		{/each}
@@ -163,7 +169,17 @@
 </fieldset>
 
 <style>
-	.raw {
+	.head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	/* The heading shares a row with Add: no bottom gap of its own. */
+	.head > :global(.section) {
+		margin: 0;
+	}
+	/* A line the grammar could not parse keeps the model's raw text, underlined in amber. */
+	.rows :global(.raw) {
 		box-shadow: inset 0 -2px var(--warning);
 	}
 </style>

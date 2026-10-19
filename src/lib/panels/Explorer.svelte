@@ -9,9 +9,10 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Icon from './Icon.svelte';
-	import Tip from './Tip.svelte';
-	import { panelSlide } from './motion.ts';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import PanelTitle from '#lib/ui/atoms/PanelTitle.svelte';
+	import PanelHeader from '#lib/ui/molecules/PanelHeader.svelte';
+	import { panelSlide } from '#lib/ui/motion.ts';
 	import {
 		ROOT,
 		buildRows,
@@ -155,27 +156,16 @@
 		: 'flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface'}
 >
 	{#if variant === 'classic'}
-		<h2 class="panel-title" id="explorer-title">{t('classic.modelExplorer')}</h2>
+		<PanelTitle id="explorer-title">{t('classic.modelExplorer')}</PanelTitle>
 	{:else}
-		<div class="flex items-center justify-between pr-2 pl-4">
-			<h2
-				class="py-3 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
-				id="explorer-title"
-			>
-				{t('explorer.title')}
-			</h2>
-			<Tip text={t('explorer.hide')} key={format(byId('view.outline')!.keys[0])}>
-				{#snippet children({ props })}
-					<button
-						{...props}
-						type="button"
-						class="icon-btn text-chrome-muted"
-						aria-label={t('explorer.hide')}
-						onclick={() => (ui.panels.outline = false)}><Icon name="panel-left-close" /></button
-					>
-				{/snippet}
-			</Tip>
-		</div>
+		<PanelHeader
+			title={t('explorer.title')}
+			id="explorer-title"
+			closeLabel={t('explorer.hide')}
+			closeIcon="panel-left-close"
+			closeKey={format(byId('view.outline')!.keys[0])}
+			onclose={() => (ui.panels.outline = false)}
+		/>
 	{/if}
 	<ul role="tree" aria-label={t('explorer.tree')} bind:this={treeEl} class="pb-3" {onkeydown}>
 		{#each rows as row, i (row.id)}
@@ -197,6 +187,7 @@
 				}}
 			>
 				{#if row.hasChildren}
+					<!-- The tree is hand-built (design.md): its expander is decorative, not an IconButton. -->
 					<button
 						type="button"
 						tabindex="-1"
@@ -213,13 +204,14 @@
 					<span class="w-6 shrink-0"></span>
 				{/if}
 				<span class="truncate" class:italic={row.italic} title={row.label}>{row.label}</span>
-				{#if row.hint}<span class="ml-2 shrink-0 text-[12px] text-chrome-muted">{row.hint}</span
+				{#if row.hint}<span class="ml-2 shrink-0 text-(length:--text-small) text-chrome-muted"
+						>{row.hint}</span
 					>{/if}
 			</li>
 		{/each}
 	</ul>
 	{#if empty}
-		<p class="px-4 pb-3 text-[12px] text-chrome-muted">{t('explorer.empty')}</p>
+		<p class="px-4 pb-3 text-(length:--text-small) text-chrome-muted">{t('explorer.empty')}</p>
 	{/if}
 </svelte:element>
 

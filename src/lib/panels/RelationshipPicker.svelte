@@ -10,6 +10,8 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 
 	// Order fixes the 1–6 keys (features.md, Relationship picker).
 	const KINDS: RelationshipKind[] = [
@@ -82,7 +84,7 @@
 			side="bottom"
 			align="start"
 			sideOffset={6}
-			class="menu min-w-[220px]"
+			class="picker-menu"
 			aria-label={t('picker.title')}
 			{onkeydown}
 			onOpenAutoFocus={(e) => {
@@ -100,7 +102,7 @@
 			<DropdownMenu.Group>
 				<!-- Board 05: which way the relationship goes, above the kinds. -->
 				<DropdownMenu.GroupHeading
-					class="px-2 pt-1 pb-1.5 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
+					class="px-2 pt-1 pb-1.5 text-(length:--text-caption) font-semibold tracking-wide text-chrome-muted uppercase"
 				>
 					{t('picker.heading', {
 						source: nameOf(ui.picker?.sourceId),
@@ -108,9 +110,9 @@
 					})}
 				</DropdownMenu.GroupHeading>
 				{#each KINDS as kind, i (kind)}
-					<DropdownMenu.Item
+					<MenuItem
+						kind="dropdown"
 						id={`aster-pick-${kind}`}
-						class="menu-item gap-3"
 						textValue={t(`ui.rel.${kind}`)}
 						onSelect={() => choose(kind)}
 					>
@@ -134,8 +136,8 @@
 							{/if}
 						</svg>
 						<span>{t(`ui.rel.${kind}`)}</span>
-						<kbd class="ml-auto font-sans text-[11px] opacity-80">{i + 1}</kbd>
-					</DropdownMenu.Item>
+						<Kbd quiet class="ml-auto">{i + 1}</Kbd>
+					</MenuItem>
 				{/each}
 			</DropdownMenu.Group>
 		</DropdownMenu.Content>
@@ -143,6 +145,17 @@
 </DropdownMenu.Root>
 
 <style>
+	/* The surface: a Bits menu dressed by the chrome tokens (design.md: shadows only on floating things). */
+	:global(.picker-menu) {
+		z-index: var(--z-dialog);
+		min-width: 220px;
+		padding: var(--space-1);
+		color: var(--chrome-text);
+		background: var(--chrome-surface);
+		border: 1px solid var(--chrome-border);
+		border-radius: var(--radius-menu);
+		box-shadow: var(--shadow-menu);
+	}
 	.glyph {
 		flex-shrink: 0;
 		stroke: currentColor;

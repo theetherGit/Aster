@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Separator, Toolbar } from 'bits-ui';
+	import { Toolbar } from 'bits-ui';
 	import { runCommand } from '#lib/app/commands.svelte.ts';
 	import { canvasApi } from '#lib/canvas/api.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
@@ -7,20 +7,19 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui, type Tool } from '#lib/stores/ui.svelte.ts';
-	import Tip from './Tip.svelte';
+	import Separator from '#lib/ui/atoms/Separator.svelte';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import Tip from '#lib/ui/atoms/Tooltip.svelte';
 
 	// The placing tools; Package joins when packages land (M2, DECISIONS.md). Link is not a mode
 	// but an action on the one selected node, the same as the L key.
-	// Icons from the board (docs/design/html/01): 24-unit paths drawn at 15 px.
-	const RECT = 'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z';
-	const TOOLS: { id: Tool; key: string | null; paths: string[] }[] = [
-		{ id: 'select', key: null, paths: ['M5 3l14 8-6 2-3 6z'] },
-		{ id: 'class', key: 'C', paths: [RECT, 'M4 10h16M4 15h16'] },
-		{ id: 'interface', key: 'I', paths: ['M12 5a7 7 0 1 1 0 14 7 7 0 0 1 0-14z'] },
-		{ id: 'enum', key: 'E', paths: [RECT, 'M4 10h16M8 14h2M8 17h2M12 14h4M12 17h4'] }
+	// The tool glyphs live in Icon.svelte (board 01), drawn at 15 px.
+	const TOOLS: { id: Tool; key: string | null }[] = [
+		{ id: 'select', key: null },
+		{ id: 'class', key: 'C' },
+		{ id: 'interface', key: 'I' },
+		{ id: 'enum', key: 'E' }
 	];
-	const LINK = ['M5 19L19 5', 'M12 5h7v7'];
-	const PIN = ['M12 17v5', 'M9 3h6l-1 7 3 3H7l3-3z'];
 	const label = (tool: (typeof TOOLS)[number]) => {
 		const name = t(`ui.tool.${tool.id}`);
 		return tool.key ? t('ui.toolKey', { tool: name, key: tool.key }) : name;
@@ -37,32 +36,16 @@
 			: t(pinned ? 'ui.unpin' : 'ui.pin', { tool: t(`ui.tool.${ui.tool}`) })
 	);
 	const BTN =
-		'flex h-8 w-8 items-center justify-center rounded-control text-chrome-text hover:bg-chrome-surface disabled:opacity-40 disabled:hover:bg-transparent';
+		'flex size-(--control-bar) items-center justify-center rounded-control text-chrome-text hover:bg-chrome-surface disabled:opacity-40 disabled:hover:bg-transparent';
 </script>
-
-{#snippet icon(paths: string[])}
-	<svg
-		width="15"
-		height="15"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		stroke-width="2"
-		stroke-linecap="round"
-		stroke-linejoin="round"
-		aria-hidden="true"
-	>
-		{#each paths as d (d)}<path {d} />{/each}
-	</svg>
-{/snippet}
 
 <!-- Tooltips (Tip, Bits): on hover after a delay, at once on focus, so the keys are discoverable
      without a pointer; the native title never reached keyboard users. -->
 <Toolbar.Root
 	orientation="vertical"
 	aria-label={t('ui.toolbox')}
-	style="top: calc(12px + var(--canvas-inset-top, 0px))"
-	class="absolute left-3 z-10 rounded-[10px] border border-chrome-border bg-chrome-bg p-1.5 shadow-lg"
+	style="top: calc(var(--space-3) + var(--canvas-inset-top, 0px))"
+	class="absolute left-3 z-(--z-toolbox) rounded-menu border border-chrome-border bg-chrome-bg p-1.5 shadow-float"
 >
 	<Toolbar.Group
 		type="single"
@@ -86,13 +69,13 @@
 						ondblclick={() => tool.id !== 'select' && ((ui.tool = tool.id), (ui.pinned = tool.id))}
 						class="{BTN} font-semibold data-pinned:ring-2 data-pinned:ring-accent data-pinned:ring-inset data-[state=on]:bg-accent/15 data-[state=on]:text-accent-text"
 					>
-						{@render icon(tool.paths)}
+						<Icon name={`tool-${tool.id}`} size={15} />
 					</Toolbar.GroupItem>
 				{/snippet}
 			</Tip>
 		{/each}
 	</Toolbar.Group>
-	<Separator.Root class="mx-1 my-1 h-px bg-chrome-border" />
+	<Separator class="mx-1 my-1" />
 	<Tip text={canLink ? t('ui.tool.link') : t('ui.linkHint')} key={canLink ? 'L' : undefined}>
 		{#snippet children({ props })}
 			<Toolbar.Button
@@ -105,7 +88,7 @@
 				}}
 				class={BTN}
 			>
-				{@render icon(LINK)}
+				<Icon name="tool-link" size={15} />
 			</Toolbar.Button>
 		{/snippet}
 	</Tip>
@@ -124,7 +107,7 @@
 					disabled={ui.tool === 'select'}
 					class="{BTN} data-[state=on]:bg-accent/15 data-[state=on]:text-accent-text"
 				>
-					{@render icon(PIN)}
+					<Icon name="tool-pin" size={15} />
 				</Toolbar.GroupItem>
 			{/snippet}
 		</Tip>

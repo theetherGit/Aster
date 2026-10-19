@@ -5,8 +5,10 @@
 	import type { Note, TextElement } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import FieldSelect from './FieldSelect.svelte';
-	import Icon from './Icon.svelte';
+	import Field from '#lib/ui/atoms/Field.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
+	import FieldSelect from '#lib/ui/atoms/Select.svelte';
 
 	// Board 14: the note's text, what it is linked to, and its size as the non-drag path.
 	let { element }: { element: Note | TextElement } = $props();
@@ -54,20 +56,26 @@
 	}
 </script>
 
-<label for="note-text" class="section">{isNote ? t('note.heading') : t('text.heading')}</label>
-<textarea
+<SectionHeading first
+	><label for="note-text">{isNote ? t('note.heading') : t('text.heading')}</label></SectionHeading
+>
+<Field
+	multiline
 	id="note-text"
-	class="field h-24 w-full resize-y py-1"
+	class="w-full"
 	value={element.text}
-	onchange={(e) => commitText(e.currentTarget.value)}></textarea>
-<p class="mt-1 text-[12px] text-chrome-muted">{isNote ? t('note.hint') : t('text.hint')}</p>
+	onchange={(e: Event) => commitText((e.currentTarget as HTMLTextAreaElement).value)}
+/>
+<p class="mt-1 text-(length:--text-small) text-chrome-muted">
+	{isNote ? t('note.hint') : t('text.hint')}
+</p>
 
 {#if isNote}
-	<div class="mt-5 flex items-center justify-between">
-		<h2 class="section mb-0">{t('note.linkedTo')}</h2>
+	<div class="head mt-5">
+		<SectionHeading first>{t('note.linkedTo')}</SectionHeading>
 		{#if candidates.length}
 			<FieldSelect
-				class="h-7 w-28 text-[12px]"
+				class="w-28 text-(length:--text-small)"
 				value=""
 				items={[{ value: '', label: t('note.link') }, ...candidates]}
 				ariaLabel={t('note.linkTo')}
@@ -78,54 +86,69 @@
 	{#if linked.length}
 		<ul class="mt-1 flex flex-col">
 			{#each linked as id (id)}
-				<li class="flex h-8 items-center gap-2 text-[14px]">
+				<li class="flex h-8 items-center gap-2 text-(length:--text-field)">
 					<span class="min-w-0 flex-1 truncate">{nameOf(id)}</span>
 					<span class="text-chrome-muted">{kindOf(id)}</span>
-					<button
-						type="button"
-						class="icon-btn h-6 w-6"
-						aria-label={t('note.unlink', { name: nameOf(id) })}
+					<IconButton
+						label={t('note.unlink', { name: nameOf(id) })}
+						icon="x"
+						size={24}
+						iconSize={11}
+						stroke={2.5}
+						tip={false}
 						onclick={() => {
 							projectStore.run(unlinkNote, { noteId: element.id, targetId: id });
 							selection.set([element.id]);
 						}}
-					>
-						<Icon name="x" size={11} stroke={2.5} />
-					</button>
+					/>
 				</li>
 			{/each}
 		</ul>
 	{:else}
-		<p class="mt-1 text-[12px] text-chrome-muted">{t('note.noLinks')}</p>
+		<p class="mt-1 text-(length:--text-small) text-chrome-muted">{t('note.noLinks')}</p>
 	{/if}
-	<p class="mt-1 text-[12px] text-chrome-muted">
+	<p class="mt-1 text-(length:--text-small) text-chrome-muted">
 		{candidates.length ? t('note.linkHint') : t('note.nothingToLink')}
 	</p>
 {/if}
 
 {#if layout}
-	<h2 class="section mt-5">{t('note.size')}</h2>
+	<SectionHeading>{t('note.size')}</SectionHeading>
 	<div class="grid grid-cols-2 gap-3">
 		<label class="text-chrome-muted"
-			>{t('note.width')}<input
+			>{t('note.width')}<Field
 				type="number"
 				min={MIN.w}
 				step="1"
-				class="field mt-1 w-full tabular-nums"
+				class="mt-1 w-full tabular-nums"
 				value={layout.w}
-				onchange={(e) => resize('w', e.currentTarget)}
+				onchange={(e: Event) => resize('w', e.currentTarget as HTMLInputElement)}
 			/></label
 		>
 		<label class="text-chrome-muted"
-			>{t('note.height')}<input
+			>{t('note.height')}<Field
 				type="number"
 				min={MIN.h}
 				step="1"
-				class="field mt-1 w-full tabular-nums"
+				class="mt-1 w-full tabular-nums"
 				value={layout.h}
-				onchange={(e) => resize('h', e.currentTarget)}
+				onchange={(e: Event) => resize('h', e.currentTarget as HTMLInputElement)}
 			/></label
 		>
 	</div>
-	<p class="mt-1 text-[12px] text-chrome-muted">{t('note.sizeHint', { w: MIN.w, h: MIN.h })}</p>
+	<p class="mt-1 text-(length:--text-small) text-chrome-muted">
+		{t('note.sizeHint', { w: MIN.w, h: MIN.h })}
+	</p>
 {/if}
+
+<style>
+	.head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	/* The heading shares a row with the link picker: no bottom gap of its own. */
+	.head > :global(.section) {
+		margin: 0;
+	}
+</style>

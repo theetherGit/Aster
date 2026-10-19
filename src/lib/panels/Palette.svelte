@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Command, Dialog } from 'bits-ui';
 	import { sieve } from '@lucasmarkes/hairline';
-	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import EmptyState from '#lib/ui/molecules/EmptyState.svelte';
 	import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
@@ -10,7 +10,8 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Icon from './Icon.svelte';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 
 	// Board 16: Bits UI Command in a Dialog. The list is the registry, filtered by Bits.
 	const GROUPS: Group[] = ['display', 'create', 'edit', 'select', 'view', 'format', 'file'];
@@ -65,12 +66,11 @@
 	}}
 >
 	<Dialog.Portal>
-		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/45" />
-		<Dialog.Content
-			class="fixed top-[12vh] left-1/2 z-50 w-[560px] max-w-[calc(100vw-32px)] -translate-x-1/2 overflow-hidden rounded-[12px] border border-chrome-border bg-chrome-surface text-chrome-text shadow-2xl"
-			aria-label={t('ui.palette')}
-			aria-describedby={undefined}
-		>
+		<!-- Not DialogFrame: that sheet draws a visible title and pads a centred body; the palette is
+		     an unpadded strip near the top with a hidden name, so it wears the frame's .dim/.sheet
+		     classes and overrides only its place. -->
+		<Dialog.Overlay class="dim" />
+		<Dialog.Content class="sheet palette" aria-label={t('ui.palette')} aria-describedby={undefined}>
 			<Dialog.Title class="sr-only">{t('ui.palette')}</Dialog.Title>
 			<Command.Root
 				class="flex flex-col"
@@ -82,11 +82,13 @@
 					<Icon name="search" size={16} class="text-chrome-muted" />
 					<Command.Input
 						bind:value={search}
-						class="h-11 min-w-0 flex-1 bg-transparent text-[14px] placeholder:text-chrome-muted"
+						class="h-11 min-w-0 flex-1 bg-transparent text-(length:--text-field) placeholder:text-chrome-muted"
 						placeholder={t('palette.placeholder')}
 						aria-label={t('palette.search')}
 					/>
-					{#if actsOn}<span class="shrink-0 text-[12px] text-chrome-muted">{actsOn}</span>{/if}
+					{#if actsOn}<span class="shrink-0 text-(length:--text-small) text-chrome-muted"
+							>{actsOn}</span
+						>{/if}
 				</div>
 				<!-- Focusable so the scrolling list is keyboard-scrollable; arrows still walk the rows. -->
 				<Command.List
@@ -108,7 +110,7 @@
 							{#if items.length}
 								<Command.Group value={group}>
 									<Command.GroupHeading
-										class="px-2 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
+										class="px-2 pt-2 pb-1 text-(length:--text-caption) font-semibold tracking-wide text-chrome-muted uppercase"
 										>{t(`group.${group}` as MessageKey)}</Command.GroupHeading
 									>
 									<Command.GroupItems>
@@ -117,15 +119,13 @@
 												value={c.label()}
 												keywords={[c.id, group]}
 												onSelect={() => run(c)}
-												class="flex h-8 items-center gap-3 rounded-[6px] px-2 text-[13px] data-selected:bg-(--selection-tint)"
+												class="flex h-8 items-center gap-3 rounded-control px-2 text-(length:--text-body) data-selected:bg-(--selection-tint)"
 											>
 												<span class="min-w-0 flex-1 truncate">{c.label()}</span>
-												{#if stateText(c)}<span class="text-[12px] text-chrome-muted"
+												{#if stateText(c)}<span class="text-(length:--text-small) text-chrome-muted"
 														>{stateText(c)}</span
 													>{/if}
-												{#if c.keys[0]}<kbd class="font-sans text-[11px] text-chrome-muted"
-														>{format(c.keys[0])}</kbd
-													>{/if}
+												{#if c.keys[0]}<Kbd quiet>{format(c.keys[0])}</Kbd>{/if}
 											</Command.Item>
 										{/each}
 									</Command.GroupItems>
@@ -135,7 +135,7 @@
 					</Command.Viewport>
 				</Command.List>
 				<div
-					class="flex items-center justify-between border-t border-chrome-border px-3 py-1.5 text-[11px] text-chrome-muted"
+					class="flex items-center justify-between border-t border-chrome-border px-3 py-1.5 text-(length:--text-caption) text-chrome-muted"
 				>
 					<span>{t('palette.hints')}</span>
 					<span>{t('palette.matches', { count: matches })}</span>
@@ -144,3 +144,14 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
+
+<style>
+	/* Where the palette sits: near the top, unpadded, its list clipped to the sheet's corners. */
+	:global(.sheet.palette) {
+		top: 12vh;
+		width: 560px;
+		padding: 0;
+		overflow: hidden;
+		transform: translateX(-50%);
+	}
+</style>

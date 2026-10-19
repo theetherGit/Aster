@@ -128,17 +128,17 @@
 		left: 0;
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-2);
 		height: 30px;
-		padding: 0 12px 0 10px;
-		font-family: var(--font-sans);
-		font-size: 12px;
+		padding: 0 var(--space-3) 0 10px;
+		font-family: var(--font-chrome);
+		font-size: var(--text-small);
 		white-space: nowrap;
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-radius: 6px;
-		box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+		border-radius: var(--control-radius);
+		box-shadow: var(--shadow-float);
 	}
 	.dot {
 		width: 7px;
@@ -150,10 +150,10 @@
 		background: var(--warning);
 	}
 	.chip-summary {
-		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-family: var(--font-mono);
 	}
 	.chip-hint {
-		margin-left: 4px;
+		margin-left: var(--space-1);
 		color: var(--chrome-muted);
 	}
 </style>

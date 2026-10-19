@@ -5,7 +5,9 @@
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Icon from './Icon.svelte';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 
 	// Board 19: one line, Undo, close; gone after a few seconds or on the next command. The timer
 	// pauses while the pointer or focus is on it (WCAG 2.2.1), and a toast that goes while it holds
@@ -46,36 +48,38 @@
 	>
 		<span class="min-w-0 flex-1">{ui.toast.text}</span>
 		{#if ui.toast.undo}
-			<button
-				type="button"
-				class="h-7 rounded-control border border-chrome-border px-2 font-medium hover:bg-chrome-bg"
-				onclick={undo}
-				>{t('ui.undo')} <kbd class="ml-1 text-[11px] text-chrome-muted">{undoKey}</kbd></button
+			<Button variant="secondary" size="sm" onclick={undo}
+				>{t('ui.undo')} <Kbd quiet>{undoKey}</Kbd></Button
 			>
 		{/if}
-		<button type="button" class="icon-btn h-7 w-7" aria-label={t('toast.dismiss')} onclick={dismiss}
-			><Icon name="x" size={12} stroke={2.5} /></button
-		>
+		<IconButton
+			label={t('toast.dismiss')}
+			icon="x"
+			iconSize={12}
+			stroke={2.5}
+			tip={false}
+			onclick={dismiss}
+		/>
 	</div>
 {/if}
 
 <style>
 	.toast {
 		position: absolute;
-		bottom: 48px;
+		bottom: var(--space-12);
 		left: 50%;
-		z-index: 30;
+		z-index: var(--z-toast);
 		display: flex;
-		gap: 12px;
+		gap: var(--space-3);
 		align-items: center;
-		max-width: min(640px, calc(100% - 48px));
-		padding: 8px 10px 8px 16px;
-		font-size: 13px;
+		max-width: min(640px, calc(100% - var(--space-12)));
+		padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+		font-size: var(--text-body);
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-radius: 10px;
-		box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+		border-radius: var(--radius-menu);
+		box-shadow: var(--shadow-toast);
 		transform: translateX(-50%);
 	}
 </style>

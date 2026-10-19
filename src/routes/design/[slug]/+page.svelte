@@ -14,7 +14,6 @@
 	import ImportNotice from '#lib/panels/ImportNotice.svelte';
 	import Palette from '#lib/panels/Palette.svelte';
 	import ShortcutSheet from '#lib/panels/ShortcutSheet.svelte';
-	import Tip from '#lib/panels/Tip.svelte';
 	import Toast from '#lib/panels/Toast.svelte';
 	import Inspector from '#lib/panels/Inspector.svelte';
 	import RelationshipPicker from '#lib/panels/RelationshipPicker.svelte';
@@ -50,7 +49,9 @@
 	import { format } from '#lib/app/shortcuts.ts';
 	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
 	import { resolve } from '$app/paths';
-	import Icon from '#lib/panels/Icon.svelte';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import Banner from '#lib/ui/molecules/Banner.svelte';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
 	// the bundled sample with its strip, `notation` the UML notation fixture (visual regression and
@@ -253,19 +254,12 @@
 						aria-label={t('explorer.collapsed')}
 						class="flex w-10 shrink-0 justify-center border-r border-chrome-border bg-chrome-surface pt-2"
 					>
-						<Tip text={t('explorer.show')} key={format(byId('view.outline')!.keys[0])}>
-							{#snippet children({ props })}
-								<button
-									{...props}
-									type="button"
-									class="icon-btn"
-									aria-label={t('explorer.show')}
-									onclick={() => runCommand('view.outline')}
-								>
-									<Icon name="panel-left" />
-								</button>
-							{/snippet}
-						</Tip>
+						<IconButton
+							label={t('explorer.show')}
+							icon="panel-left"
+							key={format(byId('view.outline')!.keys[0])}
+							onclick={() => runCommand('view.outline')}
+						/>
 					</aside>
 				{/if}
 				<main
@@ -281,45 +275,33 @@
 					<Canvas />
 					{#if showBanner}
 						<!-- ui.md save states: once per project, until saved to a file. -->
-						<div class="banner" role="region" aria-label={t('file.bannerLabel')}>
-							<span class="flex-1"
-								>{t('file.banner', { key: format(byId('file.save')!.keys[0]) })}</span
-							>
-							<button
-								type="button"
-								class="h-7 rounded-control border border-current/40 px-2 hover:bg-black/5"
-								onclick={() => runCommand('project.rename')}>{t('file.bannerName')}</button
-							>
-							<button
-								type="button"
-								class="h-7 rounded-control border border-current/40 px-2 hover:bg-black/5"
-								onclick={() => saveFile(true)}>{t('file.bannerSave')}</button
-							>
-							<button
-								type="button"
-								class="icon-btn h-7 w-7"
-								aria-label={t('file.bannerDismiss')}
-								onclick={() => (files.bannerDismissed = true)}
-								><Icon name="x" size={12} stroke={2.5} /></button
-							>
-						</div>
+						<Banner
+							tone="warning"
+							label={t('file.bannerLabel')}
+							text={t('file.banner', { key: format(byId('file.save')!.keys[0]) })}
+							dismissLabel={t('file.bannerDismiss')}
+							ondismiss={() => (files.bannerDismissed = true)}
+						>
+							{#snippet actions()}
+								<Button size="sm" onclick={() => runCommand('project.rename')}
+									>{t('file.bannerName')}</Button
+								>
+								<Button size="sm" onclick={() => saveFile(true)}>{t('file.bannerSave')}</Button>
+							{/snippet}
+						</Banner>
 					{/if}
 					{#if ui.sampleStrip}
-						<div class="banner sample" role="region" aria-label={t('welcome.sampleLabel')}>
-							<span class="flex-1">{t('welcome.sampleStrip')}</span>
-							<button
-								type="button"
-								class="h-7 rounded-control border border-current/40 px-2 hover:bg-black/5"
-								onclick={() => newProject()}>{t('file.new')}</button
-							>
-							<button
-								type="button"
-								class="icon-btn h-7 w-7"
-								aria-label={t('welcome.sampleDismiss')}
-								onclick={() => (ui.sampleStrip = false)}
-								><Icon name="x" size={12} stroke={2.5} /></button
-							>
-						</div>
+						<Banner
+							tone="info"
+							label={t('welcome.sampleLabel')}
+							text={t('welcome.sampleStrip')}
+							dismissLabel={t('welcome.sampleDismiss')}
+							ondismiss={() => (ui.sampleStrip = false)}
+						>
+							{#snippet actions()}
+								<Button size="sm" onclick={() => newProject()}>{t('file.new')}</Button>
+							{/snippet}
+						</Banner>
 					{/if}
 					{#if projectStore.diagram.elementIds.length === 0}
 						<EmptyHint />
@@ -409,7 +391,7 @@
 		flex-shrink: 0;
 		flex-direction: column;
 		min-height: 0;
-		font-size: 12.5px;
+		font-size: var(--text-small);
 		background: var(--chrome-bg);
 	}
 	.classic-column.left {
@@ -423,23 +405,24 @@
 	/* The footer sits on the paper, which is white in every theme, so its text and plate are paper-side. */
 	.footer {
 		position: absolute;
-		bottom: 14px;
-		left: 16px;
-		z-index: 5;
+		bottom: var(--space-3);
+		left: var(--space-4);
+		z-index: var(--z-footer);
 		display: flex;
-		gap: 8px;
+		gap: var(--space-2);
 		align-items: center;
 		padding: 2px 6px;
-		font-size: 12px;
+		font-size: var(--text-small);
 		color: var(--paper-muted);
 		background: color-mix(in srgb, var(--paper-bg) 88%, transparent);
-		border-radius: 4px;
+		border-radius: var(--control-radius);
 	}
+	/* The drop layer: the skip link, when focused, must clear everything the page can show. */
 	.skip-link {
 		position: absolute;
 		top: -100px;
-		left: 8px;
-		z-index: 70;
+		left: var(--space-2);
+		z-index: var(--z-drop);
 		padding: 6px 10px;
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
@@ -447,44 +430,25 @@
 		border-radius: var(--control-radius);
 	}
 	.skip-link:focus-visible {
-		top: 8px;
+		top: var(--space-2);
 	}
 	.footer > span {
 		pointer-events: none;
 	}
 	.file-name {
-		height: 24px;
-		padding: 0 4px;
+		height: var(--control-min);
+		padding: 0 var(--space-1);
 		color: var(--paper-muted);
-		border-radius: 4px;
+		border-radius: var(--control-radius);
 	}
 	.file-name:hover {
 		color: var(--paper-ink);
 		background: var(--paper-grid);
 	}
-	.banner {
-		position: absolute;
-		top: 0;
-		right: 0;
-		left: 0;
-		z-index: 25;
-		display: flex;
-		gap: 10px;
-		align-items: center;
-		padding: 6px 14px;
-		font-size: 13px;
-		color: var(--chrome-text);
-		background: color-mix(in srgb, var(--warning) 22%, var(--chrome-surface));
-		border-bottom: 1px solid var(--chrome-border);
-	}
-	.banner.sample {
-		color: var(--chrome-text);
-		background: color-mix(in srgb, var(--accent) 14%, var(--chrome-surface));
-	}
 	.drop-overlay {
 		position: fixed;
 		inset: 0;
-		z-index: 60;
+		z-index: var(--z-drop);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -496,33 +460,33 @@
 		position: absolute;
 		inset: 6px;
 		border: 2px dashed var(--accent);
-		border-radius: 10px;
+		border-radius: var(--radius-menu);
 	}
 	.drop-card {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 6px;
-		padding: 22px 40px;
+		padding: var(--space-6) var(--space-10);
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-radius: 12px;
-		box-shadow: 0 12px 32px rgb(0 0 0 / 0.22);
+		border-radius: var(--radius-card);
+		box-shadow: var(--shadow-dialog);
 	}
 	.drop-card svg {
 		box-sizing: content-box;
-		padding: 8px;
+		padding: var(--space-2);
 		color: var(--on-accent);
 		background: var(--accent-fill);
-		border-radius: 8px;
+		border-radius: var(--control-radius);
 	}
 	.drop-title {
-		font-size: 15px;
+		font-size: var(--text-lead);
 		font-weight: 600;
 	}
 	.drop-hint {
-		font-size: 12px;
+		font-size: var(--text-small);
 		color: var(--chrome-muted);
 	}
 </style>

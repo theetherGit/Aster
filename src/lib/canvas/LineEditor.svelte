@@ -168,7 +168,7 @@
 		/>
 		<Combobox.Portal>
 			<Combobox.Content
-				class="menu font-mono"
+				class="type-menu font-mono"
 				side="right"
 				sideOffset={12}
 				align="start"
@@ -201,6 +201,17 @@
 {/if}
 
 <style>
+	/* The completion list: a Bits menu dressed by the chrome tokens. */
+	:global(.type-menu) {
+		z-index: var(--z-dialog);
+		min-width: 140px;
+		padding: var(--space-1);
+		color: var(--chrome-text);
+		background: var(--chrome-surface);
+		border: 1px solid var(--chrome-border);
+		border-radius: var(--radius-menu);
+		box-shadow: var(--shadow-menu);
+	}
 	/* Board 04: no box of its own; the row band around it marks the open line, a solid ring
 	   flush to the edge marks focus. Monospace is for member lines only (ui.md, Type). */
 	:global(.line-input) {
@@ -216,7 +227,7 @@
 		border-radius: 0;
 	}
 	:global(.line-input.mono) {
-		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-family: var(--font-mono);
 	}
 	/* Repeated class: outweighs layout.css's input ring, which uses the chrome accent; on paper
 	   the ring must be --paper-accent (blue in high contrast, where the yellow accent fails on white). */

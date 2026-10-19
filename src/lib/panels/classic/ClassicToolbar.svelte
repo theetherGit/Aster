@@ -5,7 +5,9 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Tip from '../Tip.svelte';
+	import Icon, { type IconName } from '#lib/ui/atoms/Icon.svelte';
+	import Separator from '#lib/ui/atoms/Separator.svelte';
+	import Tip from '#lib/ui/atoms/Tooltip.svelte';
 
 	// Board 03: a 36 px row of icon buttons; each runs a registry command (CLAUDE rule 1).
 	const key = (id: string) => {
@@ -14,21 +16,11 @@
 	};
 	const percent = $derived(Math.round(ui.zoom * 100));
 
-	const ICONS: { id: string; label: string; d: string }[] = [
-		{
-			id: 'file.new',
-			label: t('file.new'),
-			d: 'M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6'
-		},
-		{
-			id: 'file.open',
-			label: t('file.open'),
-			d: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'
-		},
-		{ id: 'file.save', label: t('file.save'), d: 'M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-7h8v7' }
+	const ICONS: { id: string; label: string; icon: IconName }[] = [
+		{ id: 'file.new', label: t('file.new'), icon: 'file-plus' },
+		{ id: 'file.open', label: t('file.open'), icon: 'folder-open' },
+		{ id: 'file.save', label: t('file.save'), icon: 'save' }
 	];
-	const undoD = 'M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3';
-	const redoD = 'M15 14l5-5-5-5M20 9H9a5 5 0 0 0 0 10h3';
 	// Undo and redo stay focusable while empty so the tooltip can say why they do nothing.
 	const undoTip = $derived(
 		projectStore.canUndo
@@ -50,27 +42,22 @@
 	});
 </script>
 
+{#snippet sep()}
+	<span class="mx-1 flex h-5" aria-hidden="true"><Separator orientation="vertical" /></span>
+{/snippet}
+
+<!-- Toolbar.Button owns the element (roving focus), so the buttons keep their dress by class. -->
 <Toolbar.Root aria-label={t('classic.toolbar')} class="classic-toolbar">
 	{#each ICONS as b (b.id)}
 		<Tip text={b.label} key={key(b.id)}>
 			{#snippet children({ props })}
 				<Toolbar.Button {...props} class="tb" aria-label={b.label} onclick={() => runCommand(b.id)}>
-					<svg
-						width="14"
-						height="14"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"><path d={b.d} /></svg
-					>
+					<Icon name={b.icon} />
 				</Toolbar.Button>
 			{/snippet}
 		</Tip>
 	{/each}
-	<span class="sep" aria-hidden="true"></span>
+	{@render sep()}
 	<Tip text={undoTip} key={key('edit.undo')}>
 		{#snippet children({ props })}
 			<Toolbar.Button
@@ -81,16 +68,7 @@
 				{...describe(projectStore.canUndo ? undefined : t('ui.nothingToUndo'))}
 				onclick={() => runCommand('edit.undo')}
 			>
-				<svg
-					width="14"
-					height="14"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					aria-hidden="true"><path d={undoD} /></svg
-				>
+				<Icon name="undo" />
 			</Toolbar.Button>
 		{/snippet}
 	</Tip>
@@ -104,20 +82,11 @@
 				{...describe(projectStore.canRedo ? undefined : t('ui.nothingToRedo'))}
 				onclick={() => runCommand('edit.redo')}
 			>
-				<svg
-					width="14"
-					height="14"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					aria-hidden="true"><path d={redoD} /></svg
-				>
+				<Icon name="redo" />
 			</Toolbar.Button>
 		{/snippet}
 	</Tip>
-	<span class="sep" aria-hidden="true"></span>
+	{@render sep()}
 	<Tip text={t('ui.zoomReset')} key={key('zoom.reset')}>
 		{#snippet children({ props })}
 			<Toolbar.Button {...props} class="tb text" onclick={() => runCommand('zoom.reset')}>
@@ -153,9 +122,9 @@
 	:global(.classic-toolbar) {
 		display: flex;
 		align-items: center;
-		gap: 2px;
-		height: 36px;
-		padding: 0 8px;
+		gap: var(--space-1);
+		height: 36px; /* board 03: the one bar height the token scale does not name */
+		padding: 0 var(--space-2);
 		background: var(--chrome-bg);
 		border-bottom: 1px solid var(--chrome-border);
 	}
@@ -163,17 +132,16 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 28px;
-		height: 28px;
-		font-size: 12px;
+		width: var(--control-icon);
+		height: var(--control-icon);
+		font-size: var(--text-small);
 		color: var(--chrome-text);
 		border: 1px solid transparent;
-		border-radius: 3px;
+		border-radius: var(--control-radius);
 	}
 	:global(.classic-toolbar .tb.text) {
 		width: auto;
-		height: 26px;
-		padding: 0 8px;
+		padding: 0 var(--space-2);
 		background: var(--chrome-surface);
 		border-color: var(--control-border);
 	}
@@ -183,11 +151,5 @@
 	:global(.classic-toolbar .tb[aria-disabled]) {
 		color: var(--chrome-muted);
 		opacity: 0.6;
-	}
-	.sep {
-		width: 1px;
-		height: 20px;
-		margin: 0 4px;
-		background: var(--chrome-border);
 	}
 </style>

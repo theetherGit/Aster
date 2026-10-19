@@ -4,16 +4,19 @@
 	import { tick } from 'svelte';
 	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
 	import { renameProject } from '#lib/commands/index.ts';
-	import InlineName from './InlineName.svelte';
+	import InlineName from '#lib/ui/molecules/InlineName.svelte';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { currentKey, openSaved, persist } from '#lib/persist/autosave.svelte.ts';
 	import { files, guardUnsaved } from '#lib/persist/files.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Tip from './Tip.svelte';
+	import Tip from '#lib/ui/atoms/Tooltip.svelte';
 	import { ago } from './time.ts';
-	import Icon, { type IconName } from './Icon.svelte';
+	import Icon, { type IconName } from '#lib/ui/atoms/Icon.svelte';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
+	import Separator from '#lib/ui/atoms/Separator.svelte';
 
 	// The rows are registry commands (label, key, run), so the menu never retypes a shortcut.
 	const ROWS = ['file.new', 'file.open', 'file.save', 'file.saveAs'].flatMap((id) => {
@@ -68,7 +71,7 @@
 	<InlineName
 		value={projectStore.project.name}
 		label={t('ui.projectName')}
-		class="h-8 w-56 text-[15px] font-semibold"
+		class="h-8 w-56 text-(length:--text-lead) font-semibold"
 		oncommit={(name) => projectStore.run(renameProject, { name })}
 		ondone={renamed}
 	/>
@@ -110,47 +113,46 @@
 		</Tip>
 		<DropdownMenu.Portal>
 			<DropdownMenu.Content class="menu min-w-65" sideOffset={4} align="start">
-				<DropdownMenu.Item class="menu-item gap-2" onSelect={() => runCommand('project.rename')}>
-					<Icon name="pencil" class="text-chrome-muted" />
-					<span>{t('ui.renameProject')}</span>
-				</DropdownMenu.Item>
-				<DropdownMenu.Separator class="my-1 h-px bg-chrome-border" />
+				<MenuItem
+					icon="pencil"
+					label={t('ui.renameProject')}
+					onSelect={() => runCommand('project.rename')}
+				/>
+				<Separator class="my-1" />
 				{#each ROWS as c (c.id)}
-					<DropdownMenu.Item class="menu-item gap-2" onSelect={() => runCommand(c.id)}>
-						<Icon name={ICONS[c.id] ?? 'file-plus'} class="text-chrome-muted" />
-						<span>{c.label()}</span>
-						<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(c.id)}</kbd>
-					</DropdownMenu.Item>
+					<MenuItem
+						icon={ICONS[c.id] ?? 'file-plus'}
+						label={c.label()}
+						keys={key(c.id)}
+						onSelect={() => runCommand(c.id)}
+					/>
 				{/each}
 				{#if outline}
+					<!-- A checkbox row: the MenuItem atom has no checked state, so the Bits item keeps its dress class. -->
 					<DropdownMenu.CheckboxItem
-						class="menu-item gap-2"
+						class="menu-item"
 						checked={ui.panels.outline}
 						onCheckedChange={() => outline.run()}
 					>
 						{#snippet children({ checked })}
 							<Icon name="panel-left" class={checked ? 'text-accent-text' : 'text-chrome-muted'} />
 							<span>{outline.label()}</span>
-							<kbd class="ml-auto font-sans text-[11px] opacity-80">{key(outline.id)}</kbd>
+							<Kbd quiet class="ml-auto">{key(outline.id)}</Kbd>
 						{/snippet}
 					</DropdownMenu.CheckboxItem>
 				{/if}
-				<DropdownMenu.Separator class="my-1 h-px bg-chrome-border" />
+				<Separator class="my-1" />
 				<DropdownMenu.Group>
 					<DropdownMenu.GroupHeading
-						class="px-2 py-1 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
+						class="px-2 py-1 text-(length:--text-caption) font-semibold tracking-wide text-chrome-muted uppercase"
 						>{t('file.recent')}</DropdownMenu.GroupHeading
 					>
 					{#each persist.recent.filter((r) => r.id !== currentKey()) as r (r.id)}
-						<DropdownMenu.Item
-							class="menu-item"
-							onSelect={() => openEntry(r.id, r.fileName ?? r.name)}
-						>
+						<MenuItem onSelect={() => openEntry(r.id, r.fileName ?? r.name)}>
 							<span class="truncate" title={r.fileName ?? r.name}>{r.fileName ?? r.name}</span>
-						</DropdownMenu.Item>
+						</MenuItem>
 					{:else}
-						<DropdownMenu.Item class="menu-item" disabled>{t('file.recentEmpty')}</DropdownMenu.Item
-						>
+						<MenuItem label={t('file.recentEmpty')} disabled />
 					{/each}
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>
@@ -160,9 +162,9 @@
 
 <style>
 	.dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
+		width: var(--space-2);
+		height: var(--space-2);
+		border-radius: var(--radius-pill);
 		background: var(--accent);
 	}
 	.dot.never {

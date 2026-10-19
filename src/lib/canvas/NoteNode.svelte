@@ -171,6 +171,10 @@
 		border: none;
 		resize: none;
 	}
+	.editor::placeholder {
+		color: var(--paper-muted);
+		opacity: 1;
+	}
 	.editor:focus-visible {
 		outline: 2px solid var(--paper-accent);
 		outline-offset: 0;

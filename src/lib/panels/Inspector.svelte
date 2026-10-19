@@ -15,23 +15,28 @@
 	import type { ClassifierKind, Visibility } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import MemberList from './MemberList.svelte';
-	import RelationshipInspector from './RelationshipInspector.svelte';
-	import FieldSelect from './FieldSelect.svelte';
-	import RelationshipList from './RelationshipList.svelte';
+	import { ui } from '#lib/stores/ui.svelte.ts';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import Checkbox from '#lib/ui/atoms/Checkbox.svelte';
+	import Field from '#lib/ui/atoms/Field.svelte';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import FieldSelect from '#lib/ui/atoms/Select.svelte';
+	import Tab from '#lib/ui/atoms/Tab.svelte';
+	import { panelSlide } from '#lib/ui/motion.ts';
 	import DiagramTab from './DiagramTab.svelte';
 	import DisplayFlagsForm from './DisplayFlagsForm.svelte';
 	import Documentation from './Documentation.svelte';
+	import MemberList from './MemberList.svelte';
 	import NoteInspector from './NoteInspector.svelte';
-	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Icon from './Icon.svelte';
-	import Tip from './Tip.svelte';
-	import { panelSlide } from './motion.ts';
+	import RelationshipInspector from './RelationshipInspector.svelte';
+	import RelationshipList from './RelationshipList.svelte';
 
 	// Modern: the 300 px inspector with its rail. Classic: StarUML's Editors, tabs Style /
 	// Property / Documentation over the same fields (board 03).
 	let { variant = 'modern' }: { variant?: 'modern' | 'classic' } = $props();
 	const classic = $derived(variant === 'classic');
+	const toggleKey = format(byId('view.inspector')!.keys[0]);
 
 	// Commands mutate elements in place, so references never change; cloning the selected
 	// element on every project version gives Svelte a new value to react to.
@@ -106,22 +111,15 @@
 		aria-label={t('inspector.collapsed')}
 		class="flex w-10 shrink-0 justify-center border-l border-chrome-border bg-chrome-surface pt-2"
 	>
-		<Tip text={t('inspector.show')} key={format(byId('view.inspector')!.keys[0])}>
-			{#snippet children({ props })}
-				<button
-					{...props}
-					type="button"
-					class="icon-btn"
-					aria-label={t('inspector.show')}
-					onclick={() => {
-						ui.panels.inspector = true;
-						if (selection.size === 0) ui.inspectorTab = 'diagram';
-					}}
-				>
-					<Icon name="panel-right" />
-				</button>
-			{/snippet}
-		</Tip>
+		<IconButton
+			label={t('inspector.show')}
+			icon="panel-right"
+			key={toggleKey}
+			onclick={() => {
+				ui.panels.inspector = true;
+				if (selection.size === 0) ui.inspectorTab = 'diagram';
+			}}
+		/>
 	</aside>
 {:else}
 	<aside
@@ -132,48 +130,41 @@
 			: 'inspector w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
 	>
 		<Tabs.Root bind:value={ui.inspectorTab}>
-			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist. -->
+			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist,
+			     nor a heading of its own (the aside is already named by it): a span in the title dress. -->
 			<div class="flex border-b border-chrome-border px-2">
 				{#if classic}
-					<span class="panel-title border-0 bg-transparent px-1">{t('classic.editors')}</span>
+					<span class="editors-title">{t('classic.editors')}</span>
 				{/if}
 				<Tabs.List
 					class="flex {classic ? 'editors-tabs' : ''}"
 					aria-label={classic ? t('classic.editors') : t('inspector.title')}
 				>
 					{#if classic}
-						<Tabs.Trigger value="diagram" class="tab">{t('classic.tab.style')}</Tabs.Trigger>
-						<Tabs.Trigger value="properties" class="tab">{t('classic.tab.property')}</Tabs.Trigger>
-						<Tabs.Trigger value="documentation" class="tab"
-							>{t('classic.tab.documentation')}</Tabs.Trigger
-						>
+						<Tab value="diagram">{t('classic.tab.style')}</Tab>
+						<Tab value="properties">{t('classic.tab.property')}</Tab>
+						<Tab value="documentation">{t('classic.tab.documentation')}</Tab>
 					{:else}
 						<!-- The Text tab (ui.md) arrives with the Text view in M2; no placeholder until then. -->
-						<Tabs.Trigger value="properties" class="tab"
-							>{t('inspector.tab.properties')}</Tabs.Trigger
-						>
-						<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
+						<Tab value="properties">{t('inspector.tab.properties')}</Tab>
+						<Tab value="diagram">{t('inspector.tab.diagram')}</Tab>
 					{/if}
 				</Tabs.List>
 				{#if !classic}
-					<Tip text={t('inspector.hide')} key={format(byId('view.inspector')!.keys[0])}>
-						{#snippet children({ props })}
-							<button
-								{...props}
-								type="button"
-								class="icon-btn my-0.5 ml-auto text-chrome-muted"
-								aria-label={t('inspector.hide')}
-								onclick={() => runCommand('view.inspector')}
-								><Icon name="panel-right-close" /></button
-							>
-						{/snippet}
-					</Tip>
+					<IconButton
+						label={t('inspector.hide')}
+						icon="panel-right-close"
+						key={toggleKey}
+						class="my-0.5 ml-auto text-chrome-muted"
+						onclick={() => runCommand('view.inspector')}
+					/>
 				{/if}
 			</div>
 			<Tabs.Content value="properties" class="p-4">
 				{#if classifier}
 					{@const c = classifier}
-					<!-- Board 01: the kind is the section heading (and the kind picker); name below it. -->
+					<!-- Board 01: the kind is the section heading (and the kind picker); name below it.
+					     The Select atom is a form field, so the heading-shaped trigger stays a Bits Select. -->
 					<Select.Root
 						type="single"
 						value={c.classifierKind}
@@ -188,18 +179,16 @@
 						<Select.Trigger
 							id="insp-kind"
 							aria-labelledby="insp-kind-label insp-kind"
-							class="section group -mx-1 flex h-6 items-center gap-1 rounded-control px-1 hover:bg-chrome-bg"
+							class="kind-trigger group -mx-1 flex h-6 items-center gap-1 rounded-control px-1 hover:bg-chrome-bg"
 						>
 							{t(`ui.kind.${c.classifierKind}`)}
 							<!-- The caret stays visible at rest (muted) so the heading reads as a picker. -->
-							<svg
+							<Icon
+								name="chevron-down"
+								size={10}
+								stroke={3}
 								class="text-chrome-muted group-hover:text-chrome-text group-focus-visible:text-chrome-text"
-								width="10"
-								height="10"
-								viewBox="0 0 10 10"
-								aria-hidden="true"
-								fill="currentColor"><path d="M1 3l4 4 4-4z" /></svg
-							>
+							/>
 						</Select.Trigger>
 						<Select.Portal>
 							<Select.Content class="menu" sideOffset={4}>
@@ -214,11 +203,11 @@
 						</Select.Portal>
 					</Select.Root>
 					<label for="insp-name" class="sr-only">{t('inspector.name')}</label>
-					<input
+					<Field
 						id="insp-name"
-						class="field h-9 w-full text-[14px]"
+						class="h-9 w-full text-(length:--text-field)"
 						value={c.name}
-						onchange={(e) => commitName(e.currentTarget)}
+						onchange={(e: Event) => commitName(e.currentTarget as HTMLInputElement)}
 					/>
 
 					<div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1">
@@ -228,12 +217,13 @@
 						<label for="insp-visibility" class="text-chrome-muted"
 							>{t('inspector.visibility')}</label
 						>
-						<input
+						<Field
 							id="insp-stereotype"
-							class="field min-w-0"
+							class="min-w-0"
 							placeholder={t('vis.none')}
 							value={c.stereotype ?? ''}
-							onchange={(e) => flags({ stereotype: e.currentTarget.value.trim() || null })}
+							onchange={(e: Event) =>
+								flags({ stereotype: (e.currentTarget as HTMLInputElement).value.trim() || null })}
 						/>
 						<FieldSelect
 							id="insp-visibility"
@@ -244,20 +234,16 @@
 						/>
 					</div>
 					<div class="mt-3 flex items-center gap-5">
-						<label class="flex h-6 items-center gap-2"
-							><input
-								type="checkbox"
-								checked={c.isAbstract}
-								onchange={(e) => flags({ isAbstract: e.currentTarget.checked })}
-							/>{t('inspector.abstract')}</label
-						>
-						<label class="flex h-6 items-center gap-2"
-							><input
-								type="checkbox"
-								checked={c.isLeaf}
-								onchange={(e) => flags({ isLeaf: e.currentTarget.checked })}
-							/>{t('inspector.leaf')}</label
-						>
+						<Checkbox
+							label={t('inspector.abstract')}
+							checked={c.isAbstract}
+							onchange={(on) => flags({ isAbstract: on })}
+						/>
+						<Checkbox
+							label={t('inspector.leaf')}
+							checked={c.isLeaf}
+							onchange={(on) => flags({ isLeaf: on })}
+						/>
 					</div>
 					{#each memberKinds as kind (kind)}
 						<MemberList classifier={c} {kind} />
@@ -265,22 +251,25 @@
 					<RelationshipList classifier={c} />
 					<Collapsible.Root bind:open={displayOpen} class="mt-6">
 						<div class="flex h-7 items-center gap-2">
-							<Collapsible.Trigger
-								class="section mb-0 flex items-center gap-1.5 rounded-control whitespace-nowrap"
-							>
-								<span class="caret" aria-hidden="true">{displayOpen ? '▾' : '▸'}</span>
+							<!-- The trigger is the heading: Collapsible owns the element, so the section
+							     dress is by class here. -->
+							<Collapsible.Trigger class="display-trigger rounded-control">
+								<Icon
+									name="chevron-right"
+									size={10}
+									stroke={3}
+									class="text-chrome-muted {displayOpen ? 'rotate-90' : ''}"
+								/>
 								{t('inspector.display')}
 							</Collapsible.Trigger>
-							<span class="min-w-0 flex-1 truncate text-[12px] text-chrome-muted">
+							<span class="min-w-0 flex-1 truncate text-(length:--text-small) text-chrome-muted">
 								{overrides.size
 									? t('inspector.overrides', { n: overrides.size })
 									: t('inspector.followsDiagram')}
 							</span>
 							{#if overrides.size}
-								<button
-									type="button"
-									class="h-7 shrink-0 rounded-control border border-chrome-border px-2 text-[12px] whitespace-nowrap hover:bg-chrome-bg"
-									onclick={followDefaults}>{t('inspector.followDefaults')}</button
+								<Button size="sm" class="shrink-0" onclick={followDefaults}
+									>{t('inspector.followDefaults')}</Button
 								>
 							{/if}
 						</div>
@@ -295,7 +284,7 @@
 					<NoteInspector element={single} />
 				{:else if single && single.kind !== 'classifier'}
 					<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
-					<h2 class="mt-1 text-[15px] font-semibold">{elementName(single)}</h2>
+					<h2 class="mt-1 text-(length:--text-lead) font-semibold">{elementName(single)}</h2>
 				{:else if selection.size === 0}
 					<p class="text-chrome-muted">{t('classic.noSelection')}</p>
 				{:else}
@@ -330,19 +319,36 @@
 			top: 0;
 			right: 0;
 			bottom: 0;
-			z-index: 20;
-			box-shadow: -8px 0 24px rgb(0 0 0 / 0.12);
+			z-index: var(--z-inspector-float);
+			box-shadow: var(--shadow-float);
 		}
 	}
-	.caret {
-		display: inline-block;
-		width: 10px;
-		font-size: 10px;
+	/* The section-heading dress (SectionHeading atom) on the two triggers that are headings. */
+	:global(.kind-trigger),
+	:global(.display-trigger) {
+		display: flex;
+		gap: var(--space-1);
+		align-items: center;
+		font-size: var(--text-caption);
+		font-weight: 600;
+		letter-spacing: 0.04em;
 		color: var(--chrome-muted);
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+	:global(.kind-trigger) {
+		margin-bottom: 6px;
 	}
 	/* Board 03: "Editors" and its three tabs on one 280 px row. */
+	.editors-title {
+		display: flex;
+		align-items: center;
+		padding: 0 var(--space-1);
+		font-size: var(--text-small);
+		font-weight: 600;
+		color: var(--chrome-text);
+	}
 	:global(.editors-tabs .tab) {
-		padding: 0 7px;
-		font-size: 12px;
+		padding: 0 var(--space-2);
 	}
 </style>

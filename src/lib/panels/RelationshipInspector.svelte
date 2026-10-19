@@ -28,9 +28,13 @@
 		Visibility
 	} from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import Field from '#lib/ui/atoms/Field.svelte';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
+	import FieldSelect from '#lib/ui/atoms/Select.svelte';
 	import Documentation from './Documentation.svelte';
-	import FieldSelect from './FieldSelect.svelte';
-	import Icon from './Icon.svelte';
 
 	let { rel }: { rel: Relationship } = $props();
 
@@ -85,6 +89,8 @@
 	const run = <A,>(f: Parameters<typeof projectStore.run<A>>[0], args: A) =>
 		projectStore.run(f, args);
 	const text = (v: string) => v.trim() || null;
+	const value = (e: Event) => (e.currentTarget as HTMLInputElement).value;
+	const number = (e: Event) => (e.currentTarget as HTMLInputElement).valueAsNumber;
 	const patchEnd = (end: 'source' | 'target', patch: EndPatch) =>
 		run(setEnd, { id: rel.id, end, patch });
 
@@ -151,7 +157,7 @@
 </script>
 
 <!-- Board 13: kind and name side by side, both ends as columns, line style as icons. -->
-<h2 class="section">{t(`ui.rel.${rel.relationshipKind}`)}</h2>
+<SectionHeading first>{t(`ui.rel.${rel.relationshipKind}`)}</SectionHeading>
 <div class="grid grid-cols-2 gap-x-3 gap-y-1">
 	<label for="rel-kind" class="text-chrome-muted">{t('inspector.kind')}</label>
 	<label for="rel-name" class="text-chrome-muted">{t('inspector.name')}</label>
@@ -162,59 +168,60 @@
 		onchange={(v) =>
 			run(setRelationshipKind, { id: rel.id, relationshipKind: v as RelationshipKind })}
 	/>
-	<input
+	<Field
 		id="rel-name"
-		class="field"
 		placeholder={t('vis.none')}
 		value={rel.name ?? ''}
-		onchange={(e) =>
-			text(e.currentTarget.value) !== (rel.name ?? null) &&
-			run(setRelationshipName, { id: rel.id, name: text(e.currentTarget.value) })}
+		onchange={(e: Event) =>
+			text(value(e)) !== (rel.name ?? null) &&
+			run(setRelationshipName, { id: rel.id, name: text(value(e)) })}
 	/>
 	{#if !isAssociationKind(rel.relationshipKind)}
 		<label for="rel-stereotype" class="text-chrome-muted">{t('inspector.stereotype')}</label>
 		<span></span>
-		<input
+		<Field
 			id="rel-stereotype"
-			class="field"
 			placeholder={t('vis.none')}
 			value={rel.stereotype ?? ''}
-			onchange={(e) =>
-				text(e.currentTarget.value) !== (rel.stereotype ?? null) &&
-				run(setRelationshipStereotype, { id: rel.id, stereotype: text(e.currentTarget.value) })}
+			onchange={(e: Event) =>
+				text(value(e)) !== (rel.stereotype ?? null) &&
+				run(setRelationshipStereotype, { id: rel.id, stereotype: text(value(e)) })}
 		/>
 	{/if}
 </div>
 
 {#if ends.length}
-	<h2 class="section mt-4">{t('inspector.ends')}</h2>
-	<div class="grid grid-cols-[64px_1fr_1fr] items-center gap-x-2 gap-y-2 text-[12px]">
+	<SectionHeading>{t('inspector.ends')}</SectionHeading>
+	<div
+		class="grid grid-cols-[64px_1fr_1fr] items-center gap-x-2 gap-y-2 text-(length:--text-small)"
+	>
 		<span></span>
 		{#each ends as [end, , owner] (end)}<span class="truncate font-semibold" id="end-{end}"
 				>{owner}</span
 			>{/each}
 		<span class="text-chrome-muted" id="ends-role">{t('inspector.role')}</span>
 		{#each ends as [end, e] (end)}
-			<input
-				class="field min-w-0"
+			<Field
+				class="min-w-0"
 				aria-label={endField(t('inspector.role'), end)}
 				id="{end}-role"
 				placeholder={t('vis.none')}
 				value={e.role ?? ''}
-				onchange={(ev) => patchEnd(end, { role: text(ev.currentTarget.value) })}
+				onchange={(ev: Event) => patchEnd(end, { role: text(value(ev)) })}
 			/>
 		{/each}
 		<span class="text-chrome-muted" id="ends-mult">{t('inspector.multiplicity')}</span>
 		{#each ends as [end, e] (end)}
-			<input
-				class="field min-w-0"
+			<Field
+				class="min-w-0"
 				aria-label={endField(t('inspector.multiplicity'), end)}
 				id="{end}-mult"
 				value={e.multiplicity ?? ''}
-				onchange={(ev) => patchEnd(end, { multiplicity: text(ev.currentTarget.value) })}
+				onchange={(ev: Event) => patchEnd(end, { multiplicity: text(value(ev)) })}
 			/>
 		{/each}
-		<!-- Multiplicity presets (features list #11): one click, typing still allowed. -->
+		<!-- Multiplicity presets (features list #11): one click, typing still allowed. Pills that
+		     wrap inside a 1fr column; the Segment atom's bordered grid would not fit five of them. -->
 		<span></span>
 		{#each ends as [end, e, owner] (end)}
 			<ToggleGroup.Root
@@ -260,7 +267,8 @@
 {/if}
 
 {#if layout}
-	<h2 class="section mt-4">{t('inspector.lineStyle')}</h2>
+	<SectionHeading>{t('inspector.lineStyle')}</SectionHeading>
+	<!-- Four icon-over-label tiles, 56 px tall: the Segment atom is a one-line text control. -->
 	<ToggleGroup.Root
 		type="single"
 		value={layout.lineStyle}
@@ -276,7 +284,7 @@
 				value={style}
 				aria-label={t(`lineStyle.${style}`)}
 				title={styleTitle(style)}
-				class="flex h-14 flex-col items-center justify-center gap-1 border-r border-chrome-border text-[11px] text-chrome-muted last:border-r-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
+				class="flex h-14 flex-col items-center justify-center gap-1 border-r border-chrome-border text-(length:--text-caption) text-chrome-muted last:border-r-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
 			>
 				<svg
 					width="22"
@@ -293,43 +301,39 @@
 	</ToggleGroup.Root>
 
 	<!-- Non-drag path for waypoints (accessibility.md: every drag has an equivalent). -->
-	<div class="mt-4 flex items-center justify-between">
-		<h2 class="section mt-0">{t('inspector.waypoints')}</h2>
-		<button
-			type="button"
-			class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-			aria-label={t('inspector.addWaypoint')}
-			onclick={addPoint}
-			><span class="inline-flex items-center gap-1"
-				><Icon name="plus" size={12} />{t('inspector.addShort')}</span
-			></button
-		>
+	<div class="head mt-4">
+		<SectionHeading first>{t('inspector.waypoints')}</SectionHeading>
+		<Button size="sm" aria-label={t('inspector.addWaypoint')} onclick={addPoint}>
+			<Icon name="plus" size={12} />{t('inspector.addShort')}
+		</Button>
 	</div>
 	{#if layout.waypoints.length}
 		<ul class="mt-1 flex flex-col gap-1">
 			{#each layout.waypoints as w, i (i)}
 				<li class="flex items-center gap-1">
-					<input
+					<Field
 						type="number"
-						class="field w-20 min-w-0 flex-1"
+						class="w-20 min-w-0 flex-1"
 						aria-label={t('inspector.waypointX', { n: i + 1 })}
 						value={w.x}
-						onchange={(e) => movePoint(i, 'x', e.currentTarget.valueAsNumber)}
+						onchange={(e: Event) => movePoint(i, 'x', number(e))}
 					/>
-					<input
+					<Field
 						type="number"
-						class="field w-20 min-w-0 flex-1"
+						class="w-20 min-w-0 flex-1"
 						aria-label={t('inspector.waypointY', { n: i + 1 })}
 						value={w.y}
-						onchange={(e) => movePoint(i, 'y', e.currentTarget.valueAsNumber)}
+						onchange={(e: Event) => movePoint(i, 'y', number(e))}
 					/>
-					<button
-						type="button"
-						class="icon-btn h-6 w-6 text-danger"
-						aria-label={t('inspector.removeWaypoint', { n: i + 1 })}
+					<IconButton
+						label={t('inspector.removeWaypoint', { n: i + 1 })}
+						icon="x"
+						iconSize={12}
+						stroke={2.5}
+						size={24}
+						class="text-danger"
 						onclick={() => run(removeWaypoint, { diagramId, id: rel.id, index: i })}
-						><Icon name="x" size={12} stroke={2.5} /></button
-					>
+					/>
 				</li>
 			{/each}
 		</ul>
@@ -338,18 +342,14 @@
 	{/if}
 
 	{#if labelKeys.length}
-		<div class="mt-4 flex items-center justify-between">
-			<h2 class="section mt-0">{t('inspector.labels')}</h2>
+		<div class="head mt-4">
+			<SectionHeading first>{t('inspector.labels')}</SectionHeading>
 			<!-- Its visible text is its name; disabled until a label has been moved. -->
-			<button
-				type="button"
-				class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg disabled:opacity-60"
-				disabled={!anyMoved}
-				onclick={resetLabels}>{t('inspector.resetAll')}</button
+			<Button size="sm" disabled={!anyMoved} onclick={resetLabels}>{t('inspector.resetAll')}</Button
 			>
 		</div>
 		<div
-			class="mt-1 grid grid-cols-[auto_1fr_52px_52px_24px] items-center gap-1 text-[11px] text-chrome-muted"
+			class="mt-1 grid grid-cols-[auto_1fr_56px_56px_24px] items-center gap-1 text-(length:--text-caption) text-chrome-muted"
 			aria-hidden="true"
 		>
 			<span></span><span></span>
@@ -361,42 +361,34 @@
 		<ul class="mt-1 flex flex-col gap-1">
 			{#each labelKeys as l (l.key)}
 				{@const name = labelName(l.key, l.at)}
-				<li class="grid grid-cols-[auto_1fr_52px_52px_24px] items-center gap-1 text-[12px]">
+				<li
+					class="grid grid-cols-[auto_1fr_56px_56px_24px] items-center gap-1 text-(length:--text-small)"
+				>
 					<span>{l.lines.at(-1)}</span>
 					<span class="truncate text-chrome-muted">{name}</span>
-					<input
+					<Field
 						type="number"
-						class="field h-6 min-w-0 px-1 text-[12px] tabular-nums"
+						class="min-w-0 text-(length:--text-small) tabular-nums"
 						aria-label={t('inspector.labelDistance', { label: name })}
 						value={Math.round(offsetOf(l.key).distance)}
-						onchange={(e) => setOffset(l.key, { distance: e.currentTarget.valueAsNumber })}
+						onchange={(e: Event) => setOffset(l.key, { distance: number(e) })}
 					/>
-					<input
+					<Field
 						type="number"
-						class="field h-6 min-w-0 px-1 text-[12px] tabular-nums"
+						class="min-w-0 text-(length:--text-small) tabular-nums"
 						aria-label={t('inspector.labelAngle', { label: name })}
 						value={deg(offsetOf(l.key).alpha)}
-						onchange={(e) => setOffset(l.key, { degrees: e.currentTarget.valueAsNumber })}
+						onchange={(e: Event) => setOffset(l.key, { degrees: number(e) })}
 					/>
-					<button
-						type="button"
-						class="icon-btn h-6 w-6"
-						aria-label={t('inspector.resetLabel', { label: name })}
+					<IconButton
+						label={t('inspector.resetLabel', { label: name })}
+						icon="undo"
+						iconSize={13}
+						size={24}
 						aria-describedby={isDefault(l.key) ? 'label-at-default' : undefined}
 						disabled={isDefault(l.key)}
 						onclick={() => run(setLabelOffset, { diagramId, id: rel.id, key: l.key, offset: null })}
-					>
-						<svg
-							width="13"
-							height="13"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7" /><path d="M4 4v4h4" /></svg
-						>
-					</button>
+					/>
 				</li>
 			{/each}
 		</ul>
@@ -406,15 +398,24 @@
 <Documentation id={rel.id} documentation={rel.documentation} field="rel-doc" />
 
 <style>
+	.head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	/* A heading beside its action: no bottom gap of its own. */
+	.head > :global(.section) {
+		margin: 0;
+	}
 	/* Bits renders the items, so the chip rules are global, scoped by their class. */
 	:global(.chip) {
-		height: 24px;
-		padding: 0 6px;
-		font-size: 11px;
+		height: var(--control-min);
+		padding: 0 var(--space-2);
+		font-size: var(--text-caption);
 		color: var(--chrome-muted);
 		background: var(--chrome-bg);
 		border: 1px solid var(--chrome-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 	}
 	:global(.chip:hover) {
 		color: var(--chrome-text);

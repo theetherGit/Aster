@@ -23,8 +23,8 @@
 		class="mb-3 w-[200px]"
 		use:hairline={{ figure: drawer, label: t('empty.figure'), intensity: 0.4, play: true }}
 	></div>
-	<p class="text-[17px] font-semibold">{t('empty.title')}</p>
-	<p class="mt-1 text-[13px]">{t('empty.body')}</p>
+	<p class="text-(length:--text-title) font-semibold">{t('empty.title')}</p>
+	<p class="mt-1 text-(length:--text-body)">{t('empty.body')}</p>
 	<dl class="keys">
 		{#each KEYS as [glyph, label] (glyph)}
 			<div>
@@ -33,7 +33,7 @@
 			</div>
 		{/each}
 	</dl>
-	<p class="mt-4 text-[13px]">
+	<p class="mt-4 text-(length:--text-body)">
 		{t('empty.open')} <kbd>{key('file.open')}</kbd>{t('empty.openTail')}
 	</p>
 </div>
@@ -57,33 +57,34 @@
 	.keys {
 		display: grid;
 		grid-template-columns: repeat(2, 160px);
-		gap: 10px 24px;
-		margin-top: 20px;
+		gap: var(--space-2) var(--space-6);
+		margin-top: var(--space-5);
 		text-align: left;
 	}
 	.keys div {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		font-size: 14px;
+		gap: var(--space-2);
+		font-size: var(--text-field);
 		color: var(--paper-ink);
 	}
 	.keys dd {
 		margin: 0;
 	}
+	/* Not the Kbd atom: that cap wears chrome colours, and this one sits on the paper, which is
+	   white in every theme, so it takes the paper's ink and its muted edge. */
 	kbd {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-width: 24px;
-		height: 24px;
-		padding: 0 6px;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-		font-size: 12px;
+		min-width: var(--control-min);
+		height: var(--control-min);
+		padding: 0 var(--space-1);
+		font-family: var(--font-mono);
+		font-size: var(--text-small);
 		color: var(--paper-ink);
 		background: var(--paper-bg);
-		/* On the paper, which is white in every theme: the paper's own muted ink, not a chrome edge. */
 		border: 1px solid var(--paper-muted);
-		border-radius: 5px;
+		border-radius: var(--control-radius);
 	}
 </style>

@@ -352,18 +352,20 @@
 		stroke-width: 1.5;
 		stroke-dasharray: 6 4;
 	}
+	/* Chrome over the paper: the same layer, shadow and radius as the toolbox. */
 	.link-hint {
 		position: absolute;
-		bottom: 12px;
+		bottom: var(--space-3);
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 10;
+		z-index: var(--z-toolbox);
 		margin: 0;
-		padding: 4px 12px;
+		padding: var(--space-1) var(--space-3);
+		font-size: var(--text-body);
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-radius: 6px;
-		box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+		border-radius: var(--control-radius);
+		box-shadow: var(--shadow-float);
 	}
 </style>

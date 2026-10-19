@@ -1,13 +1,16 @@
 <script lang="ts">
-	import { Dialog } from 'bits-ui';
 	import { sieve } from '@lucasmarkes/hairline';
-	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import EmptyState from '#lib/ui/molecules/EmptyState.svelte';
 	import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.ts';
 	import { format, type Shortcut } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import Icon from './Icon.svelte';
+	import DialogFrame from '#lib/ui/atoms/DialogFrame.svelte';
+	import Field from '#lib/ui/atoms/Field.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 
 	// Board 17: generated from the registry, three columns, StarUML's keys marked.
 	const COLUMNS: Group[][] = [
@@ -54,115 +57,110 @@
 		for (const r of out) r.keys = collapse(r.keys);
 		return out;
 	}
+	// Each column's groups with their rows, empty groups dropped, so the first heading is known.
+	const columns = $derived(
+		COLUMNS.map((column) =>
+			column
+				.map((group) => ({ group, items: merged(rows.filter((c) => c.group === group)) }))
+				.filter((g) => g.items.length)
+		)
+	);
 </script>
 
-<Dialog.Root
-	open={ui.shortcutsOpen}
-	onOpenChange={(open) => {
-		if (!open) close();
-	}}
+<DialogFrame
+	title={t('sheet.title')}
+	width={920}
+	class="shortcuts"
+	bind:open={() => ui.shortcutsOpen, (open) => !open && close()}
 >
-	<Dialog.Portal>
-		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/45" />
-		<Dialog.Content
-			class="fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[920px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-[12px] border border-chrome-border bg-chrome-surface p-5 text-chrome-text shadow-2xl"
-			aria-describedby={undefined}
-		>
-			<div class="flex items-center gap-3">
-				<Dialog.Title class="text-[16px] font-semibold">{t('sheet.title')}</Dialog.Title>
-				<span class="flex-1"></span>
-				<label for="sc-filter" class="sr-only">{t('sheet.filter')}</label>
-				<input
-					id="sc-filter"
-					type="search"
-					class="field w-44"
-					placeholder={t('sheet.filterPlaceholder')}
-					bind:value={filter}
-				/>
-				<Dialog.Close class="icon-btn" aria-label={t('sheet.close')}>
-					<Icon name="x" size={11} stroke={2.5} />
-				</Dialog.Close>
-			</div>
-			<p class="mt-2 flex items-center gap-2 text-[12px] text-chrome-muted">
-				<span class="star" aria-hidden="true"></span>{t('sheet.legend')}
-			</p>
-			{#if rows.length === 0}
-				<div class="py-8">
-					<EmptyState
-						figure={sieve}
-						title={t('sheet.empty', { filter })}
-						label={t('sheet.emptyFigure')}
-						size={160}
-					/>
-				</div>
-			{/if}
-			<!-- A focusable region so the list scrolls from the keyboard (axe scrollable-region-focusable);
-			     columns reflow at 900 px and 200 %. -->
-			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-			<div
-				class="scroller mt-3 min-h-0 flex-1 overflow-auto"
-				role="region"
-				aria-label={t('sheet.list')}
-				tabindex="0"
-			>
-				<div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
-					{#each COLUMNS as column, ci (ci)}
-						<div>
-							{#each column as group (group)}
-								{@const items = merged(rows.filter((c) => c.group === group))}
-								{#if items.length}
-									<h3 class="section mt-3 first:mt-0">{t(`group.${group}` as MessageKey)}</h3>
-									{#each items as c (c.id)}
-										<div class="flex h-7 items-center gap-2 text-[13px]">
-											<span class="min-w-0 flex-1 truncate" title={c.label}>{c.label}</span>
-											{#if c.staruml}<span class="star" aria-hidden="true"></span><span
-													class="sr-only">{t('sheet.starumlKey')}</span
-												>{/if}
-											{#each c.keys as key, i (i)}
-												<kbd>{format(key)}</kbd>
-											{/each}
-										</div>
-									{/each}
-								{/if}
-							{/each}
-						</div>
+	<!-- The filter and the close sit on the title's line (the frame draws the title first). -->
+	<div class="tools">
+		<label for="sc-filter" class="sr-only">{t('sheet.filter')}</label>
+		<Field
+			id="sc-filter"
+			type="search"
+			class="w-44"
+			placeholder={t('sheet.filterPlaceholder')}
+			bind:value={filter}
+		/>
+		<IconButton label={t('sheet.close')} icon="x" iconSize={11} stroke={2.5} onclick={close} />
+	</div>
+	<p class="mt-2 flex items-center gap-2 text-(length:--text-small) text-chrome-muted">
+		<span class="star" aria-hidden="true"></span>{t('sheet.legend')}
+	</p>
+	{#if rows.length === 0}
+		<div class="py-8">
+			<EmptyState
+				figure={sieve}
+				title={t('sheet.empty', { filter })}
+				label={t('sheet.emptyFigure')}
+				size={160}
+			/>
+		</div>
+	{/if}
+	<!-- A focusable region so the list scrolls from the keyboard (axe scrollable-region-focusable);
+	     columns reflow at 900 px and 200 %. -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+	<div
+		class="scroller mt-3 min-h-0 flex-1 overflow-auto"
+		role="region"
+		aria-label={t('sheet.list')}
+		tabindex="0"
+	>
+		<div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
+			{#each columns as column, ci (ci)}
+				<div>
+					{#each column as { group, items }, gi (group)}
+						<SectionHeading first={gi === 0}>{t(`group.${group}` as MessageKey)}</SectionHeading>
+						{#each items as c (c.id)}
+							<div class="flex h-7 items-center gap-2 text-(length:--text-body)">
+								<span class="min-w-0 flex-1 truncate" title={c.label}>{c.label}</span>
+								{#if c.staruml}<span class="star" aria-hidden="true"></span><span class="sr-only"
+										>{t('sheet.starumlKey')}</span
+									>{/if}
+								{#each c.keys as key, i (i)}
+									<Kbd>{format(key)}</Kbd>
+								{/each}
+							</div>
+						{/each}
 					{/each}
 				</div>
-				<!-- A fade at the fold says there is more below; it sits over the scroller's bottom edge. -->
-				<div class="fade" aria-hidden="true"></div>
-			</div>
-		</Dialog.Content>
-	</Dialog.Portal>
-</Dialog.Root>
+			{/each}
+		</div>
+		<!-- A fade at the fold says there is more below; it sits over the scroller's bottom edge. -->
+		<div class="fade" aria-hidden="true"></div>
+	</div>
+</DialogFrame>
 
 <style>
+	/* Layout the frame does not know: a column that caps at the viewport so the list scrolls. */
+	:global(.sheet.shortcuts) {
+		display: flex;
+		flex-direction: column;
+		max-height: 85vh;
+	}
+	.tools {
+		display: flex;
+		gap: var(--space-3);
+		align-items: center;
+		align-self: flex-end;
+		margin-top: calc(-1 * var(--control-icon));
+	}
 	.scroller {
 		scrollbar-gutter: stable;
 	}
 	.fade {
 		position: sticky;
 		bottom: 0;
-		height: 28px;
-		margin-top: -28px;
+		height: var(--control-icon);
+		margin-top: calc(-1 * var(--control-icon));
 		pointer-events: none;
 		background: linear-gradient(transparent, var(--chrome-surface));
-	}
-	kbd {
-		display: inline-flex;
-		align-items: center;
-		height: 22px;
-		padding: 0 6px;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-		font-size: 11px;
-		color: var(--chrome-text);
-		background: var(--chrome-bg);
-		border: 1px solid var(--chrome-border);
-		border-radius: 5px;
 	}
 	.star {
 		width: 6px;
 		height: 6px;
-		border-radius: 50%;
+		border-radius: var(--radius-pill);
 		background: var(--accent);
 	}
 </style>

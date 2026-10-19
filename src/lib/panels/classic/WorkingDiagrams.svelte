@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import PanelTitle from '#lib/ui/atoms/PanelTitle.svelte';
 
 	// Board 03: StarUML's Working Diagrams, the diagrams of the project; the open one is marked.
 	// Diagrams cannot be closed yet, so there is no × (DECISIONS.md). A plain list of buttons:
@@ -8,7 +9,7 @@
 </script>
 
 <section aria-labelledby="working-diagrams-title">
-	<h2 id="working-diagrams-title" class="panel-title">{t('classic.workingDiagrams')}</h2>
+	<PanelTitle id="working-diagrams-title">{t('classic.workingDiagrams')}</PanelTitle>
 	<ul class="py-1" aria-label={t('ui.diagrams')}>
 		{#each projectStore.project.diagrams as d (d.id)}
 			<li>
@@ -24,13 +25,14 @@
 </section>
 
 <style>
+	/* StarUML's list rows: 24 px, a 2 px accent edge marks the open one (board 03). */
 	.row {
 		display: flex;
 		align-items: center;
 		width: 100%;
-		height: 24px;
-		padding: 0 8px 0 10px;
-		font-size: 12.5px;
+		height: var(--control-min);
+		padding: 0 var(--space-2);
+		font-size: var(--text-small);
 		color: var(--chrome-text);
 		border-left: 2px solid transparent;
 	}

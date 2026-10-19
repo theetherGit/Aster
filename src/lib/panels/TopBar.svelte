@@ -9,10 +9,13 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import InlineName from './InlineName.svelte';
+	import InlineName from '#lib/ui/molecules/InlineName.svelte';
 	import ProjectMenu from './ProjectMenu.svelte';
-	import Tip from './Tip.svelte';
-	import Icon from './Icon.svelte';
+	import Tip from '#lib/ui/atoms/Tooltip.svelte';
+	import Button from '#lib/ui/atoms/Button.svelte';
+	import IconButton from '#lib/ui/atoms/IconButton.svelte';
+	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
+	import Tab from '#lib/ui/atoms/Tab.svelte';
 
 	// useSvelteFlow() copies zoomIn/zoomOut from the store it sees first, which is the
 	// provider's placeholder until the canvas mounts; setZoom/getZoom read the live store.
@@ -37,6 +40,10 @@
 		runCommand('diagram.rename');
 	};
 	const canDelete = $derived(projectStore.project.diagrams.length > 1);
+	const deleteDiagram = (id: string) => {
+		projectStore.activeDiagramId = id;
+		runCommand('diagram.delete');
+	};
 	async function renamed(id: string) {
 		ui.renaming = null;
 		await tick();
@@ -73,10 +80,10 @@
 				height="38"
 				rx="7"
 				transform="rotate(300 50 50)"
-			/><circle cx="50" cy="50" r="11" fill="#f2b233" /></svg
+			/><circle cx="50" cy="50" r="11" fill="var(--hairline-hi)" /></svg
 		>
 	</a>
-	<h1 class="m-0 min-w-0 text-[15px]"><ProjectMenu /></h1>
+	<h1 class="m-0 min-w-0 text-(length:--text-lead)"><ProjectMenu /></h1>
 
 	<!-- Many tabs scroll sideways (no scrollbar chrome) rather than pushing the controls off the bar. -->
 	<Tabs.List
@@ -88,22 +95,19 @@
 				<InlineName
 					value={d.name}
 					label={t('ui.diagramName')}
-					class="my-1.5 h-8 w-40 shrink-0 text-[13px]"
+					class="my-1.5 h-8 w-40 shrink-0 text-(length:--text-body)"
 					oncommit={(name) => projectStore.run(renameDiagram, { diagramId: d.id, name })}
 					ondone={() => renamed(d.id)}
 				/>
 			{:else}
 				<!-- The tab and, on hover or focus within, its delete button (24 px, outside the tab button). -->
-				<span class="group relative flex shrink-0 items-stretch">
+				<span class="group relative flex shrink-0 items-stretch" class:deletable={canDelete}>
 					<ContextMenu.Root>
 						<ContextMenu.Trigger>
 							{#snippet child({ props })}
-								<Tabs.Trigger
+								<Tab
 									{...props}
 									value={d.id}
-									class="-mb-px shrink-0 border-b-2 border-transparent pl-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text {canDelete
-										? 'pr-9'
-										: 'pr-3'}"
 									ondblclick={() => rename(d.id)}
 									onkeydown={(e: KeyboardEvent) => {
 										if (e.key === 'F2') {
@@ -113,154 +117,128 @@
 									}}
 								>
 									{d.name}
-								</Tabs.Trigger>
+								</Tab>
 							{/snippet}
 						</ContextMenu.Trigger>
 						<ContextMenu.Portal>
 							<ContextMenu.Content class="menu">
-								<ContextMenu.Item class="menu-item gap-2" onSelect={() => rename(d.id)}>
-									<Icon name="pencil" class="text-chrome-muted" />{t('ui.renameDiagram')}
-								</ContextMenu.Item>
-								<ContextMenu.Item
-									class="menu-item gap-2 data-[disabled]:opacity-50"
+								<MenuItem
+									kind="context"
+									icon="pencil"
+									label={t('ui.renameDiagram')}
+									onSelect={() => rename(d.id)}
+								/>
+								<MenuItem
+									kind="context"
+									icon="trash"
+									label={t('ui.deleteDiagram')}
 									disabled={!canDelete}
-									onSelect={() => {
-										projectStore.activeDiagramId = d.id;
-										runCommand('diagram.delete');
-									}}
-									><Icon name="trash" class="text-chrome-muted" />{t(
-										'ui.deleteDiagram'
-									)}</ContextMenu.Item
-								>
+									onSelect={() => deleteDiagram(d.id)}
+								/>
 							</ContextMenu.Content>
 						</ContextMenu.Portal>
 					</ContextMenu.Root>
 					{#if canDelete}
-						<button
-							type="button"
-							class="tab-delete pointer-events-none absolute top-1/2 right-1.5 h-6 w-6 -translate-y-1/2 rounded-control text-chrome-muted opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[[aria-selected=true]]:pointer-events-auto group-has-[[aria-selected=true]]:opacity-100 hover:bg-chrome-surface hover:text-danger"
-							aria-label={t('ui.deleteDiagramNamed', { name: d.name })}
-							onclick={() => {
-								projectStore.activeDiagramId = d.id;
-								runCommand('diagram.delete');
-							}}
-						>
-							<Icon name="x" size={11} stroke={2.5} />
-						</button>
+						<IconButton
+							label={t('ui.deleteDiagramNamed', { name: d.name })}
+							icon="x"
+							size={24}
+							iconSize={11}
+							stroke={2.5}
+							tip={false}
+							class="pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[[aria-selected=true]]:pointer-events-auto group-has-[[aria-selected=true]]:opacity-100"
+							onclick={() => deleteDiagram(d.id)}
+						/>
 					{/if}
 				</span>
 			{/if}
 		{/each}
 	</Tabs.List>
 	<!-- Board 01: the "+" after the last tab; outside the scroll region so it is always in reach. -->
-	<Tip text={t('ui.addDiagram')}>
-		{#snippet children({ props })}
-			<button
-				{...props}
-				type="button"
-				class="icon-btn shrink-0 text-chrome-muted"
-				aria-label={t('ui.addDiagram')}
-				onclick={() => runCommand('diagram.add')}
-			>
-				<Icon name="plus" size={12} stroke={2.5} />
-			</button>
-		{/snippet}
-	</Tip>
+	<IconButton
+		label={t('ui.addDiagram')}
+		icon="plus"
+		iconSize={12}
+		stroke={2.5}
+		class="shrink-0"
+		onclick={() => runCommand('diagram.add')}
+	/>
 
 	<div class="ml-auto flex shrink-0 items-center gap-2">
 		<div class="group-box">
-			<!-- Undo and redo stay focusable while empty so the tooltip can say why they do nothing. -->
+			<!-- Undo and redo stay focusable while empty so the tooltip can say why they do nothing;
+			     the tooltip's text differs from the name, so it wraps the button rather than being its own. -->
 			<Tip text={projectStore.canUndo ? undoTitle : t('ui.nothingToUndo')} key={key('edit.undo')}>
 				{#snippet children({ props })}
-					<button
+					<IconButton
 						{...props}
-						type="button"
-						class="icon-btn"
-						aria-label={undoTitle}
+						label={undoTitle}
+						icon="undo"
+						tip={false}
 						aria-disabled={projectStore.canUndo ? undefined : true}
 						{...describe(projectStore.canUndo ? undefined : t('ui.nothingToUndo'))}
 						onclick={() => runCommand('edit.undo')}
-					>
-						<Icon name="undo" />
-					</button>
+					/>
 				{/snippet}
 			</Tip>
 			<Tip text={projectStore.canRedo ? redoTitle : t('ui.nothingToRedo')} key={key('edit.redo')}>
 				{#snippet children({ props })}
-					<button
+					<IconButton
 						{...props}
-						type="button"
-						class="icon-btn"
-						aria-label={redoTitle}
+						label={redoTitle}
+						icon="redo"
+						tip={false}
 						aria-disabled={projectStore.canRedo ? undefined : true}
 						{...describe(projectStore.canRedo ? undefined : t('ui.nothingToRedo'))}
 						onclick={() => runCommand('edit.redo')}
-					>
-						<Icon name="redo" />
-					</button>
+					/>
 				{/snippet}
 			</Tip>
 		</div>
 
 		<div class="group-box">
-			<Tip text={t('ui.zoomOut')} key={key('zoom.out')}>
-				{#snippet children({ props })}
-					<button
-						{...props}
-						type="button"
-						class="icon-btn"
-						aria-label={t('ui.zoomOut')}
-						onclick={() => zoomBy(1 / 1.2)}><Icon name="minus" /></button
-					>
-				{/snippet}
-			</Tip>
+			<IconButton
+				label={t('ui.zoomOut')}
+				icon="minus"
+				key={key('zoom.out')}
+				onclick={() => zoomBy(1 / 1.2)}
+			/>
 			<Tip text={t('ui.zoomReset')} key={key('zoom.reset')}>
 				{#snippet children({ props })}
 					<!-- Named by the percent it shows (WCAG 2.5.3); the tooltip says what a click does. -->
-					<button
+					<Button
 						{...props}
-						type="button"
-						class="icon-btn w-auto px-1 text-[13px] tabular-nums"
+						variant="ghost"
+						size="sm"
+						class="tabular-nums"
 						data-testid="zoom-level"
 						onclick={zoomReset}
 					>
 						{t('ui.zoomLevel', { percent: Math.round(ui.zoom * 100) })}
-					</button>
+					</Button>
 				{/snippet}
 			</Tip>
-			<Tip text={t('ui.zoomIn')} key={key('zoom.in')}>
-				{#snippet children({ props })}
-					<button
-						{...props}
-						type="button"
-						class="icon-btn"
-						aria-label={t('ui.zoomIn')}
-						onclick={() => zoomBy(1.2)}><Icon name="plus" /></button
-					>
-				{/snippet}
-			</Tip>
+			<IconButton
+				label={t('ui.zoomIn')}
+				icon="plus"
+				key={key('zoom.in')}
+				onclick={() => zoomBy(1.2)}
+			/>
 		</div>
 
 		<Tip text={t('export.title')} key={key('file.export')}>
 			{#snippet children({ props })}
-				<button {...props} type="button" class="text-btn" onclick={() => runCommand('file.export')}>
-					{t('ui.export')}
-				</button>
+				<Button {...props} onclick={() => runCommand('file.export')}>{t('ui.export')}</Button>
 			{/snippet}
 		</Tip>
-		<Tip text={t('ui.palette')} key={key('view.palette')}>
-			{#snippet children({ props })}
-				<button
-					{...props}
-					type="button"
-					class="group-box icon-btn"
-					aria-label={t('ui.palette')}
-					onclick={() => runCommand('view.palette')}
-				>
-					<Icon name="terminal" />
-				</button>
-			{/snippet}
-		</Tip>
+		<div class="group-box">
+			<IconButton
+				label={t('ui.palette')}
+				icon="terminal"
+				key={key('view.palette')}
+				onclick={() => runCommand('view.palette')}
+			/>
+		</div>
 	</div>
 </header>
 
@@ -269,34 +247,30 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 24px;
-		height: 24px;
+		width: var(--control-min);
+		height: var(--control-min);
 		color: var(--on-accent);
 		background: var(--accent-fill);
-		border-radius: 6px;
+		border-radius: var(--control-radius);
 	}
-	/* Board 01's text button (Export): the pill's edge with a word's worth of padding. */
-	.text-btn {
-		height: 32px;
-		padding: 0 12px;
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--chrome-text);
-		border: 1px solid var(--control-border);
-		border-radius: var(--radius-control);
+	/* The tabs fill the bar's height so the underline sits on its bottom edge, and a deletable tab
+	   keeps room on its right for the × that floats over it. */
+	header :global(.tab) {
+		height: auto;
+		margin-bottom: -1px;
+		align-self: stretch;
 	}
-	.text-btn:hover {
-		background: var(--chrome-surface);
-		border-color: var(--accent);
+	.deletable :global(.tab) {
+		padding-right: var(--space-8);
 	}
 	/* A bordered pill holding one or more 28 px controls; the edge is a control edge (3:1), not a separator. */
 	.group-box {
 		display: inline-flex;
 		align-items: center;
 		gap: 2px;
-		height: 32px;
+		height: var(--control-bar);
 		padding: 0 1px;
 		border: 1px solid var(--control-border);
-		border-radius: var(--radius-control);
+		border-radius: var(--control-radius);
 	}
 </style>
