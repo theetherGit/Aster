@@ -127,12 +127,10 @@ const shiki = createHighlighterCoreSync({
 
 /** The text, line by line, as coloured tokens whose texts join back to each line. */
 export function highlight(text: string): Token[][] {
-	return shiki
-		.codeToTokensBase(text, { lang: 'plantuml', theme: 'aster' })
-		.map((line) =>
-			line.map((t) => ({
-				kind: KIND_OF.get(t.color?.toLowerCase() ?? '') ?? 'text',
-				text: t.content
-			}))
-		);
+	return shiki.codeToTokensBase(text, { lang: 'plantuml', theme: 'aster' }).map((line) =>
+		line.map((t) => ({
+			kind: KIND_OF.get(t.color?.toLowerCase() ?? '') ?? 'text',
+			text: t.content
+		}))
+	);
 }
