@@ -4,7 +4,9 @@ import { slide, type SlideParams, type TransitionConfig } from 'svelte/transitio
 /**
  * Side panels (Outline, inspector) slide open and shut along x in 160 ms, ease-out; nothing moves
  * when the user asked for reduced motion (ui.md, accessibility.md). Svelte drives the frames, so
- * the CSS reduced-motion rule in layout.css cannot reach them: the check lives here.
+ * the CSS reduced-motion rule in layout.css cannot reach them: the check lives here. Use it as
+ * `transition:panelSlide|global`: the panels are created and destroyed by the page's own blocks,
+ * and Svelte 5 transitions are local by default, so without `global` they never play.
  */
 export function panelSlide(node: Element, params: SlideParams = {}): TransitionConfig {
 	if (matchMedia('(prefers-reduced-motion: reduce)').matches) return { duration: 0 };

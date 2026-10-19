@@ -313,7 +313,7 @@
 		</aside>
 	{:else}
 		<!-- The slide animates this wrapper's width and clips; the panel keeps its 300 px inside. -->
-		<div transition:panelSlide class="inspector flex shrink-0 overflow-hidden">
+		<div transition:panelSlide|global class="inspector flex shrink-0 overflow-hidden">
 			<aside
 				aria-label={t('inspector.title')}
 				class="w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface"

@@ -216,7 +216,7 @@
 {:else}
 	<!-- The slide (ui.md motion) animates this wrapper's width and clips; the panel inside keeps
 	     its 240 px, so nothing reflows while it moves. -->
-	<div transition:panelSlide class="flex shrink-0 overflow-hidden">
+	<div transition:panelSlide|global class="flex shrink-0 overflow-hidden">
 		<aside
 			aria-labelledby="explorer-title"
 			class="flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface"
