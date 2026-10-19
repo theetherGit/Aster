@@ -666,5 +666,14 @@
 	"outline.newMember": "New {kind}",
 	"outline.nameLabel": "Name",
 	"outline.lineLabel": "Line",
-	"outline.menu": "Outline commands"
+	"outline.menu": "Outline commands",
+	"cmd.quickFind": "Quick find",
+	"quickFind.title": "Quick find",
+	"quickFind.search": "Find an element or diagram",
+	"quickFind.placeholder": "Find an element or diagram by name…",
+	"quickFind.list": "Matches",
+	"quickFind.diagram": "diagram",
+	"quickFind.on": "{kind} on {diagrams}",
+	"quickFind.empty": "Nothing by that name",
+	"quickFind.emptyFigure": "Three sieves over an empty pan: nothing found"
 }

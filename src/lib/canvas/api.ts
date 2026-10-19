@@ -11,6 +11,8 @@ export interface CanvasApi {
 	zoomTo: (zoom: number) => void;
 	fitAll: () => void;
 	fitSelection: () => void;
+	/** Pan so an element is in the middle of the view, zoom unchanged (quick find). */
+	centreOn: (id: Id) => void;
 	/** Rendered rectangles of the nodes, see focus.ts. */
 	rects: () => Map<Id, { x: number; y: number; w: number; h: number }>;
 }
@@ -25,5 +27,6 @@ export const canvasApi: CanvasApi = {
 	zoomTo: noop,
 	fitAll: noop,
 	fitSelection: noop,
+	centreOn: noop,
 	rects: () => new Map()
 };

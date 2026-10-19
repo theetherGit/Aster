@@ -98,6 +98,8 @@ class Ui {
 	/** Board 06 export sheet, board 16 palette, board 17 shortcut sheet. */
 	exportOpen = $state(false);
 	paletteOpen = $state(false);
+	/** features.md M2: ⌘P quick find. */
+	quickFindOpen = $state(false);
 	shortcutsOpen = $state(false);
 	/** Board 19: the last removal, undoable from a toast. */
 	toast: { text: string; undo: boolean; at: number } | null = $state(null);

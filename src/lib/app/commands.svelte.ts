@@ -496,6 +496,16 @@ export const COMMANDS: AppCommand[] = [
 		run: () => (ui.paletteOpen = true)
 	},
 	{
+		id: 'view.quickFind',
+		group: 'view',
+		label: () => t('cmd.quickFind'),
+		keys: k('⌘P'),
+		context: 'global',
+		staruml: true,
+		inText: true,
+		run: () => (ui.quickFindOpen = true)
+	},
+	{
 		// features.md M2: the validation panel; keyboard.md has no key for it.
 		id: 'view.validation',
 		group: 'view',

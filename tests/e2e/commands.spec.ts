@@ -414,3 +414,69 @@ test('each panel has its own close button, and the rails bring it back', async (
 	await page.getByRole('button', { name: 'Show inspector' }).click();
 	await expect(inspector).toBeVisible();
 });
+
+/** features.md M2: ⌘P finds elements and diagrams by name; quick find centres the canvas on the hit. */
+test('quick find: ⌘P finds elements and diagrams, opens the hit and centres the canvas on it', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	// Push Customer off-centre first, so centring is visible.
+	await page.keyboard.press('ControlOrMeta+=');
+	await page.keyboard.press('ControlOrMeta+=');
+
+	const find = page.getByRole('dialog', { name: 'Quick find' });
+	const input = find.getByRole('combobox', { name: 'Find an element or diagram' });
+	const openFind = async () => {
+		await page.keyboard.press('ControlOrMeta+p');
+		await expect(input).toBeFocused();
+	};
+	await openFind();
+	await page.keyboard.type('cust');
+	await expect(find.getByRole('option')).toHaveCount(1);
+	await page.keyboard.press('Enter');
+	await expect(find).toHaveCount(0);
+	const customer = node(page, 'Customer');
+	await expect(customer).toBeFocused();
+	await expect(customer).toHaveClass(/selected/);
+	await expect
+		.poll(async () => {
+			const c = (await canvas.boundingBox())!;
+			const n = (await customer.boundingBox())!;
+			return Math.round(
+				Math.hypot(
+					n.x + n.width / 2 - (c.x + c.width / 2),
+					n.y + n.height / 2 - (c.y + c.height / 2)
+				)
+			);
+		})
+		.toBeLessThan(4);
+
+	// Diagrams are hits too, and an element on another diagram opens that diagram.
+	await page.getByRole('button', { name: 'Add diagram' }).click();
+	await expect(page.getByRole('tab', { name: 'Class diagram 2' })).toHaveAttribute(
+		'aria-selected',
+		'true'
+	);
+	await openFind();
+	await page.keyboard.type('Account');
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('tab', { name: 'Main' })).toHaveAttribute('aria-selected', 'true');
+	await expect(node(page, 'Account')).toBeFocused();
+	await openFind();
+	await page.keyboard.type('diagram 2');
+	await expect(find.getByRole('option')).toHaveCount(1);
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('tab', { name: 'Class diagram 2' })).toHaveAttribute(
+		'aria-selected',
+		'true'
+	);
+
+	// Nothing found says so.
+	await openFind();
+	await page.keyboard.type('zzz');
+	await expect(find).toContainText('Nothing by that name');
+	await page.keyboard.press('Escape');
+	await expect(find).toHaveCount(0);
+});

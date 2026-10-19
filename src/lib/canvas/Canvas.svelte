@@ -117,6 +117,10 @@
 				const y2 = Math.max(...boxes.map((b) => b.y + b.h));
 				fitBounds({ x, y, width: x2 - x, height: y2 - y }, { padding: 0.2, duration: dur(200) });
 			},
+			centreOn: (id: Id) => {
+				centring = { id, until: performance.now() + 600 };
+				centre(id, dur(200));
+			},
 			rects
 		} satisfies Partial<typeof canvasApi>);
 		el.focus();
@@ -270,6 +274,21 @@
 		const f = untrack(() => selection.focus);
 		const current = f ? (f.part.startsWith('edge:') ? f.part.slice(5) : f.id) : null;
 		if (current !== ids[0]) selection.focus = { id: ids[0], part: 'self' };
+	});
+
+	// Quick find centres its hit; selecting it may slide the inspector in, which narrows the
+	// canvas, so for a moment a resize centres it again.
+	let centring: { id: Id; until: number } | null = null;
+	function centre(id: Id, duration: number) {
+		const r = rects().get(id);
+		if (r) setCenter(r.x + r.w / 2, r.y + r.h / 2, { zoom: getZoom(), duration });
+	}
+	$effect(() => {
+		const ro = new ResizeObserver(() => {
+			if (centring && performance.now() < centring.until) centre(centring.id, 0);
+		});
+		ro.observe(el);
+		return () => ro.disconnect();
 	});
 
 	function toPaper(screen: { x: number; y: number }) {

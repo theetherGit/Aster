@@ -35,7 +35,7 @@ function dispatch(e: KeyboardEvent, context: Context): boolean {
 /** Bindings that work everywhere (window listener). */
 export function handleGlobalKey(e: KeyboardEvent) {
 	// Overlays own their keys while open.
-	if (ui.paletteOpen || ui.shortcutsOpen || ui.exportOpen) return;
+	if (overlayOpen()) return;
 	dispatch(e, 'global');
 }
 
@@ -73,8 +73,11 @@ function cyclePart(back: boolean, ctx: CanvasKeyContext) {
 }
 
 /** Bindings that fire only while the canvas has focus and nothing is being edited. */
+const overlayOpen = () => ui.paletteOpen || ui.quickFindOpen || ui.shortcutsOpen || ui.exportOpen;
+
 export function handleCanvasKey(e: KeyboardEvent, ctx: CanvasKeyContext) {
-	if (inTextField(e)) return;
+	// Keys typed before an overlay has taken focus (⌘P then a name, fast) are not shortcuts.
+	if (inTextField(e) || overlayOpen()) return;
 	const mod = e.metaKey || e.ctrlKey;
 
 	// Keyboard link: arrows move the target, ↩ opens the picker, Esc cancels.

@@ -7,6 +7,7 @@
 	import { Tabs } from 'bits-ui';
 	import Canvas from '#lib/canvas/Canvas.svelte';
 	import ValidationPanel from '#lib/panels/ValidationPanel.svelte';
+	import QuickFind from '#lib/panels/QuickFind.svelte';
 	import { validate } from '#lib/model/validate.ts';
 	import { validation } from '#lib/stores/validation.svelte.ts';
 	import { handleGlobalKey } from '#lib/canvas/keyboard.ts';
@@ -406,6 +407,7 @@
 	<RelationshipPicker />
 	<ExportSheet />
 	<Palette />
+	<QuickFind />
 	<ShortcutSheet />
 	<UnsavedPrompt />
 	<ConfirmDeleteDialog />
