@@ -30,7 +30,7 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await typeInto(page, attr, '+ {static} count: int = 0');
 	await page.keyboard.press('Enter');
 	await typeInto(page, attr, '+ broken(');
-	await expect(page.locator('.chip-summary')).toHaveText('Not parsed; kept as text');
+	await expect(page.locator('.chip-summary')).toHaveText('Not parsed; kept as text · Missing )');
 	await page.keyboard.press('Enter');
 	await expect(node(page, 'Book').locator('[data-compartment="attribute"] li.raw')).toHaveText(
 		/^\+ broken\(/
@@ -296,4 +296,26 @@ test('renaming a class rewrites the attribute types that name it and counts the 
 	);
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(lines(page, 'Loan', 'attribute').first()).toHaveText('- customer: Customer');
+});
+
+/** Owner's ruling #25 and keyboard.md ⌥↩: the chip says why a line is text, and adds a missing closer. */
+test('chip: a missing } is named, and ⌥↩ adds it to the line', async ({ page }) => {
+	await page.goto('/design/new');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	await page.mouse.move(300, 300);
+	await create(page, 'c', 'Book');
+	const line = canvas.getByRole('combobox', { name: 'Attribute line' });
+	await page.keyboard.type('- isbn: String {readOnly');
+	const chip = canvas.locator('.chip');
+	await expect(chip).toContainText('Missing }');
+	await expect(chip.getByRole('button', { name: /^Add \}/ })).toBeVisible();
+	await page.keyboard.press('Alt+Enter');
+	await expect(line).toHaveValue('- isbn: String {readOnly}');
+	await expect(chip).not.toContainText('Missing');
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('Escape');
+	// The canvas shows no property block; the model has the line as fixed, so it parsed.
+	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String']);
+	await expect(lines(page, 'Book', 'attribute').first()).not.toHaveClass(/raw/);
 });

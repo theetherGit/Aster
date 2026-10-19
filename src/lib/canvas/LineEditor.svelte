@@ -51,7 +51,16 @@
 
 	// A brand-new node stays hidden until Svelte Flow first measures it, and a hidden input
 	// cannot take focus, so retry for a few frames until focus sticks.
+	let inputEl: HTMLInputElement | null = null;
+	/** Put corrected text in the line (the chip's fix) as if it had been typed. */
+	function setText(text: string) {
+		if (!inputEl) return;
+		inputEl.value = text;
+		inputEl.setSelectionRange(text.length, text.length);
+		draft = text;
+	}
 	function focusInput(node: HTMLInputElement) {
+		inputEl = node;
 		let frame = 0;
 		let tries = 0;
 		const attempt = () => {
@@ -114,7 +123,10 @@
 			endEditing();
 		} else if (e.key === 'Enter' && e.altKey && !mod) {
 			// keyboard.md ⌥↩: the chip's suggestion; the line stays open either way.
-			if (own.part !== 'name') applySuggestion(id, own.part, draft);
+			if (own.part !== 'name') {
+				const fixed = applySuggestion(id, own.part, draft);
+				if (typeof fixed === 'string') setText(fixed);
+			}
 		} else if (e.key === 'Enter' && mod) {
 			open = false;
 			addLineBelow(id, own as EditTarget, draft, e.shiftKey ? 'operation' : 'attribute');

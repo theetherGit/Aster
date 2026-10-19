@@ -34,10 +34,21 @@
 	const action = $derived(
 		suggestion?.kind === 'create'
 			? t('member.suggest.create', { name: suggestion.name })
-			: suggestion
-				? t('member.suggest.link')
-				: ''
+			: suggestion?.kind === 'fix'
+				? t('member.suggest.fix', { closer: suggestion.closer })
+				: suggestion
+					? t('member.suggest.link')
+					: ''
 	);
+	let list: HTMLUListElement;
+	/** A click on the chip: as ⌥↩ in the line; a fix goes into the open line's field. */
+	function apply() {
+		const fixed = applySuggestion(classifierId, kind, draft);
+		const input = list?.querySelector<HTMLInputElement>('.member.editing input');
+		if (typeof fixed !== 'string' || !input) return;
+		input.value = fixed;
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+	}
 	const text = (m: Member) =>
 		renderMember(kind, m, { ...flags, guillemets: true, keywords: false });
 
@@ -48,6 +59,7 @@
 </script>
 
 <ul
+	bind:this={list}
 	class="compartment"
 	class:empty={members.length === 0 && editing === null}
 	data-compartment={kind}
@@ -111,8 +123,7 @@
 				class="suggest"
 				aria-keyshortcuts={ariaKeys(quickFix)}
 				onpointerdown={(e) => e.preventDefault()}
-				onclick={() => applySuggestion(classifierId, kind, draft)}
-				>{action} <Kbd quiet>{format(quickFix)}</Kbd></button
+				onclick={apply}>{action} <Kbd quiet>{format(quickFix)}</Kbd></button
 			>
 		{:else}
 			<span class="chip-hint">{t(`member.hints.${kind}`)}</span>
@@ -122,7 +133,11 @@
 			>{summary.ok ? t('member.summary.parsed') : t('member.summary.raw')}{#if suggestion}
 				{t('member.suggest.available', {
 					action:
-						suggestion.kind === 'create' ? t('member.suggest.createAny') : t('member.suggest.link'),
+						suggestion.kind === 'create'
+							? t('member.suggest.createAny')
+							: suggestion.kind === 'fix'
+								? t('member.suggest.fixAny')
+								: t('member.suggest.link'),
 					key: format(quickFix)
 				})}{/if}</span
 		>

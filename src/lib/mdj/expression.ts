@@ -6,8 +6,19 @@ import type { Attribute, Literal, Operation, Parameter, Visibility } from '#lib/
 
 export type MemberKind = 'attribute' | 'operation' | 'literal';
 export type Member = Attribute | Operation | Literal;
+/**
+ * Why a line was kept as text (owner's ruling #25), beside `raw` and never stored in the model:
+ * a closer missing (with the corrected line when adding it makes the line parse), a property
+ * the kind does not have, a parameter that cannot be read, or anything else.
+ */
+export interface RawReason {
+	code: 'paren' | 'bracket' | 'brace' | 'guillemet' | 'property' | 'parameter' | 'syntax';
+	detail?: string;
+	fix?: string;
+}
 export interface Raw {
 	raw: string;
+	reason?: RawReason;
 }
 export type ParsedAttribute = Omit<Attribute, 'id' | 'documentation' | 'raw'>;
 export type ParsedOperation = Omit<Operation, 'id' | 'documentation' | 'raw'>;
@@ -79,6 +90,9 @@ function props(block: string | undefined, allowed: readonly string[]): Set<strin
 	return set;
 }
 
+const ATTRIBUTE_PROPS = ['static', 'readOnly', 'derived', 'ordered', 'unique', 'id'];
+const OPERATION_PROPS = ['static', 'abstract', 'query'];
+
 export function parseParameter(line: string): Parameter | Raw {
 	const m = PARAMETER.exec(line)?.groups;
 	if (!m) return { raw: line };
@@ -93,7 +107,7 @@ export function parseParameter(line: string): Parameter | Raw {
 export function parseAttribute(line: string): ParsedAttribute | Raw {
 	const m = ATTRIBUTE.exec(line)?.groups;
 	if (!m) return { raw: line };
-	const p = props(m.props, ['static', 'readOnly', 'derived', 'ordered', 'unique', 'id']);
+	const p = props(m.props, ATTRIBUTE_PROPS);
 	if (!p) return { raw: line };
 	return {
 		name: m.name,
@@ -114,7 +128,7 @@ export function parseAttribute(line: string): ParsedAttribute | Raw {
 export function parseOperation(line: string): ParsedOperation | Raw {
 	const m = OPERATION.exec(line)?.groups;
 	if (!m) return { raw: line };
-	const p = props(m.props, ['static', 'abstract', 'query']);
+	const p = props(m.props, OPERATION_PROPS);
 	if (!p) return { raw: line };
 	const parameters: Parameter[] = [];
 	if (m.params.trim()) {
@@ -147,11 +161,46 @@ export function parseMember(kind: 'operation', line: string): ParsedOperation | 
 export function parseMember(kind: 'literal', line: string): ParsedLiteral | Raw;
 export function parseMember(kind: MemberKind, line: string): Parsed | Raw;
 export function parseMember(kind: MemberKind, line: string): Parsed | Raw {
+	const p = parseBare(kind, line);
+	return isRaw(p) ? { ...p, reason: explain(kind, line) } : p;
+}
+function parseBare(kind: MemberKind, line: string): Parsed | Raw {
 	return kind === 'attribute'
 		? parseAttribute(line)
 		: kind === 'operation'
 			? parseOperation(line)
 			: parseLiteral(line);
+}
+
+const CLOSERS: [RawReason['code'], string, string][] = [
+	['paren', '(', ')'],
+	['bracket', '[', ']'],
+	['brace', '{', '}'],
+	['guillemet', '<<', '>>']
+];
+/** The reason a line did not parse; see RawReason. */
+function explain(kind: MemberKind, line: string): RawReason {
+	const count = (s: string) => line.split(s).length - 1;
+	for (const [code, open, close] of CLOSERS) {
+		if (count(open) <= count(close)) continue;
+		const fixed = line.trimEnd() + close;
+		return isRaw(parseBare(kind, fixed)) ? { code } : { code, fix: fixed };
+	}
+	const block = /\{([^{}]*)\}/.exec(line)?.[1];
+	if (block !== undefined && kind !== 'literal') {
+		const allowed = kind === 'attribute' ? ATTRIBUTE_PROPS : OPERATION_PROPS;
+		const bad = block
+			.split(',')
+			.map((x) => x.trim())
+			.find((x) => x && !allowed.includes(x));
+		if (bad) return { code: 'property', detail: bad };
+	}
+	const params = kind === 'operation' ? /\((.*)\)/.exec(line)?.[1] : undefined;
+	if (params?.trim()) {
+		const bad = splitTopLevel(params).find((x) => isRaw(parseParameter(x)));
+		if (bad) return { code: 'parameter', detail: bad.trim() };
+	}
+	return { code: 'syntax' };
 }
 
 // ---------------------------------------------------------------------------

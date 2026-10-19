@@ -1,5 +1,5 @@
 import { t, type MessageKey } from '#lib/i18n/index.ts';
-import { isRaw, parseMember, type MemberKind } from '#lib/mdj/expression.ts';
+import { isRaw, parseMember, type MemberKind, type RawReason } from '#lib/mdj/expression.ts';
 import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type { Diagram, Id, Project } from '#lib/model/types.ts';
 
@@ -10,7 +10,7 @@ import type { Diagram, Id, Project } from '#lib/model/types.ts';
  */
 export function summarise(kind: MemberKind, text: string): { ok: boolean; parts: string[] } {
 	const p = parseMember(kind, text);
-	if (isRaw(p)) return { ok: false, parts: [t('member.summary.raw')] };
+	if (isRaw(p)) return { ok: false, parts: [t('member.summary.raw'), reasonText(p.reason)] };
 	if (kind === 'literal') return { ok: true, parts: [t('member.summary.literal')] };
 	const parts: string[] = [t(`vis.${(p as { visibility: 'public' }).visibility}`)];
 	if ('parameters' in p) {
@@ -89,7 +89,27 @@ export function elementSummary(
 
 /** What ⌥↩ (or a click on the chip) would do for the line being typed. */
 export type Suggestion =
-	{ kind: 'create'; name: string } | { kind: 'link'; targetId: Id; name: string };
+	| { kind: 'create'; name: string }
+	| { kind: 'link'; targetId: Id; name: string }
+	| { kind: 'fix'; text: string; closer: string };
+
+const CLOSER = { paren: ')', bracket: ']', brace: '}', guillemet: '>>' } as const;
+/** Why the line is kept as text, in words (owner's ruling #25). */
+function reasonText(r: RawReason | undefined): string {
+	switch (r?.code) {
+		case 'paren':
+		case 'bracket':
+		case 'brace':
+		case 'guillemet':
+			return t('member.reason.missing', { closer: CLOSER[r.code] });
+		case 'property':
+			return t('member.reason.property', { name: `{${r.detail}}` });
+		case 'parameter':
+			return t('member.reason.parameter', { text: r.detail ?? '' });
+		default:
+			return t('member.reason.syntax');
+	}
+}
 
 const PLAIN_TYPE = /^[A-Za-z_][\w]*$/;
 /**
@@ -105,9 +125,13 @@ export function suggestFor(
 	kind: MemberKind,
 	text: string
 ): Suggestion | null {
-	if (kind === 'literal') return null;
 	const p = parseMember(kind, text);
-	if (isRaw(p)) return null;
+	// keyboard.md ⌥↩: "fix a missing )", offered when adding the closer makes the line parse.
+	if (isRaw(p)) {
+		const fix = p.reason?.fix;
+		return fix ? { kind: 'fix', text: fix, closer: fix.slice(text.trimEnd().length) } : null;
+	}
+	if (kind === 'literal') return null;
 	const types =
 		'parameters' in p
 			? [p.returnType, ...p.parameters.map((x) => x.type)]

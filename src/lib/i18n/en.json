@@ -677,5 +677,11 @@
 	"quickFind.empty": "Nothing by that name",
 	"quickFind.emptyFigure": "Three sieves over an empty pan: nothing found",
 	"toast.rawKeptOne": "{from} is now {to}. 1 unparsed line still says {from}.",
-	"toast.rawKept": "{from} is now {to}. {count} unparsed lines still say {from}."
+	"toast.rawKept": "{from} is now {to}. {count} unparsed lines still say {from}.",
+	"member.reason.missing": "Missing {closer}",
+	"member.reason.property": "Unknown property {name}",
+	"member.reason.parameter": "Cannot read the parameter {text}",
+	"member.reason.syntax": "Not a member line",
+	"member.suggest.fix": "Add {closer}",
+	"member.suggest.fixAny": "Add the missing closer"
 }

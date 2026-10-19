@@ -191,10 +191,12 @@ export function reorderLine(id: Id, kind: MemberKind, index: number, text: strin
  * the line's type names, in free space right of this one, or link this class to it with an
  * association. One undo step each; the line stays open. False when there is nothing to apply.
  */
-export function applySuggestion(id: Id, kind: MemberKind, text: string): boolean {
+export function applySuggestion(id: Id, kind: MemberKind, text: string): string | boolean {
 	const diagramId = projectStore.activeDiagramId;
 	const s = suggestFor(projectStore.project, projectStore.diagram, id, kind, text);
 	if (!s) return false;
+	// A fix changes the line being typed, not the model: the editor puts the text in.
+	if (s.kind === 'fix') return s.text;
 	if (s.kind === 'create') {
 		const r = canvasApi.rects();
 		const here = r.get(id);

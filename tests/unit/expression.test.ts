@@ -26,7 +26,10 @@ describe('expression grammar fixtures', () => {
 	it.each((lines as Line[]).map((l) => [l.kind, l.input, l] as const))(
 		'%s %j parses to the expected structure',
 		(kind, input, line) => {
-			expect(parse(kind, input)).toEqual(line.expected);
+			// Owner's ruling #25: the reason sits beside `raw` and the fixtures keep their shape.
+			const shape = { ...(parse(kind, input) as { reason?: unknown }) };
+			delete shape.reason;
+			expect(shape).toEqual(line.expected);
 		}
 	);
 
@@ -51,9 +54,10 @@ describe('expression grammar fixtures', () => {
 describe('expression edge cases', () => {
 	it('never throws and keeps garbage verbatim', () => {
 		for (const s of ['', '   ', '::', '+(', '{', '<<x', '+a: b = {', '+f(a,,b)', '+x: y {wat}']) {
-			expect(parseMember('attribute', s)).toEqual({ raw: s });
-			expect(parseMember('operation', s)).toEqual({ raw: s });
-			expect(parseMember('literal', s)).toEqual({ raw: s });
+			// The text verbatim; the reason beside it (ruling #25) is checked below.
+			expect(parseMember('attribute', s)).toMatchObject({ raw: s });
+			expect(parseMember('operation', s)).toMatchObject({ raw: s });
+			expect(parseMember('literal', s)).toMatchObject({ raw: s });
 		}
 	});
 
@@ -116,5 +120,28 @@ describe('expression edge cases', () => {
 		expect(
 			memberFromText('operation', '+go()', 'o1', { ...prev, documentation: 'doc' })
 		).toMatchObject({ documentation: 'doc', name: 'go' });
+	});
+});
+
+/** Owner's ruling #25: an unparsed line says why; a missing closer comes with its fix. */
+describe('why a line is kept as text', () => {
+	const why = (kind: MemberKind, line: string) =>
+		(parseMember(kind, line) as { reason?: unknown }).reason;
+	it('names the missing closer, and offers the fix only when it parses', () => {
+		expect(why('operation', '+ find(id: int')).toEqual({ code: 'paren', fix: '+ find(id: int)' });
+		expect(why('attribute', 'x: int {readOnly')).toEqual({
+			code: 'brace',
+			fix: 'x: int {readOnly}'
+		});
+		expect(why('attribute', 'x: Customer [')).toEqual({ code: 'bracket' });
+		expect(why('attribute', '<<entity x: int')).toEqual({ code: 'guillemet' });
+	});
+	it('names an unknown property and an unreadable parameter', () => {
+		expect(why('attribute', 'x: int {final}')).toEqual({ code: 'property', detail: 'final' });
+		expect(why('operation', 'f(1x: int)')).toEqual({ code: 'parameter', detail: '1x: int' });
+		expect(why('attribute', '?? Customer')).toEqual({ code: 'syntax' });
+	});
+	it('says nothing for a line that parses', () => {
+		expect(why('attribute', '- x: int')).toBeUndefined();
 	});
 });
