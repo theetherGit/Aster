@@ -68,6 +68,23 @@ test('explorer tree: ARIA tree keyboard, type-ahead, bidirectional selection, âŒ
 	await page.keyboard.press('ControlOrMeta+e');
 	await expect(items.nth(2)).toBeFocused();
 
+	// Collapsing the focused row's parent with the pointer keeps one Tab stop (the parent).
+	await page.keyboard.press('ControlOrMeta+e');
+	await expect(items.nth(2)).toBeFocused();
+	await page.keyboard.press('ArrowRight');
+	await page.keyboard.press('ArrowRight');
+	await expect(items.nth(3)).toHaveAttribute('aria-level', '4');
+	await expect(items.nth(3)).toBeFocused();
+	await items.nth(2).locator('button').click();
+	await expect(items.nth(2)).toHaveAttribute('aria-expanded', 'false');
+	expect(
+		await items.evaluateAll((els) => els.filter((e) => e.getAttribute('tabindex') === '0').length)
+	).toBe(1);
+	await expect(items.nth(2)).toBeFocused();
+	// Labels carry a title for when they truncate; the caret is a 24 px target.
+	await expect(items.nth(2).locator('[title]')).toHaveAttribute('title', 'Account');
+	expect((await items.nth(2).locator('button').boundingBox())!.width).toBeGreaterThanOrEqual(24);
+
 	await page.keyboard.press('ControlOrMeta+b');
 	await expect(tree).toHaveCount(0);
 });

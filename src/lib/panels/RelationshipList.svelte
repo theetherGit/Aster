@@ -25,28 +25,6 @@
 		const el = projectStore.project.elements.get(id);
 		return el ? elementName(el) : id;
 	};
-	const GLYPH: Record<Relationship['relationshipKind'], string> = {
-		association: '—',
-		aggregation: '—◇',
-		composition: '—◆',
-		generalization: '—▷',
-		realization: '⇢▷',
-		dependency: '⇢'
-	};
-	function glyph(r: Relationship) {
-		if (r.relationshipKind !== 'association') return GLYPH[r.relationshipKind];
-		const s = r.sourceEnd?.navigable === 'navigable';
-		const t = r.targetEnd?.navigable === 'navigable';
-		return s && !t ? '←' : t && !s ? '→' : '—';
-	}
-	const summary = (r: Relationship) =>
-		t('inspector.relationshipSummary', {
-			source: nameOf(r.sourceId),
-			sourceMultiplicity: r.sourceEnd?.multiplicity ?? '',
-			glyph: glyph(r),
-			targetMultiplicity: r.targetEnd?.multiplicity ?? '',
-			target: nameOf(r.targetId)
-		}).replace(/\s+/g, ' ');
 </script>
 
 {#if rels.length}
@@ -56,11 +34,10 @@
 			<li>
 				<button
 					type="button"
-					class="-mx-1 flex h-8 w-[calc(100%+8px)] items-center gap-2 rounded-control px-1 text-left hover:bg-chrome-bg aria-pressed:bg-accent/10"
-					aria-pressed={selection.has(r.id)}
-					aria-label={t('inspector.selectRelationship', { summary: summary(r) })}
+					class="-mx-1 flex h-8 w-[calc(100%+8px)] items-center gap-2 rounded-control px-1 text-left hover:bg-chrome-bg"
 					onclick={() => selection.set([r.id])}
 				>
+					<span class="sr-only">{t('inspector.selectPrefix')}</span>
 					<span class="flex min-w-0 flex-1 items-center gap-1.5 text-[14px]">
 						<span class="truncate">{nameOf(r.sourceId)}</span>
 						<span class="shrink-0 text-chrome-muted">{r.sourceEnd?.multiplicity ?? ''}</span>

@@ -83,9 +83,13 @@
 			patch: Object.fromEntries([...overrides].map((k) => [k, undefined]))
 		});
 
-	const commitName = (name: string) => {
-		if (classifier && name.trim() && name.trim() !== classifier.name)
-			projectStore.run(renameClassifier, { id: classifier.id, name: name.trim() });
+	/** A blank name is not a rename: the field goes back to the model's name. */
+	const commitName = (input: HTMLInputElement) => {
+		if (!classifier) return;
+		const name = input.value.trim();
+		if (!name) input.value = classifier.name;
+		else if (name !== classifier.name)
+			projectStore.run(renameClassifier, { id: classifier.id, name });
 	};
 	const flags = (f: Parameters<typeof setClassifierFlags>[1]['flags']) =>
 		classifier && projectStore.run(setClassifierFlags, { id: classifier.id, flags: f });
@@ -128,24 +132,30 @@
 			: 'inspector w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
 	>
 		<Tabs.Root bind:value={ui.inspectorTab}>
-			<Tabs.List
-				class="flex border-b border-chrome-border px-2 {classic ? 'editors-tabs' : ''}"
-				aria-label={classic ? t('classic.editors') : t('inspector.title')}
-			>
+			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist. -->
+			<div class="flex border-b border-chrome-border px-2">
 				{#if classic}
 					<span class="panel-title border-0 bg-transparent px-1">{t('classic.editors')}</span>
-					<Tabs.Trigger value="diagram" class="tab">{t('classic.tab.style')}</Tabs.Trigger>
-					<Tabs.Trigger value="properties" class="tab">{t('classic.tab.property')}</Tabs.Trigger>
-					<Tabs.Trigger value="documentation" class="tab"
-						>{t('classic.tab.documentation')}</Tabs.Trigger
-					>
-				{:else}
-					<!-- The Text tab (ui.md) arrives with the Text view in M2; no placeholder until then. -->
-					<Tabs.Trigger value="properties" class="tab">{t('inspector.tab.properties')}</Tabs.Trigger
-					>
-					<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
 				{/if}
-			</Tabs.List>
+				<Tabs.List
+					class="flex {classic ? 'editors-tabs' : ''}"
+					aria-label={classic ? t('classic.editors') : t('inspector.title')}
+				>
+					{#if classic}
+						<Tabs.Trigger value="diagram" class="tab">{t('classic.tab.style')}</Tabs.Trigger>
+						<Tabs.Trigger value="properties" class="tab">{t('classic.tab.property')}</Tabs.Trigger>
+						<Tabs.Trigger value="documentation" class="tab"
+							>{t('classic.tab.documentation')}</Tabs.Trigger
+						>
+					{:else}
+						<!-- The Text tab (ui.md) arrives with the Text view in M2; no placeholder until then. -->
+						<Tabs.Trigger value="properties" class="tab"
+							>{t('inspector.tab.properties')}</Tabs.Trigger
+						>
+						<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
+					{/if}
+				</Tabs.List>
+			</div>
 			<Tabs.Content value="properties" class="p-4">
 				{#if classifier}
 					{@const c = classifier}
@@ -160,14 +170,16 @@
 								classifierKind: v as ClassifierKind
 							})}
 					>
+						<span class="sr-only" id="insp-kind-label">{t('inspector.kind')}</span>
 						<Select.Trigger
 							id="insp-kind"
-							aria-label={t('inspector.kind')}
+							aria-labelledby="insp-kind-label insp-kind"
 							class="section group -mx-1 flex h-6 items-center gap-1 rounded-control px-1 hover:bg-chrome-bg"
 						>
 							{t(`ui.kind.${c.classifierKind}`)}
+							<!-- The caret stays visible at rest (muted) so the heading reads as a picker. -->
 							<svg
-								class="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-data-[state=open]:opacity-100"
+								class="text-chrome-muted group-hover:text-chrome-text group-focus-visible:text-chrome-text"
 								width="10"
 								height="10"
 								viewBox="0 0 10 10"
@@ -192,7 +204,7 @@
 						id="insp-name"
 						class="field h-9 w-full text-[14px]"
 						value={c.name}
-						onchange={(e) => commitName(e.currentTarget.value)}
+						onchange={(e) => commitName(e.currentTarget)}
 					/>
 
 					<div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1">

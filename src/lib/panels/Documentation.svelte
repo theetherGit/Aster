@@ -12,11 +12,16 @@
 </script>
 
 <div class="mt-6 flex items-center justify-between">
-	<h2 class="section mb-0"><label for={field}>{t('inspector.documentation')}</label></h2>
+	<!-- The label only points at the textarea while it exists; the preview has no field. -->
+	<h2 class="section mb-0" id="{field}-title">
+		{#if preview}{t('inspector.documentation')}{:else}<label for={field}
+				>{t('inspector.documentation')}</label
+			>{/if}
+	</h2>
 	<Collapsible.Root bind:open={preview}>
 		<Collapsible.Trigger
 			class="h-7 rounded-control px-2 text-[12px] text-chrome-muted hover:text-chrome-text aria-expanded:text-chrome-text"
-			>{t('inspector.preview')}</Collapsible.Trigger
+			>{preview ? t('inspector.edit') : t('inspector.preview')}</Collapsible.Trigger
 		>
 	</Collapsible.Root>
 </div>
@@ -24,6 +29,7 @@
 	<div
 		class="markdown mt-1 min-h-20 rounded-control border border-chrome-border bg-chrome-bg px-3 py-2 text-[13px]"
 		data-testid="doc-preview"
+		aria-labelledby="{field}-title"
 	>
 		{#if documentation.trim()}
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -- renderMarkdown escapes its input and emits only its own tags -->
@@ -57,11 +63,21 @@
 		padding-left: 18px;
 		list-style: decimal;
 	}
-	.markdown :global(h1),
-	.markdown :global(h2),
-	.markdown :global(h3) {
+	/* Markdown headings render as h3–h5 (the inspector's own are h2); sized, not nested. */
+	.markdown :global(h3),
+	.markdown :global(h4),
+	.markdown :global(h5) {
 		margin-top: 6px;
 		font-weight: 600;
+	}
+	.markdown :global(h3) {
+		font-size: 14px;
+	}
+	.markdown :global(h4) {
+		font-size: 13px;
+	}
+	.markdown :global(h5) {
+		font-size: 12px;
 	}
 	.markdown :global(code) {
 		padding: 0 3px;
@@ -71,7 +87,7 @@
 		border-radius: 3px;
 	}
 	.markdown :global(a) {
-		color: var(--accent);
+		color: var(--accent-text);
 		text-decoration: underline;
 	}
 </style>

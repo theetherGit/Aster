@@ -25,7 +25,9 @@
 	value={diagram.name}
 	onchange={(e) => {
 		const name = e.currentTarget.value.trim();
-		if (name && name !== diagram.name)
+		// A blank name is not a rename: the field goes back to the diagram's name.
+		if (!name) e.currentTarget.value = diagram.name;
+		else if (name !== diagram.name)
 			projectStore.run(renameDiagram, { diagramId: diagram.id, name });
 	}}
 />

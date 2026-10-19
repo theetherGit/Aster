@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Select } from 'bits-ui';
+	import { tick } from 'svelte';
 	import { addMember, deleteMember, reorderMember, setMemberText } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import {
@@ -23,6 +24,7 @@
 				: classifier.literals
 	);
 	let addButton: HTMLButtonElement;
+	let list: HTMLUListElement;
 
 	const SYMBOL: Record<Visibility, string> = {
 		public: '+',
@@ -44,25 +46,24 @@
 		projectStore.run(setMemberText, { classifierId: classifier.id, kind, memberId: m.id, text });
 	}
 
-	const commit = (m: Member, text: string) => {
-		if (text.trim() && text.trim() !== renderMember(kind, m))
-			projectStore.run(setMemberText, {
-				classifierId: classifier.id,
-				kind,
-				memberId: m.id,
-				text: text.trim()
-			});
+	/** A blank line is not a member: the field goes back to the model's text. */
+	const commit = (m: Member, input: HTMLInputElement) => {
+		const text = input.value.trim();
+		if (!text) input.value = renderMember(kind, m);
+		else if (text !== renderMember(kind, m))
+			projectStore.run(setMemberText, { classifierId: classifier.id, kind, memberId: m.id, text });
 	};
-	const move = (m: Member, delta: number, i: number) =>
-		projectStore.run(reorderMember, {
-			classifierId: classifier.id,
-			kind,
-			memberId: m.id,
-			to: i + delta
-		});
-	function remove(m: Member) {
+	const move = (m: Member, delta: number, i: number) => {
+		const to = i + delta;
+		if (to < 0 || to >= members.length) return; // aria-disabled: the button keeps focus, does nothing
+		projectStore.run(reorderMember, { classifierId: classifier.id, kind, memberId: m.id, to });
+	};
+	async function remove(m: Member, i: number) {
 		projectStore.run(deleteMember, { classifierId: classifier.id, kind, memberId: m.id });
-		addButton.focus(); // the row's buttons are gone; focus must land somewhere real
+		await tick();
+		// The row's buttons are gone: the row that took its place, else the one above, else Add.
+		const inputs = list.querySelectorAll<HTMLInputElement>('input');
+		(inputs[Math.min(i, inputs.length - 1)] ?? addButton).focus();
 	}
 	function add() {
 		const member = memberFromText(kind, nextMemberText(classifier, kind), newId());
@@ -71,9 +72,9 @@
 </script>
 
 <!-- Board 01: heading with "+ Add" at the right; flat rows whose controls appear on hover or focus. -->
-<fieldset class="mt-6 min-w-0">
+<fieldset class="mt-6 min-w-0" aria-labelledby="members-{kind}-title">
 	<div class="mb-1 flex items-center justify-between">
-		<legend class="section float-left mb-0">{t(`inspector.${kind}s`)}</legend>
+		<h2 class="section mb-0" id="members-{kind}-title">{t(`inspector.${kind}s`)}</h2>
 		<button
 			type="button"
 			bind:this={addButton}
@@ -84,19 +85,24 @@
 			+ {t('inspector.addShort')}
 		</button>
 	</div>
-	<ul class="flex flex-col gap-1">
+	<ul class="flex flex-col gap-1" bind:this={list}>
 		{#each members as m, i (m.id)}
 			<li class="group relative flex items-center">
 				<input
 					class="field h-8 min-w-0 flex-1 font-mono text-[13px]"
-					class:raw={'raw' in m && m.raw !== undefined}
+					class:raw={isRaw(m)}
 					aria-label={t(`member.line.${kind}`)}
-					title={'raw' in m && m.raw !== undefined ? t('inspector.unparsed') : undefined}
+					aria-describedby={isRaw(m) ? `member-${m.id}-raw` : undefined}
 					value={renderMember(kind, m)}
-					onchange={(e) => commit(m, e.currentTarget.value)}
+					onchange={(e) => commit(m, e.currentTarget)}
 				/>
+				{#if isRaw(m)}
+					<span class="sr-only" id="member-{m.id}-raw">{t('inspector.unparsed')}</span>
+				{/if}
+				<!-- Hidden until hover or focus-within, and not hit-testable until then: a click at the
+				     right end of the field reaches the field. The buttons stay in the Tab order. -->
 				<span
-					class="absolute right-1 flex items-center gap-0.5 rounded-control bg-chrome-bg pl-1 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100"
+					class="pointer-events-none absolute right-1 flex items-center gap-0.5 rounded-control bg-chrome-bg pl-1 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
 				>
 					{#if hasVisibility && 'visibility' in m}
 						<Select.Root
@@ -108,6 +114,7 @@
 							<Select.Trigger
 								class="field h-6 w-7 shrink-0 px-0 text-center font-mono"
 								aria-label={t('inspector.memberVisibility', { name: m.name })}
+								aria-describedby={isRaw(m) ? `member-${m.id}-raw` : undefined}
 								disabled={isRaw(m)}
 							>
 								{SYMBOL[m.visibility]}
@@ -125,25 +132,26 @@
 							</Select.Portal>
 						</Select.Root>
 					{/if}
+					<!-- Edge rows use aria-disabled, not disabled: a real disabled button would drop focus. -->
 					<button
 						type="button"
-						class="icon-btn h-6 w-6"
+						class="icon-btn h-6 w-6 aria-disabled:text-chrome-muted aria-disabled:opacity-60"
 						aria-label={t('inspector.moveUp', { name: m.name })}
-						disabled={i === 0}
+						aria-disabled={i === 0}
 						onclick={() => move(m, -1, i)}>↑</button
 					>
 					<button
 						type="button"
-						class="icon-btn h-6 w-6"
+						class="icon-btn h-6 w-6 aria-disabled:text-chrome-muted aria-disabled:opacity-60"
 						aria-label={t('inspector.moveDown', { name: m.name })}
-						disabled={i === members.length - 1}
+						aria-disabled={i === members.length - 1}
 						onclick={() => move(m, 1, i)}>↓</button
 					>
 					<button
 						type="button"
 						class="icon-btn h-6 w-6 text-danger"
-						aria-label={t('inspector.remove', { name: m.name })}
-						onclick={() => remove(m)}>×</button
+						aria-label={t('inspector.remove', { name: m.name, owner: classifier.name })}
+						onclick={() => remove(m, i)}>×</button
 					>
 				</span>
 			</li>

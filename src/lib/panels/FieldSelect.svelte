@@ -6,14 +6,19 @@
 		value: string;
 		items: { value: string; label: string }[];
 		onchange: (value: string) => void;
+		/** Rendered as a visually hidden label; the trigger's visible value stays part of its name. */
 		ariaLabel?: string;
 		class?: string;
 	}
-	let { id, value, items, onchange, ariaLabel, class: className = '' }: Props = $props();
+	const uid = $props.id();
+	let { id = uid, value, items, onchange, ariaLabel, class: className = '' }: Props = $props();
 	const current = $derived(items.find((i) => i.value === value)?.label ?? '');
 </script>
 
 <!-- A Bits UI Select styled as a form field; label it with <label for={id}> or ariaLabel. -->
+{#if ariaLabel}
+	<span class="sr-only" id="{id}-label">{ariaLabel}</span>
+{/if}
 <Select.Root
 	type="single"
 	{value}
@@ -24,7 +29,7 @@
 >
 	<Select.Trigger
 		{id}
-		aria-label={ariaLabel}
+		aria-labelledby={ariaLabel ? `${id}-label ${id}` : undefined}
 		class="field truncate text-left whitespace-nowrap {className}">{current}</Select.Trigger
 	>
 	<Select.Portal>

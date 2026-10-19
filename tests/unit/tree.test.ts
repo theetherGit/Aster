@@ -7,6 +7,7 @@ import {
 	diagramRowId,
 	parentIndex,
 	rowIdFor,
+	tabStopIndex,
 	typeAheadIndex
 } from '#lib/panels/tree.ts';
 
@@ -97,6 +98,30 @@ describe('explorer tree rows', () => {
 		expect(typeAheadIndex(rows, 3, 'c')).toBe(3); // only one C row; cycles back to itself
 		expect(typeAheadIndex(rows, 0, 'acc')).toBe(2);
 		expect(typeAheadIndex(rows, 0, 'zzz')).toBe(-1);
+	});
+
+	it('type-ahead matches a member by its name, not the rendered line', () => {
+		const cust = rowIdFor('Customer', 'd1');
+		const rows = buildRows(project, new Set([ROOT, D1, cust]));
+		const op = rows.findIndex((r) => r.id === `${cust}/member:Customer-o0`);
+		expect(rows[op].label.startsWith('+')).toBe(true);
+		expect(typeAheadIndex(rows, 0, 'op')).toBe(op);
+		expect(typeAheadIndex(rows, 0, '+')).toBe(-1);
+	});
+
+	it('tab stop falls back to the nearest visible ancestor, else the first row', () => {
+		const cust = rowIdFor('Customer', 'd1');
+		const member = `${cust}/member:Customer-a0`;
+		const open = buildRows(project, new Set([ROOT, D1, cust]));
+		expect(tabStopIndex(open, member)).toBe(open.findIndex((r) => r.id === member));
+		// Customer collapsed: its member is gone, the stop moves to Customer.
+		const collapsed = buildRows(project, new Set([ROOT, D1]));
+		expect(tabStopIndex(collapsed, member)).toBe(3);
+		// Diagram collapsed too: the stop moves to the diagram row.
+		expect(tabStopIndex(buildRows(project, new Set([ROOT])), member)).toBe(1);
+		// Nothing of its path is visible: first row.
+		expect(tabStopIndex(buildRows(project, new Set()), member)).toBe(0);
+		expect(tabStopIndex(open, 'element:ghost')).toBe(0);
 	});
 
 	it('lists relationships under their source classifier, after its members', () => {

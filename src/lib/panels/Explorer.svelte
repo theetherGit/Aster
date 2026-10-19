@@ -2,6 +2,8 @@
 	import { useDebounce } from 'runed';
 	import { tick } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { byId } from '#lib/app/commands.svelte.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import { canvasFocus, explorerFocus } from '#lib/canvas/focus.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -13,6 +15,7 @@
 		diagramRowId,
 		parentIndex,
 		rowIdFor,
+		tabStopIndex,
 		typeAheadIndex,
 		type TreeRow
 	} from './tree.ts';
@@ -34,12 +37,15 @@
 	const isSelectedRow = (row: TreeRow) =>
 		row.elementId === selectedId &&
 		(!row.diagramId || row.diagramId === projectStore.activeDiagramId);
-	const focusedIndex = $derived(
-		Math.max(
-			0,
-			rows.findIndex((r) => r.id === focusedId)
-		)
-	);
+	// The one row in the Tab order: the focused row, else its nearest visible ancestor, else the first.
+	const focusedIndex = $derived(tabStopIndex(rows, focusedId));
+	// ui.md "Outline: empty": the model holds no classifier or package.
+	const empty = $derived.by(() => {
+		void projectStore.version;
+		return ![...projectStore.project.elements.values()].some(
+			(e) => e.kind === 'classifier' || e.kind === 'package'
+		);
+	});
 
 	async function focusRow(id: string) {
 		focusedId = id;
@@ -49,7 +55,11 @@
 
 	function select(i: number) {
 		const row = rows[i];
-		if (row?.elementId) selection.set([row.elementId]);
+		if (!row?.elementId) return;
+		// A row under another diagram opens that diagram first, as the diagram tabs do.
+		if (row.diagramId && row.diagramId !== projectStore.activeDiagramId)
+			projectStore.activeDiagramId = row.diagramId;
+		selection.set([row.elementId]);
 	}
 
 	function onkeydown(e: KeyboardEvent) {
@@ -102,8 +112,11 @@
 	}
 	function toggle(i: number) {
 		const row = rows[i];
-		if (row.expanded) expanded.delete(row.id);
-		else expanded.add(row.id);
+		if (row.expanded) {
+			expanded.delete(row.id);
+			// Collapsing over the focused row: focus moves up to the row that hid it.
+			if (focusedId.startsWith(row.id + '/')) focusRow(row.id);
+		} else expanded.add(row.id);
 	}
 
 	// ⌘E: reveal the selected element and move focus to its row.
@@ -129,25 +142,31 @@
 	});
 </script>
 
-<aside
-	aria-label={variant === 'classic' ? t('classic.modelExplorer') : t('explorer.title')}
+<!-- Modern: a landmark of its own. Classic: a section inside the sidebar's aside, never a nested one. -->
+<svelte:element
+	this={variant === 'classic' ? 'section' : 'aside'}
+	aria-labelledby="explorer-title"
 	class={variant === 'classic'
 		? 'flex min-h-0 flex-1 flex-col overflow-auto'
 		: 'flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface'}
 >
 	{#if variant === 'classic'}
-		<h2 class="panel-title">{t('classic.modelExplorer')}</h2>
+		<h2 class="panel-title" id="explorer-title">{t('classic.modelExplorer')}</h2>
 	{:else}
 		<div class="flex items-center justify-between pr-2 pl-4">
-			<h2 class="py-3 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase">
+			<h2
+				class="py-3 text-[11px] font-semibold tracking-wide text-chrome-muted uppercase"
+				id="explorer-title"
+			>
 				{t('explorer.title')}
 			</h2>
 			<button
 				type="button"
 				class="icon-btn w-auto px-1.5 text-[11px] text-chrome-muted"
-				aria-label={t('explorer.hide')}
-				title={t('explorer.hide')}
-				onclick={() => (ui.panels.outline = false)}>{t('explorer.shortcut')}</button
+				onclick={() => (ui.panels.outline = false)}
+				><span class="sr-only">{t('explorer.hide')}</span><kbd aria-hidden="true"
+					>{format(byId('view.outline')!.keys[0])}</kbd
+				></button
 			>
 		</div>
 	{/if}
@@ -162,7 +181,7 @@
 				aria-posinset={row.posinset}
 				aria-expanded={row.hasChildren ? row.expanded : undefined}
 				aria-selected={isSelectedRow(row)}
-				tabindex={row.id === focusedId ? 0 : -1}
+				tabindex={i === focusedIndex ? 0 : -1}
 				class="row flex h-7 items-center gap-1 pr-3 text-chrome-text aria-selected:bg-accent/10 aria-selected:shadow-[inset_3px_0_0_var(--accent)]"
 				style:padding-left="{(row.level - 1) * 12 + 4}px"
 				onclick={() => onclick(i)}
@@ -175,7 +194,7 @@
 						type="button"
 						tabindex="-1"
 						aria-hidden="true"
-						class="flex h-6 w-5 shrink-0 items-center justify-center rounded-control text-chrome-muted hover:bg-chrome-bg"
+						class="flex h-6 w-6 shrink-0 items-center justify-center rounded-control text-chrome-muted hover:bg-chrome-bg"
 						onclick={(e) => {
 							e.stopPropagation();
 							toggle(i);
@@ -190,15 +209,18 @@
 						>
 					</button>
 				{:else}
-					<span class="w-5 shrink-0"></span>
+					<span class="w-6 shrink-0"></span>
 				{/if}
-				<span class="truncate" class:italic={row.italic}>{row.label}</span>
+				<span class="truncate" class:italic={row.italic} title={row.label}>{row.label}</span>
 				{#if row.hint}<span class="ml-2 shrink-0 text-[12px] text-chrome-muted">{row.hint}</span
 					>{/if}
 			</li>
 		{/each}
 	</ul>
-</aside>
+	{#if empty}
+		<p class="px-4 pb-3 text-[12px] text-chrome-muted">{t('explorer.empty')}</p>
+	{/if}
+</svelte:element>
 
 <style>
 	.row:focus-visible {

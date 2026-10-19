@@ -18,6 +18,7 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	);
 
 	// Member visibility from the panel: the compartment text changes within one frame.
+	await inspector.getByRole('textbox', { name: 'Attribute line' }).nth(1).hover();
 	await inspector.getByRole('button', { name: 'Visibility of attribute1' }).click();
 	await page.getByRole('option', { name: 'protected (#)' }).click();
 	const nextFrame = await page.evaluate(
@@ -35,13 +36,16 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	expect(nextFrame).toBe('# attribute1: int');
 
 	// Reorder and remove; focus stays in the panel after a remove.
+	await inspector.getByRole('textbox', { name: 'Attribute line' }).first().hover();
 	await inspector.getByRole('button', { name: 'Move attribute0 down' }).click();
 	await expect(customer.locator('[data-compartment="attribute"] li').nth(1)).toHaveText(
 		'- attribute0: String'
 	);
-	await inspector.getByRole('button', { name: 'Remove attribute1' }).click();
+	await inspector.getByRole('textbox', { name: 'Attribute line' }).first().hover();
+	await inspector.getByRole('button', { name: 'Delete attribute1 from Customer' }).click();
 	await expect(customer.locator('[data-compartment="attribute"] li')).toHaveCount(1);
-	await expect(inspector.getByRole('button', { name: 'Add attribute' })).toBeFocused();
+	// Focus lands on the neighbouring row's field, not on "+ Add".
+	await expect(inspector.getByRole('textbox', { name: 'Attribute line' }).first()).toBeFocused();
 	await inspector.getByRole('button', { name: 'Add attribute' }).click();
 	await expect(customer.locator('[data-compartment="attribute"] li')).toHaveCount(2);
 
@@ -69,4 +73,56 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	await expect(
 		page.locator('.classifier-node[data-name="Customer"] [data-compartment="attribute"] li').first()
 	).toHaveText('# attribute0: String');
+});
+
+test('member-row buttons are not hit-testable until the row is hovered or focused', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	const customer = page.locator('.classifier-node[data-name="Customer"]');
+	await customer.click();
+	const inspector = page.getByRole('complementary', { name: 'Inspector' });
+	const line = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
+	await expect(line).toBeVisible();
+	await page.mouse.move(0, 0); // nothing hovered, nothing in the row focused
+	const box = (await line.boundingBox())!;
+	const at = { x: box.x + box.width - 8, y: box.y + box.height / 2 };
+	// Hit-test at the right end of the field without hovering: the field itself, not a hidden button.
+	const hit = await page.evaluate(({ x, y }) => {
+		const el = document.elementFromPoint(x, y) as HTMLElement;
+		el.click();
+		return el.tagName;
+	}, at);
+	expect(hit).toBe('INPUT');
+	await expect(customer.locator('[data-compartment="attribute"] li')).toHaveCount(2);
+	// Focus inside the row reveals the buttons and makes them clickable; the edge button is
+	// aria-disabled, keeps focus and does nothing.
+	await line.focus();
+	const up = inspector.getByRole('button', { name: 'Move attribute0 up' });
+	await expect(up).toHaveAttribute('aria-disabled', 'true');
+	await up.focus();
+	await page.keyboard.press('Enter');
+	await expect(up).toBeFocused();
+	await expect(customer.locator('[data-compartment="attribute"] li').first()).toHaveText(
+		'# attribute0: String'
+	);
+});
+
+test('blank names and member lines revert instead of committing', async ({ page }) => {
+	await page.goto('/design/sample');
+	await page.locator('.classifier-node[data-name="Customer"]').click();
+	const inspector = page.getByRole('complementary', { name: 'Inspector' });
+	const name = inspector.getByLabel('Name', { exact: true });
+	await name.fill('   ');
+	await name.press('Enter');
+	await expect(name).toHaveValue('Customer');
+	const line = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
+	await line.fill('');
+	await line.press('Enter');
+	await expect(line).toHaveValue('# {static} attribute0: String');
+	// Nothing reached the undo stack.
+	await expect(page.getByRole('button', { name: 'Undo', exact: true })).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
 });

@@ -98,6 +98,7 @@
 	const labelKeys = $derived(labelsFor(rel, projectStore.diagram.defaults));
 	const offsetOf = (key: LabelKey) => layout?.labelOffsets[key] ?? DEFAULT_OFFSETS[key];
 	const isDefault = (key: LabelKey) => !layout?.labelOffsets[key];
+	const anyMoved = $derived(labelKeys.some((l) => !isDefault(l.key)));
 	const deg = (rad: number) => Math.round((rad * 180) / Math.PI);
 	const labelName = (key: LabelKey, at: 'source' | 'target' | 'mid') =>
 		at === 'mid'
@@ -121,7 +122,7 @@
 		if (!keys.length) return;
 		const p = projectStore.project;
 		run(batch, {
-			label: t('cmd.setLabelOffset', { name: elementName(rel) }),
+			label: t('cmd.resetLabels', { name: elementName(rel) }),
 			commands: keys.map((key) =>
 				serialise(setLabelOffset(p, { diagramId, id: rel.id, key, offset: null }))
 			)
@@ -205,7 +206,7 @@
 		<span class="text-chrome-muted" id="ends-mult">{t('inspector.multiplicity')}</span>
 		{#each ends as [end, e] (end)}
 			<input
-				class="field min-w-0 font-mono"
+				class="field min-w-0"
 				aria-label={endField(t('inspector.multiplicity'), end)}
 				id="{end}-mult"
 				value={e.multiplicity ?? ''}
@@ -329,29 +330,40 @@
 	{#if labelKeys.length}
 		<div class="mt-4 flex items-center justify-between">
 			<h2 class="section mt-0">{t('inspector.labels')}</h2>
+			<!-- Its visible text is its name; disabled until a label has been moved. -->
 			<button
 				type="button"
-				class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg"
-				aria-label={t('inspector.resetLabels')}
+				class="h-7 rounded-control border border-chrome-border px-2 hover:bg-chrome-bg disabled:opacity-60"
+				disabled={!anyMoved}
 				onclick={resetLabels}>{t('inspector.resetAll')}</button
 			>
 		</div>
+		<div
+			class="mt-1 grid grid-cols-[auto_1fr_52px_52px_24px] items-center gap-1 text-[11px] text-chrome-muted"
+			aria-hidden="true"
+		>
+			<span></span><span></span>
+			<span class="px-1">{t('inspector.colDistance')}</span>
+			<span class="px-1">{t('inspector.colAngle')}</span>
+			<span></span>
+		</div>
+		<span class="sr-only" id="label-at-default">{t('inspector.labelAtDefault')}</span>
 		<ul class="mt-1 flex flex-col gap-1">
 			{#each labelKeys as l (l.key)}
 				{@const name = labelName(l.key, l.at)}
 				<li class="grid grid-cols-[auto_1fr_52px_52px_24px] items-center gap-1 text-[12px]">
-					<span class="font-mono">{l.lines.at(-1)}</span>
+					<span>{l.lines.at(-1)}</span>
 					<span class="truncate text-chrome-muted">{name}</span>
 					<input
 						type="number"
-						class="field h-6 min-w-0 px-1 text-[12px]"
+						class="field h-6 min-w-0 px-1 text-[12px] tabular-nums"
 						aria-label={t('inspector.labelDistance', { label: name })}
 						value={Math.round(offsetOf(l.key).distance)}
 						onchange={(e) => setOffset(l.key, { distance: e.currentTarget.valueAsNumber })}
 					/>
 					<input
 						type="number"
-						class="field h-6 min-w-0 px-1 text-[12px]"
+						class="field h-6 min-w-0 px-1 text-[12px] tabular-nums"
 						aria-label={t('inspector.labelAngle', { label: name })}
 						value={deg(offsetOf(l.key).alpha)}
 						onchange={(e) => setOffset(l.key, { degrees: e.currentTarget.valueAsNumber })}
@@ -360,6 +372,7 @@
 						type="button"
 						class="icon-btn h-6 w-6"
 						aria-label={t('inspector.resetLabel', { label: name })}
+						aria-describedby={isDefault(l.key) ? 'label-at-default' : undefined}
 						disabled={isDefault(l.key)}
 						onclick={() => run(setLabelOffset, { diagramId, id: rel.id, key: l.key, offset: null })}
 					>
@@ -386,7 +399,6 @@
 	.chip {
 		height: 24px;
 		padding: 0 6px;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 		font-size: 11px;
 		color: var(--chrome-muted);
 		background: var(--chrome-bg);

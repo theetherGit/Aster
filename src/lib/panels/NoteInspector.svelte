@@ -10,6 +10,8 @@
 	// Board 14: the note's text, what it is linked to, and its size as the non-drag path.
 	let { element }: { element: Note | TextElement } = $props();
 	const isNote = $derived(element.kind === 'note');
+	// ui.md: notes are at least 120×60; a text element is created 120×24.
+	const MIN = $derived(isNote ? { w: 120, h: 60 } : { w: 120, h: 24 });
 	const diagram = $derived(projectStore.diagram);
 	const layout = $derived.by(() => {
 		void projectStore.version;
@@ -38,12 +40,17 @@
 	);
 	const commitText = (text: string) =>
 		text !== element.text && projectStore.run(setElementText, { id: element.id, text });
-	const resize = (w: number, h: number) =>
-		layout &&
-		Number.isFinite(w) &&
-		Number.isFinite(h) &&
-		(w !== layout.w || h !== layout.h) &&
-		projectStore.run(resizeNode, { diagramId: diagram.id, id: element.id, w, h });
+	/** Below the minimum or not a number: the field goes back to the layout's value. */
+	function resize(axis: 'w' | 'h', input: HTMLInputElement) {
+		if (!layout) return;
+		const v = Math.round(input.valueAsNumber);
+		if (!Number.isFinite(v) || v < MIN[axis]) {
+			input.value = String(layout[axis]);
+			return;
+		}
+		if (v !== layout[axis])
+			projectStore.run(resizeNode, { diagramId: diagram.id, id: element.id, ...layout, [axis]: v });
+	}
 </script>
 
 <label for="note-text" class="section">{isNote ? t('note.heading') : t('text.heading')}</label>
@@ -99,7 +106,9 @@
 	{:else}
 		<p class="mt-1 text-[12px] text-chrome-muted">{t('note.noLinks')}</p>
 	{/if}
-	<p class="mt-1 text-[12px] text-chrome-muted">{t('note.linkHint')}</p>
+	<p class="mt-1 text-[12px] text-chrome-muted">
+		{candidates.length ? t('note.linkHint') : t('note.nothingToLink')}
+	</p>
 {/if}
 
 {#if layout}
@@ -108,19 +117,23 @@
 		<label class="text-chrome-muted"
 			>{t('note.width')}<input
 				type="number"
-				class="field mt-1 w-full"
+				min={MIN.w}
+				step="1"
+				class="field mt-1 w-full tabular-nums"
 				value={layout.w}
-				onchange={(e) => resize(e.currentTarget.valueAsNumber, layout!.h)}
+				onchange={(e) => resize('w', e.currentTarget)}
 			/></label
 		>
 		<label class="text-chrome-muted"
 			>{t('note.height')}<input
 				type="number"
-				class="field mt-1 w-full"
+				min={MIN.h}
+				step="1"
+				class="field mt-1 w-full tabular-nums"
 				value={layout.h}
-				onchange={(e) => resize(layout!.w, e.currentTarget.valueAsNumber)}
+				onchange={(e) => resize('h', e.currentTarget)}
 			/></label
 		>
 	</div>
-	<p class="mt-1 text-[12px] text-chrome-muted">{t('note.sizeHint')}</p>
+	<p class="mt-1 text-[12px] text-chrome-muted">{t('note.sizeHint', { w: MIN.w, h: MIN.h })}</p>
 {/if}

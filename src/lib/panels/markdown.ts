@@ -3,6 +3,8 @@
  * escaped first; only our own tags come out. Paragraphs, headings, bullet and numbered lists,
  * `code`, **bold**, *italic* and [links](http…) are enough for a class's documentation.
  */
+import { t } from '#lib/i18n/index.ts';
+
 const esc = (s: string) =>
 	s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -13,7 +15,7 @@ function inline(s: string): string {
 		.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
 		.replace(
 			/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
-			'<a href="$2" rel="noopener" target="_blank">$1</a>'
+			`<a href="$2" rel="noopener" target="_blank">$1<span class="sr-only"> ${t('inspector.opensNewTab')}</span></a>`
 		);
 }
 
@@ -40,7 +42,9 @@ export function renderMarkdown(text: string): string {
 		} else if (heading) {
 			flushPara();
 			closeList();
-			out.push(`<h${heading[1].length}>${inline(heading[2])}</h${heading[1].length}>`);
+			// The inspector's own headings are h2: documentation starts two levels down.
+			const level = heading[1].length + 2;
+			out.push(`<h${level}>${inline(heading[2])}</h${level}>`);
 		} else if (bullet || numbered) {
 			flushPara();
 			const kind = bullet ? 'ul' : 'ol';

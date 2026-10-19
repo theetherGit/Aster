@@ -63,8 +63,8 @@
 				/>
 				<span class="flex-1">{t(r.label)}</span>
 				{#if overrides?.has(r.key)}
-					<span class="override" title={t('inspector.overridesRow')} aria-hidden="true"></span>
-					<span class="sr-only">{t('inspector.overridesRow')}</span>
+					<!-- Visible text, not a dot with a hover title: keyboard and touch users see it too. -->
+					<span class="override">{t('inspector.overrideMark')}</span>
 				{/if}
 				{#if r.keys}<kbd>{format(parse(r.keys))}</kbd>{/if}
 			</label>
@@ -79,7 +79,7 @@
 	<div class="row">
 		<span id="{idPrefix}-stereo" class="section mb-0 flex-1">{t('diagram.stereotypes')}</span>
 		{#if overrides?.has('stereotypeDisplay')}
-			<span class="override" title={t('inspector.overridesRow')} aria-hidden="true"></span>
+			<span class="override">{t('inspector.overrideMark')}</span>
 		{/if}
 		<kbd>{format(parse('⌘⇧0'))} · {format(parse('⌘⇧1'))}</kbd>
 	</div>
@@ -121,9 +121,7 @@
 		color: var(--chrome-muted);
 	}
 	.override {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: var(--accent);
+		font-size: 11px;
+		color: var(--accent-text);
 	}
 </style>

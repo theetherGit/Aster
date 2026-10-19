@@ -12,6 +12,8 @@ export interface TreeRow {
 	 */
 	id: string;
 	label: string;
+	/** What type-ahead matches when the label does not start with the element's name (members, relationships). */
+	name?: string;
 	/** Secondary text (kind), not used for type-ahead. Board 01: only when it says something. */
 	hint?: string;
 	/** Abstract classifiers read in italics, as on paper. */
@@ -68,6 +70,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 				(m) => ({
 					id: `${parentId}/member:${m.id}`,
 					label: renderMember(kind, m, { guillemets: true }),
+					name: m.name,
 					hint: t(`member.${kind}`),
 					level,
 					hasChildren: false,
@@ -194,11 +197,30 @@ export function parentIndex(rows: TreeRow[], i: number): number {
 export function typeAheadIndex(rows: TreeRow[], from: number, prefix: string): number {
 	const p = prefix.toLowerCase();
 	const n = rows.length;
+	const matches = (r: TreeRow | undefined) =>
+		!!r && (r.name ?? r.label).toLowerCase().startsWith(p);
 	// A repeated single character cycles through matches instead of staying put.
-	const start = p.length === 1 || !rows[from]?.label.toLowerCase().startsWith(p) ? from + 1 : from;
+	const start = p.length === 1 || !matches(rows[from]) ? from + 1 : from;
 	for (let k = 0; k < n; k++) {
 		const i = (start + k) % n;
-		if (rows[i].label.toLowerCase().startsWith(p)) return i;
+		if (matches(rows[i])) return i;
 	}
 	return -1;
+}
+
+/**
+ * The row that carries tabindex=0: the focused row when visible, else its nearest visible
+ * ancestor (row ids are paths, so an ancestor's id is a prefix), else the first row.
+ */
+export function tabStopIndex(rows: TreeRow[], focusedId: string): number {
+	let best = 0;
+	let bestLen = -1;
+	rows.forEach((r, i) => {
+		const ok = r.id === focusedId || focusedId.startsWith(r.id + '/') || r.id === ROOT;
+		if (ok && r.id.length > bestLen) {
+			best = i;
+			bestLen = r.id.length;
+		}
+	});
+	return best;
 }
