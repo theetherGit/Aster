@@ -10,9 +10,12 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 
 	// Member text: change visibility in the panel, compartment text follows.
 	const first = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
-	await expect(first).toHaveValue('# {static} attribute0: String');
+	await expect(first).toHaveValue('{static} attribute0: String');
+	// A symbol typed in front wins over the row's visibility column.
 	await first.fill('- {static} attribute0: String');
 	await first.press('Enter');
+	// ↩ moved on to the next line; Esc ends that edit so hover shows the row's actions.
+	await page.keyboard.press('Escape');
 	await expect(customer.locator('[data-compartment="attribute"] li').first()).toHaveText(
 		'- attribute0: String'
 	);
@@ -20,7 +23,7 @@ test('properties panel edits dispatch the same commands as inline editing', asyn
 	// Member visibility from the panel: the compartment text changes within one frame.
 	await inspector.getByRole('textbox', { name: 'Attribute line' }).nth(1).hover();
 	await inspector.getByRole('button', { name: 'Visibility of attribute1' }).click();
-	await page.getByRole('option', { name: 'protected (#)' }).click();
+	await page.getByRole('menuitemradio', { name: 'protected' }).click();
 	const nextFrame = await page.evaluate(
 		() =>
 			new Promise<string | null>((r) =>
@@ -121,7 +124,7 @@ test('blank names and member lines revert instead of committing', async ({ page 
 	const line = inspector.getByRole('textbox', { name: 'Attribute line' }).first();
 	await line.fill('');
 	await line.press('Enter');
-	await expect(line).toHaveValue('# {static} attribute0: String');
+	await expect(line).toHaveValue('{static} attribute0: String');
 	// Nothing reached the undo stack.
 	await expect(page.getByRole('button', { name: 'Undo', exact: true })).toHaveAttribute(
 		'aria-disabled',

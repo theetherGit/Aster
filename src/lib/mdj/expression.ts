@@ -33,12 +33,21 @@ const VIS_OF: Record<string, Visibility> = {
 	'#': 'protected',
 	'~': 'package'
 };
-const SYM_OF: Record<Visibility, string> = {
+export const SYM_OF: Record<Visibility, string> = {
 	public: '+',
 	private: '-',
 	protected: '#',
 	package: '~'
 };
+
+/**
+ * A line typed without its visibility symbol (the inspector shows the symbol in its own column)
+ * gets `v` back after any stereotype; a symbol the user typed wins.
+ */
+export function withVisibility(text: string, v: Visibility): string {
+	const [, stereo, rest] = /^(\s*(?:<<[^<>]*>>\s*)?)(.*)$/s.exec(text)!;
+	return /^[+\-#~]/.test(rest) ? text : `${stereo}${SYM_OF[v]} ${rest}`;
+}
 
 const IDENT = String.raw`[A-Za-z_$][\w$]*`;
 const STEREO = String.raw`(?:<<\s*(?<stereotype>[^<>]+?)\s*>>\s*)?`;

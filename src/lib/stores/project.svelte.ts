@@ -67,11 +67,14 @@ class ProjectStore {
 		return this.#stack.snapshot();
 	}
 
-	/** The only way state changes: build a command from a factory and run it. */
-	run<A>(factory: Factory<A>, args: A): string {
+	/**
+	 * The only way state changes: build a command from a factory and run it. The live region reads
+	 * the label as a sentence, or `spoken` when the caller has a better one ("Moved x to 2 of 10").
+	 */
+	run<A>(factory: Factory<A>, args: A, spoken?: string): string {
 		const label = this.#stack.run(factory(this.#project, args));
 		this.version++;
-		announce(sentence(label));
+		announce(spoken ?? sentence(label));
 		return label;
 	}
 	undo(): string | null {

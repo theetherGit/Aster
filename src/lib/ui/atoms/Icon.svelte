@@ -8,6 +8,8 @@
 		x: ['M18 6 6 18', 'm6 6 12 12'],
 		plus: ['M5 12h14', 'M12 5v14'],
 		minus: ['M5 12h14'],
+		// Lucide's grip-vertical: six dots, drawn as zero-length round-capped strokes.
+		grip: ['M9 5h.01', 'M9 12h.01', 'M9 19h.01', 'M15 5h.01', 'M15 12h.01', 'M15 19h.01'],
 		pencil: [
 			'M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z',
 			'm15 5 4 4'

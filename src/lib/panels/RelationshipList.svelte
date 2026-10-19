@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { byId } from '#lib/app/commands.svelte.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { elementName } from '#lib/model/project.ts';
 	import type { Classifier, Relationship } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 	import RelGlyph from './RelGlyph.svelte';
 
@@ -26,10 +29,16 @@
 		const el = projectStore.project.elements.get(id);
 		return el ? elementName(el) : id;
 	};
+	// Day 2 prompt item 6: the section stays when empty and says how to make one; the key sits
+	// in the sentence as a Kbd, so the message is split around it.
+	const linkKey = format(byId('link.start')!.keys[0]);
+	const empty = $derived(
+		t('inspector.noRelationships', { key: '\u0000', name: classifier.name }).split('\u0000')
+	);
 </script>
 
+<SectionHeading>{t('inspector.relationships')}</SectionHeading>
 {#if rels.length}
-	<SectionHeading>{t('inspector.relationships')}</SectionHeading>
 	<ul class="flex flex-col">
 		{#each rels as r (r.id)}
 			<li>
@@ -52,4 +61,8 @@
 			</li>
 		{/each}
 	</ul>
+{:else}
+	<p class="text-(length:--text-small) text-chrome-muted">
+		{empty[0]}<Kbd>{linkKey}</Kbd>{empty[1]}
+	</p>
 {/if}

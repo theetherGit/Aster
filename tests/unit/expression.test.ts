@@ -8,6 +8,7 @@ import {
 	renderAttribute,
 	renderMember,
 	renderOperation,
+	withVisibility,
 	type MemberKind
 } from '#lib/mdj/expression.ts';
 
@@ -143,5 +144,24 @@ describe('why a line is kept as text', () => {
 	});
 	it('says nothing for a line that parses', () => {
 		expect(why('attribute', '- x: int')).toBeUndefined();
+	});
+});
+
+/** Board 24: the inspector shows a line without its symbol; the row's visibility goes back in on commit. */
+describe('withVisibility', () => {
+	it('puts the symbol in front, after a stereotype', () => {
+		expect(withVisibility('balance: double', 'private')).toBe('- balance: double');
+		expect(withVisibility('<<id>> {static} id: UUID', 'protected')).toBe(
+			'<<id>> # {static} id: UUID'
+		);
+	});
+	it('keeps a symbol the user typed', () => {
+		expect(withVisibility('+ kind: AccountKind', 'private')).toBe('+ kind: AccountKind');
+		expect(withVisibility('<<id>> ~id: UUID', 'public')).toBe('<<id>> ~id: UUID');
+	});
+	it('round-trips with renderMember without the symbol', () => {
+		const m = memberFromText('attribute', '<<x>> # {static} id: UUID[0..1]', 'a');
+		const shown = renderMember('attribute', m, { showVisibility: false });
+		expect(withVisibility(shown, 'protected')).toBe(renderMember('attribute', m));
 	});
 });
