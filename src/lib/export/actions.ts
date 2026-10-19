@@ -1,6 +1,7 @@
 /** Export of the open diagram with the sheet's current options (board 06), and ⌘⇧C. */
 import { canvasRects } from '#lib/canvas/focus.ts';
 import { t } from '#lib/i18n/index.ts';
+import { announce } from '#lib/stores/live.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { fileText } from '#lib/persist/files.svelte.ts';
@@ -50,13 +51,17 @@ export async function downloadExport(o: ExportOptions) {
 	download(await exportBlob(o), fileName(o));
 }
 
-/** ⌘⇧C (StarUML's key): the diagram to the clipboard as a 2× PNG on white. */
+/**
+ * ⌘⇧C (StarUML's key): the diagram to the clipboard as a 2× PNG on white. The result is
+ * announced; the sheet also shows it inline, so no native alert.
+ */
 export async function copyDiagramAsPng(o: ExportOptions = DEFAULT_EXPORT): Promise<boolean> {
 	try {
 		await copyPng(await exportBlob({ ...o, format: 'png' }));
+		announce(t('export.copied'));
 		return true;
 	} catch {
-		alert(t('export.copyFailed'));
+		announce(t('export.copyFailed'));
 		return false;
 	}
 }

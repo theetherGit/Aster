@@ -2,10 +2,13 @@
 	import { useSvelteFlow } from '@xyflow/svelte';
 	import { Tabs } from 'bits-ui';
 	import { resolve } from '$app/paths';
+	import { byId, runCommand } from '#lib/app/commands.svelte.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import ProjectMenu from './ProjectMenu.svelte';
+	import Tip from './Tip.svelte';
 
 	// useSvelteFlow() copies zoomIn/zoomOut from the store it sees first, which is the
 	// provider's placeholder until the canvas mounts; setZoom/getZoom read the live store.
@@ -19,6 +22,14 @@
 	const redoTitle = $derived(
 		projectStore.redoLabel ? t('ui.redoNamed', { label: projectStore.redoLabel }) : t('ui.redo')
 	);
+	const key = (id: string) => {
+		const k = byId(id)?.keys[0];
+		return k ? format(k) : undefined;
+	};
+	// aria-description is not in Svelte's attribute typings yet, so it goes in through a spread.
+	const describe = (text: string | undefined): Record<string, string | undefined> => ({
+		'aria-description': text
+	});
 </script>
 
 <!-- Board 01: mark, project name, underline tabs; bordered controls on the right. -->
@@ -51,111 +62,148 @@
 	</a>
 	<h1 class="m-0 min-w-0 text-[15px]"><ProjectMenu /></h1>
 
-	<Tabs.List aria-label={t('ui.diagrams')} class="ml-3 flex h-full items-stretch">
+	<!-- Many tabs scroll sideways (no scrollbar chrome) rather than pushing the controls off the bar. -->
+	<Tabs.List
+		aria-label={t('ui.diagrams')}
+		class="ml-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto"
+	>
 		{#each projectStore.project.diagrams as d (d.id)}
 			<Tabs.Trigger
 				value={d.id}
-				class="-mb-px border-b-2 border-transparent px-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text"
+				class="-mb-px shrink-0 border-b-2 border-transparent px-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text"
 			>
 				{d.name}
 			</Tabs.Trigger>
 		{/each}
 	</Tabs.List>
 
-	<div class="ml-auto flex items-center gap-2">
+	<div class="ml-auto flex shrink-0 items-center gap-2">
 		<div class="group-box">
-			<button
-				type="button"
-				class="icon-btn"
-				aria-label={undoTitle}
-				title={undoTitle}
-				disabled={!projectStore.canUndo}
-				onclick={() => projectStore.undo()}
-			>
-				<svg
-					width="14"
-					height="14"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					aria-hidden="true"><path d="M9 14L4 9l5-5" /><path d="M4 9h11a5 5 0 0 1 0 10h-3" /></svg
-				>
-			</button>
-			<button
-				type="button"
-				class="icon-btn"
-				aria-label={redoTitle}
-				title={redoTitle}
-				disabled={!projectStore.canRedo}
-				onclick={() => projectStore.redo()}
-			>
-				<svg
-					width="14"
-					height="14"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					aria-hidden="true"><path d="M15 14l5-5-5-5" /><path d="M20 9H9a5 5 0 0 0 0 10h3" /></svg
-				>
-			</button>
+			<!-- Undo and redo stay focusable while empty so the tooltip can say why they do nothing. -->
+			<Tip text={projectStore.canUndo ? undoTitle : t('ui.nothingToUndo')} key={key('edit.undo')}>
+				{#snippet children({ props })}
+					<button
+						{...props}
+						type="button"
+						class="icon-btn"
+						aria-label={undoTitle}
+						aria-disabled={projectStore.canUndo ? undefined : true}
+						{...describe(projectStore.canUndo ? undefined : t('ui.nothingToUndo'))}
+						onclick={() => runCommand('edit.undo')}
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							aria-hidden="true"
+							><path d="M9 14L4 9l5-5" /><path d="M4 9h11a5 5 0 0 1 0 10h-3" /></svg
+						>
+					</button>
+				{/snippet}
+			</Tip>
+			<Tip text={projectStore.canRedo ? redoTitle : t('ui.nothingToRedo')} key={key('edit.redo')}>
+				{#snippet children({ props })}
+					<button
+						{...props}
+						type="button"
+						class="icon-btn"
+						aria-label={redoTitle}
+						aria-disabled={projectStore.canRedo ? undefined : true}
+						{...describe(projectStore.canRedo ? undefined : t('ui.nothingToRedo'))}
+						onclick={() => runCommand('edit.redo')}
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							aria-hidden="true"
+							><path d="M15 14l5-5-5-5" /><path d="M20 9H9a5 5 0 0 0 0 10h3" /></svg
+						>
+					</button>
+				{/snippet}
+			</Tip>
 		</div>
 
 		<div class="group-box">
-			<button
-				type="button"
-				class="icon-btn"
-				aria-label={t('ui.zoomOut')}
-				title={t('ui.zoomOut')}
-				onclick={() => zoomBy(1 / 1.2)}>−</button
-			>
-			<button
-				type="button"
-				class="icon-btn w-auto px-1 text-[13px] tabular-nums"
-				aria-label={t('ui.zoomReset')}
-				title={t('ui.zoomReset')}
-				onclick={zoomReset}
-			>
-				{t('ui.zoomLevel', { percent: Math.round(ui.zoom * 100) })}
-			</button>
-			<button
-				type="button"
-				class="icon-btn"
-				aria-label={t('ui.zoomIn')}
-				title={t('ui.zoomIn')}
-				onclick={() => zoomBy(1.2)}>+</button
-			>
+			<Tip text={t('ui.zoomOut')} key={key('zoom.out')}>
+				{#snippet children({ props })}
+					<button
+						{...props}
+						type="button"
+						class="icon-btn"
+						aria-label={t('ui.zoomOut')}
+						onclick={() => zoomBy(1 / 1.2)}>−</button
+					>
+				{/snippet}
+			</Tip>
+			<Tip text={t('ui.zoomReset')} key={key('zoom.reset')}>
+				{#snippet children({ props })}
+					<button
+						{...props}
+						type="button"
+						class="icon-btn w-auto px-1 text-[13px] tabular-nums"
+						aria-label={t('ui.zoomReset')}
+						onclick={zoomReset}
+					>
+						{t('ui.zoomLevel', { percent: Math.round(ui.zoom * 100) })}
+					</button>
+				{/snippet}
+			</Tip>
+			<Tip text={t('ui.zoomIn')} key={key('zoom.in')}>
+				{#snippet children({ props })}
+					<button
+						{...props}
+						type="button"
+						class="icon-btn"
+						aria-label={t('ui.zoomIn')}
+						onclick={() => zoomBy(1.2)}>+</button
+					>
+				{/snippet}
+			</Tip>
 		</div>
 
-		<button
-			type="button"
-			class="group-box h-8 px-3 text-[13px] font-medium text-chrome-text hover:bg-chrome-surface"
-			title={t('ui.exportTitle')}
-			onclick={() => (ui.exportOpen = true)}
-		>
-			{t('ui.export')}
-		</button>
-		<button
-			type="button"
-			class="group-box icon-btn"
-			aria-label={t('ui.palette')}
-			title={t('ui.paletteTitle')}
-			onclick={() => (ui.paletteOpen = true)}
-		>
-			<svg
-				width="14"
-				height="14"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7" /></svg
-			>
-		</button>
+		<Tip text={t('export.title')} key={key('file.export')}>
+			{#snippet children({ props })}
+				<button
+					{...props}
+					type="button"
+					class="group-box h-8 px-3 text-[13px] font-medium text-chrome-text hover:bg-chrome-surface"
+					onclick={() => runCommand('file.export')}
+				>
+					{t('ui.export')}
+				</button>
+			{/snippet}
+		</Tip>
+		<Tip text={t('ui.palette')} key={key('view.palette')}>
+			{#snippet children({ props })}
+				<button
+					{...props}
+					type="button"
+					class="group-box icon-btn"
+					aria-label={t('ui.palette')}
+					onclick={() => runCommand('view.palette')}
+				>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7" /></svg
+					>
+				</button>
+			{/snippet}
+		</Tip>
 	</div>
 </header>
 

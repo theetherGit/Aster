@@ -3,6 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { hairline } from '#lib/actions/hairline.ts';
+	import { byId } from '#lib/app/commands.svelte.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import { contentRects } from '#lib/export/svg.ts';
 	import { aster } from '#lib/figures/aster.ts';
 	import { t } from '#lib/i18n/index.ts';
@@ -38,14 +40,23 @@
 	// sizes from the same metrics the canvas uses, since no canvas is on this page.
 	let sampleThumb = $state<string>();
 	let newButton: HTMLButtonElement;
+	// Keys from the registry, formatted for the platform (⌘ on macOS, Ctrl elsewhere).
+	const key = (id: string) => {
+		const k = byId(id)?.keys[0];
+		return k ? format(k) : '';
+	};
+	// "3 min ago" in Recent has to move; a 30 s tick keeps it honest while the page is up.
+	let now = $state(Date.now());
 	onMount(() => {
 		newButton.focus();
 		loadRecent();
+		const timer = setInterval(() => (now = Date.now()), 30_000);
 		const sample = sampleProject();
 		const diagram = sample.diagrams[0];
 		thumbnailOf(sample, diagram.id, contentRects(sample, diagram), 560).then(
 			(png) => (sampleThumb = png)
 		);
+		return () => clearInterval(timer);
 	});
 
 	// `.mdj` and `.aster` in the tagline are set in monospace, as on the board.
@@ -75,14 +86,14 @@
 					onclick={() => goto(resolve('/design/[slug]', { slug: 'new' }))}
 				>
 					<span>{t('welcome.new')}</span>
-					<kbd>{t('file.newShortcut')}</kbd>
+					<kbd>{key('file.new')}</kbd>
 				</button>
 				<button type="button" class="action" onclick={open}>
 					<span class="inline-flex items-baseline gap-1.5">
 						<span>{t('welcome.open')}</span>
 						<span class="text-[12.5px] text-chrome-muted">{t('welcome.openFormats')}</span>
 					</span>
-					<kbd>{t('file.openShortcut')}</kbd>
+					<kbd>{key('file.open')}</kbd>
 				</button>
 			</div>
 			<p class="mt-2.5 text-[12.5px] text-chrome-muted">{t('welcome.openHint')}</p>
@@ -150,11 +161,14 @@
 									<span class="thumb" aria-hidden="true">
 										{#if r.thumbnail}<img src={r.thumbnail} alt="" />{/if}
 									</span>
-									<span class="min-w-0 flex-1 truncate text-left">{r.fileName ?? r.name}</span>
+									<span class="min-w-0 flex-1 truncate text-left" title={r.fileName ?? r.name}
+										>{r.fileName ?? r.name}</span
+									>
 									<span class="text-[11.5px] text-chrome-muted"
 										>{r.fileName ? '' : t('welcome.inBrowser')}</span
 									>
-									<span class="w-14 text-right text-[12px] text-chrome-muted">{ago(r.at)}</span>
+									<span class="w-14 text-right text-[12px] text-chrome-muted">{ago(r.at, now)}</span
+									>
 								</button>
 							</li>
 						{/each}
@@ -302,7 +316,7 @@
 		border-top: 1px solid var(--chrome-border);
 	}
 	.link {
-		color: var(--accent);
+		color: var(--accent-text);
 		text-decoration: underline;
 	}
 	.right {

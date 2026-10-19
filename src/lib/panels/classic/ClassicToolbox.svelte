@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { COMMANDS } from '#lib/app/commands.svelte.ts';
+	import { Toolbar } from 'bits-ui';
+	import { runCommand } from '#lib/app/commands.svelte.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { RelationshipKind } from '#lib/model/types.ts';
 	import { ui, type Tool } from '#lib/stores/ui.svelte.ts';
+	import Tip from '../Tip.svelte';
 
 	// Board 03: tools by group with labels, as StarUML lists them. Element tools are the Modern
 	// toolbox's; a relationship tool is the Link tool with that kind preset for the picker.
+	// One toolbar (arrow keys walk every tool), three labelled groups inside it.
 	const ELEMENTS: { tool: Tool; label: string; ready: boolean }[] = [
 		{ tool: 'class', label: t('ui.tool.class'), ready: true },
 		{ tool: 'interface', label: t('ui.tool.interface'), ready: true },
@@ -21,56 +24,69 @@
 		'dependency'
 	];
 	const dashed = (k: RelationshipKind) => k === 'realization' || k === 'dependency';
-	const note = () => COMMANDS.find((c) => c.id === 'create.note')?.run();
+	const note = () => runCommand('create.note');
 	const pick = (tool: Tool) => {
 		ui.tool = ui.tool === tool ? 'select' : tool;
 		if (ui.pinned !== ui.tool) ui.pinned = null;
 	};
-	/** StarUML's lock: a double-clicked tool keeps placing until Esc. */
-	const pin = (tool: Tool) => ((ui.tool = tool), (ui.pinned = tool));
+	/** StarUML's lock: a double-clicked tool keeps placing until Esc; the registry's `tool.pin`. */
+	const pin = (tool: Tool) => {
+		ui.tool = tool;
+		if (ui.pinned !== tool) runCommand('tool.pin');
+	};
 	const pickRel = (kind: RelationshipKind) => {
+		const same = ui.tool === 'link' && ui.lastRelationshipKind === kind;
 		ui.lastRelationshipKind = kind;
-		ui.tool = ui.tool === 'link' && ui.lastRelationshipKind === kind ? 'select' : 'link';
+		ui.tool = same ? 'select' : 'link';
 	};
 </script>
 
 <section aria-labelledby="classic-toolbox-title" class="min-h-0 flex-1 overflow-auto">
 	<h2 id="classic-toolbox-title" class="panel-title">{t('ui.toolbox')}</h2>
-	<div role="toolbar" aria-label={t('ui.toolbox')} aria-orientation="vertical" class="pb-2">
-		<p class="group">{t('classic.group.annotations')}</p>
-		<button type="button" class="tool" onclick={note}>
-			<span class="glyph rect" aria-hidden="true"></span>{t('ui.kind.note')}
-		</button>
-		<p class="group">{t('classic.group.classDiagram')}</p>
-		{#each ELEMENTS as e (e.tool)}
-			<button
-				type="button"
-				class="tool"
-				aria-pressed={ui.tool === e.tool}
-				aria-label={ui.pinned === e.tool ? t('ui.toolPinned', { tool: e.label }) : undefined}
-				data-pinned={ui.pinned === e.tool || undefined}
-				disabled={!e.ready}
-				title={e.ready ? t('ui.pinHint', { tool: e.label }) : t('ui.comingSoon')}
-				onclick={() => pick(e.tool)}
-				ondblclick={() => e.ready && pin(e.tool)}
-			>
-				<span class="glyph {e.tool}" aria-hidden="true"></span>{e.label}
-			</button>
-		{/each}
-		<p class="group">{t('classic.group.relationships')}</p>
-		{#each RELS as kind (kind)}
-			<button
-				type="button"
-				class="tool"
-				aria-pressed={ui.tool === 'link' && ui.lastRelationshipKind === kind}
-				onclick={() => pickRel(kind)}
-			>
-				<span class="glyph line" class:dashed={dashed(kind)} aria-hidden="true"></span>{t(
-					`ui.rel.${kind}`
-				)}
-			</button>
-		{/each}
-	</div>
+	<Toolbar.Root orientation="vertical" aria-label={t('ui.toolbox')} class="pb-2">
+		<div role="group" aria-labelledby="classic-group-annotations">
+			<p id="classic-group-annotations" class="group">{t('classic.group.annotations')}</p>
+			<Toolbar.Button class="classic-tool" onclick={note}>
+				<span class="glyph rect" aria-hidden="true"></span>{t('ui.kind.note')}
+			</Toolbar.Button>
+		</div>
+		<div role="group" aria-labelledby="classic-group-class">
+			<p id="classic-group-class" class="group">{t('classic.group.classDiagram')}</p>
+			{#each ELEMENTS as e (e.tool)}
+				<Tip text={e.ready ? t('ui.pinHint', { tool: e.label }) : t('ui.comingSoon')}>
+					{#snippet children({ props })}
+						<Toolbar.Button
+							{...props}
+							class="classic-tool"
+							aria-pressed={ui.tool === e.tool}
+							aria-label={ui.pinned === e.tool ? t('ui.toolPinned', { tool: e.label }) : undefined}
+							aria-disabled={e.ready ? undefined : true}
+							data-pinned={ui.pinned === e.tool || undefined}
+							onclick={() => e.ready && pick(e.tool)}
+							ondblclick={() => e.ready && pin(e.tool)}
+						>
+							<span class="glyph {e.tool}" aria-hidden="true"></span>{e.label}
+							{#if !e.ready}<span class="sr-only">{t('ui.comingSoon')}</span>{/if}
+						</Toolbar.Button>
+					{/snippet}
+				</Tip>
+			{/each}
+		</div>
+		<div role="group" aria-labelledby="classic-group-rels">
+			<p id="classic-group-rels" class="group">{t('classic.group.relationships')}</p>
+			{#each RELS as kind (kind)}
+				<Toolbar.Button
+					class="classic-tool"
+					aria-pressed={ui.tool === 'link' && ui.lastRelationshipKind === kind}
+					onclick={() => pickRel(kind)}
+				>
+					<span class="glyph line" class:dashed={dashed(kind)} aria-hidden="true"></span>{t(
+						`ui.rel.${kind}`
+					)}
+				</Toolbar.Button>
+			{/each}
+		</div>
+	</Toolbar.Root>
 </section>
 
 <style>
@@ -82,7 +98,7 @@
 		color: var(--chrome-muted);
 		text-transform: uppercase;
 	}
-	.tool {
+	:global(.classic-tool) {
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -91,20 +107,29 @@
 		padding: 0 8px;
 		font-size: 12.5px;
 		color: var(--chrome-text);
-		border-left: 3px solid transparent;
+		border-left: 2px solid transparent;
 	}
-	.tool:hover:not(:disabled) {
+	:global(.classic-tool:hover:not([aria-disabled])) {
 		background: var(--chrome-surface);
 	}
-	.tool[aria-pressed='true'] {
+	:global(.classic-tool[aria-pressed='true']) {
 		background: color-mix(in srgb, var(--accent) 12%, var(--chrome-bg));
 		border-left-color: var(--accent);
 	}
-	.tool[data-pinned] {
+	:global(.classic-tool[data-pinned]) {
 		box-shadow: inset 0 0 0 1px var(--accent);
 	}
-	.tool:disabled {
+	:global(.classic-tool[aria-disabled]) {
 		color: var(--chrome-muted);
+	}
+	@media (forced-colors: active) {
+		:global(.classic-tool[aria-pressed='true']) {
+			border-left-color: Highlight;
+		}
+		:global(.classic-tool[data-pinned]) {
+			outline: 2px solid Highlight;
+			outline-offset: -2px;
+		}
 	}
 	.glyph {
 		display: inline-block;

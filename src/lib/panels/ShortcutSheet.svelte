@@ -30,11 +30,16 @@
 	// row with the arrows as one key, and in general merges rows that share a label.
 	const ARROWS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 	const mods = (k: Shortcut) => `${!!k.mod}/${!!k.shift}/${!!k.alt}`;
+	const bare = (k: Shortcut) => !k.mod && !k.shift && !k.alt;
 	function collapse(keys: Shortcut[]): Shortcut[] {
 		const codes = new Set(keys.map((k) => k.code));
 		const same = new Set(keys.map(mods)).size === 1;
 		if (same && codes.size === 4 && ARROWS.every((c) => codes.has(c)))
 			return [{ ...keys[0], code: 'Arrows' }];
+		// Two bare digits are the ends of a range (the picker's 1–6): one key, not two.
+		const digits = keys.map((k) => /^Digit(\d)$/.exec(k.code)?.[1]);
+		if (keys.length === 2 && keys.every(bare) && digits.every(Boolean))
+			return [{ code: `${digits[0]}–${digits[1]}` }];
 		return keys;
 	}
 	function merged(items: AppCommand[]) {
@@ -99,8 +104,16 @@
 					/>
 				</div>
 			{/if}
-			<div class="scroller mt-3 min-h-0 flex-1 overflow-auto">
-				<div class="grid grid-cols-3 gap-6">
+			<!-- A focusable region so the list scrolls from the keyboard (axe scrollable-region-focusable);
+			     columns reflow at 900 px and 200 %. -->
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+			<div
+				class="scroller mt-3 min-h-0 flex-1 overflow-auto"
+				role="region"
+				aria-label={t('sheet.list')}
+				tabindex="0"
+			>
+				<div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
 					{#each COLUMNS as column, ci (ci)}
 						<div>
 							{#each column as group (group)}
@@ -109,7 +122,7 @@
 									<h3 class="section mt-3 first:mt-0">{t(`group.${group}` as MessageKey)}</h3>
 									{#each items as c (c.id)}
 										<div class="flex h-7 items-center gap-2 text-[13px]">
-											<span class="min-w-0 flex-1 truncate">{c.label}</span>
+											<span class="min-w-0 flex-1 truncate" title={c.label}>{c.label}</span>
 											{#if c.staruml}<span class="star" aria-hidden="true"></span><span
 													class="sr-only">{t('sheet.starumlKey')}</span
 												>{/if}

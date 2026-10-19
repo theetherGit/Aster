@@ -14,18 +14,24 @@ test('⌘⇧L switches to Classic: StarUML panels, yellow classes, selection and
 
 	await canvasOf(page).focus();
 	await page.keyboard.press('ControlOrMeta+Shift+l');
-	const menubar = page.getByRole('menubar', { name: 'Menu' });
+	const menubar = page.getByRole('menubar', { name: 'Menu bar' });
 	await expect(menubar).toBeVisible();
 	for (const m of ['File', 'Edit', 'Format', 'Model', 'View', 'Help'])
 		await expect(menubar.getByRole('menuitem', { name: m })).toBeVisible();
 	await expect(page.getByRole('toolbar', { name: 'Toolbar' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Working Diagrams' })).toBeVisible();
-	await expect(page.getByRole('option', { name: 'Main' })).toHaveAttribute('aria-selected', 'true');
-	await expect(page.getByRole('toolbar', { name: 'Toolbox' })).toContainText('Annotations');
-	await expect(page.getByRole('toolbar', { name: 'Toolbox' })).toContainText('Relationships');
+	// A plain list of buttons marks the open diagram (no listbox: it has no option children or arrows).
 	await expect(
-		page.getByRole('complementary', { name: 'Model Explorer', exact: true })
-	).toBeVisible();
+		page.getByRole('list', { name: 'Diagrams' }).getByRole('button', { name: 'Main' })
+	).toHaveAttribute('aria-current', 'true');
+	const toolbox = page.getByRole('toolbar', { name: 'Toolbox' });
+	for (const group of ['Annotations', 'Class diagram', 'Relationships'])
+		await expect(toolbox.getByRole('group', { name: group })).toBeVisible();
+	// Package is not built: focusable, aria-disabled, and the reason is in its name.
+	const pkg = toolbox.getByRole('button', { name: /Package/ });
+	await expect(pkg).toHaveAttribute('aria-disabled', 'true');
+	await expect(pkg).toHaveAccessibleName(/Coming soon/);
+	await expect(page.getByRole('region', { name: 'Model Explorer', exact: true })).toBeVisible();
 	const editors = page.getByRole('complementary', { name: 'Editors', exact: true });
 	for (const tab of ['Style', 'Property', 'Documentation'])
 		await expect(editors.getByRole('tab', { name: tab })).toBeVisible();
@@ -37,9 +43,11 @@ test('⌘⇧L switches to Classic: StarUML panels, yellow classes, selection and
 	expect(fill).toBe('rgb(255, 255, 224)');
 	expect(await page.evaluate(() => document.documentElement.dataset.layout)).toBe('classic');
 
-	// Selection and zoom survived the switch.
+	// Selection and zoom survived the switch; the zoom button is named by what it shows.
 	await expect(node(page, 'Account')).toHaveClass(/selected/);
-	await expect(page.getByRole('button', { name: 'Zoom to 100%' })).toHaveText('120%');
+	await expect(
+		page.getByRole('toolbar', { name: 'Toolbar' }).getByRole('button', { name: '120%' })
+	).toBeVisible();
 
 	// StarUML's panel toggles, only here: ⌘6 Editors, ⌘1 Sidebar.
 	await canvasOf(page).focus();
@@ -53,7 +61,7 @@ test('⌘⇧L switches to Classic: StarUML panels, yellow classes, selection and
 
 	// Remembered across a reload.
 	await page.reload();
-	await expect(page.getByRole('menubar', { name: 'Menu' })).toBeVisible();
+	await expect(page.getByRole('menubar', { name: 'Menu bar' })).toBeVisible();
 
 	// Back to Modern, state still intact.
 	await canvasOf(page).focus();
@@ -69,7 +77,7 @@ test('the Classic menus come from the registry and run commands', async ({ page 
 	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	await page.keyboard.press('ControlOrMeta+Shift+l');
-	const menubar = page.getByRole('menubar', { name: 'Menu' });
+	const menubar = page.getByRole('menubar', { name: 'Menu bar' });
 	await menubar.getByRole('menuitem', { name: 'File' }).click();
 	const file = page.getByRole('menu');
 	await expect(file.getByRole('menuitem', { name: /New diagram/ })).toHaveText(/⌘N|Ctrl\+N/); // per platform
@@ -94,4 +102,36 @@ test('the Classic menus come from the registry and run commands', async ({ page 
 	await page.keyboard.press('ControlOrMeta+1');
 	await expect(page.getByRole('complementary', { name: 'Sidebar' })).toHaveCount(0);
 	await expect(page.getByRole('tablist', { name: 'Diagrams' })).toBeVisible();
+});
+
+test('the Classic toolbox: a relationship tool is Link with that kind, and switching kinds keeps Link', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+Shift+l');
+	const rels = page.getByRole('toolbar', { name: 'Toolbox' }).getByRole('group', {
+		name: 'Relationships'
+	});
+	const association = rels.getByRole('button', { name: 'Association' });
+	const aggregation = rels.getByRole('button', { name: 'Aggregation' });
+	await association.click();
+	await expect(association).toHaveAttribute('aria-pressed', 'true');
+	// Another kind re-targets the Link tool; it does not drop back to Select.
+	await aggregation.click();
+	await expect(aggregation).toHaveAttribute('aria-pressed', 'true');
+	await expect(association).toHaveAttribute('aria-pressed', 'false');
+	// The same kind again is the toggle off.
+	await aggregation.click();
+	await expect(aggregation).toHaveAttribute('aria-pressed', 'false');
+
+	// Tooltips carry the label and the platform key, on focus without a delay.
+	const toolbar = page.getByRole('toolbar', { name: 'Toolbar' });
+	await toolbar.getByRole('button', { name: 'New diagram' }).focus();
+	await expect(page.getByRole('tooltip')).toHaveText(/New diagram(⌘N|Ctrl\+N)/);
+	// Undo is empty: still focusable, and it says why.
+	const undo = toolbar.getByRole('button', { name: 'Undo' });
+	await undo.focus();
+	await expect(undo).toHaveAttribute('aria-disabled', 'true');
+	await expect(page.getByRole('tooltip')).toHaveText(/Nothing to undo/);
 });

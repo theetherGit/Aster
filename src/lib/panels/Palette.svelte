@@ -96,7 +96,12 @@
 					/>
 					{#if actsOn}<span class="shrink-0 text-[12px] text-chrome-muted">{actsOn}</span>{/if}
 				</div>
-				<Command.List class="max-h-[50vh] overflow-auto p-1" aria-label={t('palette.list')}>
+				<!-- Focusable so the scrolling list is keyboard-scrollable; arrows still walk the rows. -->
+				<Command.List
+					class="max-h-[50vh] overflow-auto p-1"
+					aria-label={t('palette.list')}
+					tabindex={0}
+				>
 					<Command.Viewport>
 						<Command.Empty class="px-3 py-5">
 							<EmptyState
@@ -120,7 +125,7 @@
 												value={c.label()}
 												keywords={[c.id, group]}
 												onSelect={() => run(c)}
-												class="flex h-8 items-center gap-3 rounded-[6px] px-2 text-[13px] data-selected:bg-accent/15"
+												class="flex h-8 items-center gap-3 rounded-[6px] px-2 text-[13px] data-selected:bg-(--selection-tint)"
 											>
 												<span class="min-w-0 flex-1 truncate">{c.label()}</span>
 												{#if stateText(c)}<span class="text-[12px] text-chrome-muted"

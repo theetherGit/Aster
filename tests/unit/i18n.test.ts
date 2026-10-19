@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { pseudolocalise, t } from '#lib/i18n/index.ts';
 import en from '#lib/i18n/en.json';
 import { locale, localeFromUrl } from '#lib/i18n/locale.svelte.ts';
+import { format, parse } from '#lib/app/shortcuts.ts';
 
 afterEach(() => {
 	locale.current = 'en';
@@ -34,5 +35,26 @@ describe('i18n', () => {
 		expect(localeFromUrl(new URL('https://x.test/?locale=pseudo'))).toBe('pseudo');
 		expect(localeFromUrl(new URL('https://x.test/?locale=fr'))).toBe('en');
 		expect(localeFromUrl(new URL('https://x.test/'))).toBe('en');
+	});
+});
+
+describe('keys in copy come from the platform formatter', () => {
+	it('formats ⌘ as Ctrl off macOS', () => {
+		expect(format(parse('⌘N'), false)).toBe('Ctrl+N');
+		expect(format(parse('⌘⇧E'), false)).toBe('Ctrl+Shift+E');
+		expect(format(parse('⌘N'), true)).toBe('⌘N');
+	});
+
+	it('the welcome, project menu, top bar, export sheet and Classic chrome embed no ⌘', () => {
+		// `file.openShortcut` and `welcome.sampleStrip` belong to the empty hint and the sample strip.
+		const prefixes = ['welcome.', 'ui.', 'export.', 'classic.'];
+		const exact = ['file.new', 'file.open', 'file.save', 'file.saveAs'];
+		const offenders = (Object.keys(en) as (keyof typeof en)[]).filter(
+			(k) =>
+				(prefixes.some((p) => k.startsWith(p)) || exact.includes(k)) &&
+				k !== 'welcome.sampleStrip' &&
+				en[k].includes('⌘')
+		);
+		expect(offenders).toEqual([]);
 	});
 });
