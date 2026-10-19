@@ -1,7 +1,20 @@
 {
-	// Cloudflare Pages: build command `pnpm build`, output directory `build`.
-	"$schema": "node_modules/wrangler/config-schema.json",
+	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "aster",
-	"compatibility_date": "2026-10-17",
-	"pages_build_output_dir": "build"
+	"compatibility_date": "2026-10-19",
+	"assets": {
+		"directory": "./build",
+		// `404.html` is adapter-static's shell for `/design/<slug>`; it loads the editor on the client.
+		// "single-page-application" would serve the prerendered welcome, whose relative asset paths
+		// break under `/design/`, so the editor never loads (DECISIONS.md, 2026-10-19).
+		"not_found_handling": "404-page"
+	},
+	"routes": [{ "pattern": "asteruml.app", "custom_domain": true }],
+	"observability": {
+		"logs": {
+			"enabled": true,
+			"invocation_logs": true,
+			"persist": true
+		}
+	}
 }
