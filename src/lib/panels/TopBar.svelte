@@ -89,7 +89,7 @@
 	<!-- Many tabs scroll sideways (no scrollbar chrome) rather than pushing the controls off the bar. -->
 	<Tabs.List
 		aria-label={t('ui.diagrams')}
-		class="ms-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto"
+		class="ms-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto overflow-y-hidden"
 	>
 		{#each projectStore.project.diagrams as d (d.id)}
 			{#if ui.renaming === d.id}

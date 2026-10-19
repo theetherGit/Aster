@@ -47,10 +47,13 @@ body {
 	background: var(--chrome-bg);
 }
 
-/* Scrollbars follow the theme (owner's request): thin, the thumb on the 3:1 edge token, no track. */
-* {
-	scrollbar-width: thin;
-	scrollbar-color: var(--control-border) transparent;
+/* Scrollbars follow the theme (owner's request): thin, the thumb on the 3:1 edge token, no track.
+   In the base layer, so a component's own utility (the tab strip's scrollbar-width: none) wins. */
+@layer base {
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--control-border) transparent;
+	}
 }
 
 :focus-visible {

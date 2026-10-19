@@ -146,4 +146,8 @@ test('the tab row stays put while the panel scrolls; scrollbars are thin and the
 	expect(await inspector.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
 	expect((await tabs.boundingBox())!.y).toBe(top);
 	await expect(inspector).toHaveCSS('scrollbar-width', 'thin');
+	// The diagram tabs scroll sideways only, with no bar of their own (owner's report).
+	const strip = page.getByRole('tablist', { name: 'Diagrams' });
+	await expect(strip).toHaveCSS('scrollbar-width', 'none');
+	await expect(strip).toHaveCSS('overflow-y', 'hidden');
 });
