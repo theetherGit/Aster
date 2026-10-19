@@ -31,6 +31,7 @@
 	import NoteInspector from './NoteInspector.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
 	import RelationshipList from './RelationshipList.svelte';
+	import { menu, menuItem } from '#lib/ui/styles.ts';
 
 	// Modern: the 300 px inspector with its rail. Classic: StarUML's Editors, tabs Style /
 	// Property / Documentation over the same fields (board 03).
@@ -141,9 +142,9 @@
 					aria-label={classic ? t('classic.editors') : t('inspector.title')}
 				>
 					{#if classic}
-						<Tab value="diagram">{t('classic.tab.style')}</Tab>
-						<Tab value="properties">{t('classic.tab.property')}</Tab>
-						<Tab value="documentation">{t('classic.tab.documentation')}</Tab>
+						<Tab value="diagram" class="px-2">{t('classic.tab.style')}</Tab>
+						<Tab value="properties" class="px-2">{t('classic.tab.property')}</Tab>
+						<Tab value="documentation" class="px-2">{t('classic.tab.documentation')}</Tab>
 					{:else}
 						<!-- The Text tab (ui.md) arrives with the Text view in M2; no placeholder until then. -->
 						<Tab value="properties">{t('inspector.tab.properties')}</Tab>
@@ -191,10 +192,10 @@
 							/>
 						</Select.Trigger>
 						<Select.Portal>
-							<Select.Content class="menu" sideOffset={4}>
+							<Select.Content class={menu} sideOffset={4}>
 								<Select.Viewport>
 									{#each kindItems as item (item.value)}
-										<Select.Item value={item.value} label={item.label} class="menu-item"
+										<Select.Item value={item.value} label={item.label} class={menuItem}
 											>{item.label}</Select.Item
 										>
 									{/each}
@@ -347,8 +348,5 @@
 		font-size: var(--text-small);
 		font-weight: 600;
 		color: var(--chrome-text);
-	}
-	:global(.editors-tabs .tab) {
-		padding: 0 var(--space-2);
 	}
 </style>

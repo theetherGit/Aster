@@ -16,6 +16,7 @@
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import Tab from '#lib/ui/atoms/Tab.svelte';
+	import { menu } from '#lib/ui/styles.ts';
 
 	// useSvelteFlow() copies zoomIn/zoomOut from the store it sees first, which is the
 	// provider's placeholder until the canvas mounts; setZoom/getZoom read the live store.
@@ -101,13 +102,14 @@
 				/>
 			{:else}
 				<!-- The tab and, on hover or focus within, its delete button (24 px, outside the tab button). -->
-				<span class="group relative flex shrink-0 items-stretch" class:deletable={canDelete}>
+				<span class="group relative flex shrink-0 items-stretch">
 					<ContextMenu.Root>
 						<ContextMenu.Trigger>
 							{#snippet child({ props })}
 								<Tab
 									{...props}
 									value={d.id}
+									class="-mb-px h-auto self-stretch {canDelete ? 'pr-8' : ''}"
 									ondblclick={() => rename(d.id)}
 									onkeydown={(e: KeyboardEvent) => {
 										if (e.key === 'F2') {
@@ -121,7 +123,7 @@
 							{/snippet}
 						</ContextMenu.Trigger>
 						<ContextMenu.Portal>
-							<ContextMenu.Content class="menu">
+							<ContextMenu.Content class={menu}>
 								<MenuItem
 									kind="context"
 									icon="pencil"
@@ -252,16 +254,6 @@
 		color: var(--on-accent);
 		background: var(--accent-fill);
 		border-radius: var(--control-radius);
-	}
-	/* The tabs fill the bar's height so the underline sits on its bottom edge, and a deletable tab
-	   keeps room on its right for the × that floats over it. */
-	header :global(.tab) {
-		height: auto;
-		margin-bottom: -1px;
-		align-self: stretch;
-	}
-	.deletable :global(.tab) {
-		padding-right: var(--space-8);
 	}
 	/* A bordered pill holding one or more 28 px controls; the edge is a control edge (3:1), not a separator. */
 	.group-box {

@@ -24,8 +24,13 @@
 	} = $props();
 </script>
 
-<div class="head">
-	<h2 class="title" {id}>{title}</h2>
+<div class="flex items-center justify-between gap-2 pr-2 pl-4">
+	<h2
+		class="py-3 text-(length:--text-caption) font-semibold tracking-[0.05em] text-chrome-muted uppercase"
+		{id}
+	>
+		{title}
+	</h2>
 	{#if children}{@render children()}{/if}
 	<IconButton
 		label={closeLabel}
@@ -35,21 +40,3 @@
 		onclick={onclose}
 	/>
 </div>
-
-<style>
-	.head {
-		display: flex;
-		gap: var(--space-2);
-		align-items: center;
-		justify-content: space-between;
-		padding: 0 var(--space-2) 0 var(--space-4);
-	}
-	.title {
-		padding: var(--space-3) 0;
-		font-size: var(--text-caption);
-		font-weight: 600;
-		letter-spacing: 0.05em;
-		color: var(--chrome-muted);
-		text-transform: uppercase;
-	}
-</style>

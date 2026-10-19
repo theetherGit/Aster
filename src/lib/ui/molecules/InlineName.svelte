@@ -1,6 +1,9 @@
 <script lang="ts">
-	// One in-place name editor for the project name and the diagram tabs: Enter commits, Esc
-	// reverts, leaving commits; a blank name is not a rename. `ondone` runs once, after either.
+	import { cn } from 'cn';
+	import { field } from '../styles.ts';
+
+	// Molecule: one in-place name editor for the project name and the diagram tabs: Enter commits,
+	// Esc reverts, leaving commits; a blank name is not a rename. `ondone` runs once, after either.
 	let {
 		value,
 		label,
@@ -39,7 +42,7 @@
 </script>
 
 <input
-	class="field {cls}"
+	class={cn(field, cls)}
 	type="text"
 	aria-label={label}
 	bind:value={draft}

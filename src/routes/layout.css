@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 @import './fonts.css';
 @import '../lib/ui/tokens.css';
-@import '../lib/ui/base.css';
 
 /* Forced colours (Windows high contrast): let the system palette through, keep the one outline that carries meaning. */
 @media (forced-colors: active) {

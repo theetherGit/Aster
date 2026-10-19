@@ -190,6 +190,10 @@
 	--color-danger: var(--danger);
 	--color-paper-bg: var(--paper-bg);
 	--color-paper-ink: var(--paper-ink);
+	--color-paper-accent: var(--paper-accent);
+	--color-control-border: var(--control-border);
+	--color-selection: var(--selection-tint);
+	--color-hairline-hi: var(--hairline-hi);
 	--radius-control: var(--control-radius);
 	--font-sans: var(--font-chrome);
 	--font-mono: var(--font-mono);

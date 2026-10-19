@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cn } from 'cn';
 	import { Menubar } from 'bits-ui';
 	import { MENUS, menuItems } from '#lib/app/menus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
@@ -7,6 +8,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
+	import { menu as menuClass, menuItem } from '#lib/ui/styles.ts';
 
 	// Board 03: a 28 px menu bar generated from the command registry; the file name at the far end.
 	// Labels and `when` are read when a menu opens, so a toggle's state is always current.
@@ -20,12 +22,12 @@
 			<Menubar.Menu>
 				<Menubar.Trigger class="menubar-trigger">{t(menu.label)}</Menubar.Trigger>
 				<Menubar.Portal>
-					<Menubar.Content class="menu min-w-[240px]" sideOffset={2} align="start">
+					<Menubar.Content class={cn(menuClass, 'min-w-60')} sideOffset={2} align="start">
 						{#each menuItems(menu) as c (c.id)}
 							{#if c.state}
 								<!-- MenuItem has no checkbox kind: the Bits item keeps the atom's row class. -->
 								<Menubar.CheckboxItem
-									class="menu-item"
+									class={menuItem}
 									checked={c.state() ?? false}
 									disabled={c.when ? !c.when() : false}
 									onCheckedChange={() => c.run()}

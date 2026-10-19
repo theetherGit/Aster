@@ -6,6 +6,7 @@
 	import { flow } from '#lib/stores/flow.svelte.ts';
 	import { canvasFocus } from './focus.ts';
 	import { selection, sameTarget, type EditTarget } from '#lib/stores/selection.svelte.ts';
+	import { menuItem } from '#lib/ui/styles.ts';
 	import {
 		addLineBelow,
 		commitLine,
@@ -177,7 +178,7 @@
 			>
 				<Combobox.Viewport>
 					{#each options as option (option.value)}
-						<Combobox.Item value={option.value} label={option.value} class="menu-item"
+						<Combobox.Item value={option.value} label={option.value} class={menuItem}
 							>{option.label}</Combobox.Item
 						>
 					{/each}

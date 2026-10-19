@@ -51,34 +51,22 @@
 			confirm();
 		}}
 	>
-		<label for="confirm-name" class="mb-1 block text-[13px] text-chrome-muted">{prompt}</label>
+		<label for="confirm-name" class="mb-1 block text-(length:--text-body) text-chrome-muted"
+			>{prompt}</label
+		>
 		<Field
 			id="confirm-name"
-			class="h-9 w-full text-[14px]"
+			class="h-9 w-full text-(length:--text-field)"
 			autocomplete="off"
 			spellcheck={false}
 			bind:value={typed}
 		/>
-		<div class="sheet-actions">
+		<div class="mt-5 flex items-center justify-end gap-2">
 			<!-- type=button: inside the form, Enter must reach the confirm, not the first button. -->
 			<Button variant="ghost" onclick={() => (open = false)}>{cancelLabel}</Button>
-			<button type="submit" class="btn danger" disabled={!matches} data-testid="confirm-delete"
-				>{confirmLabel}</button
+			<Button variant="danger" type="submit" disabled={!matches} data-testid="confirm-delete"
+				>{confirmLabel}</Button
 			>
 		</div>
 	</form>
 </DialogFrame>
-
-<style>
-	.btn.danger {
-		height: var(--control-bar);
-		padding: 0 var(--space-3);
-		font-weight: 600;
-		color: var(--on-accent);
-		background: var(--danger);
-		border-radius: var(--control-radius);
-	}
-	.btn.danger:disabled {
-		opacity: 0.5;
-	}
-</style>

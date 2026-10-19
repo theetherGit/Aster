@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cn } from 'cn';
 	import { Select } from 'bits-ui';
 	import { tick } from 'svelte';
 	import { addMember, deleteMember, reorderMember, setMemberText } from '#lib/commands/index.ts';
@@ -18,6 +19,7 @@
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
+	import { field, menu, menuItem } from '#lib/ui/styles.ts';
 
 	let { classifier, kind }: { classifier: Classifier; kind: MemberKind } = $props();
 
@@ -113,7 +115,7 @@
 							onValueChange={(v: string) => setVisibility(m, v as Visibility)}
 						>
 							<Select.Trigger
-								class="field h-6 w-7 shrink-0 px-0 text-center font-mono"
+								class={cn(field, 'h-6 w-7 shrink-0 px-0 text-center font-mono')}
 								aria-label={t('inspector.memberVisibility', { name: m.name })}
 								aria-describedby={isRaw(m) ? `member-${m.id}-raw` : undefined}
 								disabled={isRaw(m)}
@@ -121,10 +123,10 @@
 								{SYMBOL[m.visibility]}
 							</Select.Trigger>
 							<Select.Portal>
-								<Select.Content class="menu" sideOffset={4}>
+								<Select.Content class={menu} sideOffset={4}>
 									<Select.Viewport>
 										{#each visItems as item (item.value)}
-											<Select.Item value={item.value} label={item.label} class="menu-item">
+											<Select.Item value={item.value} label={item.label} class={menuItem}>
 												{item.label}
 											</Select.Item>
 										{/each}

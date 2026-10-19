@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ToggleGroup } from 'bits-ui';
+	import { cn } from 'cn';
 
 	// Atom: a segmented control (Bits ToggleGroup, single). The on state is a tint, bold text and
 	// an accent underline so it survives forced colours; the edge is a control edge (3:1).
@@ -35,51 +36,20 @@
 	}}
 	aria-label={label}
 	{disabled}
-	class="segment {fill ? 'fill' : ''} {cls}"
+	class={cn(
+		'overflow-hidden rounded-control border border-control-border data-[disabled]:opacity-50',
+		fill
+			? 'grid auto-cols-fr grid-flow-col'
+			: 'inline-grid auto-cols-[minmax(44px,auto)] grid-flow-col',
+		cls
+	)}
 	{...rest}
 >
 	{#each items as item (item.value)}
-		<ToggleGroup.Item value={item.value} class="segment-item" aria-keyshortcuts={item.keys}
-			>{item.label}</ToggleGroup.Item
+		<ToggleGroup.Item
+			value={item.value}
+			class="h-(--control-bar) px-3 text-(length:--text-body) text-chrome-text not-first:border-l not-first:border-chrome-border data-[state=on]:bg-[color-mix(in_srgb,var(--accent)_14%,var(--chrome-surface))] data-[state=on]:font-semibold data-[state=on]:shadow-[inset_0_-2px_0_var(--accent)] forced-colors:data-[state=on]:outline-2 forced-colors:data-[state=on]:-outline-offset-2 forced-colors:data-[state=on]:outline-[Highlight]"
+			aria-keyshortcuts={item.keys}>{item.label}</ToggleGroup.Item
 		>
 	{/each}
 </ToggleGroup.Root>
-
-<style>
-	:global(.segment) {
-		display: inline-grid;
-		grid-auto-flow: column;
-		grid-auto-columns: minmax(44px, auto);
-		overflow: hidden;
-		border: 1px solid var(--control-border);
-		border-radius: var(--control-radius);
-	}
-	:global(.segment.fill) {
-		display: grid;
-		grid-auto-columns: 1fr;
-	}
-	:global(.segment-item) {
-		height: var(--control-bar);
-		padding: 0 var(--space-3);
-		font-size: var(--text-body);
-		color: var(--chrome-text);
-	}
-	:global(.segment-item + .segment-item) {
-		border-left: 1px solid var(--chrome-border);
-	}
-	:global(.segment-item[data-state='on']) {
-		font-weight: 600;
-		color: var(--chrome-text);
-		background: color-mix(in srgb, var(--accent) 14%, var(--chrome-surface));
-		box-shadow: inset 0 -2px 0 var(--accent);
-	}
-	:global(.segment[data-disabled]) {
-		opacity: 0.5;
-	}
-	@media (forced-colors: active) {
-		:global(.segment-item[data-state='on']) {
-			outline: 2px solid Highlight;
-			outline-offset: -2px;
-		}
-	}
-</style>

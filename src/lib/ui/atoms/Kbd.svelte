@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cn } from 'cn';
 	import type { Snippet } from 'svelte';
 
 	// Atom: a key cap. `quiet` is the inline hint in menus and buttons; the default is the cap
@@ -10,33 +11,11 @@
 	}: { quiet?: boolean; class?: string; children: Snippet } = $props();
 </script>
 
-<kbd class="kbd {cls}" class:quiet>{@render children()}</kbd>
-
-<style>
-	.kbd {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-width: 22px;
-		height: 22px;
-		padding: 0 5px;
-		font-family: var(--font-mono);
-		font-size: var(--text-caption);
-		line-height: 1;
-		white-space: nowrap;
-		color: var(--chrome-text);
-		background: var(--chrome-bg);
-		border: 1px solid var(--chrome-border);
-		border-bottom-width: 2px;
-		border-radius: 4px;
-	}
-	.quiet {
-		min-width: 0;
-		height: auto;
-		padding: 0;
-		font-family: var(--font-chrome);
-		color: var(--chrome-muted);
-		background: none;
-		border: 0;
-	}
-</style>
+<kbd
+	class={cn(
+		quiet
+			? 'font-sans text-(length:--text-caption) text-chrome-muted'
+			: 'inline-flex h-[22px] min-w-[22px] items-center justify-center rounded border border-b-2 border-chrome-border bg-chrome-bg px-[5px] font-mono text-(length:--text-caption) leading-none whitespace-nowrap text-chrome-text',
+		cls
+	)}>{@render children()}</kbd
+>

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Select } from 'bits-ui';
+	import { cn } from 'cn';
+	import { field, menu, menuItem } from '../styles.ts';
 
 	interface Props {
 		id?: string;
@@ -30,13 +32,13 @@
 	<Select.Trigger
 		{id}
 		aria-labelledby={ariaLabel ? `${id}-label ${id}` : undefined}
-		class="field truncate text-left whitespace-nowrap {className}">{current}</Select.Trigger
+		class={cn(field, 'truncate text-left whitespace-nowrap', className)}>{current}</Select.Trigger
 	>
 	<Select.Portal>
-		<Select.Content class="menu" sideOffset={4}>
+		<Select.Content class={menu} sideOffset={4}>
 			<Select.Viewport>
 				{#each items as item (item.value)}
-					<Select.Item value={item.value} label={item.label} class="menu-item"
+					<Select.Item value={item.value} label={item.label} class={menuItem}
 						>{item.label}</Select.Item
 					>
 				{/each}

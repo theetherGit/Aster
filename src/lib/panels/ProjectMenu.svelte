@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cn } from 'cn';
 	import { DropdownMenu } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import { tick } from 'svelte';
@@ -17,6 +18,7 @@
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import Separator from '#lib/ui/atoms/Separator.svelte';
+	import { menu, menuItem } from '#lib/ui/styles.ts';
 
 	// The rows are registry commands (label, key, run), so the menu never retypes a shortcut.
 	const ROWS = ['file.new', 'file.open', 'file.save', 'file.saveAs'].flatMap((id) => {
@@ -112,7 +114,7 @@
 			{/snippet}
 		</Tip>
 		<DropdownMenu.Portal>
-			<DropdownMenu.Content class="menu min-w-65" sideOffset={4} align="start">
+			<DropdownMenu.Content class={cn(menu, 'min-w-65')} sideOffset={4} align="start">
 				<MenuItem
 					icon="pencil"
 					label={t('ui.renameProject')}
@@ -130,7 +132,7 @@
 				{#if outline}
 					<!-- A checkbox row: the MenuItem atom has no checked state, so the Bits item keeps its dress class. -->
 					<DropdownMenu.CheckboxItem
-						class="menu-item"
+						class={menuItem}
 						checked={ui.panels.outline}
 						onCheckedChange={() => outline.run()}
 					>

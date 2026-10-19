@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { ContextMenu, DropdownMenu, Menubar } from 'bits-ui';
+	import { cn } from 'cn';
 	import type { Snippet } from 'svelte';
+	import { menuItem } from '../styles.ts';
 	import Icon, { type IconName } from './Icon.svelte';
 	import Kbd from './Kbd.svelte';
 
@@ -13,6 +15,7 @@
 		keys,
 		disabled = false,
 		onSelect,
+		class: cls = '',
 		children,
 		...rest
 	}: {
@@ -22,6 +25,7 @@
 		keys?: string;
 		disabled?: boolean;
 		onSelect?: () => void;
+		class?: string;
 		children?: Snippet;
 		[key: string]: unknown;
 	} = $props();
@@ -30,33 +34,8 @@
 	);
 </script>
 
-<Item class="menu-item" {disabled} {onSelect} {...rest}>
+<Item class={cn(menuItem, cls)} {disabled} {onSelect} {...rest}>
 	{#if icon}<Icon name={icon} class="text-chrome-muted" />{/if}
 	{#if children}{@render children()}{:else}<span>{label}</span>{/if}
 	{#if keys}<Kbd quiet class="ml-auto">{keys}</Kbd>{/if}
 </Item>
-
-<style>
-	:global(.menu-item) {
-		display: flex;
-		gap: var(--space-2);
-		align-items: center;
-		height: var(--control-icon);
-		padding: 0 var(--space-2);
-		font-size: var(--text-body);
-		border-radius: 4px;
-		cursor: default;
-	}
-	:global(.menu-item[data-highlighted]) {
-		background: var(--selection-tint);
-	}
-	:global(.menu-item[data-disabled]) {
-		opacity: 0.5;
-	}
-	@media (forced-colors: active) {
-		:global(.menu-item[data-highlighted]) {
-			color: HighlightText;
-			background: Highlight;
-		}
-	}
-</style>

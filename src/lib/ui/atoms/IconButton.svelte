@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cn } from 'cn';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import Icon, { type IconName } from './Icon.svelte';
 	import Tooltip from './Tooltip.svelte';
@@ -25,17 +26,17 @@
 		stroke?: number;
 		tip?: boolean;
 	} = $props();
+	const classes = $derived(
+		cn(
+			'inline-flex items-center justify-center rounded-control text-chrome-text hover:enabled:bg-chrome-surface disabled:text-chrome-muted disabled:opacity-60 aria-disabled:text-chrome-muted aria-disabled:opacity-60',
+			size === 24 ? 'size-(--control-min)' : 'size-(--control-icon)',
+			cls
+		)
+	);
 </script>
 
 {#snippet button(props: Record<string, unknown>)}
-	<button
-		type="button"
-		class="icon-btn {cls}"
-		class:dense={size === 24}
-		aria-label={label}
-		{...props}
-		{...rest}
-	>
+	<button type="button" class={classes} aria-label={label} {...props} {...rest}>
 		<Icon name={icon} size={iconSize} {stroke} />
 	</button>
 {/snippet}
@@ -47,27 +48,3 @@
 {:else}
 	{@render button({})}
 {/if}
-
-<style>
-	.icon-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: var(--control-icon);
-		height: var(--control-icon);
-		color: var(--chrome-text);
-		border-radius: var(--control-radius);
-	}
-	.dense {
-		width: var(--control-min);
-		height: var(--control-min);
-	}
-	.icon-btn:hover:not(:disabled):not([aria-disabled]) {
-		background: var(--chrome-surface);
-	}
-	.icon-btn:disabled,
-	.icon-btn[aria-disabled='true'] {
-		color: var(--chrome-muted);
-		opacity: 0.6;
-	}
-</style>
