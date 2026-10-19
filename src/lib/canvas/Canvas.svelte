@@ -14,7 +14,13 @@
 		type OnSelectionChange
 	} from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
+	import { ContextMenu } from 'bits-ui';
 	import { untrack } from 'svelte';
+	import { runCommand } from '#lib/app/commands.svelte.ts';
+	import { contextItems } from '#lib/app/menus.ts';
+	import { format } from '#lib/app/shortcuts.ts';
+	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
+	import { menu } from '#lib/ui/styles.ts';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
@@ -32,7 +38,7 @@
 	import UmlEdge from './edges/UmlEdge.svelte';
 	import { center, type Rect } from './edges/geometry.ts';
 	import { canvasApi } from './api.ts';
-	import { canvasFocus, canvasRects, focusOwner } from './focus.ts';
+	import { canvasFocus, canvasRects, focusElement, focusOwner } from './focus.ts';
 	import { handleCanvasKey } from './keyboard.ts';
 	import type { FocusPart } from '#lib/stores/selection.svelte.ts';
 
@@ -121,6 +127,39 @@
 			)
 		].map((g): FocusPart => `edge:${g.dataset.relId}`);
 		return [...new Set([...own, ...edges])];
+	}
+
+	// keyboard.md: right-click or ⇧F10 opens, for the element under the pointer or in focus, the
+	// commands the palette has for it. One Bits ContextMenu on the container; the hit decides.
+	let menuOpen = $state(false);
+	let menuKind: 'node' | 'edge' = $state('node');
+	function oncontextmenu(e: MouseEvent, open: ((e: MouseEvent) => void) | undefined) {
+		const hit = (e.target as Element | null)?.closest<HTMLElement | SVGElement>(
+			'[data-focus-id], .uml-edge'
+		);
+		// The app owns its paper: no native menu on empty paper either. Bits skips a prevented
+		// event, so a hit leaves the default to it.
+		if (!hit) return e.preventDefault();
+		const edge = hit.classList.contains('uml-edge');
+		const id = edge ? hit.dataset.relId : hit.dataset.focusId;
+		if (!id) return;
+		menuKind = edge ? 'edge' : 'node';
+		focusElement(id);
+		open?.(e);
+	}
+	/** ⇧F10: the same menu, raised at the focused element. */
+	function openMenu() {
+		const owner = focusOwner(el);
+		if (!owner) return;
+		const r = owner.getBoundingClientRect();
+		owner.dispatchEvent(
+			new MouseEvent('contextmenu', {
+				bubbles: true,
+				cancelable: true,
+				clientX: r.left + r.width / 2,
+				clientY: r.top + Math.min(r.height / 2, 20)
+			})
+		);
 	}
 
 	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
@@ -308,69 +347,99 @@
 <!-- One Tab stop for the whole diagram (docs/spec/keyboard.md, accessibility.md): a focusable
      role="application" region whose keys the app routes. Not a fake button, so the
      non-interactive-element warnings do not apply. -->
-<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div
-	bind:this={el}
-	class="aster-canvas"
-	role="application"
-	aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
-	tabindex={selection.focus ? -1 : 0}
-	onkeydown={(e) => handleCanvasKey(e, { rects, openPicker, parts })}
->
-	<Markers />
-	<SvelteFlow
-		{nodes}
-		edges={flow.canvasEdges}
-		{nodeTypes}
-		{edgeTypes}
-		snapGrid={[1, 1]}
-		minZoom={0.1}
-		maxZoom={4}
-		deleteKey={null}
-		selectionKey={null}
-		selectionOnDrag
-		panOnDrag={[1]}
-		panActivationKey=" "
-		panOnScroll
-		zoomOnScroll={false}
-		zoomOnDoubleClick={false}
-		nodesFocusable={false}
-		edgesFocusable={false}
-		disableKeyboardA11y
-		onlyRenderVisibleElements={flow.nodes.length > 100}
-		proOptions={{ hideAttribution: true }}
-		connectionMode={ConnectionMode.Loose}
-		connectionLineType={ConnectionLineType.Straight}
-		onbeforeconnect={() => false}
-		{onconnectend}
-		{onnodedrag}
-		{onselectionchange}
-		{onmove}
-		{onpaneclick}
-		{onnodeclick}
-	>
-		<!-- ui.md: Modern's soft dot grid; Classic's fine line grid (board 03). -->
-		<Background
-			variant={ui.layoutPreset === 'classic' ? BackgroundVariant.Lines : BackgroundVariant.Dots}
-			bgColor="var(--paper-bg)"
-			patternColor="var(--paper-grid)"
-			gap={20}
-			size={1.5}
-			lineWidth={1}
-		/>
-		{#if preview}
-			<ViewportPortal target="front">
-				<svg class="link-preview" aria-hidden="true">
-					<line x1={preview.a.x} y1={preview.a.y} x2={preview.b.x} y2={preview.b.y} />
-				</svg>
-			</ViewportPortal>
-		{/if}
-	</SvelteFlow>
-	{#if ui.link}
-		<p class="link-hint" role="status">{t('link.hint')}</p>
-	{/if}
-</div>
+<ContextMenu.Root bind:open={menuOpen}>
+	<ContextMenu.Trigger>
+		{#snippet child({ props })}
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+			<div
+				{...props}
+				bind:this={el}
+				class="aster-canvas"
+				role="application"
+				aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
+				tabindex={selection.focus ? -1 : 0}
+				onkeydown={(e) => handleCanvasKey(e, { rects, openPicker, parts, openMenu })}
+				oncontextmenu={(e) =>
+					oncontextmenu(e, props.oncontextmenu as ((e: MouseEvent) => void) | undefined)}
+			>
+				<Markers />
+				<SvelteFlow
+					{nodes}
+					edges={flow.canvasEdges}
+					{nodeTypes}
+					{edgeTypes}
+					snapGrid={[1, 1]}
+					minZoom={0.1}
+					maxZoom={4}
+					deleteKey={null}
+					selectionKey={null}
+					selectionOnDrag
+					panOnDrag={[1]}
+					panActivationKey=" "
+					panOnScroll
+					zoomOnScroll={false}
+					zoomOnDoubleClick={false}
+					nodesFocusable={false}
+					edgesFocusable={false}
+					disableKeyboardA11y
+					onlyRenderVisibleElements={flow.nodes.length > 100}
+					proOptions={{ hideAttribution: true }}
+					connectionMode={ConnectionMode.Loose}
+					connectionLineType={ConnectionLineType.Straight}
+					onbeforeconnect={() => false}
+					{onconnectend}
+					{onnodedrag}
+					{onselectionchange}
+					{onmove}
+					{onpaneclick}
+					{onnodeclick}
+				>
+					<!-- ui.md: Modern's soft dot grid; Classic's fine line grid (board 03). -->
+					<Background
+						variant={ui.layoutPreset === 'classic'
+							? BackgroundVariant.Lines
+							: BackgroundVariant.Dots}
+						bgColor="var(--paper-bg)"
+						patternColor="var(--paper-grid)"
+						gap={20}
+						size={1.5}
+						lineWidth={1}
+					/>
+					{#if preview}
+						<ViewportPortal target="front">
+							<svg class="link-preview" aria-hidden="true">
+								<line x1={preview.a.x} y1={preview.a.y} x2={preview.b.x} y2={preview.b.y} />
+							</svg>
+						</ViewportPortal>
+					{/if}
+				</SvelteFlow>
+				{#if ui.link}
+					<p class="link-hint" role="status">{t('link.hint')}</p>
+				{/if}
+			</div>
+		{/snippet}
+	</ContextMenu.Trigger>
+	<ContextMenu.Portal>
+		<ContextMenu.Content
+			class={menu}
+			aria-label={t('ui.elementMenu')}
+			onCloseAutoFocus={(e) => {
+				e.preventDefault();
+				canvasFocus.focus(); // back to the element, or the container when it was deleted
+			}}
+		>
+			{#each contextItems(menuKind) as c (c.id)}
+				<MenuItem
+					kind="context"
+					label={c.label()}
+					keys={c.keys[0] ? format(c.keys[0]) : undefined}
+					disabled={c.when ? !c.when() : false}
+					onSelect={() => runCommand(c.id)}
+				/>
+			{/each}
+		</ContextMenu.Content>
+	</ContextMenu.Portal>
+</ContextMenu.Root>
 
 <style>
 	.aster-canvas {

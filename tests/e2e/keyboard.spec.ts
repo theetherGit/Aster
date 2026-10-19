@@ -154,3 +154,54 @@ test('keyboard-only: ⌘+arrows nudge, ⇧+arrows resize a note, ⌫ deletes wit
 	await page.keyboard.press('Shift+ArrowLeft');
 	await expect(sheet).toHaveCSS('min-width', '160px');
 });
+
+test('context menu: right-click or ⇧F10 on a node or edge lists its commands; focus returns to the element', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	const account = node(page, 'Account');
+	const customer = node(page, 'Customer');
+	const menu = page.getByRole('menu');
+
+	// ⇧F10 on the focused element.
+	await page.keyboard.press('ArrowRight');
+	await expect(account).toBeFocused();
+	await page.keyboard.press('Shift+F10');
+	await expect(menu).toBeVisible();
+	await expect(menu.getByRole('menuitem', { name: /^Edit/ })).toBeVisible();
+	await expect(menu.getByRole('menuitem', { name: /^Link/ })).toBeVisible();
+	await expect(menu.getByRole('menuitem', { name: /^Remove from diagram/ })).toBeVisible();
+	await expect(menu.getByRole('menuitem', { name: /^Delete from model/ })).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(menu).toHaveCount(0);
+	await expect(account).toBeFocused();
+
+	// Right-click selects and focuses the element under the pointer, then opens the same menu.
+	await customer.click({ button: 'right' });
+	await expect(menu).toBeVisible();
+	await expect(customer).toHaveClass(/selected/);
+	await menu.getByRole('menuitem', { name: /^Remove from diagram/ }).click();
+	await expect(customer).toHaveCount(0);
+	await expect(page.getByTestId('toast')).toContainText('Customer removed from this diagram');
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(customer).toBeVisible();
+
+	// Right-click on empty paper opens nothing.
+	await page.mouse.click(900, 600, { button: 'right' });
+	await expect(menu).toHaveCount(0);
+
+	// An edge's menu carries the line styles.
+	await account.click();
+	await page.keyboard.press('l');
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('1');
+	const edge = page.locator('.uml-edge');
+	await expect(edge).toBeFocused();
+	await page.keyboard.press('Shift+F10');
+	await expect(menu).toBeVisible();
+	await menu.getByRole('menuitem', { name: /^Rectilinear/ }).click();
+	await expect(edge).toHaveAttribute('data-line-style', 'rectilinear');
+	await expect(edge).toBeFocused();
+});

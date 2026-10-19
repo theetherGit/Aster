@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COMMANDS } from '#lib/app/commands.svelte.ts';
-import { MENUS, menuItems } from '#lib/app/menus.ts';
+import { MENUS, contextItems, menuItems } from '#lib/app/menus.ts';
 
 describe('the Classic menu bar is the registry', () => {
 	it('has the six StarUML menus, none empty', () => {
@@ -21,5 +21,29 @@ describe('the Classic menu bar is the registry', () => {
 		expect(help).toEqual(['view.palette', 'view.shortcuts']);
 		expect(view).not.toContain('view.shortcuts');
 		expect(view).toContain('view.layout');
+	});
+});
+
+/** keyboard.md: right-click or ⇧F10 lists, for the element, the commands the palette has for it. */
+describe('the element context menu', () => {
+	it('offers edit, link, outline and both deletes on a node', () => {
+		expect(contextItems('node').map((c) => c.id)).toEqual([
+			'edit.start',
+			'link.start',
+			'view.selectInOutline',
+			'delete.view',
+			'delete.model'
+		]);
+	});
+	it('offers the four line styles, outline and both deletes on an edge', () => {
+		expect(contextItems('edge').map((c) => c.id)).toEqual([
+			'format.rectilinear',
+			'format.oblique',
+			'format.roundrect',
+			'format.curve',
+			'view.selectInOutline',
+			'delete.view',
+			'delete.model'
+		]);
 	});
 });

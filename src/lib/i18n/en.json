@@ -605,5 +605,6 @@
 	"summary.note": "Note: {text}",
 	"summary.text": "Text: {text}",
 	"summary.join": ", ",
-	"cmd.resizeNote": "Resize note 8 px"
+	"cmd.resizeNote": "Resize note 8 px",
+	"ui.elementMenu": "Element commands"
 }

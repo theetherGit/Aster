@@ -50,6 +50,8 @@ export interface CanvasKeyContext {
 	openPicker: (sourceId: Id, targetId: Id) => void;
 	/** An element's parts in Tab order, as rendered: self, name, each member line, each attached edge. */
 	parts: (id: Id) => FocusPart[];
+	/** ⇧F10: the context menu for the focused element (keyboard.md). */
+	openMenu: () => void;
 }
 
 /** Arrows: roving focus to the nearest element that way; the first press lands top-left. */
@@ -99,6 +101,11 @@ export function handleCanvasKey(e: KeyboardEvent, ctx: CanvasKeyContext) {
 	if (e.key === 'Tab' && !mod && !e.altKey && selection.focus) {
 		cyclePart(e.shiftKey, ctx);
 		e.preventDefault();
+		return;
+	}
+	if (e.key === 'F10' && e.shiftKey && !mod && !e.altKey) {
+		ctx.openMenu();
+		e.preventDefault(); // Windows would also raise the native contextmenu event
 		return;
 	}
 	dispatch(e, 'canvas');
