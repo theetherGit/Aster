@@ -13,6 +13,8 @@ test('keyboard-only: one Tab stop, arrows between Account and Customer, Tab thro
 	const live = page.getByTestId('live');
 	await expect(canvas).toBeFocused();
 
+	// One application region: Svelte Flow's own wrapper role is removed, so it does not nest.
+	await expect(page.getByRole('application')).toHaveCount(1);
 	// The diagram is one stop in the page's Tab order.
 	await page.keyboard.press('Shift+Tab');
 	await expect(canvas).not.toBeFocused();
