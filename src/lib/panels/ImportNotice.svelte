@@ -76,6 +76,13 @@
 	};
 </script>
 
+<svelte:window
+	onkeydown={(e) => {
+		// keyboard.md: Esc closes any panel; a notice still opening stays.
+		if (e.key === 'Escape' && notice && notice.kind !== 'opening') files.notice = null;
+	}}
+/>
+
 {#if notice}
 	<section
 		class="notice"
@@ -228,7 +235,8 @@
 		position: absolute;
 		top: calc(12px + var(--canvas-inset-top, 0px));
 		right: 12px;
-		z-index: 20;
+		/* Above the welcome (z 30), so a failed open on `/` is never silent. */
+		z-index: 35;
 		box-sizing: border-box;
 		width: min(380px, calc(100% - 24px));
 		max-height: calc(100% - 24px);

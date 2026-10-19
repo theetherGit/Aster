@@ -17,8 +17,9 @@ function tokens(selector: string): Record<string, string> {
 const light = tokens(':root {');
 const dark = { ...light, ...tokens(":root[data-theme='dark']") };
 const highContrast = { ...light, ...tokens(":root[data-theme='high-contrast']") };
+const classic = { ...light, ...tokens(":root[data-layout='classic']") };
 /** `--paper-accent` is `var(--accent)` unless a theme sets it (high contrast does). */
-for (const t of [light, dark, highContrast]) t['paper-accent'] ??= t['accent'];
+for (const t of [light, dark, highContrast, classic]) t['paper-accent'] ??= t['accent'];
 
 const lum = (hex: string) => {
 	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -39,6 +40,9 @@ const TEXT_PAIRS: [string, string][] = [
 	['on-accent', 'accent-fill'],
 	['danger', 'chrome-surface'],
 	['danger', 'chrome-bg'],
+	['accent-text', 'chrome-bg'],
+	['accent-text', 'chrome-surface'],
+	['paper-muted', 'paper-bg'],
 	['paper-ink', 'paper-bg']
 ];
 /** Non-text: UI edges and the accent as an outline, 3:1 (CLAUDE.md rule 4). */
@@ -54,7 +58,8 @@ const EDGE_PAIRS: [string, string][] = [
 describe.each([
 	['light', light],
 	['dark', dark],
-	['high-contrast', highContrast]
+	['high-contrast', highContrast],
+	['classic', classic]
 ] as const)('%s theme tokens', (_name, t) => {
 	it.each(TEXT_PAIRS)('%s on %s reads at 4.5:1', (fg, bg) => {
 		expect(t[fg], fg).toBeDefined();

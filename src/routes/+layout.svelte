@@ -3,6 +3,7 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import paperFont from '#lib/assets/fonts/source-sans-3/source-sans-3-latin-wght-normal.woff2';
 	import { locale, localeFromUrl } from '#lib/i18n/locale.svelte.ts';
+	import { live } from '#lib/stores/live.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { MediaQuery } from 'svelte/reactivity';
 	import type { LayoutProps } from './$types';
@@ -33,3 +34,9 @@
 </svelte:head>
 
 {@render children()}
+
+<!-- accessibility.md, Announcements: one polite and one assertive region, mounted once. -->
+<div class="sr-only" aria-live="polite" data-testid="live">{live.text}</div>
+<div class="sr-only" aria-live="assertive" role="alert" data-testid="live-alert">
+	{live.alertText}
+</div>

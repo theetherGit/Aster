@@ -43,7 +43,10 @@
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import { live } from '#lib/stores/live.svelte.ts';
+	import { announce } from '#lib/stores/live.svelte.ts';
+	import { canvasFocus } from '#lib/canvas/focus.ts';
+	import { format } from '#lib/app/shortcuts.ts';
+	import { byId } from '#lib/app/commands.svelte.ts';
 	import { resolve } from '$app/paths';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
@@ -114,8 +117,50 @@
 	let now = $state(Date.now());
 	useInterval(30_000, { callback: () => (now = Date.now()) });
 	const title = $derived(
-		`${files.current?.name ?? projectStore.project.name}${files.state === 'unsaved' ? ' •' : ''} – ${t('app.name')}`
+		t('app.windowTitle', {
+			name: files.current?.name ?? projectStore.project.name,
+			dirty: files.state === 'unsaved' ? t('app.windowTitleDirty') : ''
+		})
 	);
+	const countsText = $derived(
+		t('footer.counts', {
+			classifiers: t(counts.classifiers === 1 ? 'footer.classifierOne' : 'footer.classifiers', {
+				n: counts.classifiers
+			}),
+			relationships: t(
+				counts.relationships === 1 ? 'footer.relationshipOne' : 'footer.relationships',
+				{ n: counts.relationships }
+			)
+		})
+	);
+
+	// Switching layout unmounts the bar that held focus; the canvas takes it (focus is never lost).
+	let lastPreset = ui.layoutPreset;
+	$effect(() => {
+		if (ui.layoutPreset === lastPreset) return;
+		lastPreset = ui.layoutPreset;
+		canvasFocus.focus();
+	});
+
+	// keyboard.md: F6 / ⇧F6 cycle the open panels (Outline, canvas, Inspector) in DOM order.
+	function cyclePanels(back: boolean) {
+		const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
+		if (!panels.length) return;
+		const current = panels.findIndex((p) => p.contains(document.activeElement));
+		const next = panels[(current + (back ? -1 : 1) + panels.length) % panels.length];
+		const target = next.querySelector<HTMLElement>(
+			'[role="application"], [tabindex="0"], button:not([disabled]), input, textarea, select, a[href]'
+		);
+		target?.focus();
+	}
+	function onkeydown(e: KeyboardEvent) {
+		if (e.key === 'F6') {
+			e.preventDefault();
+			cyclePanels(e.shiftKey);
+			return;
+		}
+		handleGlobalKey(e);
+	}
 	$effect(() => {
 		document.title = title;
 	});
@@ -126,8 +171,14 @@
 	let copiedName = $state(false);
 	async function copyName() {
 		if (!files.current) return;
-		await navigator.clipboard.writeText(files.current.name);
+		try {
+			await navigator.clipboard.writeText(files.current.name);
+		} catch {
+			announce(t('file.copyFailed'));
+			return;
+		}
 		copiedName = true;
+		announce(t('file.copied'));
 		setTimeout(() => (copiedName = false), 1500);
 	}
 </script>
@@ -137,7 +188,7 @@
 </svelte:head>
 
 <svelte:window
-	onkeydown={handleGlobalKey}
+	{onkeydown}
 	onbeforeunload={(e) => {
 		// Edits to a file the browser cannot keep: ask. Browser-only projects are autosaved.
 		if (files.state === 'unsaved') e.preventDefault();
@@ -158,6 +209,9 @@
 />
 
 <SvelteFlowProvider>
+	<a href="#canvas" class="skip-link" onclick={(e) => (e.preventDefault(), canvasFocus.focus())}
+		>{t('app.skipToCanvas')}</a
+	>
 	<Tabs.Root
 		bind:value={projectStore.activeDiagramId}
 		class="grid h-dvh {classic ? 'grid-rows-[auto_1fr]' : 'grid-rows-[44px_1fr]'}"
@@ -177,7 +231,11 @@
 			<div class="relative flex min-h-0 flex-1">
 				{#if classic}
 					{#if ui.classic.sidebar}
-						<aside class="classic-column left" aria-label={t('classic.sidebar')}>
+						<aside
+							class="classic-column left"
+							aria-label={t('classic.sidebar')}
+							data-panel="sidebar"
+						>
 							<WorkingDiagrams />
 							{#if ui.classic.toolbox}
 								<ClassicToolbox />
@@ -185,17 +243,25 @@
 						</aside>
 					{/if}
 				{:else if ui.panels.outline}
-					<Explorer />
+					<div class="contents" data-panel="outline"><Explorer /></div>
 				{/if}
-				<div
+				<main
+					id="canvas"
 					class="relative min-w-0 flex-1"
 					style:--canvas-inset-top={showBanner || ui.sampleStrip ? '40px' : '0px'}
+					data-panel="canvas"
 				>
+					<!-- The toolbox precedes the canvas in the DOM so Tab reaches the canvas after it. -->
+					{#if !classic}
+						<Toolbox />
+					{/if}
 					<Canvas />
 					{#if showBanner}
 						<!-- ui.md save states: once per project, until saved to a file. -->
 						<div class="banner" role="region" aria-label={t('file.bannerLabel')}>
-							<span class="flex-1">{t('file.banner')}</span>
+							<span class="flex-1"
+								>{t('file.banner', { key: format(byId('file.save')!.keys[0]) })}</span
+							>
 							<button
 								type="button"
 								class="h-7 rounded-control border border-current/40 px-2 hover:bg-black/5"
@@ -228,14 +294,11 @@
 					{#if projectStore.diagram.elementIds.length === 0}
 						<EmptyHint />
 					{/if}
-					{#if !classic}
-						<Toolbox />
-					{/if}
 					<ImportNotice />
 					<Toast />
 					{#if !classic || ui.classic.statusbar}
 						<footer class="footer">
-							<span>{t('footer.counts', counts)}</span>
+							<span>{countsText}</span>
 							<span aria-hidden="true">·</span>
 							{#if files.current}
 								<span data-testid="footer-save" data-saved={persist.at}
@@ -256,10 +319,14 @@
 							{/if}
 						</footer>
 					{/if}
-				</div>
+				</main>
 				{#if classic}
 					{#if ui.classic.navigator || ui.classic.editors}
-						<aside class="classic-column right" aria-label={t('classic.rightColumn')}>
+						<aside
+							class="classic-column right"
+							aria-label={t('classic.rightColumn')}
+							data-panel="right"
+						>
 							{#if ui.classic.navigator}
 								<Explorer variant="classic" />
 							{/if}
@@ -269,15 +336,11 @@
 						</aside>
 					{/if}
 				{:else}
-					<Inspector />
+					<div class="contents" data-panel="inspector"><Inspector /></div>
 				{/if}
 			</div>
 		</Tabs.Content>
 	</Tabs.Root>
-	<!-- features.md, Live announcements: every command result, read politely; keyed so repeats are read again. -->
-	{#key live.n}
-		<div class="sr-only" aria-live="polite" data-testid="live">{live.text}</div>
-	{/key}
 	<RelationshipPicker />
 	<ExportSheet />
 	<Palette />
@@ -326,16 +389,34 @@
 		width: 280px;
 		border-left: 1px solid var(--chrome-border);
 	}
+	/* The footer sits on the paper, which is white in every theme, so its text and plate are paper-side. */
 	.footer {
 		position: absolute;
-		bottom: 18px;
-		left: 22px;
+		bottom: 14px;
+		left: 16px;
 		z-index: 5;
 		display: flex;
 		gap: 8px;
 		align-items: center;
+		padding: 2px 6px;
 		font-size: 12px;
-		color: var(--chrome-muted);
+		color: var(--paper-muted);
+		background: color-mix(in srgb, var(--paper-bg) 88%, transparent);
+		border-radius: 4px;
+	}
+	.skip-link {
+		position: absolute;
+		top: -100px;
+		left: 8px;
+		z-index: 70;
+		padding: 6px 10px;
+		color: var(--chrome-text);
+		background: var(--chrome-surface);
+		border: 1px solid var(--chrome-border);
+		border-radius: var(--control-radius);
+	}
+	.skip-link:focus-visible {
+		top: 8px;
 	}
 	.footer > span {
 		pointer-events: none;
@@ -343,12 +424,12 @@
 	.file-name {
 		height: 24px;
 		padding: 0 4px;
-		color: var(--chrome-muted);
+		color: var(--paper-muted);
 		border-radius: 4px;
 	}
 	.file-name:hover {
-		color: var(--chrome-text);
-		background: var(--chrome-surface);
+		color: var(--paper-ink);
+		background: var(--paper-grid);
 	}
 	.banner {
 		position: absolute;
@@ -361,7 +442,7 @@
 		align-items: center;
 		padding: 6px 14px;
 		font-size: 13px;
-		color: #3f2a00;
+		color: var(--chrome-text);
 		background: color-mix(in srgb, var(--warning) 22%, var(--chrome-surface));
 		border-bottom: 1px solid var(--chrome-border);
 	}

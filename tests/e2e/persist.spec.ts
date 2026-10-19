@@ -125,7 +125,7 @@ test('an .aster file opens by drop and round-trips the project', async ({ page }
 		'{"version":1,"project":{"id":"x","name":"y","elements":{},"diagrams":[],"unknown":[],"importedIds":[],"colour":"red"}}'
 	);
 	const notice = page.getByTestId('import-notice');
-	await expect(notice).toContainText("Couldn't open bad.aster");
+	await expect(notice).toContainText('Couldn’t open bad.aster');
 	await expect(notice.getByRole('img', { name: /could not be opened/ })).toBeVisible();
 	await notice.getByRole('button', { name: 'Show details' }).click();
 	await expect(notice).toContainText('$.project.colour: unknown field');
@@ -147,7 +147,7 @@ test('the opened .mdj wins: the same bytes restore the autosave with its edits, 
 
 	// Same bytes again: the prompt (board 20) first, then the autosave comes back, undo included.
 	await drop(page, 'public-vrview.mdj', text);
-	await page.getByRole('alertdialog').getByRole('button', { name: "Don't save" }).click();
+	await page.getByRole('alertdialog').getByRole('button', { name: 'Don’t save' }).click();
 	await expect(page.getByTestId('import-notice')).toContainText(
 		'Opened public-vrview.mdj from this browser'
 	);
@@ -157,7 +157,7 @@ test('the opened .mdj wins: the same bytes restore the autosave with its edits, 
 	// Changed in StarUML (any byte differs): parsed fresh, the edit is not applied over it.
 	await drop(page, 'public-vrview.mdj', text.replace('"name"', '"name" '));
 	const dialog = page.getByRole('alertdialog');
-	if (await dialog.isVisible()) await dialog.getByRole('button', { name: "Don't save" }).click();
+	if (await dialog.isVisible()) await dialog.getByRole('button', { name: 'Don’t save' }).click();
 	await expect(page.getByTestId('import-notice')).toContainText('Opened public-vrview.mdj');
 	await expect(node(page, 'Extra')).toHaveCount(0);
 	await expect(page.locator('.classifier-node')).toHaveCount(2);
@@ -176,12 +176,12 @@ test('board 20: opening another file over unsaved edits asks first', async ({ pa
 	await drop(page, 'public-vrview.mdj', readFileSync(fixture('public-vrview.mdj'), 'utf8'));
 	const dialog = page.getByRole('alertdialog');
 	await expect(dialog).toContainText('Save changes to library.aster?');
-	await expect(dialog).toContainText("You're opening public-vrview.mdj.");
+	await expect(dialog).toContainText('You’re opening public-vrview.mdj.');
 	await dialog.getByRole('button', { name: 'Cancel' }).click();
 	await expect(node(page, 'Book')).toBeVisible();
 
 	await drop(page, 'public-vrview.mdj', readFileSync(fixture('public-vrview.mdj'), 'utf8'));
-	await page.getByRole('alertdialog').getByRole('button', { name: "Don't save" }).click();
+	await page.getByRole('alertdialog').getByRole('button', { name: 'Don’t save' }).click();
 	await expect(page).toHaveTitle(/public-vrview\.mdj/);
 	await expect(page.locator('.classifier-node')).toHaveCount(2);
 });
@@ -199,6 +199,13 @@ test('export sheet (board 06): SVG with the font embedded, 2× PNG under 2 MB, c
 
 	await sheet.getByRole('radio', { name: 'SVG' }).click();
 	await expect(sheet.getByTestId('export-name')).toHaveText('library.svg');
+	// Disabled controls say why, in the sheet.
+	await expect(sheet.getByTestId('export-reason')).toHaveText('Scale applies to PNG.');
+	await sheet.getByRole('radio', { name: '.mdj' }).click();
+	await expect(sheet.getByTestId('export-reason')).toHaveText(
+		'Scale and background apply to PNG and SVG.'
+	);
+	await sheet.getByRole('radio', { name: 'SVG' }).click();
 	let download = page.waitForEvent('download');
 	await sheet.getByRole('button', { name: 'Download' }).click();
 	const svg = (await downloadText(await download)).toString('utf8');
@@ -222,6 +229,21 @@ test('export sheet (board 06): SVG with the font embedded, 2× PNG under 2 MB, c
 	// Sharp: the PNG is twice the SVG's size in each direction.
 	const width = png.readUInt32BE(16);
 	expect(width).toBeGreaterThan(1200);
+});
+
+test('the export sheet gives focus back to the button that opened it', async ({ page }) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const exportButton = page.getByRole('button', { name: 'Export', exact: true });
+	await exportButton.focus();
+	await expect(page.getByRole('tooltip')).toHaveText(/Export diagram(⌘⇧E|Ctrl\+Shift\+E)/);
+	await page.keyboard.press('Enter');
+	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await expect(sheet).toBeVisible();
+	await expect(sheet.locator(':focus')).toHaveCount(1); // the trap has taken focus
+	await page.keyboard.press('Escape');
+	await expect(sheet).toHaveCount(0);
+	await expect(exportButton).toBeFocused();
 });
 
 test('⌘N starts an untitled project with an empty class diagram (board 18)', async ({ page }) => {
@@ -249,6 +271,8 @@ test.describe('the welcome at /', () => {
 		await expect(welcome.getByRole('button', { name: /New diagram/ })).toBeVisible();
 		await expect(welcome.getByRole('button', { name: /Open file/ })).toBeVisible();
 		await expect(welcome.getByRole('button', { name: /New diagram/ })).toBeFocused();
+		// Keys come from the registry's platform formatter, never typed into copy.
+		await expect(welcome.getByRole('button', { name: /New diagram/ })).toHaveText(/⌘N|Ctrl\+N/);
 		await expect(welcome).toContainText('Files you open or save appear here');
 		await expect(welcome.getByRole('img', { name: 'Sample diagram' })).toBeVisible();
 		// Hairline figure at rest, exposed as an image with a meaningful name.
