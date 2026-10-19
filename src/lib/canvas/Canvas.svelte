@@ -444,6 +444,7 @@
 				{...props}
 				bind:this={el}
 				class="aster-canvas"
+				dir="ltr"
 				role="application"
 				aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
 				tabindex={selection.focus ? -1 : 0}

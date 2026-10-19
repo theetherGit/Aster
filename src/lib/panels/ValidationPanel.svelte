@@ -55,7 +55,7 @@
 				<li class="flex items-center gap-2">
 					<button
 						type="button"
-						class="flex min-h-(--control-min) min-w-0 flex-1 items-baseline gap-2 rounded-control px-2 py-1 text-left text-(length:--text-body) hover:bg-chrome-bg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-dashed"
+						class="flex min-h-(--control-min) min-w-0 flex-1 items-baseline gap-2 rounded-control px-2 py-1 text-start text-(length:--text-body) hover:bg-chrome-bg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-dashed"
 						onclick={() => jumpTo(f.elementId)}
 					>
 						<span class="shrink-0 text-(length:--text-caption) font-semibold text-chrome-muted"

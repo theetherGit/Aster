@@ -74,11 +74,11 @@
 		margin-top: var(--space-2);
 	}
 	.markdown :global(ul) {
-		padding-left: var(--space-4);
+		padding-inline-start: var(--space-4);
 		list-style: disc;
 	}
 	.markdown :global(ol) {
-		padding-left: var(--space-4);
+		padding-inline-start: var(--space-4);
 		list-style: decimal;
 	}
 	/* Markdown headings render as h3–h5 (the inspector's own are h2); sized, not nested. */

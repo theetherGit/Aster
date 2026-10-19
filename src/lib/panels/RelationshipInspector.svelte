@@ -73,7 +73,7 @@
 			field,
 			end: nameOf(end === 'source' ? rel.sourceId : rel.targetId)
 		});
-	const kindItems = KINDS.map((k) => ({ value: k, label: t(`ui.rel.${k}`) }));
+	const kindItems = $derived(KINDS.map((k) => ({ value: k, label: t(`ui.rel.${k}`) })));
 	const navItems = (['unspecified', 'navigable', 'notNavigable'] as const).map((n) => ({
 		value: n,
 		label: t(`nav.${n}`)
@@ -284,7 +284,7 @@
 				value={style}
 				aria-label={t(`lineStyle.${style}`)}
 				title={styleTitle(style)}
-				class="flex h-14 flex-col items-center justify-center gap-1 border-r border-chrome-border text-(length:--text-caption) text-chrome-muted last:border-r-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
+				class="flex h-14 flex-col items-center justify-center gap-1 border-e border-chrome-border text-(length:--text-caption) text-chrome-muted last:border-e-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
 			>
 				<svg
 					width="22"

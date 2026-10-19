@@ -139,7 +139,7 @@
 							{/if}
 						</svg>
 						<span>{t(`ui.rel.${kind}`)}</span>
-						<Kbd quiet class="ml-auto">{i + 1}</Kbd>
+						<Kbd quiet class="ms-auto">{i + 1}</Kbd>
 					</MenuItem>
 				{/each}
 			</DropdownMenu.Group>

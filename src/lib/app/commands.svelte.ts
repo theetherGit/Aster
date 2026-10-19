@@ -34,6 +34,7 @@ import { newProject, openFromPicker, saveFile } from '#lib/persist/files.svelte.
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { validation } from '#lib/stores/validation.svelte.ts';
+import { LOCALES, locale, setLocale } from '#lib/i18n/locale.svelte.ts';
 import { ui, cycleTheme } from '#lib/stores/ui.svelte.ts';
 import { parse, type Shortcut } from './shortcuts.ts';
 
@@ -515,6 +516,16 @@ export const COMMANDS: AppCommand[] = [
 		state: () => validation.open,
 		run: () => (validation.open = !validation.open)
 	},
+	...LOCALES.map((l): AppCommand => ({
+		// features.md M2, i18n scaffolding: the locale switch (no key in keyboard.md).
+		id: `view.locale.${l}`,
+		group: 'view',
+		label: () => t(`locale.${l}` as MessageKey),
+		keys: [],
+		context: 'global',
+		state: () => locale.current === l,
+		run: () => setLocale(l)
+	})),
 	{
 		// accessibility.md: "A captions toggle in settings"; there is no settings panel, so it lives here.
 		id: 'view.captions',

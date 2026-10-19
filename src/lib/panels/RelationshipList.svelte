@@ -36,7 +36,7 @@
 				<!-- A selectable row, not a CTA: the list's own dress, on tokens. -->
 				<button
 					type="button"
-					class="-mx-1 flex h-8 w-[calc(100%+8px)] items-center gap-2 rounded-control px-1 text-left hover:bg-chrome-bg"
+					class="-mx-1 flex h-8 w-[calc(100%+8px)] items-center gap-2 rounded-control px-1 text-start hover:bg-chrome-bg"
 					onclick={() => selection.set([r.id])}
 				>
 					<span class="sr-only">{t('inspector.selectPrefix')}</span>

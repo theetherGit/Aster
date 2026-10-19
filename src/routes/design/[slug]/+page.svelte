@@ -283,7 +283,7 @@
 					<!-- The Outline's rail, the mirror of the inspector's: one button to bring it back. -->
 					<aside
 						aria-label={t('explorer.collapsed')}
-						class="flex w-10 shrink-0 justify-center border-r border-chrome-border bg-chrome-surface pt-2"
+						class="flex w-10 shrink-0 justify-center border-e border-chrome-border bg-chrome-surface pt-2"
 					>
 						<IconButton
 							label={t('explorer.show')}
@@ -452,17 +452,17 @@
 	}
 	.classic-column.left {
 		width: 200px;
-		border-right: 1px solid var(--chrome-border);
+		border-inline-end: 1px solid var(--chrome-border);
 	}
 	.classic-column.right {
 		width: 280px;
-		border-left: 1px solid var(--chrome-border);
+		border-inline-start: 1px solid var(--chrome-border);
 	}
 	/* The footer sits on the paper, which is white in every theme, so its text and plate are paper-side. */
 	.footer {
 		position: absolute;
 		bottom: var(--space-3);
-		left: var(--space-4);
+		inset-inline-start: var(--space-4);
 		z-index: var(--z-footer);
 		display: flex;
 		gap: var(--space-2);
@@ -476,9 +476,9 @@
 	/* Chrome over the paper, the same plate as the link hint (board 10). */
 	.narration {
 		position: absolute;
-		right: var(--space-3);
+		inset-inline-end: var(--space-3);
 		bottom: var(--space-3);
-		left: var(--space-3);
+		inset-inline-start: var(--space-3);
 		z-index: var(--z-footer);
 		display: flex;
 		gap: 10px;
@@ -506,7 +506,7 @@
 	.skip-link {
 		position: absolute;
 		top: -100px;
-		left: var(--space-2);
+		inset-inline-start: var(--space-2);
 		z-index: var(--z-drop);
 		padding: 6px 10px;
 		color: var(--chrome-text);

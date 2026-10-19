@@ -48,7 +48,7 @@
 	{#each items as item (item.value)}
 		<ToggleGroup.Item
 			value={item.value}
-			class="h-(--control-bar) px-3 text-(length:--text-body) text-chrome-text not-first:border-l not-first:border-chrome-border data-[state=on]:bg-[color-mix(in_srgb,var(--accent)_14%,var(--chrome-surface))] data-[state=on]:font-semibold data-[state=on]:shadow-[inset_0_-2px_0_var(--accent)] forced-colors:data-[state=on]:outline-2 forced-colors:data-[state=on]:-outline-offset-2 forced-colors:data-[state=on]:outline-[Highlight]"
+			class="h-(--control-bar) px-3 text-(length:--text-body) text-chrome-text not-first:border-s not-first:border-chrome-border data-[state=on]:bg-[color-mix(in_srgb,var(--accent)_14%,var(--chrome-surface))] data-[state=on]:font-semibold data-[state=on]:shadow-[inset_0_-2px_0_var(--accent)] forced-colors:data-[state=on]:outline-2 forced-colors:data-[state=on]:-outline-offset-2 forced-colors:data-[state=on]:outline-[Highlight]"
 			aria-keyshortcuts={item.keys}>{item.label}</ToggleGroup.Item
 		>
 	{/each}

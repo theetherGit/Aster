@@ -34,18 +34,18 @@
 		padding: 0 var(--space-2);
 		font-size: var(--text-small);
 		color: var(--chrome-text);
-		border-left: 2px solid transparent;
+		border-inline-start: 2px solid transparent;
 	}
 	.row:hover {
 		background: var(--chrome-surface);
 	}
 	.row[aria-current='true'] {
 		background: color-mix(in srgb, var(--accent) 12%, var(--chrome-bg));
-		border-left-color: var(--accent);
+		border-inline-start-color: var(--accent);
 	}
 	@media (forced-colors: active) {
 		.row[aria-current='true'] {
-			border-left-color: Highlight;
+			border-inline-start-color: Highlight;
 		}
 	}
 </style>

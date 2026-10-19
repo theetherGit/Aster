@@ -42,6 +42,7 @@
 </script>
 
 <input
+	dir="auto"
 	class={cn(field, cls)}
 	type="text"
 	aria-label={label}

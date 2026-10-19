@@ -35,7 +35,7 @@
 									{#snippet children({ checked })}
 										<span class="w-4 text-(length:--text-caption)">{checked ? '✓' : ''}</span>
 										<span>{c.label()}</span>
-										{#if c.keys[0]}<Kbd quiet class="ml-auto">{format(c.keys[0])}</Kbd>{/if}
+										{#if c.keys[0]}<Kbd quiet class="ms-auto">{format(c.keys[0])}</Kbd>{/if}
 									{/snippet}
 								</Menubar.CheckboxItem>
 							{:else}
@@ -56,7 +56,7 @@
 			</Menubar.Menu>
 		{/each}
 	</Menubar.Root>
-	<span class="ml-auto truncate pr-3 text-(length:--text-small) text-chrome-muted" title={name}
+	<span class="ms-auto truncate pe-3 text-(length:--text-small) text-chrome-muted" title={name}
 		>{name}</span
 	>
 </div>
@@ -66,7 +66,7 @@
 		display: flex;
 		align-items: center;
 		height: var(--control-icon);
-		padding-left: var(--space-1);
+		padding-inline-start: var(--space-1);
 		font-size: var(--text-body);
 		background: var(--chrome-bg);
 		border-bottom: 1px solid var(--chrome-border);

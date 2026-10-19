@@ -37,5 +37,5 @@
 <Item class={cn(menuItem, cls)} {disabled} {onSelect} {...rest}>
 	{#if icon}<Icon name={icon} class="text-chrome-muted" />{/if}
 	{#if children}{@render children()}{:else}<span>{label}</span>{/if}
-	{#if keys}<Kbd quiet class="ml-auto">{keys}</Kbd>{/if}
+	{#if keys}<Kbd quiet class="ms-auto">{keys}</Kbd>{/if}
 </Item>

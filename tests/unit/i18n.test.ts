@@ -33,8 +33,10 @@ describe('i18n', () => {
 
 	it('reads the locale from the URL', () => {
 		expect(localeFromUrl(new URL('https://x.test/?locale=pseudo'))).toBe('pseudo');
-		expect(localeFromUrl(new URL('https://x.test/?locale=fr'))).toBe('en');
-		expect(localeFromUrl(new URL('https://x.test/'))).toBe('en');
+		expect(localeFromUrl(new URL('https://x.test/?locale=pseudo-rtl'))).toBe('pseudo-rtl');
+		// Absent or unknown: no say, so the remembered choice (else English) applies.
+		expect(localeFromUrl(new URL('https://x.test/?locale=fr'))).toBeNull();
+		expect(localeFromUrl(new URL('https://x.test/'))).toBeNull();
 	});
 });
 

@@ -234,7 +234,7 @@
 	.notice {
 		position: absolute;
 		top: calc(var(--space-3) + var(--canvas-inset-top, 0px));
-		right: var(--space-3);
+		inset-inline-end: var(--space-3);
 		/* Above the welcome, so a failed open on `/` is never silent. */
 		z-index: var(--z-notice);
 		box-sizing: border-box;
@@ -245,12 +245,12 @@
 		color: var(--chrome-text);
 		background: var(--chrome-surface);
 		border: 1px solid var(--chrome-border);
-		border-left: var(--space-1) solid var(--accent);
+		border-inline-start: var(--space-1) solid var(--accent);
 		border-radius: var(--radius-menu);
 		box-shadow: var(--shadow-toast);
 	}
 	.notice.failed {
-		border-left-color: var(--danger);
+		border-inline-start-color: var(--danger);
 	}
 	.body {
 		margin-top: var(--space-1);
@@ -268,7 +268,7 @@
 	}
 	ul {
 		margin: 2px 0 0;
-		padding-left: var(--space-4);
+		padding-inline-start: var(--space-4);
 		list-style: disc;
 	}
 	.warnings li::marker {

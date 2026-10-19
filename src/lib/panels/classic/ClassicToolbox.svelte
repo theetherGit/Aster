@@ -10,12 +10,13 @@
 	// Board 03: tools by group with labels, as StarUML lists them. Element tools are the Modern
 	// toolbox's; a relationship tool is the Link tool with that kind preset for the picker.
 	// One toolbar (arrow keys walk every tool), three labelled groups inside it.
-	const ELEMENTS: { tool: Tool; label: string; ready: boolean }[] = [
+	// Derived, so the labels follow a locale applied after the panel mounted.
+	const ELEMENTS: { tool: Tool; label: string; ready: boolean }[] = $derived([
 		{ tool: 'class', label: t('ui.tool.class'), ready: true },
 		{ tool: 'interface', label: t('ui.tool.interface'), ready: true },
 		{ tool: 'enum', label: t('ui.tool.enum'), ready: true },
 		{ tool: 'package', label: t('ui.tool.package'), ready: false }
-	];
+	]);
 	const RELS: RelationshipKind[] = [
 		'association',
 		'aggregation',
@@ -27,7 +28,7 @@
 	const dashed = (k: RelationshipKind) => k === 'realization' || k === 'dependency';
 	const note = () => runCommand('create.note');
 	// Bits single groups: the chosen value, or '' when the chosen item is clicked again.
-	const ELEMENT_TOOLS = ELEMENTS.filter((e) => e.ready).map((e) => e.tool);
+	const ELEMENT_TOOLS: Tool[] = ['class', 'interface', 'enum'];
 	const pick = (v: string) => {
 		ui.tool = v ? (v as Tool) : 'select';
 		if (ui.pinned !== ui.tool) ui.pinned = null;
@@ -126,14 +127,14 @@
 		padding: 0 var(--space-2);
 		font-size: var(--text-small);
 		color: var(--chrome-text);
-		border-left: 2px solid transparent;
+		border-inline-start: 2px solid transparent;
 	}
 	:global(.classic-tool:hover:not([aria-disabled])) {
 		background: var(--chrome-surface);
 	}
 	:global(.classic-tool[data-state='on']) {
 		background: color-mix(in srgb, var(--accent) 12%, var(--chrome-bg));
-		border-left-color: var(--accent);
+		border-inline-start-color: var(--accent);
 	}
 	:global(.classic-tool[data-pinned]) {
 		box-shadow: inset 0 0 0 1px var(--accent);
@@ -143,7 +144,7 @@
 	}
 	@media (forced-colors: active) {
 		:global(.classic-tool[data-state='on']) {
-			border-left-color: Highlight;
+			border-inline-start-color: Highlight;
 		}
 		:global(.classic-tool[data-pinned]) {
 			outline: 2px solid Highlight;

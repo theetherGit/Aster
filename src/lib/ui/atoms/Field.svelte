@@ -17,10 +17,13 @@
 </script>
 
 {#if multiline}
+	<!-- dir=auto: user text (names, UML lines) takes its direction from its own first letters,
+	     so a UML line stays left to right in a right-to-left locale. -->
 	<textarea
+		dir="auto"
 		class={cn(field, 'h-auto min-h-18 resize-y p-2 leading-[1.45]', cls)}
 		bind:value
 		{...rest as HTMLTextareaAttributes}></textarea>
 {:else}
-	<input class={cn(field, cls)} bind:value {...rest as HTMLInputAttributes} />
+	<input dir="auto" class={cn(field, cls)} bind:value {...rest as HTMLInputAttributes} />
 {/if}

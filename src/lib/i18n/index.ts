@@ -15,7 +15,7 @@ export function pseudolocalise(s: string): string {
 // ponytail: one real locale, plain lookup; swap for a message-file loader when a second language ships
 export function t(key: MessageKey, params?: MessageParams): string {
 	let s: string = en[key];
-	if (locale.current === 'pseudo') s = pseudolocalise(s);
+	if (locale.current !== 'en') s = pseudolocalise(s);
 	if (params) {
 		for (const [k, v] of Object.entries(params)) s = s.replaceAll(`{${k}}`, String(v));
 	}

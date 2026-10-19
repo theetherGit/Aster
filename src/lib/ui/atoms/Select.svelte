@@ -32,7 +32,7 @@
 	<Select.Trigger
 		{id}
 		aria-labelledby={ariaLabel ? `${id}-label ${id}` : undefined}
-		class={cn(field, 'truncate text-left whitespace-nowrap', className)}>{current}</Select.Trigger
+		class={cn(field, 'truncate text-start whitespace-nowrap', className)}>{current}</Select.Trigger
 	>
 	<Select.Portal>
 		<Select.Content class={menu} sideOffset={4}>

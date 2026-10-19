@@ -532,8 +532,8 @@
 							aria-expanded={row.hasChildren ? row.expanded : undefined}
 							aria-selected={isSelectedRow(row)}
 							tabindex={i === focusedIndex ? 0 : -1}
-							class="row flex h-7 items-center gap-1 pr-3 text-chrome-text aria-selected:bg-accent/10 aria-selected:shadow-[inset_3px_0_0_var(--accent)]"
-							style:padding-left="{(row.level - 1) * 12 + 4}px"
+							class="row flex h-7 items-center gap-1 pe-3 text-chrome-text aria-selected:bg-accent/10 aria-selected:shadow-[inset_3px_0_0_var(--accent)] rtl:aria-selected:shadow-[inset_-3px_0_0_var(--accent)]"
+							style:padding-inline-start="{(row.level - 1) * 12 + 4}px"
 							onclick={(e) => {
 								if (!(e.target as Element).closest('input')) onclick(i);
 							}}
@@ -553,7 +553,11 @@
 										toggle(i);
 									}}
 								>
-									<Icon name="chevron-right" size={12} class={row.expanded ? 'rotate-90' : ''} />
+									<Icon
+										name="chevron-right"
+										size={12}
+										class={row.expanded ? 'rotate-90' : 'rtl:rotate-180'}
+									/>
 								</button>
 							{:else}
 								<span class="w-6 shrink-0"></span>
@@ -606,10 +610,11 @@
 									</Combobox.Portal>
 								</Combobox.Root>
 							{:else}
-								<span class="truncate" class:italic={row.italic} title={row.label}>{row.label}</span
+								<span class="truncate" class:italic={row.italic} title={row.label} dir="auto"
+									>{row.label}</span
 								>
 								{#if row.hint}<span
-										class="ml-2 shrink-0 text-(length:--text-small) text-chrome-muted"
+										class="ms-2 shrink-0 text-(length:--text-small) text-chrome-muted"
 										>{row.hint}</span
 									>{/if}
 							{/if}
@@ -621,8 +626,8 @@
 								role="treeitem"
 								aria-level={ed.level}
 								aria-selected="false"
-								class="row flex h-7 items-center gap-1 pr-3"
-								style:padding-left="{(ed.level - 1) * 12 + 4}px"
+								class="row flex h-7 items-center gap-1 pe-3"
+								style:padding-inline-start="{(ed.level - 1) * 12 + 4}px"
 							>
 								<span class="w-6 shrink-0"></span>
 								<InlineName
@@ -679,7 +684,7 @@
 	<div transition:panelSlide|global class="flex shrink-0 overflow-hidden">
 		<aside
 			aria-labelledby="explorer-title"
-			class="flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface"
+			class="flex w-[240px] shrink-0 flex-col overflow-auto border-e border-chrome-border bg-chrome-surface"
 		>
 			{@render body()}
 		</aside>

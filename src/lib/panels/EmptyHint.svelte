@@ -59,7 +59,7 @@
 		grid-template-columns: repeat(2, 160px);
 		gap: var(--space-2) var(--space-6);
 		margin-top: var(--space-5);
-		text-align: left;
+		text-align: start;
 	}
 	.keys div {
 		display: flex;

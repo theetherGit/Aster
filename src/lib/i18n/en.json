@@ -687,5 +687,8 @@
 	"file.changedOutside": "{file} changed outside Aster",
 	"file.changedBody": "Reload to see it as saved there, or keep what you have here; saving then writes yours over it.",
 	"file.reload": "Reload",
-	"file.keepMine": "Keep mine"
+	"file.keepMine": "Keep mine",
+	"locale.en": "Language: English",
+	"locale.pseudo": "Language: Pseudo-locale (layout test)",
+	"locale.pseudo-rtl": "Language: Pseudo-locale, right to left"
 }

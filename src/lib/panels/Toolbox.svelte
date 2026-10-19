@@ -24,7 +24,7 @@
 		const name = t(`ui.tool.${tool.id}`);
 		return tool.key ? t('ui.toolKey', { tool: name, key: tool.key }) : name;
 	};
-	const linkLabel = t('ui.toolKey', { tool: t('ui.tool.link'), key: 'L' });
+	const linkLabel = $derived(t('ui.toolKey', { tool: t('ui.tool.link'), key: 'L' }));
 	// The same test as the L key: one selected element, and it is a node (an edge has no handles).
 	const canLink = $derived(
 		selection.size === 1 && projectStore.diagram.layout.get(selection.list[0])?.kind === 'node'
@@ -45,7 +45,7 @@
 	orientation="vertical"
 	aria-label={t('ui.toolbox')}
 	style="top: calc(var(--space-3) + var(--canvas-inset-top, 0px))"
-	class="absolute left-3 z-(--z-toolbox) rounded-menu border border-chrome-border bg-chrome-bg p-1.5 shadow-float"
+	class="absolute start-3 z-(--z-toolbox) rounded-menu border border-chrome-border bg-chrome-bg p-1.5 shadow-float"
 >
 	<Toolbar.Group
 		type="single"

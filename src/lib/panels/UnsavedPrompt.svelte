@@ -20,7 +20,7 @@
 	bind:open={() => files.pending !== null, (open) => !open && resolvePending('cancel')}
 >
 	{#snippet actions()}
-		<Button class="mr-auto" onclick={() => resolvePending('discard')}
+		<Button class="me-auto" onclick={() => resolvePending('discard')}
 			>{t('file.promptDiscard')}</Button
 		>
 		<Button variant="ghost" onclick={() => resolvePending('cancel')}

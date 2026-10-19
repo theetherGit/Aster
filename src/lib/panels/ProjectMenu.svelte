@@ -139,7 +139,7 @@
 						{#snippet children({ checked })}
 							<Icon name="panel-left" class={checked ? 'text-accent-text' : 'text-chrome-muted'} />
 							<span>{outline.label()}</span>
-							<Kbd quiet class="ml-auto">{key(outline.id)}</Kbd>
+							<Kbd quiet class="ms-auto">{key(outline.id)}</Kbd>
 						{/snippet}
 					</DropdownMenu.CheckboxItem>
 				{/if}

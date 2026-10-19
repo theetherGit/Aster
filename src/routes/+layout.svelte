@@ -2,7 +2,7 @@
 	import './layout.css';
 	import favicon from '#lib/assets/favicon.svg';
 	import paperFont from '#lib/assets/fonts/source-sans-3/source-sans-3-latin-wght-normal.woff2';
-	import { locale, localeFromUrl } from '#lib/i18n/locale.svelte.ts';
+	import { isRtl, locale, startLocale } from '#lib/i18n/locale.svelte.ts';
 	import { live } from '#lib/stores/live.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { MediaQuery } from 'svelte/reactivity';
@@ -13,7 +13,12 @@
 
 	// The page is prerendered in English; the locale is applied once the app is live.
 	$effect(() => {
-		locale.current = localeFromUrl(new URL(location.href));
+		startLocale(new URL(location.href));
+	});
+	// RTL-safe (features.md M2): the chrome mirrors; the paper keeps UML's coordinates (Canvas).
+	$effect(() => {
+		document.documentElement.dir = isRtl(locale.current) ? 'rtl' : 'ltr';
+		document.documentElement.lang = locale.current === 'en' ? 'en' : 'en-XA';
 	});
 
 	// Theme: the remembered override, else the system; written to <html data-theme> so the

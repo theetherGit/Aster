@@ -24,7 +24,7 @@
 	} = $props();
 </script>
 
-<div class="flex items-center justify-between gap-2 pr-2 pl-4">
+<div class="flex items-center justify-between gap-2 ps-4 pe-2">
 	<h2
 		class="py-3 text-(length:--text-caption) font-semibold tracking-[0.05em] text-chrome-muted uppercase"
 		{id}

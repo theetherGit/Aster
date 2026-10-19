@@ -57,7 +57,7 @@
 </script>
 
 <!-- Board 01: mark, project name, underline tabs; bordered controls on the right. -->
-<header class="flex h-11 items-center gap-2 border-b border-chrome-border bg-chrome-bg pr-3 pl-4">
+<header class="flex h-11 items-center gap-2 border-b border-chrome-border bg-chrome-bg ps-4 pe-3">
 	<a href={resolve('/')} class="mark" aria-label={t('ui.home')}>
 		<svg width="14" height="14" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"
 			><rect x="43" y="4" width="14" height="38" rx="7" /><rect
@@ -89,7 +89,7 @@
 	<!-- Many tabs scroll sideways (no scrollbar chrome) rather than pushing the controls off the bar. -->
 	<Tabs.List
 		aria-label={t('ui.diagrams')}
-		class="ml-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto"
+		class="ms-3 flex h-full min-w-0 [scrollbar-width:none] items-stretch overflow-x-auto"
 	>
 		{#each projectStore.project.diagrams as d (d.id)}
 			{#if ui.renaming === d.id}
@@ -109,7 +109,7 @@
 								<Tab
 									{...props}
 									value={d.id}
-									class="-mb-px h-auto self-stretch {canDelete ? 'pr-8' : ''}"
+									class="-mb-px h-auto self-stretch {canDelete ? 'pe-8' : ''}"
 									ondblclick={() => rename(d.id)}
 									onkeydown={(e: KeyboardEvent) => {
 										if (e.key === 'F2') {
@@ -148,7 +148,7 @@
 							iconSize={11}
 							stroke={2.5}
 							tip={false}
-							class="pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[[aria-selected=true]]:pointer-events-auto group-has-[[aria-selected=true]]:opacity-100"
+							class="pointer-events-none absolute end-1.5 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[[aria-selected=true]]:pointer-events-auto group-has-[[aria-selected=true]]:opacity-100"
 							onclick={() => deleteDiagram(d.id)}
 						/>
 					{/if}
@@ -166,7 +166,7 @@
 		onclick={() => runCommand('diagram.add')}
 	/>
 
-	<div class="ml-auto flex shrink-0 items-center gap-2">
+	<div class="ms-auto flex shrink-0 items-center gap-2">
 		<div class="group-box">
 			<!-- Undo and redo stay focusable while empty so the tooltip can say why they do nothing;
 			     the tooltip's text differs from the name, so it wraps the button rather than being its own. -->

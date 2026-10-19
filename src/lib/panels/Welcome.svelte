@@ -173,13 +173,13 @@
 									<span class="thumb" aria-hidden="true">
 										{#if r.thumbnail}<img src={r.thumbnail} alt="" />{/if}
 									</span>
-									<span class="min-w-0 flex-1 truncate text-left" title={r.fileName ?? r.name}
+									<span class="min-w-0 flex-1 truncate text-start" title={r.fileName ?? r.name}
 										>{r.fileName ?? r.name}</span
 									>
 									<span class="text-(length:--text-caption) text-chrome-muted"
 										>{r.fileName ? '' : t('welcome.inBrowser')}</span
 									>
-									<span class="w-14 text-right text-(length:--text-small) text-chrome-muted"
+									<span class="w-14 text-end text-(length:--text-small) text-chrome-muted"
 										>{ago(r.at, now)}</span
 									>
 								</button>

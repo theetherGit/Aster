@@ -52,8 +52,9 @@
 
 	const KINDS: ClassifierKind[] = ['class', 'interface', 'enum', 'dataType', 'primitiveType'];
 	const VIS: Visibility[] = ['public', 'protected', 'private', 'package'];
-	const kindItems = KINDS.map((k) => ({ value: k, label: t(`ui.kind.${k}`) }));
-	const visItems = VIS.map((v) => ({ value: v, label: t(`vis.${v}`) }));
+	// Derived, so the labels follow a locale applied after the panel mounted.
+	const kindItems = $derived(KINDS.map((k) => ({ value: k, label: t(`ui.kind.${k}`) })));
+	const visItems = $derived(VIS.map((v) => ({ value: v, label: t(`vis.${v}`) })));
 	const memberKinds = $derived<MemberKind[]>(
 		classifier?.classifierKind === 'enum'
 			? ['literal', 'attribute', 'operation']
@@ -105,7 +106,7 @@
 	<!-- Boards 18–19: a 40 px rail with one button when nothing is selected or the panel is hidden. -->
 	<aside
 		aria-label={t('inspector.collapsed')}
-		class="flex w-10 shrink-0 justify-center border-l border-chrome-border bg-chrome-surface pt-2"
+		class="flex w-10 shrink-0 justify-center border-s border-chrome-border bg-chrome-surface pt-2"
 	>
 		<IconButton
 			label={t('inspector.show')}
@@ -145,7 +146,7 @@
 						label={t('inspector.hide')}
 						icon="panel-right-close"
 						key={toggleKey}
-						class="my-0.5 ml-auto text-chrome-muted"
+						class="my-0.5 ms-auto text-chrome-muted"
 						onclick={() => runCommand('view.inspector')}
 					/>
 				{/if}
@@ -311,7 +312,7 @@
 		<div transition:panelSlide|global class="inspector flex shrink-0 overflow-hidden">
 			<aside
 				aria-label={t('inspector.title')}
-				class="w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface"
+				class="w-[300px] shrink-0 overflow-auto border-s border-chrome-border bg-chrome-surface"
 			>
 				{@render panel()}
 			</aside>
@@ -325,7 +326,7 @@
 		.inspector {
 			position: absolute;
 			top: 0;
-			right: 0;
+			inset-inline-end: 0;
 			bottom: 0;
 			z-index: var(--z-inspector-float);
 			box-shadow: var(--shadow-float);

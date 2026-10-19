@@ -103,7 +103,7 @@
 				<!-- Hidden until hover or focus-within, and not hit-testable until then: a click at the
 				     right end of the field reaches the field. The buttons stay in the Tab order. -->
 				<span
-					class="pointer-events-none absolute right-1 flex items-center gap-0.5 rounded-control bg-chrome-bg pl-1 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
+					class="pointer-events-none absolute end-1 flex items-center gap-0.5 rounded-control bg-chrome-bg ps-1 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
 				>
 					{#if hasVisibility && 'visibility' in m}
 						<!-- The Select atom shows the chosen label; this trigger shows the symbol, so it
