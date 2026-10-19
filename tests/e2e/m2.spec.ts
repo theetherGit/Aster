@@ -149,3 +149,37 @@ test('captions: the palette toggle turns the status footer into the narration ba
 	await page.reload();
 	await expect(page.getByTestId('narration')).toBeVisible();
 });
+
+/** Owner's M2 ruling #30: tooltips on markers and visibility symbols; on by default, off in Classic. */
+test('notation tooltips explain a visibility symbol and a marker; a toggle and Classic turn them off', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const tip = page.getByRole('tooltip');
+	await node(page, 'Account').locator('[data-tip]').first().hover();
+	await expect(tip).toHaveText('# protected: visible to this class and its subclasses');
+	await page.mouse.move(5, 400);
+	await expect(tip).toHaveCount(0);
+
+	// A composition, made by keyboard: L, Enter, 3.
+	await page.keyboard.press('ArrowRight');
+	await page.keyboard.press('l');
+	await page.keyboard.press('Enter');
+	await page.keyboard.press('3');
+	await page.locator('.uml-edge [data-tip]').first().hover();
+	await expect(tip).toHaveText('Composition: Customer owns Account; the part goes with the whole');
+
+	// The palette toggle turns them off, and Classic never shows them.
+	await canvasOf(page).focus();
+	await page.keyboard.press('ControlOrMeta+k');
+	await page.keyboard.type('Notation tooltips');
+	await page.keyboard.press('Enter');
+	await expect(page.locator('.uml-edge [data-tip], .classifier-node [data-tip]')).toHaveCount(0);
+	await page.keyboard.press('ControlOrMeta+k');
+	await page.keyboard.type('Notation tooltips');
+	await page.keyboard.press('Enter');
+	await expect(page.locator('.classifier-node [data-tip]').first()).toBeAttached();
+	await page.keyboard.press('ControlOrMeta+Shift+l');
+	await expect(page.locator('.uml-edge [data-tip], .classifier-node [data-tip]')).toHaveCount(0);
+});

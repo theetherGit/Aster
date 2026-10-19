@@ -690,5 +690,16 @@
 	"file.keepMine": "Keep mine",
 	"locale.en": "Language: English",
 	"locale.pseudo": "Language: Pseudo-locale (layout test)",
-	"locale.pseudo-rtl": "Language: Pseudo-locale, right to left"
+	"locale.pseudo-rtl": "Language: Pseudo-locale, right to left",
+	"cmd.notationTips": "Notation tooltips",
+	"tip.vis.public": "+ public: visible to every class",
+	"tip.vis.private": "− private: visible only inside this class",
+	"tip.vis.protected": "# protected: visible to this class and its subclasses",
+	"tip.vis.package": "~ package: visible inside its package",
+	"tip.generalization": "Generalization: {source} is a kind of {target}",
+	"tip.realization": "Realization: {source} implements {target}",
+	"tip.dependency": "Dependency: {source} uses {target}",
+	"tip.navigable": "Navigable: {from} can reach {to}",
+	"tip.composition": "Composition: {whole} owns {part}; the part goes with the whole",
+	"tip.aggregation": "Aggregation: {whole} has {part} as a part, which may be shared"
 }

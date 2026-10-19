@@ -23,6 +23,10 @@ const storedOutline = new PersistedState<boolean>(
 	typeof window !== 'undefined' && window.innerWidth >= 1280,
 	{ serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' } }
 );
+/** Owner's ruling #30: notation tooltips on paper, on by default, remembered. */
+const storedTips = new PersistedState<boolean>('aster:notationTips', true, {
+	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v !== '0' }
+});
 /** accessibility.md: the captions toggle shows the live region as a narration bar; remembered. */
 const storedCaptions = new PersistedState<boolean>('aster:captions', false, {
 	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' }
@@ -54,6 +58,16 @@ class Ui {
 		if (v === 'modern' && this.inspectorTab === 'documentation') this.inspectorTab = 'properties';
 	}
 	panels = new Panels();
+	get notationTips(): boolean {
+		return storedTips.current;
+	}
+	set notationTips(v: boolean) {
+		storedTips.current = v;
+	}
+	/** Tooltips on markers and visibility symbols: Modern only (Classic is StarUML's plain paper). */
+	get showNotationTips(): boolean {
+		return this.notationTips && this.layoutPreset === 'modern';
+	}
 	get captions(): boolean {
 		return storedCaptions.current;
 	}

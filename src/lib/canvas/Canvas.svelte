@@ -14,13 +14,13 @@
 		type OnSelectionChange
 	} from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
-	import { ContextMenu } from 'bits-ui';
+	import { ContextMenu, Tooltip } from 'bits-ui';
 	import { untrack } from 'svelte';
 	import { runCommand } from '#lib/app/commands.svelte.ts';
 	import { contextItems } from '#lib/app/menus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
-	import { menu } from '#lib/ui/styles.ts';
+	import { menu, tooltip } from '#lib/ui/styles.ts';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
@@ -225,6 +225,22 @@
 		});
 		return { at, items };
 	});
+
+	// Owner's ruling #30: markers and visibility symbols carry `data-tip`; one Bits tooltip, anchored
+	// to whichever the pointer rests on, rather than one per symbol on a large diagram.
+	let tip: { text: string; el: HTMLElement } | null = $state(null);
+	let tipTimer: ReturnType<typeof setTimeout> | undefined;
+	function onpointerover(e: PointerEvent) {
+		const el = (e.target as Element | null)?.closest<HTMLElement>('[data-tip]') ?? null;
+		clearTimeout(tipTimer);
+		if (!el) tip = null;
+		else if (tip?.el !== el)
+			tipTimer = setTimeout(() => (tip = { text: el.dataset.tip!, el }), 400);
+	}
+	function hideTip() {
+		clearTimeout(tipTimer);
+		tip = null;
+	}
 
 	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
 	function reveal(id: Id) {
@@ -451,6 +467,9 @@
 				onkeydown={(e) => handleCanvasKey(e, { rects, openPicker, parts, openMenu })}
 				{onfocusin}
 				onfocusout={() => (ringId = null)}
+				{onpointerover}
+				onpointerleave={hideTip}
+				onpointerdown={hideTip}
 				oncontextmenu={(e) =>
 					oncontextmenu(e, props.oncontextmenu as ((e: MouseEvent) => void) | undefined)}
 			>
@@ -547,6 +566,13 @@
 		</ContextMenu.Content>
 	</ContextMenu.Portal>
 </ContextMenu.Root>
+<Tooltip.Root open={tip !== null} disableHoverableContent>
+	<Tooltip.Portal>
+		<Tooltip.Content class={tooltip} customAnchor={tip?.el ?? null} side="top" sideOffset={6}>
+			<div role="tooltip">{tip?.text}</div>
+		</Tooltip.Content>
+	</Tooltip.Portal>
+</Tooltip.Root>
 
 <style>
 	.aster-canvas {

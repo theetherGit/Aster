@@ -12,5 +12,8 @@ export const menu =
 export const menuItem =
 	'flex h-(--control-icon) cursor-default items-center gap-2 rounded px-2 text-(length:--text-body) data-[highlighted]:bg-selection data-[disabled]:opacity-50 forced-colors:data-[highlighted]:bg-[Highlight] forced-colors:data-[highlighted]:text-[HighlightText]';
 
+export const tooltip =
+	'z-(--z-tooltip) max-w-70 rounded-control border border-chrome-border bg-chrome-surface px-2 py-1 text-(length:--text-small) text-chrome-text shadow-float';
+
 export const focusRing =
 	'focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-accent';

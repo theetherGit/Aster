@@ -15,6 +15,8 @@
 	import type { LabelOffset, LabelKey } from '#lib/model/types.ts';
 	import type { RelationshipFlowEdge } from '#lib/stores/flow.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import { t } from '#lib/i18n/index.ts';
+	import { elementName } from '#lib/model/project.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import {
 		DEFAULT_OFFSETS,
@@ -217,6 +219,51 @@
 	}
 
 	const marker = (m: string | null) => (m ? `url(#aster-m-${m})` : undefined);
+	// Owner's ruling #30: each marker explains itself on hover (one shared tooltip, see Canvas).
+	const nameOfEnd = (endId: string) => {
+		const el = projectStore.project.elements.get(endId);
+		return el ? elementName(el) : '';
+	};
+	function markerTip(m: string, at: 'source' | 'target'): string {
+		const src = nameOfEnd(rel.sourceId);
+		const tgt = nameOfEnd(rel.targetId);
+		switch (m) {
+			case 'triangle':
+				return t(
+					rel.relationshipKind === 'realization' ? 'tip.realization' : 'tip.generalization',
+					{ source: src, target: tgt }
+				);
+			case 'diamond-filled':
+				return t('tip.composition', { whole: tgt, part: src });
+			case 'diamond-hollow':
+				return t('tip.aggregation', { whole: tgt, part: src });
+			default:
+				return rel.relationshipKind === 'dependency'
+					? t('tip.dependency', { source: src, target: tgt })
+					: t('tip.navigable', {
+							from: at === 'target' ? src : tgt,
+							to: at === 'target' ? tgt : src
+						});
+		}
+	}
+	const markerTips = $derived(
+		!ui.showNotationTips || points.length < 2
+			? []
+			: (['source', 'target'] as const).flatMap((at) => {
+					const m = at === 'source' ? notation.start : notation.end;
+					if (!m) return [];
+					const f = endFrame(line, at);
+					const k = MARKER_LENGTH[m] / 2;
+					return [
+						{
+							at,
+							x: f.anchor.x + Math.cos(f.theta) * k,
+							y: f.anchor.y + Math.sin(f.theta) * k,
+							text: markerTip(m, at)
+						}
+					];
+				})
+	);
 	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
 </script>
 
@@ -262,6 +309,13 @@
 		<!-- 10 CSS px invisible hit band at every zoom (ui.md). -->
 		<path class="edge-hit" {d} style:stroke-width={10 / zoom} />
 		{#each dots as p, i (i)}<circle class="edge-dot" cx={p.x} cy={p.y} r="3" />{/each}
+		{#each markerTips as m (m.at)}<circle
+				class="marker-tip"
+				cx={m.x}
+				cy={m.y}
+				r={10 / zoom}
+				data-tip={m.text}
+			/>{/each}
 		{#each labels as label (label.key)}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<g
@@ -376,6 +430,10 @@
 		stroke: transparent;
 		pointer-events: stroke;
 		cursor: pointer;
+	}
+	.marker-tip {
+		fill: transparent;
+		pointer-events: all;
 	}
 	.edge-dot {
 		fill: var(--paper-ink);

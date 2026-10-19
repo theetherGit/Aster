@@ -507,6 +507,16 @@ export const COMMANDS: AppCommand[] = [
 		run: () => (ui.quickFindOpen = true)
 	},
 	{
+		// Owner's ruling #30; keyboard.md has no key for it.
+		id: 'view.notationTips',
+		group: 'view',
+		label: () => t('cmd.notationTips'),
+		keys: [],
+		context: 'global',
+		state: () => ui.notationTips,
+		run: () => (ui.notationTips = !ui.notationTips)
+	},
+	{
 		// features.md M2: the validation panel; keyboard.md has no key for it.
 		id: 'view.validation',
 		group: 'view',

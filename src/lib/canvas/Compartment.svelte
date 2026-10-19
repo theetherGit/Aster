@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { t } from '#lib/i18n/index.ts';
 	import { renderMember, type Member, type MemberKind } from '#lib/mdj/expression.ts';
-	import type { DisplayFlags, Id } from '#lib/model/types.ts';
+	import type { DisplayFlags, Id, Visibility } from '#lib/model/types.ts';
 	import { byId } from '#lib/app/commands.svelte.ts';
 	import { ariaKeys, format } from '#lib/app/shortcuts.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import { ui } from '#lib/stores/ui.svelte.ts';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import LineEditor from './LineEditor.svelte';
 	import { applySuggestion, edit } from './inline.ts';
@@ -51,6 +52,19 @@
 	}
 	const text = (m: Member) =>
 		renderMember(kind, m, { ...flags, guillemets: true, keywords: false });
+	/** Owner's ruling #30: the leading visibility symbol, split off so it can carry its tooltip. */
+	const VIS_SYMBOL: Record<string, Visibility> = {
+		'+': 'public',
+		'-': 'private',
+		'#': 'protected',
+		'~': 'package'
+	};
+	const symbolOf = (m: Member): Visibility | null => {
+		if (!ui.showNotationTips || kind === 'literal' || ('raw' in m && m.raw !== undefined))
+			return null;
+		const v = VIS_SYMBOL[text(m)[0]];
+		return v && 'visibility' in m && m.visibility === v ? v : null;
+	};
 
 	function ondblclick(e: MouseEvent, index: number) {
 		e.stopPropagation();
@@ -91,7 +105,10 @@
 				{/key}
 			{:else}
 				<!-- Adjacent, so the line's text has no stray space; the raw note reads with the line, no hover needed. -->
-				{text(m)}{#if 'raw' in m && m.raw !== undefined}<span class="sr-only">
+				{@const v = symbolOf(m)}
+				{#if v}<span data-tip={t(`tip.vis.${v}`)}>{text(m)[0]}</span>{text(m).slice(1)}{:else}{text(
+						m
+					)}{/if}{#if 'raw' in m && m.raw !== undefined}<span class="sr-only">
 						({t('inspector.unparsed')})</span
 					>{/if}
 			{/if}
