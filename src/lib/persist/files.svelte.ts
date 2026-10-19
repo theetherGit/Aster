@@ -251,10 +251,11 @@ export const fileText = (format: FileFormat) =>
 		? serializeMdjText(projectStore.project)
 		: serializeAsterText(projectStore.project, files.origin ?? undefined);
 
-const suggestedName = (format: FileFormat) =>
+/** A file name for the format: the open file's own, or the project's slug; never a doubled extension. */
+export const suggestedName = (format: FileFormat) =>
 	files.current?.format === format
 		? files.current.name
-		: `${slug(projectStore.project.name)}.${format}`;
+		: `${(files.current?.name ?? slug(projectStore.project.name)).replace(/\.(aster(\.json)?|mdj)$/i, '')}.${format}`;
 
 /**
  * ⌘S writes back in the format the file was opened as (an Aster-born project writes `.aster`);

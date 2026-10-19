@@ -16,3 +16,15 @@ describe('file format by content', () => {
 		expect(sniffFormat('bom.aster', '\uFEFF' + staruml)).toBe('mdj');
 	});
 });
+
+describe('suggested file name', () => {
+	it('keeps the open file name for its own format and swaps the extension for the other', async () => {
+		const { files, suggestedName } = await import('#lib/persist/files.svelte.ts');
+		files.current = { name: 'public-ziapi.mdj', format: 'mdj' } as never;
+		expect(suggestedName('mdj')).toBe('public-ziapi.mdj');
+		expect(suggestedName('aster')).toBe('public-ziapi.aster');
+		files.current = { name: 'library.aster.json', format: 'aster' } as never;
+		expect(suggestedName('mdj')).toBe('library.mdj');
+		files.current = null;
+	});
+});
