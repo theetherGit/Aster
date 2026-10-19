@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Toolbar } from 'bits-ui';
+	import { Separator, Toolbar } from 'bits-ui';
 	import { runCommand } from '#lib/app/commands.svelte.ts';
 	import { canvasApi } from '#lib/canvas/api.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
@@ -92,7 +92,7 @@
 			</Tip>
 		{/each}
 	</Toolbar.Group>
-	<span class="mx-1 my-1 block h-px bg-chrome-border" aria-hidden="true"></span>
+	<Separator.Root class="mx-1 my-1 h-px bg-chrome-border" />
 	<Tip text={canLink ? t('ui.tool.link') : t('ui.linkHint')} key={canLink ? 'L' : undefined}>
 		{#snippet children({ props })}
 			<Toolbar.Button
@@ -109,18 +109,24 @@
 			</Toolbar.Button>
 		{/snippet}
 	</Tip>
-	<Tip text={pinLabel}>
-		{#snippet children({ props })}
-			<Toolbar.Button
-				{...props}
-				aria-label={pinLabel}
-				aria-pressed={pinned}
-				disabled={ui.tool === 'select'}
-				onclick={() => runCommand('tool.pin')}
-				class="{BTN} aria-pressed:bg-accent/15 aria-pressed:text-accent-text"
-			>
-				{@render icon(PIN)}
-			</Toolbar.Button>
-		{/snippet}
-	</Tip>
+	<!-- The pin is a pressed toggle (Bits Toolbar group, one item) that stays in the arrow-key walk. -->
+	<Toolbar.Group
+		type="multiple"
+		value={pinned ? ['pin'] : []}
+		onValueChange={() => runCommand('tool.pin')}
+	>
+		<Tip text={pinLabel}>
+			{#snippet children({ props })}
+				<Toolbar.GroupItem
+					{...props}
+					value="pin"
+					aria-label={pinLabel}
+					disabled={ui.tool === 'select'}
+					class="{BTN} data-[state=on]:bg-accent/15 data-[state=on]:text-accent-text"
+				>
+					{@render icon(PIN)}
+				</Toolbar.GroupItem>
+			{/snippet}
+		</Tip>
+	</Toolbar.Group>
 </Toolbar.Root>

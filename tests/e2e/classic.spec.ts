@@ -113,17 +113,17 @@ test('the Classic toolbox: a relationship tool is Link with that kind, and switc
 	const rels = page.getByRole('toolbar', { name: 'Toolbox' }).getByRole('group', {
 		name: 'Relationships'
 	});
-	const association = rels.getByRole('button', { name: 'Association' });
-	const aggregation = rels.getByRole('button', { name: 'Aggregation' });
+	const association = rels.getByRole('radio', { name: 'Association' });
+	const aggregation = rels.getByRole('radio', { name: 'Aggregation' });
 	await association.click();
-	await expect(association).toHaveAttribute('aria-pressed', 'true');
+	await expect(association).toHaveAttribute('aria-checked', 'true');
 	// Another kind re-targets the Link tool; it does not drop back to Select.
 	await aggregation.click();
-	await expect(aggregation).toHaveAttribute('aria-pressed', 'true');
-	await expect(association).toHaveAttribute('aria-pressed', 'false');
+	await expect(aggregation).toHaveAttribute('aria-checked', 'true');
+	await expect(association).toHaveAttribute('aria-checked', 'false');
 	// The same kind again is the toggle off.
 	await aggregation.click();
-	await expect(aggregation).toHaveAttribute('aria-pressed', 'false');
+	await expect(aggregation).toHaveAttribute('aria-checked', 'false');
 
 	// Tooltips carry the label and the platform key, on focus without a delay.
 	const toolbar = page.getByRole('toolbar', { name: 'Toolbar' });

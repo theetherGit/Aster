@@ -220,6 +220,7 @@
 	"inspector.end": "End at {name}",
 	"inspector.role": "Role",
 	"inspector.multiplicity": "Multiplicity",
+	"inspector.multiplicityPresets": "Multiplicity presets",
 	"inspector.multiplicityPreset": "Multiplicity {value} at the {end} end",
 	"inspector.navigability": "Navigability",
 	"inspector.navigable": "Navigable",

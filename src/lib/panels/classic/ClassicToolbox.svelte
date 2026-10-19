@@ -25,8 +25,10 @@
 	];
 	const dashed = (k: RelationshipKind) => k === 'realization' || k === 'dependency';
 	const note = () => runCommand('create.note');
-	const pick = (tool: Tool) => {
-		ui.tool = ui.tool === tool ? 'select' : tool;
+	// Bits single groups: the chosen value, or '' when the chosen item is clicked again.
+	const ELEMENT_TOOLS = ELEMENTS.filter((e) => e.ready).map((e) => e.tool);
+	const pick = (v: string) => {
+		ui.tool = v ? (v as Tool) : 'select';
 		if (ui.pinned !== ui.tool) ui.pinned = null;
 	};
 	/** StarUML's lock: a double-clicked tool keeps placing until Esc; the registry's `tool.pin`. */
@@ -34,10 +36,9 @@
 		ui.tool = tool;
 		if (ui.pinned !== tool) runCommand('tool.pin');
 	};
-	const pickRel = (kind: RelationshipKind) => {
-		const same = ui.tool === 'link' && ui.lastRelationshipKind === kind;
-		ui.lastRelationshipKind = kind;
-		ui.tool = same ? 'select' : 'link';
+	const pickRel = (v: string) => {
+		if (v) ui.lastRelationshipKind = v as RelationshipKind;
+		ui.tool = v ? 'link' : 'select';
 	};
 </script>
 
@@ -50,42 +51,56 @@
 				<span class="glyph rect" aria-hidden="true"></span>{t('ui.kind.note')}
 			</Toolbar.Button>
 		</div>
-		<div role="group" aria-labelledby="classic-group-class">
+		<!-- Element and relationship tools are Bits single-select groups (one on at a time, the same
+		     one again turns it off); Package, not built yet, stays a focusable button with its reason. -->
+		<Toolbar.Group
+			type="single"
+			value={ELEMENT_TOOLS.includes(ui.tool) ? ui.tool : ''}
+			onValueChange={pick}
+			aria-labelledby="classic-group-class"
+		>
 			<p id="classic-group-class" class="group">{t('classic.group.classDiagram')}</p>
 			{#each ELEMENTS as e (e.tool)}
 				<Tip text={e.ready ? t('ui.pinHint', { tool: e.label }) : t('ui.comingSoon')}>
 					{#snippet children({ props })}
-						<Toolbar.Button
-							{...props}
-							class="classic-tool"
-							aria-pressed={ui.tool === e.tool}
-							aria-label={ui.pinned === e.tool ? t('ui.toolPinned', { tool: e.label }) : undefined}
-							aria-disabled={e.ready ? undefined : true}
-							data-pinned={ui.pinned === e.tool || undefined}
-							onclick={() => e.ready && pick(e.tool)}
-							ondblclick={() => e.ready && pin(e.tool)}
-						>
-							<span class="glyph {e.tool}" aria-hidden="true"></span>{e.label}
-							{#if !e.ready}<span class="sr-only">{t('ui.comingSoon')}</span>{/if}
-						</Toolbar.Button>
+						{#if e.ready}
+							<Toolbar.GroupItem
+								{...props}
+								value={e.tool}
+								class="classic-tool"
+								aria-label={ui.pinned === e.tool
+									? t('ui.toolPinned', { tool: e.label })
+									: undefined}
+								data-pinned={ui.pinned === e.tool || undefined}
+								ondblclick={() => pin(e.tool)}
+							>
+								<span class="glyph {e.tool}" aria-hidden="true"></span>{e.label}
+							</Toolbar.GroupItem>
+						{:else}
+							<Toolbar.Button {...props} class="classic-tool" aria-disabled="true">
+								<span class="glyph {e.tool}" aria-hidden="true"></span>{e.label}
+								<span class="sr-only">{t('ui.comingSoon')}</span>
+							</Toolbar.Button>
+						{/if}
 					{/snippet}
 				</Tip>
 			{/each}
-		</div>
-		<div role="group" aria-labelledby="classic-group-rels">
+		</Toolbar.Group>
+		<Toolbar.Group
+			type="single"
+			value={ui.tool === 'link' ? ui.lastRelationshipKind : ''}
+			onValueChange={pickRel}
+			aria-labelledby="classic-group-rels"
+		>
 			<p id="classic-group-rels" class="group">{t('classic.group.relationships')}</p>
 			{#each RELS as kind (kind)}
-				<Toolbar.Button
-					class="classic-tool"
-					aria-pressed={ui.tool === 'link' && ui.lastRelationshipKind === kind}
-					onclick={() => pickRel(kind)}
-				>
+				<Toolbar.GroupItem value={kind} class="classic-tool">
 					<span class="glyph line" class:dashed={dashed(kind)} aria-hidden="true"></span>{t(
 						`ui.rel.${kind}`
 					)}
-				</Toolbar.Button>
+				</Toolbar.GroupItem>
 			{/each}
-		</div>
+		</Toolbar.Group>
 	</Toolbar.Root>
 </section>
 
@@ -112,7 +127,7 @@
 	:global(.classic-tool:hover:not([aria-disabled])) {
 		background: var(--chrome-surface);
 	}
-	:global(.classic-tool[aria-pressed='true']) {
+	:global(.classic-tool[data-state='on']) {
 		background: color-mix(in srgb, var(--accent) 12%, var(--chrome-bg));
 		border-left-color: var(--accent);
 	}
@@ -123,7 +138,7 @@
 		color: var(--chrome-muted);
 	}
 	@media (forced-colors: active) {
-		:global(.classic-tool[aria-pressed='true']) {
+		:global(.classic-tool[data-state='on']) {
 			border-left-color: Highlight;
 		}
 		:global(.classic-tool[data-pinned]) {

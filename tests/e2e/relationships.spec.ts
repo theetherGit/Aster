@@ -202,11 +202,11 @@ test.describe('on the notation fixture', () => {
 		await expect(borrows.locator('[data-label="sourceRole"] text')).toHaveText('loan');
 
 		// Multiplicity preset chips.
-		await inspector.getByRole('button', { name: 'Multiplicity 1..* at the Book end' }).click();
+		await inspector.getByRole('radio', { name: 'Multiplicity 1..* at the Book end' }).click();
 		await expect(borrows.locator('[data-label="targetMultiplicity"] text')).toHaveText('1..*');
 		await expect(
-			inspector.getByRole('button', { name: 'Multiplicity 1..* at the Book end' })
-		).toHaveAttribute('aria-pressed', 'true');
+			inspector.getByRole('radio', { name: 'Multiplicity 1..* at the Book end' })
+		).toHaveAttribute('aria-checked', 'true');
 
 		await inspector.getByLabel('Kind').click();
 		await page.getByRole('option', { name: 'Composition' }).click();

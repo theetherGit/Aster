@@ -217,17 +217,22 @@
 		<!-- Multiplicity presets (features list #11): one click, typing still allowed. -->
 		<span></span>
 		{#each ends as [end, e, owner] (end)}
-			<div class="flex flex-wrap gap-1">
+			<ToggleGroup.Root
+				type="single"
+				value={PRESETS.includes(e.multiplicity ?? '') ? (e.multiplicity ?? '') : ''}
+				onValueChange={(v: string) => v && patchEnd(end, { multiplicity: v })}
+				aria-label={endField(t('inspector.multiplicityPresets'), end)}
+				class="flex flex-wrap gap-1"
+			>
 				{#each PRESETS as m (m)}
-					<button
-						type="button"
+					<ToggleGroup.Item
+						value={m}
 						class="chip"
-						aria-pressed={e.multiplicity === m}
 						aria-label={t('inspector.multiplicityPreset', { value: m, end: owner })}
-						onclick={() => e.multiplicity !== m && patchEnd(end, { multiplicity: m })}>{m}</button
+						>{m}</ToggleGroup.Item
 					>
 				{/each}
-			</div>
+			</ToggleGroup.Root>
 		{/each}
 		<span class="text-chrome-muted" id="ends-nav">{t('inspector.navigable')}</span>
 		{#each ends as [end, e] (end)}
@@ -401,7 +406,8 @@
 <Documentation id={rel.id} documentation={rel.documentation} field="rel-doc" />
 
 <style>
-	.chip {
+	/* Bits renders the items, so the chip rules are global, scoped by their class. */
+	:global(.chip) {
 		height: 24px;
 		padding: 0 6px;
 		font-size: 11px;
@@ -410,10 +416,10 @@
 		border: 1px solid var(--chrome-border);
 		border-radius: 999px;
 	}
-	.chip:hover {
+	:global(.chip:hover) {
 		color: var(--chrome-text);
 	}
-	.chip[aria-pressed='true'] {
+	:global(.chip[data-state='on']) {
 		color: var(--chrome-text);
 		background: color-mix(in srgb, var(--accent) 18%, transparent);
 		border-color: var(--accent);
