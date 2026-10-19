@@ -169,6 +169,8 @@ test('board 20: opening another file over unsaved edits asks first', async ({ pa
 	const download = page.waitForEvent('download');
 	await page.keyboard.press('ControlOrMeta+s');
 	await download;
+	// The download event lands before the save flow records the file; wait for the footer.
+	await expect(page.getByRole('button', { name: 'library.aster' })).toBeVisible();
 	await page.mouse.move(600, 400);
 	await create(page, 'c', 'Book');
 	await page.keyboard.press('Escape');
