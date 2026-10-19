@@ -81,6 +81,17 @@ const TYPES = [
 	{ description: 'Aster project', accept: { 'application/json': ['.aster', '.aster.json'] } },
 	{ description: 'StarUML model', accept: { 'application/json': ['.mdj'] } }
 ];
+/**
+ * The open dialog starts filtered on its first type, so one entry covers both formats; the two
+ * single-format entries follow for anyone who wants to narrow the list.
+ */
+const OPEN_TYPES = [
+	{
+		description: 'Aster or StarUML project',
+		accept: { 'application/json': ['.aster', '.aster.json', '.mdj'] }
+	},
+	...TYPES
+];
 export const formatOf = (name: string): FileFormat =>
 	/\.aster(\.json)?$/i.test(name) ? 'aster' : 'mdj';
 
@@ -88,7 +99,7 @@ export const formatOf = (name: string): FileFormat =>
 export async function pickFile(): Promise<OpenedFile | null> {
 	if (window.showOpenFilePicker) {
 		try {
-			const [handle] = await window.showOpenFilePicker({ types: TYPES, multiple: false });
+			const [handle] = await window.showOpenFilePicker({ types: OPEN_TYPES, multiple: false });
 			const file = await handle.getFile();
 			return { name: file.name, data: await file.arrayBuffer(), handle };
 		} catch (e) {
