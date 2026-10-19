@@ -98,3 +98,32 @@ test('outline editing: add, rename, write members, reorder, link and delete from
 	// Focus does not fall out of the tree.
 	expect(await tree(page).evaluate((el) => el.contains(document.activeElement))).toBe(true);
 });
+
+/** M2.3 prompt: "reorder with Cmd/Ctrl+Up/Down and drag": the pointer path, same command. */
+test('outline: dragging a member row onto another in its compartment reorders, one undo step', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const customer = item(page, /^Customer/);
+	await customer.click();
+	await page.keyboard.press('ArrowRight'); // expand
+	const first = item(page, /attribute0: String/);
+	const second = item(page, /attribute1: int/);
+	await second.dragTo(first);
+	await expect(lines(page, 'Customer', 'attribute')).toHaveText([
+		'- attribute1: int',
+		'# attribute0: String'
+	]);
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(lines(page, 'Customer', 'attribute')).toHaveText([
+		'# attribute0: String',
+		'- attribute1: int'
+	]);
+	// Not across compartments: an attribute dropped on an operation does nothing.
+	await second.dragTo(item(page, /operation0\(\)/));
+	await expect(lines(page, 'Customer', 'attribute')).toHaveText([
+		'# attribute0: String',
+		'- attribute1: int'
+	]);
+});

@@ -238,6 +238,27 @@
 		await focusRow(row.id);
 	}
 
+	// M2.3 prompt: members reorder by drag as well as ⌘↑ / ⌘↓, within one compartment, through
+	// the same reorderMember command.
+	let dragged: TreeRow | null = $state(null);
+	const canDrop = (row: TreeRow) =>
+		!!dragged &&
+		row.type === 'member' &&
+		row.id !== dragged.id &&
+		row.owner === dragged.owner &&
+		row.memberKind === dragged.memberKind;
+	async function dropOn(row: TreeRow) {
+		const from = dragged!;
+		dragged = null;
+		projectStore.run(reorderMember, {
+			classifierId: from.owner!,
+			kind: from.memberKind!,
+			memberId: from.memberId!,
+			to: row.memberIndex!
+		});
+		await focusRow(from.id);
+	}
+
 	interface Action {
 		label: string;
 		keys: Shortcut[];
@@ -543,6 +564,24 @@
 							ondblclick={() => {
 								if (row.elementId && !editing) canvasFocus.focus();
 							}}
+							draggable={row.type === 'member' && !editing}
+							ondragstart={(e) => {
+								dragged = row;
+								e.dataTransfer?.setData('text/plain', row.label);
+								if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+							}}
+							ondragover={(e) => {
+								if (!canDrop(row)) return;
+								e.preventDefault();
+								if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+							}}
+							ondrop={(e) => {
+								if (!canDrop(row)) return;
+								e.preventDefault();
+								dropOn(row);
+							}}
+							ondragend={() => (dragged = null)}
+							class:drop-target={canDrop(row)}
 						>
 							{#if row.hasChildren}
 								<!-- The tree is hand-built (design.md): its expander is decorative, not an IconButton. -->
@@ -695,6 +734,10 @@
 {/if}
 
 <style>
+	/* While a member is dragged, the rows it may land on show where. */
+	.row.drop-target:hover {
+		box-shadow: inset 0 -2px 0 var(--accent);
+	}
 	.row:focus-visible {
 		outline: 2px dashed var(--accent);
 		outline-offset: -2px;
