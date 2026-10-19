@@ -147,14 +147,7 @@
 </script>
 
 <!-- Modern: a landmark of its own. Classic: a section inside the sidebar's aside, never a nested one. -->
-<svelte:element
-	this={variant === 'classic' ? 'section' : 'aside'}
-	transition:panelSlide={{ duration: variant === 'classic' ? 0 : 160 }}
-	aria-labelledby="explorer-title"
-	class={variant === 'classic'
-		? 'flex min-h-0 flex-1 flex-col overflow-auto'
-		: 'flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface'}
->
+{#snippet body()}
 	{#if variant === 'classic'}
 		<PanelTitle id="explorer-title">{t('classic.modelExplorer')}</PanelTitle>
 	{:else}
@@ -213,7 +206,25 @@
 	{#if empty}
 		<p class="px-4 pb-3 text-(length:--text-small) text-chrome-muted">{t('explorer.empty')}</p>
 	{/if}
-</svelte:element>
+{/snippet}
+
+{#if variant === 'classic'}
+	<!-- Classic: a section inside the sidebar's aside, never a nested landmark. -->
+	<section aria-labelledby="explorer-title" class="flex min-h-0 flex-1 flex-col overflow-auto">
+		{@render body()}
+	</section>
+{:else}
+	<!-- The slide (ui.md motion) animates this wrapper's width and clips; the panel inside keeps
+	     its 240 px, so nothing reflows while it moves. -->
+	<div transition:panelSlide class="flex shrink-0 overflow-hidden">
+		<aside
+			aria-labelledby="explorer-title"
+			class="flex w-[240px] shrink-0 flex-col overflow-auto border-r border-chrome-border bg-chrome-surface"
+		>
+			{@render body()}
+		</aside>
+	</div>
+{/if}
 
 <style>
 	.row:focus-visible {

@@ -67,10 +67,13 @@
 >
 	<Dialog.Portal>
 		<!-- Not DialogFrame: that sheet draws a visible title and pads a centred body; the palette is
-		     an unpadded strip near the top with a hidden name, so it wears the frame's .dim/.sheet
-		     classes and overrides only its place. -->
-		<Dialog.Overlay class="dim" />
-		<Dialog.Content class="sheet palette" aria-label={t('ui.palette')} aria-describedby={undefined}>
+		     an unpadded strip near the top with a hidden name, in the frame's own dress. -->
+		<Dialog.Overlay class="fixed inset-0 z-(--z-dialog) bg-black/45" />
+		<Dialog.Content
+			class="fixed top-[12vh] left-1/2 z-(--z-dialog) w-[560px] max-w-[calc(100vw-32px)] -translate-x-1/2 overflow-hidden rounded-card border border-chrome-border bg-chrome-surface text-chrome-text shadow-dialog"
+			aria-label={t('ui.palette')}
+			aria-describedby={undefined}
+		>
 			<Dialog.Title class="sr-only">{t('ui.palette')}</Dialog.Title>
 			<Command.Root
 				class="flex flex-col"
@@ -144,14 +147,3 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
-
-<style>
-	/* Where the palette sits: near the top, unpadded, its list clipped to the sheet's corners. */
-	:global(.sheet.palette) {
-		top: 12vh;
-		width: 560px;
-		padding: 0;
-		overflow: hidden;
-		transform: translateX(-50%);
-	}
-</style>

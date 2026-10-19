@@ -123,13 +123,7 @@
 		/>
 	</aside>
 {:else}
-	<aside
-		aria-label={classic ? t('classic.editors') : t('inspector.title')}
-		transition:panelSlide={{ duration: classic ? 0 : 160 }}
-		class={classic
-			? 'flex min-h-0 flex-1 flex-col overflow-auto border-t border-chrome-border bg-chrome-surface'
-			: 'inspector w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
-	>
+	{#snippet panel()}
 		<Tabs.Root bind:value={ui.inspectorTab}>
 			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist,
 			     nor a heading of its own (the aside is already named by it): a span in the title dress. -->
@@ -309,7 +303,25 @@
 				</Tabs.Content>
 			{/if}
 		</Tabs.Root>
-	</aside>
+	{/snippet}
+	{#if classic}
+		<aside
+			aria-label={t('classic.editors')}
+			class="flex min-h-0 flex-1 flex-col overflow-auto border-t border-chrome-border bg-chrome-surface"
+		>
+			{@render panel()}
+		</aside>
+	{:else}
+		<!-- The slide animates this wrapper's width and clips; the panel keeps its 300 px inside. -->
+		<div transition:panelSlide class="inspector flex shrink-0 overflow-hidden">
+			<aside
+				aria-label={t('inspector.title')}
+				class="w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface"
+			>
+				{@render panel()}
+			</aside>
+		</div>
+	{/if}
 {/if}
 
 <style>
