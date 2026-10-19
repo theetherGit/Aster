@@ -191,6 +191,26 @@ describe('command stack', () => {
 		fresh.redo();
 		expect(getNodeLayout(getDiagram(project, 'd1'), 'Account')).toMatchObject({ x: 126, y: 88 });
 	});
+
+	it('restores a history whose deeper steps name a diagram deleted since', () => {
+		// Owner's report: a saved project with "add diagram, then delete it" in its history would
+		// not open, because every saved step was rebuilt against today's model at once.
+		const { project, stack } = setup();
+		stack.run(addDiagram(project, { diagramId: 'd2', name: 'Second' }));
+		stack.run(deleteDiagram(project, { diagramId: 'd2' }));
+		const snap = JSON.parse(JSON.stringify(stack.snapshot()));
+		const fresh = new Stack(() => project);
+		expect(() => fresh.restore(snap)).not.toThrow();
+		expect(fresh.snapshot()).toEqual(snap);
+		expect(fresh.undoLabel).toBe('restore diagram Second'); // the inverse's own label, as before
+		fresh.undo();
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d1', 'd2']);
+		fresh.undo();
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d1']);
+		fresh.redo();
+		fresh.redo();
+		expect(project.diagrams.map((d) => d.id)).toEqual(['d1']);
+	});
 });
 
 describe('touches', () => {

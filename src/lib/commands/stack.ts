@@ -5,7 +5,8 @@ import {
 	type CoalescingCommand,
 	type Command,
 	type CommandStack,
-	type CommandStackSnapshot
+	type CommandStackSnapshot,
+	type SerialisedCommand
 } from './types.ts';
 
 interface Entry {
@@ -13,6 +14,8 @@ interface Entry {
 	label: string;
 	key?: string;
 	at: number;
+	/** Restored entries keep the saved form, so a snapshot need not build them. */
+	saved?: SerialisedCommand;
 }
 
 const isCoalescing = (c: Command): c is CoalescingCommand =>
@@ -92,17 +95,29 @@ export class Stack implements CommandStack {
 	snapshot(): CommandStackSnapshot {
 		return {
 			version: 1,
-			undo: this.#undo.map((e) => serialise(e.inverse)),
-			redo: this.#redo.map((e) => serialise(e.inverse))
+			undo: this.#undo.map((e) => e.saved ?? serialise(e.inverse)),
+			redo: this.#redo.map((e) => e.saved ?? serialise(e.inverse))
 		};
 	}
 
 	// ponytail: labels after restore are the inverse's own; wrap in a labelled batch if the toast must match pre-reload
+	// Each saved step is built when it is next in line, not all at once: a deeper step may name
+	// what exists again only once the steps above it are undone (a diagram deleted since), and
+	// building it against today's model would throw and keep the project from opening.
 	restore(snapshot: CommandStackSnapshot): void {
-		const p = this.project();
-		const entry = (s: CommandStackSnapshot['undo'][number]): Entry => {
-			const inverse = hydrate(p, s);
-			return { inverse, label: inverse.label, at: 0 };
+		const entry = (saved: SerialisedCommand): Entry => {
+			let built: Command | undefined;
+			const inverse = () => (built ??= hydrate(this.project(), saved));
+			return {
+				get inverse() {
+					return inverse();
+				},
+				get label() {
+					return inverse().label;
+				},
+				saved,
+				at: 0
+			};
 		};
 		this.#undo = snapshot.undo.map(entry);
 		this.#redo = snapshot.redo.map(entry);
