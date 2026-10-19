@@ -3,7 +3,14 @@ import { firstElement, nearestInDirection } from '#lib/canvas/link.ts';
 import { elementSummary } from '#lib/canvas/summary.ts';
 import type { Rect } from '#lib/canvas/edges/geometry.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
-import { createRelationship, defaultEdgeLayout } from '#lib/model/project.ts';
+import {
+	createAttribute,
+	createClassifier,
+	createOperation,
+	createRelationship,
+	defaultEdgeLayout
+} from '#lib/model/project.ts';
+import type { Classifier, RelationshipKind } from '#lib/model/types.ts';
 
 const r = (x: number, y: number): Rect => ({ x, y, w: 100, h: 50 });
 
@@ -39,25 +46,85 @@ describe('canvas focus: spatial picker', () => {
 	});
 });
 
-describe('canvas focus: element summary', () => {
-	it('says kind, name, member counts and attached relationships in plain language', () => {
+describe('canvas focus: element summary (board 10)', () => {
+	/** Board 10's library: Book realizes Searchable, is part of Library, and Loan refers to it. */
+	function library() {
 		const project = sampleProject();
 		const diagram = project.diagrams[0];
-		const rel = createRelationship({
-			relationshipKind: 'association',
-			sourceId: 'Account',
-			targetId: 'Customer'
-		});
-		project.elements.set(rel.id, rel);
-		diagram.elementIds.push(rel.id);
-		diagram.layout.set(rel.id, defaultEdgeLayout());
+		const add = (c: Classifier) => {
+			project.elements.set(c.id, c);
+			diagram.elementIds.push(c.id);
+		};
+		const attr = (name: string) => createAttribute({ name });
+		add(createClassifier({ id: 'Person', name: 'Person', isAbstract: true }));
+		add(createClassifier({ id: 'Member', name: 'Member' }));
+		add(createClassifier({ id: 'Library', name: 'Library' }));
+		add(createClassifier({ id: 'Searchable', name: 'Searchable', classifierKind: 'interface' }));
+		add(
+			createClassifier({
+				id: 'Book',
+				name: 'Book',
+				attributes: [attr('isbn'), attr('title'), attr('author')],
+				operations: [createOperation({ name: 'isAvailable' })]
+			})
+		);
+		add(createClassifier({ id: 'Loan', name: 'Loan' }));
+		add(
+			createClassifier({
+				id: 'LoanStatus',
+				name: 'LoanStatus',
+				classifierKind: 'enum',
+				literals: ['ACTIVE', 'RETURNED', 'OVERDUE'].map((name) => ({
+					id: name,
+					name,
+					documentation: ''
+				}))
+			})
+		);
+		const rel = (
+			id: string,
+			relationshipKind: RelationshipKind,
+			sourceId: string,
+			targetId: string
+		) => {
+			project.elements.set(id, createRelationship({ id, relationshipKind, sourceId, targetId }));
+			diagram.elementIds.push(id);
+			diagram.layout.set(id, defaultEdgeLayout());
+		};
+		rel('g', 'generalization', 'Member', 'Person');
+		rel('r', 'realization', 'Book', 'Searchable');
+		rel('c', 'composition', 'Book', 'Library');
+		rel('a', 'association', 'Loan', 'Book');
+		rel('d', 'dependency', 'Loan', 'LoanStatus');
+		return { project, diagram };
+	}
 
-		expect(elementSummary(project, diagram, 'Account')).toBe(
-			'Abstract class Account, 10 attributes, 10 operations, 1 relationship: association to Customer'
+	it('says name and kind, member counts, then each relationship in words', () => {
+		const { project, diagram } = library();
+		const say = (id: string) => elementSummary(project, diagram, id);
+		expect(say('Book')).toBe(
+			'Book, class. 3 attributes, 1 operation. Realizes Searchable; part of Library; Loan refers to it.'
 		);
-		expect(elementSummary(project, diagram, 'Customer')).toBe(
-			'Class Customer, 2 attributes, 2 operations, 1 relationship: association from Account'
+		expect(say('Person')).toBe(
+			'Person, abstract class. 0 attributes, 0 operations. Member extends it.'
 		);
-		expect(elementSummary(project, diagram, rel.id)).toBe('Account to Customer, association');
+		expect(say('Member')).toBe('Member, class. 0 attributes, 0 operations. Extends Person.');
+		expect(say('Library')).toBe('Library, class. 0 attributes, 0 operations. Has part Book.');
+		expect(say('Searchable')).toBe(
+			'Searchable, interface. 0 attributes, 0 operations. Book realizes it.'
+		);
+		expect(say('Loan')).toBe(
+			'Loan, class. 0 attributes, 0 operations. Refers to Book; uses LoanStatus.'
+		);
+		expect(say('LoanStatus')).toBe('LoanStatus, enumeration. 3 literals. Loan uses it.');
+		expect(say('Customer')).toBe('Customer, class. 2 attributes, 2 operations.');
+		expect(say('a')).toBe('Loan to Book, association');
+	});
+
+	it('adds the key hint when asked, for the first element focused on entering the diagram', () => {
+		const { project, diagram } = library();
+		expect(elementSummary(project, diagram, 'Book', { hint: true })).toMatch(
+			/refers to it\. Arrow keys move, Enter edits, L links, Tab for members, Esc steps out\.$/
+		);
 	});
 });

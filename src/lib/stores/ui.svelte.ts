@@ -23,6 +23,10 @@ const storedOutline = new PersistedState<boolean>(
 	typeof window !== 'undefined' && window.innerWidth >= 1280,
 	{ serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' } }
 );
+/** accessibility.md: the captions toggle shows the live region as a narration bar; remembered. */
+const storedCaptions = new PersistedState<boolean>('aster:captions', false, {
+	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' }
+});
 class Panels {
 	get outline() {
 		return storedOutline.current;
@@ -50,6 +54,12 @@ class Ui {
 		if (v === 'modern' && this.inspectorTab === 'documentation') this.inspectorTab = 'properties';
 	}
 	panels = new Panels();
+	get captions(): boolean {
+		return storedCaptions.current;
+	}
+	set captions(v: boolean) {
+		storedCaptions.current = v;
+	}
 	/** An in-place name editor is open: the project name, or a diagram tab by id. */
 	renaming: 'project' | Id | null = $state(null);
 	/** The confirm-delete dialog for a diagram. */

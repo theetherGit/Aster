@@ -44,7 +44,7 @@
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
-	import { announce } from '#lib/stores/live.svelte.ts';
+	import { announce, live } from '#lib/stores/live.svelte.ts';
 	import { motion } from '#lib/ui/motion.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
@@ -322,7 +322,14 @@
 					{/if}
 					<ImportNotice />
 					<Toast />
-					{#if !classic || ui.classic.statusbar}
+					{#if ui.captions}
+						<!-- ui.md: with captions on, the footer becomes the narration bar (board 10). The live
+						     region already speaks each line, so the bar is for eyes only. -->
+						<div class="narration" data-testid="narration" aria-hidden="true">
+							<span class="narration-tag">{t('ui.announced')}</span>
+							<span>{live.text}</span>
+						</div>
+					{:else if !classic || ui.classic.statusbar}
 						<footer class="footer">
 							<span>{countsText}</span>
 							<span aria-hidden="true">·</span>
@@ -430,6 +437,35 @@
 		color: var(--paper-muted);
 		background: color-mix(in srgb, var(--paper-bg) 88%, transparent);
 		border-radius: var(--control-radius);
+	}
+	/* Chrome over the paper, the same plate as the link hint (board 10). */
+	.narration {
+		position: absolute;
+		right: var(--space-3);
+		bottom: var(--space-3);
+		left: var(--space-3);
+		z-index: var(--z-footer);
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		padding: var(--space-2) var(--space-3);
+		font-size: var(--text-small);
+		color: var(--chrome-text);
+		background: var(--chrome-surface);
+		border: 1px solid var(--chrome-border);
+		border-radius: var(--control-radius);
+		box-shadow: var(--shadow-float);
+		pointer-events: none;
+	}
+	.narration-tag {
+		flex-shrink: 0;
+		padding: 1px 6px;
+		font-size: var(--text-caption);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		background: color-mix(in srgb, var(--accent) 12%, var(--chrome-surface));
+		border-radius: 4px;
 	}
 	/* The drop layer: the skip link, when focused, must clear everything the page can show. */
 	.skip-link {

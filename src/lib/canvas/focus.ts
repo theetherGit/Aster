@@ -38,7 +38,9 @@ export function focusElement(id: Id, part: FocusPart = 'self') {
 	const prev = selection.focus;
 	selection.focus = { id, part };
 	selection.set([part.startsWith('edge:') ? part.slice(5) : id]);
-	if (prev?.id !== id) announce(elementSummary(projectStore.project, projectStore.diagram, id));
+	// Entering the diagram, the keys come with the first element (board 10).
+	if (prev?.id !== id)
+		announce(elementSummary(projectStore.project, projectStore.diagram, id, { hint: !prev }));
 }
 
 /** Registered by the Explorer while mounted: reveal and focus an element's row (⌘E). */

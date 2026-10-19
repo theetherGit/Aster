@@ -25,12 +25,22 @@ test('keyboard-only: one Tab stop, arrows between Account and Customer, Tab thro
 	await page.keyboard.press('ArrowRight');
 	await expect(account).toBeFocused();
 	await expect(account).toHaveClass(/selected/);
-	await expect(live).toHaveText(/^Abstract class Account, 10 attributes, 10 operations/);
+	// Board 10: the first element names the keys; the hints above it name the neighbours.
+	await expect(live).toHaveText(
+		'Account, abstract class. 10 attributes, 10 operations. Arrow keys move, Enter edits, L links, Tab for members, Esc steps out.'
+	);
+	const hints = page.getByTestId('focus-hints');
+	await expect(hints).toHaveAttribute('aria-hidden', 'true');
+	await expect(hints).toContainText('Focus');
+	await expect(hints).toContainText('→ Customer');
+	await expect(hints).not.toContainText('↑ Customer'); // one hint per neighbour, on its main axis
 	await page.keyboard.press('ArrowRight');
 	await expect(customer).toBeFocused();
 	await expect(customer).toHaveClass(/selected/);
 	await expect(account).not.toHaveClass(/selected/);
-	await expect(live).toHaveText(/^Class Customer, 2 attributes, 2 operations/);
+	await expect(live).toHaveText('Customer, class. 2 attributes, 2 operations.');
+	await expect(hints).toContainText('← Account');
+	await expect(hints).not.toContainText('→');
 	await page.keyboard.press('ArrowLeft');
 	await expect(account).toBeFocused();
 	// The focus ring is dashed and offset; the selection outline is solid (accessibility.md).

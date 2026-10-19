@@ -494,6 +494,16 @@ export const COMMANDS: AppCommand[] = [
 		run: () => (ui.paletteOpen = true)
 	},
 	{
+		// accessibility.md: "A captions toggle in settings"; there is no settings panel, so it lives here.
+		id: 'view.captions',
+		group: 'view',
+		label: () => t('cmd.captions'),
+		keys: [],
+		context: 'global',
+		state: () => ui.captions,
+		run: () => (ui.captions = !ui.captions)
+	},
+	{
 		id: 'view.shortcuts',
 		group: 'view',
 		label: () => t('cmd.shortcuts'),

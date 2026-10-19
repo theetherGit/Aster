@@ -128,3 +128,24 @@ test('a file that will not open says so on the welcome too (board 22)', async ({
 	await expect(notice).toContainText('Couldn’t open broken.aster');
 	await expect(page).toHaveURL(/\/$/); // still on the welcome
 });
+
+test('captions: the palette toggle turns the status footer into the narration bar, remembered', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const bar = page.getByTestId('narration');
+	await expect(bar).toHaveCount(0);
+	await page.keyboard.press('ControlOrMeta+k');
+	await page.keyboard.type('Captions');
+	await page.keyboard.press('Enter');
+	await expect(bar).toBeVisible();
+	await canvasOf(page).focus();
+	await page.keyboard.press('ArrowRight');
+	await expect(bar).toContainText('Announced');
+	await expect(bar).toContainText('Account, abstract class.');
+	// The live region already speaks it; the bar is for eyes only.
+	await expect(bar).toHaveAttribute('aria-hidden', 'true');
+	await page.reload();
+	await expect(page.getByTestId('narration')).toBeVisible();
+});

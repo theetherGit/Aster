@@ -49,6 +49,8 @@
 	import { canvasApi } from './api.ts';
 	import { canvasFocus, canvasRects, focusElement, focusOwner } from './focus.ts';
 	import { handleCanvasKey } from './keyboard.ts';
+	import { nearestInDirection } from './link.ts';
+	import { elementName } from '#lib/model/project.ts';
 	import type { FocusPart } from '#lib/stores/selection.svelte.ts';
 
 	const nodeTypes = {
@@ -187,6 +189,38 @@
 					: (pasteFrom(e.clipboardData), true);
 		if (done) e.preventDefault();
 	}
+
+	// Board 10: while a node shows the keyboard ring, a "Focus" tag and the neighbour each arrow
+	// reaches sit above it. Seen only with :focus-visible, so a click never shows them.
+	let ringId: Id | null = $state(null);
+	function onfocusin(e: FocusEvent) {
+		const t = e.target as HTMLElement;
+		ringId =
+			t.dataset?.part === 'self' && !t.closest('.uml-edge') && t.matches(':focus-visible')
+				? (t.dataset.focusId ?? null)
+				: null;
+	}
+	const ARROW = { left: '←', right: '→', up: '↑', down: '↓' } as const;
+	const hints = $derived.by(() => {
+		if (!ringId) return null;
+		void flow.nodes; // follow moves and renames
+		const r = rects();
+		const at = r.get(ringId);
+		if (!at) return null;
+		// One hint per neighbour: an element both up and right of here is named on its main axis.
+		const c = center(at);
+		const items = (['left', 'right', 'up', 'down'] as const).flatMap((d) => {
+			const id = nearestInDirection(r, ringId!, d);
+			const el = id && projectStore.project.elements.get(id);
+			if (!el) return [];
+			const o = center(r.get(id)!);
+			const horizontal = Math.abs(o.x - c.x) >= Math.abs(o.y - c.y);
+			return horizontal === (d === 'left' || d === 'right')
+				? [`${ARROW[d]} ${elementName(el)}`]
+				: [];
+		});
+		return { at, items };
+	});
 
 	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
 	function reveal(id: Id) {
@@ -395,6 +429,8 @@
 				aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
 				tabindex={selection.focus ? -1 : 0}
 				onkeydown={(e) => handleCanvasKey(e, { rects, openPicker, parts, openMenu })}
+				{onfocusin}
+				onfocusout={() => (ringId = null)}
 				oncontextmenu={(e) =>
 					oncontextmenu(e, props.oncontextmenu as ((e: MouseEvent) => void) | undefined)}
 			>
@@ -441,6 +477,20 @@
 						size={1.5}
 						lineWidth={1}
 					/>
+					{#if hints}
+						<ViewportPortal target="front">
+							<div
+								class="focus-hints"
+								data-testid="focus-hints"
+								aria-hidden="true"
+								style:left="{hints.at.x - 7}px"
+								style:top="{hints.at.y - 32}px"
+							>
+								<span class="focus-tag">{t('ui.focusTag')}</span>
+								{#each hints.items as item (item)}<span class="focus-hint">{item}</span>{/each}
+							</div>
+						</ViewportPortal>
+					{/if}
 					{#if preview}
 						<ViewportPortal target="front">
 							<svg class="link-preview" aria-hidden="true">
@@ -501,6 +551,33 @@
 		stroke: var(--paper-accent);
 		stroke-width: 1.5;
 		stroke-dasharray: 6 4;
+	}
+	/* Board 10: on the paper, so paper tokens; the tag is a tint, since text on the solid accent
+	   falls short of 4.5:1 in the dark theme. */
+	.focus-hints {
+		position: absolute;
+		display: flex;
+		gap: 4px;
+		align-items: center;
+		font-size: 10.5px;
+		line-height: 16px;
+		color: var(--paper-ink);
+		white-space: nowrap;
+		pointer-events: none;
+	}
+	.focus-tag {
+		padding: 1px 6px;
+		font-weight: 600;
+		background: color-mix(in srgb, var(--paper-accent) 14%, var(--paper-bg));
+		border: 1px solid var(--paper-accent);
+		border-radius: 4px;
+	}
+	.focus-hint {
+		padding: 1px 6px;
+		font-family: var(--font-mono);
+		background: var(--paper-bg);
+		border: 1px solid var(--paper-grid);
+		border-radius: 4px;
 	}
 	.link-preview {
 		position: absolute;
