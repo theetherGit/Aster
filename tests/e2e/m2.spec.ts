@@ -159,6 +159,13 @@ test('notation tooltips explain a visibility symbol and a marker; a toggle and C
 	const tip = page.getByRole('tooltip');
 	await node(page, 'Account').locator('[data-tip]').first().hover();
 	await expect(tip).toHaveText('# protected: visible to this class and its subclasses');
+	// WCAG 1.4.13: hoverable (the pointer can rest on it) and dismissible (Esc).
+	await tip.hover();
+	await expect(tip).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(tip).toHaveCount(0);
+	await node(page, 'Account').locator('[data-tip]').first().hover();
+	await expect(tip).toBeVisible();
 	await page.mouse.move(5, 400);
 	await expect(tip).toHaveCount(0);
 

@@ -241,6 +241,11 @@
 		clearTimeout(tipTimer);
 		tip = null;
 	}
+	// WCAG 1.4.13: the pointer may move onto the tooltip without losing it, and Esc dismisses it.
+	function onpointerleave(e: PointerEvent) {
+		if ((e.relatedTarget as Element | null)?.closest?.('[data-notation-tip]')) return;
+		hideTip();
+	}
 
 	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
 	function reveal(id: Id) {
@@ -464,11 +469,18 @@
 				role="application"
 				aria-label={t('ui.canvasNamed', { name: projectStore.diagram.name })}
 				tabindex={selection.focus ? -1 : 0}
-				onkeydown={(e) => handleCanvasKey(e, { rects, openPicker, parts, openMenu })}
+				onkeydown={(e) => {
+					if (e.key === 'Escape' && tip) {
+						hideTip();
+						e.preventDefault();
+						return;
+					}
+					handleCanvasKey(e, { rects, openPicker, parts, openMenu });
+				}}
 				{onfocusin}
 				onfocusout={() => (ringId = null)}
 				{onpointerover}
-				onpointerleave={hideTip}
+				{onpointerleave}
 				onpointerdown={hideTip}
 				oncontextmenu={(e) =>
 					oncontextmenu(e, props.oncontextmenu as ((e: MouseEvent) => void) | undefined)}
@@ -566,9 +578,23 @@
 		</ContextMenu.Content>
 	</ContextMenu.Portal>
 </ContextMenu.Root>
-<Tooltip.Root open={tip !== null} disableHoverableContent>
+<Tooltip.Root
+	open={tip !== null}
+	onOpenChange={(o) => {
+		if (!o) hideTip();
+	}}
+>
 	<Tooltip.Portal>
-		<Tooltip.Content class={tooltip} customAnchor={tip?.el ?? null} side="top" sideOffset={6}>
+		<Tooltip.Content
+			class={tooltip}
+			customAnchor={tip?.el ?? null}
+			side="top"
+			sideOffset={6}
+			data-notation-tip=""
+			onpointerleave={(e: PointerEvent) => {
+				if (!(e.relatedTarget as Element | null)?.closest?.('[data-tip]')) hideTip();
+			}}
+		>
 			<div role="tooltip">{tip?.text}</div>
 		</Tooltip.Content>
 	</Tooltip.Portal>
