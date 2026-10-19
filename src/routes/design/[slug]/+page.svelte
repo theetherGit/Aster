@@ -6,6 +6,9 @@
 	import { SvelteFlowProvider } from '@xyflow/svelte';
 	import { Tabs } from 'bits-ui';
 	import Canvas from '#lib/canvas/Canvas.svelte';
+	import ValidationPanel from '#lib/panels/ValidationPanel.svelte';
+	import { validate } from '#lib/model/validate.ts';
+	import { validation } from '#lib/stores/validation.svelte.ts';
 	import { handleGlobalKey } from '#lib/canvas/keyboard.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import EmptyHint from '#lib/panels/EmptyHint.svelte';
@@ -152,6 +155,15 @@
 		canvasFocus.focus();
 	});
 
+	// features.md M2: rules run live, a moment after the model settles, so a drag (many commands)
+	// validates once at the end rather than every frame.
+	$effect(() => {
+		void projectStore.version;
+		const project = projectStore.project;
+		const h = setTimeout(() => (validation.findings = validate(project)), 120);
+		return () => clearTimeout(h);
+	});
+
 	// keyboard.md: F6 / ⇧F6 cycle the open panels (Outline, canvas, Inspector) in DOM order.
 	function cyclePanels(back: boolean) {
 		const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
@@ -276,83 +288,100 @@
 						/>
 					</aside>
 				{/if}
-				<main
-					id="canvas"
-					class="relative min-w-0 flex-1"
-					style:--canvas-inset-top={showBanner || ui.sampleStrip ? '40px' : '0px'}
-					data-panel="canvas"
-				>
-					<!-- The toolbox precedes the canvas in the DOM so Tab reaches the canvas after it. -->
-					{#if !classic}
-						<Toolbox />
-					{/if}
-					<Canvas />
-					{#if showBanner}
-						<!-- ui.md save states: once per project, until saved to a file. -->
-						<Banner
-							tone="warning"
-							label={t('file.bannerLabel')}
-							text={t('file.banner', { key: format(byId('file.save')!.keys[0]) })}
-							dismissLabel={t('file.bannerDismiss')}
-							ondismiss={() => (files.bannerDismissed = true)}
-						>
-							{#snippet actions()}
-								<Button size="sm" onclick={() => runCommand('project.rename')}
-									>{t('file.bannerName')}</Button
-								>
-								<Button size="sm" onclick={() => saveFile(true)}>{t('file.bannerSave')}</Button>
-							{/snippet}
-						</Banner>
-					{/if}
-					{#if ui.sampleStrip}
-						<Banner
-							tone="info"
-							label={t('welcome.sampleLabel')}
-							text={t('welcome.sampleStrip')}
-							dismissLabel={t('welcome.sampleDismiss')}
-							ondismiss={() => (ui.sampleStrip = false)}
-						>
-							{#snippet actions()}
-								<Button size="sm" onclick={() => newProject()}>{t('file.new')}</Button>
-							{/snippet}
-						</Banner>
-					{/if}
-					{#if projectStore.diagram.elementIds.length === 0}
-						<EmptyHint />
-					{/if}
-					<ImportNotice />
-					<Toast />
-					{#if ui.captions}
-						<!-- ui.md: with captions on, the footer becomes the narration bar (board 10). The live
+				<!-- The validation panel sits under the canvas, in its column (StarUML's bottom panel). -->
+				<div class="flex min-w-0 flex-1 flex-col">
+					<main
+						id="canvas"
+						class="relative min-h-0 min-w-0 flex-1"
+						style:--canvas-inset-top={showBanner || ui.sampleStrip ? '40px' : '0px'}
+						data-panel="canvas"
+					>
+						<!-- The toolbox precedes the canvas in the DOM so Tab reaches the canvas after it. -->
+						{#if !classic}
+							<Toolbox />
+						{/if}
+						<Canvas />
+						{#if showBanner}
+							<!-- ui.md save states: once per project, until saved to a file. -->
+							<Banner
+								tone="warning"
+								label={t('file.bannerLabel')}
+								text={t('file.banner', { key: format(byId('file.save')!.keys[0]) })}
+								dismissLabel={t('file.bannerDismiss')}
+								ondismiss={() => (files.bannerDismissed = true)}
+							>
+								{#snippet actions()}
+									<Button size="sm" onclick={() => runCommand('project.rename')}
+										>{t('file.bannerName')}</Button
+									>
+									<Button size="sm" onclick={() => saveFile(true)}>{t('file.bannerSave')}</Button>
+								{/snippet}
+							</Banner>
+						{/if}
+						{#if ui.sampleStrip}
+							<Banner
+								tone="info"
+								label={t('welcome.sampleLabel')}
+								text={t('welcome.sampleStrip')}
+								dismissLabel={t('welcome.sampleDismiss')}
+								ondismiss={() => (ui.sampleStrip = false)}
+							>
+								{#snippet actions()}
+									<Button size="sm" onclick={() => newProject()}>{t('file.new')}</Button>
+								{/snippet}
+							</Banner>
+						{/if}
+						{#if projectStore.diagram.elementIds.length === 0}
+							<EmptyHint />
+						{/if}
+						<ImportNotice />
+						<Toast />
+						{#if ui.captions}
+							<!-- ui.md: with captions on, the footer becomes the narration bar (board 10). The live
 						     region already speaks each line, so the bar is for eyes only. -->
-						<div class="narration" data-testid="narration" aria-hidden="true">
-							<span class="narration-tag">{t('ui.announced')}</span>
-							<span>{live.text}</span>
-						</div>
-					{:else if !classic || ui.classic.statusbar}
-						<footer class="footer">
-							<span>{countsText}</span>
-							<span aria-hidden="true">·</span>
-							{#if files.current}
-								<span data-testid="footer-save" data-saved={persist.at}
-									>{t('footer.autosaved', {
-										ago: persist.at ? ago(persist.at, now) : t('time.justNow')
-									})}</span
-								>
+							<div class="narration" data-testid="narration" aria-hidden="true">
+								<span class="narration-tag">{t('ui.announced')}</span>
+								<span>{live.text}</span>
+							</div>
+						{:else if !classic || ui.classic.statusbar}
+							<footer class="footer">
+								<span>{countsText}</span>
+								{#if validation.findings.length}
+									<span aria-hidden="true">·</span>
+									<button
+										type="button"
+										class="file-name warnings"
+										aria-expanded={validation.open}
+										onclick={() => (validation.open = !validation.open)}
+										>{validation.findings.length === 1
+											? t('validation.countOne')
+											: t('validation.count', { n: validation.findings.length })}</button
+									>
+								{/if}
 								<span aria-hidden="true">·</span>
-								<button
-									type="button"
-									class="file-name"
-									title={t('footer.copyName')}
-									onclick={copyName}>{copiedName ? t('file.copied') : files.current.name}</button
-								>
-							{:else}
-								<span data-testid="footer-save" data-saved={persist.at}>{t('footer.notSaved')}</span
-								>
-							{/if}
-						</footer>
-					{/if}
-				</main>
+								{#if files.current}
+									<span data-testid="footer-save" data-saved={persist.at}
+										>{t('footer.autosaved', {
+											ago: persist.at ? ago(persist.at, now) : t('time.justNow')
+										})}</span
+									>
+									<span aria-hidden="true">·</span>
+									<button
+										type="button"
+										class="file-name"
+										title={t('footer.copyName')}
+										onclick={copyName}>{copiedName ? t('file.copied') : files.current.name}</button
+									>
+								{:else}
+									<span data-testid="footer-save" data-saved={persist.at}
+										>{t('footer.notSaved')}</span
+									>
+								{/if}
+							</footer>
+						{/if}
+					</main>
+					{#if validation.open}<ValidationPanel />{/if}
+				</div>
 				{#if classic}
 					{#if ui.classic.navigator || ui.classic.editors}
 						<aside
@@ -490,6 +519,11 @@
 		padding: 0 var(--space-1);
 		color: var(--paper-muted);
 		border-radius: var(--control-radius);
+	}
+	/* A count of warnings: amber is the warning colour (ui.md), on the paper side of the plate. */
+	.warnings {
+		text-decoration: underline wavy var(--warning);
+		text-underline-offset: 3px;
 	}
 	.file-name:hover {
 		color: var(--paper-ink);

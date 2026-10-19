@@ -33,6 +33,7 @@ import type { ClassifierKind, DisplayFlags, Id, LineStyle } from '#lib/model/typ
 import { newProject, openFromPicker, saveFile } from '#lib/persist/files.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
+import { validation } from '#lib/stores/validation.svelte.ts';
 import { ui, cycleTheme } from '#lib/stores/ui.svelte.ts';
 import { parse, type Shortcut } from './shortcuts.ts';
 
@@ -492,6 +493,16 @@ export const COMMANDS: AppCommand[] = [
 		staruml: true,
 		inText: true,
 		run: () => (ui.paletteOpen = true)
+	},
+	{
+		// features.md M2: the validation panel; keyboard.md has no key for it.
+		id: 'view.validation',
+		group: 'view',
+		label: () => t('cmd.validation'),
+		keys: [],
+		context: 'global',
+		state: () => validation.open,
+		run: () => (validation.open = !validation.open)
 	},
 	{
 		// accessibility.md: "A captions toggle in settings"; there is no settings panel, so it lives here.

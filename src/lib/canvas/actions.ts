@@ -28,6 +28,7 @@ import {
 	plainText,
 	type ClipboardPayload
 } from './clipboard.ts';
+import { canvasFocus, explorerFocus, focusElement } from './focus.ts';
 import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
 import { freePosition } from './place.ts';
@@ -220,4 +221,23 @@ export function copyFromMenu(cut: boolean) {
 	}
 	if (!done) copySelection(null);
 	if (cut) deleteSelection(false);
+}
+
+/**
+ * Jump to an element (the validation panel): on the diagram that shows it, this one first, with
+ * roving focus on it; an element no diagram shows is revealed in the Outline instead.
+ */
+export function jumpTo(id: Id) {
+	const p = projectStore.project;
+	const d = projectStore.diagram.elementIds.includes(id)
+		? projectStore.diagram
+		: p.diagrams.find((x) => x.elementIds.includes(id));
+	if (!d) {
+		selection.set([id]);
+		explorerFocus.reveal(id);
+		return;
+	}
+	projectStore.activeDiagramId = d.id;
+	focusElement(id);
+	requestAnimationFrame(() => canvasFocus.focus());
 }

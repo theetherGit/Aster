@@ -63,6 +63,51 @@ function editRelationship(p: Project, id: Id, edit: (r: Relationship) => Relatio
 	return replaceElement(p, { element: structuredClone(previous) });
 }
 
+const END_LABELS = [
+	['sourceMultiplicity', 'targetMultiplicity'],
+	['sourceRole', 'targetRole'],
+	['sourceProperty', 'targetProperty']
+] as const;
+
+/**
+ * Swaps a relationship's ends (ASTER001's Flip): source and target, their ends, and on every
+ * diagram the waypoints (read from the new source) and the end labels' offsets. Its own inverse.
+ */
+export const flipRelationship: Factory<{ id: Id }> = define(
+	'flipRelationship',
+	(project, { id }) => {
+		const r = relationship(project, id);
+		return {
+			label: t('cmd.flip', {
+				kind: t(`rel.${r.relationshipKind}`),
+				source: nameOf(project, r.sourceId),
+				target: nameOf(project, r.targetId)
+			}),
+			touches: [id, r.sourceId, r.targetId],
+			apply(p): Command {
+				const x = relationship(p, id);
+				const flipped: Relationship = { ...x, sourceId: x.targetId, targetId: x.sourceId };
+				if (x.sourceEnd && x.targetEnd)
+					[flipped.sourceEnd, flipped.targetEnd] = [x.targetEnd, x.sourceEnd];
+				p.elements.set(id, flipped);
+				for (const d of p.diagrams) {
+					const l = d.layout.get(id);
+					if (l?.kind !== 'edge') continue;
+					l.waypoints.reverse();
+					for (const [a, b] of END_LABELS) {
+						const [oa, ob] = [l.labelOffsets[a], l.labelOffsets[b]];
+						delete l.labelOffsets[a];
+						delete l.labelOffsets[b];
+						if (ob) l.labelOffsets[a] = ob;
+						if (oa) l.labelOffsets[b] = oa;
+					}
+				}
+				return flipRelationship(p, { id });
+			}
+		};
+	}
+);
+
 export interface ConnectArgs {
 	diagramId: Id;
 	/** Chosen by the caller so the command replays to the same id. */

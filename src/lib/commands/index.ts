@@ -30,6 +30,7 @@ export {
 export {
 	addWaypoint,
 	connect,
+	flipRelationship,
 	moveWaypoint,
 	removeWaypoint,
 	replaceElement,
