@@ -160,4 +160,28 @@ describe('explorer tree rows', () => {
 		const acc = buildRows(p, new Set([ROOT, D1, rowIdFor('Account', 'd1')]));
 		expect(acc.find((r) => r.elementId === 'r2')?.label).toBe('serves: association to Customer');
 	});
+
+	it('says what each row is, so the Outline can edit it (M2)', () => {
+		const rows = buildRows(project, new Set([ROOT, D1, rowIdFor('Customer', 'd1')]));
+		const row = (id: string) => rows.find((r) => r.id === id)!;
+		expect(row(ROOT).type).toBe('project');
+		expect(row(D1)).toMatchObject({ type: 'diagram', diagramId: 'd1' });
+		expect(row(rowIdFor('Customer', 'd1'))).toMatchObject({
+			type: 'classifier',
+			elementId: 'Customer',
+			diagramId: 'd1'
+		});
+		const members = rows.filter((r) => r.type === 'member');
+		expect(members.map((m) => [m.memberKind, m.memberIndex])).toEqual([
+			['attribute', 0],
+			['attribute', 1],
+			['operation', 0],
+			['operation', 1]
+		]);
+		expect(members[1]).toMatchObject({
+			owner: 'Customer',
+			memberId: 'Customer-a1',
+			diagramId: 'd1'
+		});
+	});
 });

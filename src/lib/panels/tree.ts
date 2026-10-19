@@ -25,8 +25,15 @@ export interface TreeRow {
 	expanded: boolean;
 	/** Model element this row stands for, when any. */
 	elementId?: Id;
-	/** Diagram whose subtree holds this row, when any. */
+	/** Diagram whose subtree holds this row (or the diagram itself), when any. */
 	diagramId?: Id;
+	/** What the row stands for, so the Outline knows how to rename, add, reorder and delete (M2). */
+	type: 'project' | 'diagram' | 'package' | 'classifier' | 'member' | 'relationship';
+	/** Member rows: the classifier, the compartment, the place in it, the member's id. */
+	owner?: Id;
+	memberKind?: MemberKind;
+	memberIndex?: number;
+	memberId?: Id;
 }
 
 type Draft = Omit<TreeRow, 'posinset' | 'setsize'> & { children?: () => Draft[] };
@@ -63,18 +70,24 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 	};
 	const placed = new Set(project.diagrams.flatMap((d) => d.elementIds));
 
-	const memberRows = (c: Classifier, parentId: string, level: number): Draft[] => {
+	const memberRows = (c: Classifier, parentId: string, level: number, diagramId?: Id): Draft[] => {
 		const kinds: MemberKind[] = ['attribute', 'operation', 'literal'];
 		return kinds.flatMap((kind) =>
 			(kind === 'attribute' ? c.attributes : kind === 'operation' ? c.operations : c.literals).map(
-				(m) => ({
+				(m, index) => ({
 					id: `${parentId}/member:${m.id}`,
+					type: 'member' as const,
 					label: renderMember(kind, m, { guillemets: true }),
 					name: m.name,
 					hint: t(`member.${kind}`),
 					level,
 					hasChildren: false,
-					expanded: false
+					expanded: false,
+					owner: c.id,
+					memberKind: kind,
+					memberIndex: index,
+					memberId: m.id,
+					diagramId
 				})
 			)
 		);
@@ -85,6 +98,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			const target = nameOf(r.targetId);
 			return {
 				id: rowIdFor(r.id, diagramId),
+				type: 'relationship' as const,
 				label: r.name
 					? t('explorer.relationshipNamed', { name: r.name, kind, target })
 					: t('explorer.relationship', { kind, target }),
@@ -100,6 +114,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 		const id = rowIdFor(c.id, diagramId);
 		return {
 			id,
+			type: 'classifier',
 			label: c.name,
 			hint: hintFor(c),
 			italic: c.isAbstract,
@@ -114,7 +129,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			elementId: c.id,
 			diagramId,
 			children: () => [
-				...memberRows(c, id, level + 1),
+				...memberRows(c, id, level + 1, diagramId),
 				...relationshipRows(c, level + 1, diagramId)
 			]
 		};
@@ -123,6 +138,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 		const id = diagramId ? `${diagramRowId(diagramId)}/package:${p.id}` : `package:${p.id}`;
 		return {
 			id,
+			type: 'package',
 			label: p.name,
 			hint: t('explorer.hint.package'),
 			level,
@@ -156,6 +172,8 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 		const pool = new Set(d.elementIds);
 		return {
 			id,
+			type: 'diagram',
+			diagramId: d.id,
 			label: d.name,
 			level: 2,
 			hasChildren: [...pool].some((x) => {
@@ -171,6 +189,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 	);
 	const root: Draft = {
 		id: ROOT,
+		type: 'project',
 		label: project.name,
 		level: 1,
 		hasChildren: true,

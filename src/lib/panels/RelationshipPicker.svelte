@@ -33,10 +33,13 @@
 		return el ? elementName(el) : '';
 	};
 
+	// Focus goes back where the link began: the canvas, or the Outline row that asked.
+	let restore = () => canvasFocus.focus();
 	function close() {
+		restore = ui.picker?.restore ?? (() => canvasFocus.focus());
 		ui.picker = null;
 		ui.link = null;
-		canvasFocus.focus();
+		restore();
 	}
 
 	function choose(kind: RelationshipKind) {
@@ -96,7 +99,7 @@
 			}}
 			onCloseAutoFocus={(e) => {
 				e.preventDefault();
-				canvasFocus.focus();
+				restore();
 			}}
 		>
 			<DropdownMenu.Group>

@@ -649,5 +649,22 @@
 	"member.suggest.create": "Create class {name}",
 	"member.suggest.link": "Link with association",
 	"member.suggest.available": "Suggestion: {action}, {key}",
-	"member.suggest.createAny": "Create class"
+	"member.suggest.createAny": "Create class",
+	"outline.rename": "Rename",
+	"outline.edit": "Edit line",
+	"outline.addDiagram": "Add diagram",
+	"outline.addClass": "Add class",
+	"outline.add.attribute": "Add attribute",
+	"outline.add.operation": "Add operation",
+	"outline.add.literal": "Add literal",
+	"outline.addBelow": "Add below",
+	"outline.moveUp": "Move up",
+	"outline.moveDown": "Move down",
+	"outline.delete": "Delete",
+	"outline.createRelationship": "Create relationship…",
+	"outline.target": "Relationship target",
+	"outline.newMember": "New {kind}",
+	"outline.nameLabel": "Name",
+	"outline.lineLabel": "Line",
+	"outline.menu": "Outline commands"
 }
