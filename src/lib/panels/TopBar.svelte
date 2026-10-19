@@ -92,41 +92,68 @@
 					ondone={() => renamed(d.id)}
 				/>
 			{:else}
-				<ContextMenu.Root>
-					<ContextMenu.Trigger>
-						{#snippet child({ props })}
-							<Tabs.Trigger
-								{...props}
-								value={d.id}
-								class="-mb-px shrink-0 border-b-2 border-transparent px-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text"
-								ondblclick={() => rename(d.id)}
-								onkeydown={(e: KeyboardEvent) => {
-									if (e.key === 'F2') {
-										e.preventDefault();
-										rename(d.id);
-									}
-								}}
+				<!-- The tab and, on hover or focus within, its delete button (24 px, outside the tab button). -->
+				<span class="group relative flex shrink-0 items-stretch">
+					<ContextMenu.Root>
+						<ContextMenu.Trigger>
+							{#snippet child({ props })}
+								<Tabs.Trigger
+									{...props}
+									value={d.id}
+									class="-mb-px shrink-0 border-b-2 border-transparent pl-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text {canDelete
+										? 'pr-8'
+										: 'pr-3'}"
+									ondblclick={() => rename(d.id)}
+									onkeydown={(e: KeyboardEvent) => {
+										if (e.key === 'F2') {
+											e.preventDefault();
+											rename(d.id);
+										}
+									}}
+								>
+									{d.name}
+								</Tabs.Trigger>
+							{/snippet}
+						</ContextMenu.Trigger>
+						<ContextMenu.Portal>
+							<ContextMenu.Content class="menu">
+								<ContextMenu.Item class="menu-item" onSelect={() => rename(d.id)}
+									>{t('ui.renameDiagram')}</ContextMenu.Item
+								>
+								<ContextMenu.Item
+									class="menu-item data-[disabled]:opacity-50"
+									disabled={!canDelete}
+									onSelect={() => {
+										projectStore.activeDiagramId = d.id;
+										runCommand('diagram.delete');
+									}}>{t('ui.deleteDiagram')}</ContextMenu.Item
+								>
+							</ContextMenu.Content>
+						</ContextMenu.Portal>
+					</ContextMenu.Root>
+					{#if canDelete}
+						<button
+							type="button"
+							class="tab-delete pointer-events-none absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 rounded-control text-chrome-muted opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-chrome-surface hover:text-danger"
+							aria-label={t('ui.deleteDiagramNamed', { name: d.name })}
+							onclick={() => {
+								projectStore.activeDiagramId = d.id;
+								runCommand('diagram.delete');
+							}}
+						>
+							<svg
+								width="11"
+								height="11"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+								stroke-linecap="round"
+								aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg
 							>
-								{d.name}
-							</Tabs.Trigger>
-						{/snippet}
-					</ContextMenu.Trigger>
-					<ContextMenu.Portal>
-						<ContextMenu.Content class="menu">
-							<ContextMenu.Item class="menu-item" onSelect={() => rename(d.id)}
-								>{t('ui.renameDiagram')}</ContextMenu.Item
-							>
-							<ContextMenu.Item
-								class="menu-item data-[disabled]:opacity-50"
-								disabled={!canDelete}
-								onSelect={() => {
-									projectStore.activeDiagramId = d.id;
-									runCommand('diagram.delete');
-								}}>{t('ui.deleteDiagram')}</ContextMenu.Item
-							>
-						</ContextMenu.Content>
-					</ContextMenu.Portal>
-				</ContextMenu.Root>
+						</button>
+					{/if}
+				</span>
 			{/if}
 		{/each}
 	</Tabs.List>

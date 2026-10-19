@@ -326,11 +326,25 @@ test('diagram tabs rename in place and delete from their context menu with an un
 	await page.keyboard.type('Zzz');
 	await page.keyboard.press('Escape');
 	await expect(tabs.getByRole('tab', { name: 'Overview' })).toBeVisible();
-	// Add one, delete it from its menu, undo from the toast.
+	// Add one; its hover × and its menu both open the confirm dialog, which needs the name typed.
 	await page.getByRole('button', { name: 'Add diagram' }).click();
 	const second = tabs.getByRole('tab', { name: 'Class diagram 2' });
+	await second.hover();
+	await page.getByRole('button', { name: 'Delete Class diagram 2' }).click();
+	const dialog = page.getByRole('alertdialog', { name: 'Delete Class diagram 2?' });
+	await expect(dialog).toBeVisible();
+	await expect(page.getByTestId('confirm-delete')).toBeDisabled();
+	await dialog.getByRole('button', { name: 'Cancel' }).click();
+	await expect(tabs.getByRole('tab')).toHaveCount(2);
 	await second.click({ button: 'right' });
 	await page.getByRole('menuitem', { name: 'Delete diagram' }).click();
+	const confirmField = dialog.getByRole('textbox', { name: 'Type Class diagram 2 to confirm' });
+	await expect(confirmField).toBeFocused();
+	await page.keyboard.type('Class diagram');
+	await expect(page.getByTestId('confirm-delete')).toBeDisabled();
+	await page.keyboard.type(' 2');
+	await page.keyboard.press('Enter');
+	await expect(dialog).toHaveCount(0);
 	await expect(tabs.getByRole('tab')).toHaveCount(1);
 	await expect(tabs.getByRole('tab', { name: 'Overview' })).toHaveAttribute(
 		'aria-selected',
@@ -363,4 +377,21 @@ test('the Outline opens by default on a wide window, stays closed on a narrow on
 	await expect(page2.getByRole('tree', { name: 'Model tree' })).toHaveCount(0);
 	await expect(page2.getByRole('button', { name: 'Show Outline' })).toBeVisible();
 	await narrow.close();
+});
+
+test('the browser-only banner offers to name the project in place', async ({ page }) => {
+	await page.goto('/design/new');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.mouse.move(640, 420);
+	await page.keyboard.press('c');
+	await page.keyboard.type('Order');
+	await page.keyboard.press('Escape');
+	const banner = page.getByRole('region', { name: 'Not saved to a file' });
+	await expect(banner).toBeVisible();
+	await banner.getByRole('button', { name: 'Name it' }).click();
+	const field = page.getByRole('textbox', { name: 'Project name' });
+	await expect(field).toBeFocused();
+	await page.keyboard.type('Orders');
+	await page.keyboard.press('Enter');
+	await expect(page.getByTestId('project-name')).toHaveText('Orders');
 });

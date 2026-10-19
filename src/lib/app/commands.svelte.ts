@@ -560,16 +560,7 @@ export const COMMANDS: AppCommand[] = [
 		keys: [],
 		context: 'global',
 		when: () => projectStore.project.diagrams.length > 1,
-		run: () => {
-			const diagrams = projectStore.project.diagrams;
-			const index = diagrams.findIndex((d) => d.id === projectStore.activeDiagramId);
-			const name = diagrams[index].name;
-			const next = diagrams[index === 0 ? 1 : index - 1].id;
-			projectStore.run(deleteDiagram, { diagramId: diagrams[index].id });
-			projectStore.activeDiagramId = next;
-			ui.toast = { text: t('toast.diagramDeleted', { name }), undo: true, at: Date.now() };
-			canvasFocus.focus();
-		}
+		run: () => (ui.confirmDelete = { diagramId: projectStore.activeDiagramId })
 	},
 	{
 		id: 'diagram.next',
@@ -642,6 +633,19 @@ export const COMMANDS: AppCommand[] = [
 	display('display.autoResize', 'autoResize', ['⌘⇧R'], 'flag.autoResize'),
 	display('display.wordWrap', 'wordWrap', [], 'flag.wordWrap')
 ];
+
+/** After the confirm dialog: the views go, the model stays, the toast offers the way back. */
+export function confirmDeleteDiagram(diagramId: Id) {
+	const diagrams = projectStore.project.diagrams;
+	const index = diagrams.findIndex((d) => d.id === diagramId);
+	if (index < 0 || diagrams.length < 2) return;
+	const name = diagrams[index].name;
+	const next = diagrams[index === 0 ? 1 : index - 1].id;
+	projectStore.run(deleteDiagram, { diagramId });
+	if (projectStore.activeDiagramId === diagramId) projectStore.activeDiagramId = next;
+	ui.toast = { text: t('toast.diagramDeleted', { name }), undo: true, at: Date.now() };
+	canvasFocus.focus();
+}
 
 export const byId = (id: string) => COMMANDS.find((c) => c.id === id);
 export function runCommand(id: string) {

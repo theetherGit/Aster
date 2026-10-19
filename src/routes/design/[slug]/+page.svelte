@@ -24,6 +24,7 @@
 	import ClassicToolbar from '#lib/panels/classic/ClassicToolbar.svelte';
 	import ClassicToolbox from '#lib/panels/classic/ClassicToolbox.svelte';
 	import WorkingDiagrams from '#lib/panels/classic/WorkingDiagrams.svelte';
+	import ConfirmDeleteDialog from '#lib/panels/ConfirmDeleteDialog.svelte';
 	import UnsavedPrompt from '#lib/panels/UnsavedPrompt.svelte';
 	import { ago } from '#lib/panels/time.ts';
 	import {
@@ -295,6 +296,11 @@
 							<button
 								type="button"
 								class="h-7 rounded-control border border-current/40 px-2 hover:bg-black/5"
+								onclick={() => runCommand('project.rename')}>{t('file.bannerName')}</button
+							>
+							<button
+								type="button"
+								class="h-7 rounded-control border border-current/40 px-2 hover:bg-black/5"
 								onclick={() => saveFile(true)}>{t('file.bannerSave')}</button
 							>
 							<button
@@ -376,6 +382,7 @@
 	<Palette />
 	<ShortcutSheet />
 	<UnsavedPrompt />
+	<ConfirmDeleteDialog />
 	{#if files.dragging}
 		<!-- Board 21: the whole window is the drop target. -->
 		<div class="drop-overlay">

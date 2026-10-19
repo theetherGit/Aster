@@ -52,6 +52,8 @@ class Ui {
 	panels = new Panels();
 	/** An in-place name editor is open: the project name, or a diagram tab by id. */
 	renaming: 'project' | Id | null = $state(null);
+	/** The confirm-delete dialog for a diagram. */
+	confirmDelete: { diagramId: Id } | null = $state(null);
 	/** Classic's six panels, StarUML's Ctrl+1–6 (keyboard.md). */
 	classic = $state({
 		sidebar: true,
