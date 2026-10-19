@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const css = readFileSync(new URL('../../src/routes/layout.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../src/lib/ui/tokens.css', import.meta.url), 'utf8');
 
 function tokens(selector: string): Record<string, string> {
 	const start = css.indexOf(selector);

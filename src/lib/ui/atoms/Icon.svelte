@@ -65,7 +65,21 @@
 		search: ['M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z', 'm21 21-4.3-4.3'],
 		'chevron-down': ['m6 9 6 6 6-6'],
 		'chevron-right': ['m9 18 6-6-6-6'],
-		terminal: ['m4 17 6-6-6-6', 'M12 19h8']
+		terminal: ['m4 17 6-6-6-6', 'M12 19h8'],
+		/* Aster's own tool glyphs (board 01), same grid and stroke. */
+		'tool-select': ['M5 3l14 8-6 2-3 6z'],
+		'tool-class': [
+			'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z',
+			'M4 10h16M4 15h16'
+		],
+		'tool-interface': ['M12 5a7 7 0 1 1 0 14 7 7 0 0 1 0-14z'],
+		'tool-enum': [
+			'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z',
+			'M4 10h16M8 14h2M8 17h2M12 14h4M12 17h4'
+		],
+		'tool-link': ['M5 19L19 5', 'M12 5h7v7'],
+		'tool-pin': ['M12 17v5', 'M9 3h6l-1 7 3 3H7l3-3z'],
+		'tool-package': ['M3 6h7l2 2h9v11H3z', 'M3 10h18']
 	} as const;
 	export type IconName = keyof typeof PATHS;
 </script>

@@ -8,7 +8,7 @@ Aster is an open-source, browser-based UML class modeller that reads and writes 
 2. **`src/lib/model/types.ts` and `src/lib/commands/types.ts` are hand-authored.** Propose changes in your plan and wait for approval; never edit them silently.
 3. **Tests first** for anything with acceptance criteria in `docs/spec/features.md`. A slice is done when its named tests pass and its acceptance criteria are met — not when it looks done.
 4. **Accessibility is a requirement, not polish.** Real `<button>`, `<a href>`, `<input>` with labels — never `role`/`onClick` on a `div` or `span`. Every interactive target ≥ 24×24 CSS px. Every drag has a keyboard or menu equivalent. Focus is never removed (`outline: none` only with a replacement). Text contrast 4.5:1, UI edges 3:1. If a change cannot meet this, stop and say so.
-5. **Interactive chrome is built on Bits UI primitives** (menus, context menus, dialogs, popovers, tooltips, tabs, select, combobox, toggle groups, toolbars), styled with our tokens — never hand-rolled. The Outline tree and everything on the canvas are hand-built to the spec because no primitive fits them. No shadcn-svelte or any styled kit.
+5. **Interactive chrome is built on Bits UI primitives** (menus, context menus, dialogs, popovers, tooltips, tabs, select, combobox, toggle groups, toolbars), styled with our tokens — never hand-rolled. The Outline tree and everything on the canvas are hand-built to the spec because no primitive fits them. No shadcn-svelte or any styled kit. `design.md` at the root is the locked system: new chrome goes to the lowest layer that can hold it (atom → molecule → organism, `src/lib/ui`), and every colour, size and shadow comes from `src/lib/ui/tokens.css`.
 6. **Keyboard shortcuts come from `docs/spec/keyboard.md`.** Never invent a binding. Where StarUML already has one for the same action, we use it.
 7. **Nothing from a later milestone gets built early.** Each feature's milestone is in `docs/spec/features.md`. If a fix would be easy but belongs later, note it in `DECISIONS.md` and leave it.
 8. **Every deviation from the spec goes in `DECISIONS.md`** as one line with the reason, in the same change.
@@ -31,8 +31,10 @@ src/lib/commands   one function per user action; inverses; the undo stack
 src/lib/mdj        parseMdj / serializeMdj / expression grammar
 src/lib/puml       PlantUML dialect parser/printer      (M2)
 src/lib/stores     project, layout, selection, ui; derived flowNodes/flowEdges
+src/lib/ui         the design system: tokens.css (source of truth), atoms/ (one Bits
+                   primitive or native element each), molecules/ (atoms only, no stores)
 src/lib/canvas     Svelte Flow instance, node and edge components
-src/lib/panels     explorer/outline, inspector, toolbox, palette, dialogs
+src/lib/panels     organisms: explorer/outline, inspector, toolbox, palette, dialogs
 src/lib/persist    IndexedDB autosave, recents, File System Access
 src/lib/i18n       message files + helpers
 src/routes         the two layout presets as arrangements of the same panels
