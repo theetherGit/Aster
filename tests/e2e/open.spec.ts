@@ -173,3 +173,56 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 	await expect(notice(page)).toContainText('not a StarUML project');
 	await expect(page.locator('.classifier-node')).toHaveCount(2);
 });
+
+/** Owner's M2 ruling #22: the open file changed on disk (StarUML saved it): Reload or Keep mine. */
+test('a file changed outside Aster offers Reload or Keep mine', async ({ page }) => {
+	const text = readFileSync(fixture('public-vrview.mdj'), 'utf8');
+	const changed = text.replace(/"name":\s*"([^"]+)"/, '"name": "ChangedOutside"');
+	await page.addInitScript(
+		([text]) => {
+			const w = window as unknown as { __disk: { text: string; mtime: number } };
+			w.__disk = { text, mtime: 1000 };
+			Object.defineProperty(window, 'showOpenFilePicker', {
+				configurable: true,
+				value: async () => [
+					{
+						kind: 'file',
+						name: 'picked.mdj',
+						getFile: async () =>
+							new File([w.__disk.text], 'picked.mdj', { lastModified: w.__disk.mtime })
+					}
+				]
+			});
+		},
+		[text]
+	);
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+o');
+	await expect(notice(page)).toContainText('Opened picked.mdj');
+	await notice(page).getByRole('button', { name: 'Dismiss' }).click();
+
+	// Untouched on disk: coming back to the window says nothing.
+	await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+	await expect(notice(page)).toHaveCount(0);
+
+	// Saved elsewhere: the notice asks.
+	await page.evaluate((changed) => {
+		const w = window as unknown as { __disk: { text: string; mtime: number } };
+		w.__disk = { text: changed, mtime: 2000 };
+		window.dispatchEvent(new Event('focus'));
+	}, changed);
+	await expect(notice(page)).toContainText('picked.mdj changed outside Aster');
+	await notice(page).getByRole('button', { name: 'Keep mine' }).click();
+	await expect(notice(page)).toHaveCount(0);
+	await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+	await expect(notice(page)).toHaveCount(0); // the same change does not ask twice
+
+	await page.evaluate(() => {
+		const w = window as unknown as { __disk: { text: string; mtime: number } };
+		w.__disk = { ...w.__disk, mtime: 3000 };
+		window.dispatchEvent(new Event('focus'));
+	});
+	await notice(page).getByRole('button', { name: 'Reload' }).click();
+	await expect(page.getByTestId('project-name')).toHaveText('ChangedOutside');
+});

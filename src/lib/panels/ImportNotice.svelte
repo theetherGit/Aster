@@ -4,7 +4,7 @@
 	import { hairline } from '#lib/actions/hairline.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import type { ParseReport, ParseWarning } from '#lib/mdj/parse.ts';
-	import { files, openFromPicker } from '#lib/persist/files.svelte.ts';
+	import { files, keepMine, openFromPicker, reloadFromDisk } from '#lib/persist/files.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
@@ -114,6 +114,8 @@
 					{t('import.opened', { file: notice.file })}
 				{:else if notice.kind === 'restored'}
 					{t('import.restored', { file: notice.file })}
+				{:else if notice.kind === 'changed'}
+					{t('file.changedOutside', { file: notice.file })}
 				{:else}
 					{t('import.failed', { file: notice.file })}
 				{/if}
@@ -127,7 +129,7 @@
 					stroke={2.5}
 					tip={false}
 					class="shrink-0"
-					onclick={() => (files.notice = null)}
+					onclick={() => (notice.kind === 'changed' ? keepMine() : (files.notice = null))}
 				/>
 			{/if}
 		</header>
@@ -163,6 +165,12 @@
 			</div>
 		{:else if notice.kind === 'restored'}
 			<p class="body">{t('import.restoredBody')}</p>
+		{:else if notice.kind === 'changed'}
+			<p class="body">{t('file.changedBody')}</p>
+			<div class="mt-2 flex items-center gap-2">
+				<Button size="sm" onclick={() => reloadFromDisk()}>{t('file.reload')}</Button>
+				<Button variant="ghost" size="sm" onclick={keepMine}>{t('file.keepMine')}</Button>
+			</div>
 		{:else if notice.kind === 'opened'}
 			{@const r = notice.report}
 			{@const kept = keptSentence(r)}

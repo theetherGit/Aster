@@ -31,13 +31,16 @@ export interface OpenedFile {
 	name: string;
 	data: ArrayBuffer;
 	handle?: FileSystemFileHandle;
+	/** The file's time on disk when read; watched while it stays open (owner's ruling #22). */
+	lastModified?: number;
 }
 
 export type ImportNotice =
 	| { kind: 'opening'; file: string }
 	| { kind: 'opened'; file: string; report: ParseReport }
 	| { kind: 'restored'; file: string }
-	| { kind: 'failed'; file: string; message: string; invalid: boolean };
+	| { kind: 'failed'; file: string; message: string; invalid: boolean }
+	| { kind: 'changed'; file: string; lastModified: number };
 
 /** Board 20: what the user was about to do when the prompt opened. */
 export interface PendingAction {
@@ -48,6 +51,8 @@ export interface PendingAction {
 
 class Files {
 	notice: ImportNotice | null = $state(null);
+	/** The open file's time on disk as Aster last read or wrote it. */
+	knownModified: number | null = null;
 	dragging = $state(false);
 	/** The file this project lives in, when it has one, and the format ⌘S writes. */
 	current: { name: string; format: FileFormat; handle?: FileSystemFileHandle } | null =
@@ -99,7 +104,12 @@ export async function pickFile(): Promise<OpenedFile | null> {
 		try {
 			const [handle] = await window.showOpenFilePicker({ types: OPEN_TYPES, multiple: false });
 			const file = await handle.getFile();
-			return { name: file.name, data: await file.arrayBuffer(), handle };
+			return {
+				name: file.name,
+				data: await file.arrayBuffer(),
+				handle,
+				lastModified: file.lastModified
+			};
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'AbortError') return null;
 			throw e;
@@ -178,6 +188,7 @@ export async function openFile(f: OpenedFile) {
 			}
 		}
 		files.current = { name: f.name, format, handle: f.handle };
+		files.knownModified = f.handle ? (f.lastModified ?? null) : null;
 		files.savedVersion = projectStore.version;
 		files.lastSavedAt = null;
 		files.bannerDismissed = false;
@@ -286,6 +297,7 @@ export async function saveFile(as = false): Promise<boolean> {
 			await w.write(text);
 			await w.close();
 			name = handle.name;
+			files.knownModified = (await handle.getFile()).lastModified;
 		} else {
 			name = suggestedName(format);
 			const a = document.createElement('a');
@@ -324,4 +336,52 @@ export async function resolvePending(answer: 'save' | 'discard' | 'cancel') {
 	if (!p || answer === 'cancel') return;
 	if (answer === 'save' && !(await saveFile())) return;
 	await p.run();
+}
+
+/**
+ * Owner's ruling #22: the open file changed on disk (StarUML saved it, say). Checked every 5 s
+ * while the window has focus and as soon as it gets focus back; a change asks Reload or Keep
+ * mine once, through the notice. Files without a handle (dropped, downloaded) are not watched.
+ */
+export async function checkOutside() {
+	const handle = files.current?.handle;
+	const known = files.knownModified;
+	if (!handle || known === null || files.notice?.kind === 'changed') return;
+	let file: File;
+	try {
+		file = await handle.getFile();
+	} catch {
+		return; // moved or permission withdrawn: nothing to compare
+	}
+	if (file.lastModified > known)
+		files.notice = { kind: 'changed', file: file.name, lastModified: file.lastModified };
+}
+export const WATCH_MS = 5000;
+export function watchOutside(): () => void {
+	const tick = () => {
+		if (document.hasFocus()) void checkOutside();
+	};
+	const id = setInterval(tick, WATCH_MS);
+	window.addEventListener('focus', checkOutside);
+	return () => {
+		clearInterval(id);
+		window.removeEventListener('focus', checkOutside);
+	};
+}
+/** Keep mine: the edits here stand; this disk time is not asked about again. */
+export function keepMine() {
+	if (files.notice?.kind === 'changed') files.knownModified = files.notice.lastModified;
+	files.notice = null;
+}
+/** Reload: read the file again from its handle, as ⌘O would. */
+export async function reloadFromDisk() {
+	const handle = files.current?.handle;
+	if (!handle) return;
+	const file = await handle.getFile();
+	await openFile({
+		name: file.name,
+		data: await file.arrayBuffer(),
+		handle,
+		lastModified: file.lastModified
+	});
 }

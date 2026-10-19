@@ -683,5 +683,9 @@
 	"member.reason.parameter": "Cannot read the parameter {text}",
 	"member.reason.syntax": "Not a member line",
 	"member.suggest.fix": "Add {closer}",
-	"member.suggest.fixAny": "Add the missing closer"
+	"member.suggest.fixAny": "Add the missing closer",
+	"file.changedOutside": "{file} changed outside Aster",
+	"file.changedBody": "Reload to see it as saved there, or keep what you have here; saving then writes yours over it.",
+	"file.reload": "Reload",
+	"file.keepMine": "Keep mine"
 }

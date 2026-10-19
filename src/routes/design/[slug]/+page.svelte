@@ -43,7 +43,8 @@
 		loadFixture,
 		newProject,
 		openDropped,
-		saveFile
+		saveFile,
+		watchOutside
 	} from '#lib/persist/files.svelte.ts';
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -164,6 +165,9 @@
 		const h = setTimeout(() => (validation.findings = validate(project)), 120);
 		return () => clearTimeout(h);
 	});
+
+	// Owner's ruling #22: watch the open file for changes made outside Aster.
+	$effect(() => watchOutside());
 
 	// keyboard.md: F6 / ⇧F6 cycle the open panels (Outline, canvas, Inspector) in DOM order.
 	function cyclePanels(back: boolean) {
