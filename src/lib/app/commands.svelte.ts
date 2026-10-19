@@ -8,8 +8,11 @@ import { canvasApi } from '#lib/canvas/api.ts';
 import { canvasFocus, explorerFocus, focusElement } from '#lib/canvas/focus.ts';
 import { rightOf } from '#lib/canvas/place.ts';
 import {
+	copyFromMenu,
 	deleteSelection,
+	hasClipboard,
 	nudgeSelection,
+	pasteFrom,
 	resizeSelection,
 	setLineStyleForSelection,
 	startEditing,
@@ -50,6 +53,11 @@ export interface AppCommand {
 	/** Listed in the sheet, not offered in the palette (modal keys, nudges, rows the editor owns). */
 	sheetOnly?: boolean;
 	when?: () => boolean;
+	/**
+	 * The key is the browser's own (⌘C, ⌘X, ⌘V): the keyboard router leaves it alone so the native
+	 * clipboard event fires, and the canvas handles that; menus and the palette call `run`.
+	 */
+	native?: boolean;
 	/** On/off for toggles, shown in the palette. */
 	state?: () => boolean | null;
 	run: () => void;
@@ -306,6 +314,43 @@ export const COMMANDS: AppCommand[] = [
 		inText: true,
 		when: () => projectStore.canRedo,
 		run: () => projectStore.redo()
+	},
+
+	{
+		id: 'edit.copy',
+		group: 'edit',
+		label: () => t('cmd.copy'),
+		keys: k('⌘C'),
+		context: 'canvas',
+		staruml: true,
+		native: true,
+		when: hasSelection,
+		run: () => copyFromMenu(false)
+	},
+	{
+		id: 'edit.cut',
+		group: 'edit',
+		label: () => t('cmd.cut'),
+		keys: k('⌘X'),
+		context: 'canvas',
+		staruml: true,
+		native: true,
+		when: hasSelection,
+		run: () => copyFromMenu(true)
+	},
+	{
+		id: 'edit.paste',
+		group: 'edit',
+		label: () => t('cmd.pasteHere'),
+		keys: k('⌘V'),
+		context: 'canvas',
+		staruml: true,
+		native: true,
+		when: hasClipboard,
+		run: () => {
+			pasteFrom(null);
+			canvasFocus.focus();
+		}
 	},
 
 	// Select and arrange

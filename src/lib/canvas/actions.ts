@@ -19,7 +19,15 @@ import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
 import type { Rect } from './edges/geometry.ts';
-import { canvasFocus } from './focus.ts';
+import { announce } from '#lib/stores/live.svelte.ts';
+import {
+	copyPayload,
+	parsePayload,
+	PAYLOAD_MIME,
+	planPaste,
+	plainText,
+	type ClipboardPayload
+} from './clipboard.ts';
 import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
 import { freePosition } from './place.ts';
@@ -71,13 +79,6 @@ export function resizeSelection(dw: number, dh: number): boolean {
 export function deleteSelection(fromModel: boolean) {
 	const ids = selection.list;
 	if (!ids.length) return;
-	// The focused element goes with the selection; the container takes the keyboard back.
-	if (selection.focus && ids.includes(selection.focus.id)) {
-		selection.focus = null;
-		requestAnimationFrame(() => {
-			if (document.activeElement === document.body) canvasFocus.focus();
-		});
-	}
 	const first = projectStore.project.elements.get(ids[0]);
 	const name =
 		ids.length === 1 && first ? elementName(first) : t('cmd.many', { count: ids.length });
@@ -153,4 +154,70 @@ export function createTextAt(at: Point, taken: Iterable<Rect>) {
 		at: freePosition(at, taken, { w: 120, h: 24 })
 	});
 	edit(id, { part: 'text' });
+}
+
+// ---------------------------------------------------------------------------
+// Clipboard (keyboard.md ⌘C / ⌘X / ⌘V). The keyboard path is the browser's own copy, cut and
+// paste events, so the system clipboard carries the payload between tabs and projects; menus and
+// the palette go through execCommand('copy') for the same effect. The last copy is also held in
+// this tab, for paste from a menu (reading the clipboard there would ask for permission) and for
+// browsers that keep only text/plain.
+// ---------------------------------------------------------------------------
+
+let held: { payload: ClipboardPayload; text: string } | null = null;
+export const hasClipboard = () => held !== null;
+
+/** Copy the selection to the event's clipboard (when there is one) and to the tab. */
+export function copySelection(data: DataTransfer | null): boolean {
+	const payload = copyPayload(projectStore.project, projectStore.activeDiagramId, selection.list);
+	if (!payload) return false;
+	const text = plainText(payload);
+	held = { payload, text };
+	data?.setData(PAYLOAD_MIME, JSON.stringify(payload));
+	data?.setData('text/plain', text);
+	const n = payload.elements.length;
+	announce(
+		t('live.copied', {
+			name: n === 1 ? elementName(payload.elements[0]) : t('cmd.many', { count: n })
+		})
+	);
+	return true;
+}
+
+/** ⌘X: copy, then remove from the diagram (view only, the same as ⌫, with its undo toast). */
+export function cutSelection(data: DataTransfer | null): boolean {
+	if (!copySelection(data)) return false;
+	deleteSelection(false);
+	return true;
+}
+
+/** ⌘V: what the clipboard holds, or (from a menu, or text-only browsers) what this tab copied. */
+export function pasteFrom(data: DataTransfer | null) {
+	const json = data?.getData(PAYLOAD_MIME);
+	let payload = json ? parsePayload(json) : null;
+	if (!payload && held && (!data || data.getData('text/plain') === held.text))
+		payload = held.payload;
+	const plan = payload && planPaste(projectStore.project, projectStore.activeDiagramId, payload);
+	if (!plan) return announce(t('live.nothingToPaste'));
+	selection.editing = null;
+	projectStore.run(batch, plan.args);
+	selection.set(plan.ids);
+}
+
+/** Copy or cut run from a menu or the palette: through a real copy event when the browser allows. */
+let fromMenu = false;
+export const clipboardFromMenu = () => fromMenu;
+export function copyFromMenu(cut: boolean) {
+	fromMenu = true;
+	let done = false;
+	const mark = () => (done = true);
+	document.addEventListener('copy', mark, { once: true });
+	try {
+		document.execCommand('copy');
+	} finally {
+		fromMenu = false;
+		document.removeEventListener('copy', mark);
+	}
+	if (!done) copySelection(null);
+	if (cut) deleteSelection(false);
 }

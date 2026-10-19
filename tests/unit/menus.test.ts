@@ -26,21 +26,25 @@ describe('the Classic menu bar is the registry', () => {
 
 /** keyboard.md: right-click or ⇧F10 lists, for the element, the commands the palette has for it. */
 describe('the element context menu', () => {
-	it('offers edit, link, outline and both deletes on a node', () => {
+	it('offers edit, link, copy, cut, outline and both deletes on a node', () => {
 		expect(contextItems('node').map((c) => c.id)).toEqual([
 			'edit.start',
 			'link.start',
+			'edit.copy',
+			'edit.cut',
 			'view.selectInOutline',
 			'delete.view',
 			'delete.model'
 		]);
 	});
-	it('offers the four line styles, outline and both deletes on an edge', () => {
+	it('offers the four line styles, copy, cut, outline and both deletes on an edge', () => {
 		expect(contextItems('edge').map((c) => c.id)).toEqual([
 			'format.rectilinear',
 			'format.oblique',
 			'format.roundrect',
 			'format.curve',
+			'edit.copy',
+			'edit.cut',
 			'view.selectInOutline',
 			'delete.view',
 			'delete.model'

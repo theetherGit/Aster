@@ -71,6 +71,9 @@ describe('the command registry (docs/spec/keyboard.md, M1 rows)', () => {
 		'⌘⌫',
 		'⌘E',
 		'⌘D',
+		'⌘C',
+		'⌘X',
+		'⌘V',
 		'⌘⇧C',
 		// Bare arrows rove focus (keyboard.md § Canvas keyboard model), handled by the canvas router, not a command.
 		'⌘←',

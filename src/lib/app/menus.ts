@@ -36,12 +36,22 @@ export function menuItems(menu: Menu, commands: readonly AppCommand[] = COMMANDS
 
 /** keyboard.md: the context menu on a node or an edge lists the commands the palette has for it. */
 const CONTEXT: Record<'node' | 'edge', string[]> = {
-	node: ['edit.start', 'link.start', 'view.selectInOutline', 'delete.view', 'delete.model'],
+	node: [
+		'edit.start',
+		'link.start',
+		'edit.copy',
+		'edit.cut',
+		'view.selectInOutline',
+		'delete.view',
+		'delete.model'
+	],
 	edge: [
 		'format.rectilinear',
 		'format.oblique',
 		'format.roundrect',
 		'format.curve',
+		'edit.copy',
+		'edit.cut',
 		'view.selectInOutline',
 		'delete.view',
 		'delete.model'

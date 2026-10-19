@@ -606,5 +606,11 @@
 	"summary.text": "Text: {text}",
 	"summary.join": ", ",
 	"cmd.resizeNote": "Resize note 8 px",
-	"ui.elementMenu": "Element commands"
+	"ui.elementMenu": "Element commands",
+	"cmd.paste": "paste {name}",
+	"cmd.copy": "Copy",
+	"cmd.cut": "Cut",
+	"cmd.pasteHere": "Paste",
+	"live.copied": "Copied {name}",
+	"live.nothingToPaste": "Nothing to paste"
 }

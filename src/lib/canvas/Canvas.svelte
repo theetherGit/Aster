@@ -33,7 +33,16 @@
 	import ClassifierNode from './ClassifierNode.svelte';
 	import NoteNode from './NoteNode.svelte';
 	import NoteLinkEdge from './edges/NoteLinkEdge.svelte';
-	import { createClassifierAt, createNoteAt, createTextAt, startLink } from './actions.ts';
+	import {
+		clipboardFromMenu,
+		copySelection,
+		createClassifierAt,
+		createNoteAt,
+		createTextAt,
+		cutSelection,
+		pasteFrom,
+		startLink
+	} from './actions.ts';
 	import Markers from './edges/Markers.svelte';
 	import UmlEdge from './edges/UmlEdge.svelte';
 	import { center, type Rect } from './edges/geometry.ts';
@@ -162,6 +171,23 @@
 		);
 	}
 
+	// ⌘C / ⌘X / ⌘V: the browser's clipboard events land on the body when no text field has focus,
+	// so they are heard on the document and taken only while the diagram has the keyboard.
+	function onclipboard(e: ClipboardEvent) {
+		const active = document.activeElement;
+		const onCanvas =
+			el.contains(active) && !active?.closest('input, textarea, [contenteditable="true"]');
+		if (!(onCanvas || (e.type === 'copy' && clipboardFromMenu()))) return;
+		if (selection.editing || ui.link || ui.picker) return;
+		const done =
+			e.type === 'copy'
+				? copySelection(e.clipboardData)
+				: e.type === 'cut'
+					? cutSelection(e.clipboardData)
+					: (pasteFrom(e.clipboardData), true);
+		if (done) e.preventDefault();
+	}
+
 	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
 	function reveal(id: Id) {
 		const r = rects().get(id);
@@ -184,6 +210,15 @@
 		if (!f || selection.editing) return;
 		const active = document.activeElement;
 		if (!(active === document.body || el.contains(active))) return;
+		// The focused part is gone (deleted, undone, another diagram): step out to its element,
+		// or to the diagram itself, so the keyboard never drops to the page.
+		const shown = projectStore.diagram.elementIds;
+		const edge = f.part.startsWith('edge:') ? f.part.slice(5) : null;
+		if (!shown.includes(f.id) || (edge && !shown.includes(edge))) {
+			selection.focus = shown.includes(f.id) ? { id: f.id, part: 'self' } : null;
+			if (!selection.focus) el.focus({ preventScroll: true });
+			return;
+		}
 		let tries = 0;
 		const attempt = () => {
 			const owner = focusOwner(el);
@@ -343,6 +378,7 @@
 </script>
 
 <svelte:window onpointermove={(e) => (pointer = { x: e.clientX, y: e.clientY })} />
+<svelte:document oncopy={onclipboard} oncut={onclipboard} onpaste={onclipboard} />
 
 <!-- One Tab stop for the whole diagram (docs/spec/keyboard.md, accessibility.md): a focusable
      role="application" region whose keys the app routes. Not a fake button, so the
