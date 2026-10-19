@@ -27,6 +27,7 @@
 	import type { Classifier, Id } from '#lib/model/types.ts';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import InlineName from '#lib/ui/molecules/InlineName.svelte';
+	import SkipLink from '#lib/ui/atoms/SkipLink.svelte';
 	import { field, menu, menuItem } from '#lib/ui/styles.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
@@ -491,6 +492,8 @@
 
 <!-- Modern: a landmark of its own. Classic: a section inside the sidebar's aside, never a nested one. -->
 {#snippet body()}
+	<!-- accessibility.md: the panel's first focusable skips back to the diagram. -->
+	<SkipLink label={t('app.skipToCanvas')} go={() => canvasFocus.focus()} />
 	{#if variant === 'classic'}
 		<PanelTitle id="explorer-title">{t('classic.modelExplorer')}</PanelTitle>
 	{:else}

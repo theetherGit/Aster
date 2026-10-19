@@ -99,6 +99,17 @@ test('keyboard-only: one Tab stop, arrows between Account and Customer, Tab thro
 		)
 		.toBe(true);
 	await expect(canvas).toHaveAttribute('tabindex', '0');
+
+	// accessibility.md: each panel's first focusable is a skip link back to the diagram.
+	await canvas.focus();
+	await page.keyboard.press('Shift+F6'); // the Outline
+	const skip = page
+		.locator('[data-panel="outline"]')
+		.getByRole('link', { name: 'Skip to the canvas' });
+	await expect(skip).toBeFocused();
+	await expect(skip).toBeInViewport();
+	await page.keyboard.press('Enter');
+	await expect(canvas).toBeFocused();
 });
 
 test('keyboard-only: ⌘+arrows nudge, ⇧+arrows resize a note, ⌫ deletes with the undo toast, edges are parts', async ({

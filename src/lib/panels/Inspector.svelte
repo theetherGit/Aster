@@ -1,5 +1,7 @@
 <script lang="ts">
 	import TextView from './TextView.svelte';
+	import SkipLink from '#lib/ui/atoms/SkipLink.svelte';
+	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { renameClass } from '#lib/canvas/inline.ts';
 	import { Collapsible, Select, Tabs } from 'bits-ui';
 	import { byId, effective, runCommand } from '#lib/app/commands.svelte.ts';
@@ -121,6 +123,7 @@
 	</aside>
 {:else}
 	{#snippet panel()}
+		<SkipLink label={t('app.skipToCanvas')} go={() => canvasFocus.focus()} />
 		<Tabs.Root bind:value={ui.inspectorTab}>
 			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist,
 			     nor a heading of its own (the aside is already named by it): a span in the title dress. -->

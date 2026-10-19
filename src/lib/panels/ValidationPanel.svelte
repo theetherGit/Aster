@@ -7,6 +7,8 @@
 	import { validation } from '#lib/stores/validation.svelte.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import PanelHeader from '#lib/ui/molecules/PanelHeader.svelte';
+	import SkipLink from '#lib/ui/atoms/SkipLink.svelte';
+	import { canvasFocus } from '#lib/canvas/focus.ts';
 
 	// features.md M2: StarUML's rules and ASTER001, live, each row a jump to its element; never
 	// blocks saving. ASTER001 rows carry their one-button Flip.
@@ -41,6 +43,7 @@
 	tabindex="-1"
 	data-panel="validation"
 >
+	<SkipLink label={t('app.skipToCanvas')} go={() => canvasFocus.focus()} />
 	<PanelHeader
 		id="validation-title"
 		title={t('validation.title')}

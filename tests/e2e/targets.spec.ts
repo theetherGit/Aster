@@ -18,7 +18,8 @@ async function undersized(page: Page) {
 				r.height > 0 &&
 				s.visibility !== 'hidden' &&
 				s.opacity !== '0' &&
-				!el.closest('[aria-hidden="true"]')
+				!el.closest('[aria-hidden="true"]') &&
+				!el.closest('.sr-only') // visually hidden (a skip link at rest) is not a pointer target
 			);
 		});
 		const rects = els.map((el) => el.getBoundingClientRect());
