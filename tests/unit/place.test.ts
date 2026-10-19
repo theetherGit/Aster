@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { freePosition, GRID, NEW_NODE } from '#lib/canvas/place.ts';
+import { freePosition, GRID, NEW_NODE, rightOf } from '#lib/canvas/place.ts';
 
 const box = (x: number, y: number, w = 160, h = 80) => ({ x, y, w, h });
 
@@ -28,5 +28,22 @@ describe('free-space placement', () => {
 		const p = freePosition({ x: 0, y: 0 }, [box(100, 0)]);
 		expect(p.x + NEW_NODE.w + GRID <= 100 || p.y >= 80 + GRID).toBe(true);
 		expect(p).not.toEqual({ x: 0, y: 0 });
+	});
+});
+
+describe('⌘⇧D placement (keyboard.md: right of the selection)', () => {
+	it('is one grid step past the right edge of the selection, level with its top', () => {
+		expect(rightOf([box(100, 50)])).toEqual({ x: 100 + 160 + GRID, y: 50 });
+		expect(rightOf([box(100, 50), box(400, 20, 100, 40)])).toEqual({ x: 500 + GRID, y: 20 });
+	});
+
+	it('is nothing without a selection, so the cursor rule applies', () => {
+		expect(rightOf([])).toBeNull();
+	});
+
+	it('lands clear of the selection once freePosition has its say', () => {
+		const sel = box(100, 50);
+		const at = rightOf([sel])!;
+		expect(freePosition(at, [sel])).toEqual(at);
 	});
 });

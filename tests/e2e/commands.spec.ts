@@ -203,7 +203,17 @@ test('the top bar opens the palette; the toolbox links the one selected node', a
 	await expect(link).toBeEnabled();
 	await link.click();
 	await expect(page.locator('.link-preview')).toBeVisible(); // the keyboard link has begun
+	await expect(canvasOf(page)).toBeFocused(); // so the arrows and Esc work at once
+	// The pointer path: a click on another node picks it and opens the picker, as ↩ does.
+	await node(page, 'Customer').click();
+	const picker = page.getByRole('menu', { name: 'Relationship kind' });
+	await expect(picker).toBeVisible();
+	await expect(picker).toContainText('Account');
+	await expect(picker).toContainText('Customer');
 	await page.keyboard.press('Escape');
+	await expect(picker).toHaveCount(0);
+	await expect(page.locator('.link-preview')).toHaveCount(0);
+	await expect(canvasOf(page)).toBeFocused();
 });
 
 test('themes: ⌘⌥T cycles system → light → dark, the choice is remembered, the paper stays white', async ({

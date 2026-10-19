@@ -15,7 +15,10 @@ export const isMac = () =>
 	typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
 export function matches(e: KeyboardEvent, s: Shortcut): boolean {
-	if (e.code !== s.code) return false;
+	// A bare letter (C, I, E, D, N, L) is the printed key, so Dvorak and Colemak hands get the letter
+	// on the cap; chords keep the physical key so ⇧ and ⌥ cannot change what is compared.
+	const bare = !s.mod && !s.alt && !s.shift && /^Key[A-Z]$/.test(s.code);
+	if (bare ? (e.key ?? '').toUpperCase() !== s.code.slice(3) : e.code !== s.code) return false;
 	const mod = e.metaKey || e.ctrlKey;
 	return mod === !!s.mod && e.shiftKey === !!s.shift && e.altKey === !!s.alt;
 }

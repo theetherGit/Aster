@@ -1,8 +1,9 @@
 /** What the canvas offers to commands that run outside it (palette, keyboard); set while mounted. */
-import type { ClassifierKind, Id } from '#lib/model/types.ts';
+import type { ClassifierKind, Id, Point } from '#lib/model/types.ts';
 
 export interface CanvasApi {
-	create: (kind: ClassifierKind) => void;
+	/** At a paper point, or at the cursor (the viewport centre when the pointer is elsewhere). */
+	create: (kind: ClassifierKind, at?: Point) => void;
 	createNote: () => void;
 	createText: () => void;
 	startLink: () => boolean;

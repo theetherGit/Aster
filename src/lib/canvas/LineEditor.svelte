@@ -4,6 +4,7 @@
 	import type { MemberKind } from '#lib/mdj/expression.ts';
 	import type { Id } from '#lib/model/types.ts';
 	import { flow } from '#lib/stores/flow.svelte.ts';
+	import { canvasFocus } from './focus.ts';
 	import { selection, sameTarget, type EditTarget } from '#lib/stores/selection.svelte.ts';
 	import {
 		addLineBelow,
@@ -58,7 +59,16 @@
 			if (document.activeElement !== node && tries++ < 30) frame = requestAnimationFrame(attempt);
 		};
 		attempt();
-		return { destroy: () => cancelAnimationFrame(frame) };
+		return {
+			destroy: () => {
+				cancelAnimationFrame(frame);
+				// Torn down while it held focus (an undo, a re-render): the canvas takes focus
+				// back, so focus is never dropped on the body. A blur that went somewhere stays.
+				queueMicrotask(() => {
+					if (document.activeElement === document.body) canvasFocus.focus();
+				});
+			}
+		};
 	}
 
 	function commit() {
@@ -88,12 +98,17 @@
 	const highlighted = () =>
 		document.querySelector('[data-combobox-item][data-highlighted]') !== null;
 
+	// Only what the editor consumes stops here: typing, Enter, Esc, Tab, the list's arrows and
+	// the ⌘ keys of keyboard.md's editing rows. App chords (⌘S, ⌘Z, ⌘K, ⌘B …) go on to the
+	// window handler, which runs them and keeps the browser's own default from firing.
 	function onkeydown(e: KeyboardEvent) {
-		e.stopPropagation();
 		const mod = e.metaKey || e.ctrlKey;
+		if (!mod && !e.altKey) e.stopPropagation();
 		if (e.key === 'Escape') {
 			if (open) return; // Bits closes the list; the next Esc ends editing
+			// Back to the text as it was; committing it removes a blank line ⌘↩ inserted.
 			draft = initial;
+			commit();
 			endEditing();
 		} else if (e.key === 'Enter' && mod) {
 			open = false;
@@ -112,6 +127,7 @@
 			return; // Bits moves the highlight
 		} else return;
 		e.preventDefault();
+		e.stopPropagation();
 	}
 
 	/** Focus left for some other reason (click elsewhere): commit unless a key handler already moved on. */
@@ -172,6 +188,7 @@
 {:else}
 	<input
 		class="line-input nodrag nopan"
+		class:mono={own.part !== 'name'}
 		aria-label={ariaLabel}
 		{placeholder}
 		autocomplete="off"
@@ -184,7 +201,8 @@
 {/if}
 
 <style>
-	/* Board 04: monospace, no box of its own; the row band around it marks the open line. */
+	/* Board 04: no box of its own; the row band around it marks the open line, a solid ring
+	   flush to the edge marks focus. Monospace is for member lines only (ui.md, Type). */
 	:global(.line-input) {
 		box-sizing: border-box;
 		width: 100%;
@@ -192,15 +210,22 @@
 		height: 20px;
 		padding: 0;
 		font: inherit;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 		color: inherit;
 		background: transparent;
 		border: none;
 		border-radius: 0;
-		outline: none;
+	}
+	:global(.line-input.mono) {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	}
+	/* Repeated class: outweighs layout.css's input ring, which uses the chrome accent; on paper
+	   the ring must be --paper-accent (blue in high contrast, where the yellow accent fails on white). */
+	:global(input.line-input.line-input.line-input:focus-visible) {
+		outline: 2px solid var(--paper-accent);
+		outline-offset: 0;
 	}
 	:global(.line-input::placeholder) {
-		color: color-mix(in srgb, var(--paper-ink) 45%, var(--paper-bg));
+		color: var(--paper-muted);
 		opacity: 1;
 	}
 </style>

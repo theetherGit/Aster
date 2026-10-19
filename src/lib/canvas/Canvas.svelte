@@ -18,7 +18,7 @@
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
-	import type { ClassifierKind, Id } from '#lib/model/types.ts';
+	import type { ClassifierKind, Id, Point } from '#lib/model/types.ts';
 	import { flow, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
 	import { layout } from '#lib/stores/layout.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -78,8 +78,8 @@
 		canvasRects.get = rects;
 		// What commands outside the canvas (palette, shortcuts) can ask of it.
 		Object.assign(canvasApi, {
-			create: (kind: ClassifierKind) =>
-				createClassifierAt(kind, cursorPosition(), rects().values()),
+			create: (kind: ClassifierKind, at?: Point) =>
+				createClassifierAt(kind, at ?? cursorPosition(), rects().values()),
 			createNote: () => createNoteAt(cursorPosition(), rects().values()),
 			createText: () => createTextAt(cursorPosition(), rects().values()),
 			startLink: () => startLink(rects()),
@@ -90,7 +90,8 @@
 			fitSelection: () => {
 				const r = rects();
 				const boxes = selection.list.map((id) => r.get(id)).filter((b): b is Rect => !!b);
-				if (!boxes.length) return;
+				// Only edges selected: nothing to frame, so fit everything (keyboard.md's fallback).
+				if (!boxes.length) return fitView({ padding: 0.1, duration: dur(200) });
 				const x = Math.min(...boxes.map((b) => b.x));
 				const y = Math.min(...boxes.map((b) => b.y));
 				const x2 = Math.max(...boxes.map((b) => b.x + b.w));
@@ -195,6 +196,13 @@
 		});
 	};
 
+	/** Link in progress: a click on a node picks it as the target, the same as ↩ (keyboard.md). */
+	function onnodeclick({ node }: { node: FlowNode }) {
+		if (!ui.link) return;
+		ui.link = { ...ui.link, targetId: node.id };
+		openPicker(ui.link.sourceId, node.id);
+	}
+
 	const onselectionchange: OnSelectionChange<FlowNode, FlowEdge> = ({ nodes, edges }) => {
 		selection.set([...nodes.map((n) => n.id), ...edges.map((e) => e.id)]);
 	};
@@ -266,6 +274,7 @@
 		selectionKey={null}
 		selectionOnDrag
 		panOnDrag={[1]}
+		panActivationKey=" "
 		panOnScroll
 		zoomOnScroll={false}
 		zoomOnDoubleClick={false}
@@ -282,6 +291,7 @@
 		{onselectionchange}
 		{onmove}
 		{onpaneclick}
+		{onnodeclick}
 	>
 		<!-- ui.md: Modern's soft dot grid; Classic's fine line grid (board 03). -->
 		<Background

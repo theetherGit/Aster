@@ -36,3 +36,13 @@ export function freePosition(at: Point, taken: Iterable<Rect>, size = NEW_NODE, 
 	}
 	return at;
 }
+
+/** ⌘⇧D (keyboard.md): the spot right of a selection, one grid step past its right edge, level with its top. */
+export function rightOf(selected: Iterable<Rect>): Point | null {
+	const boxes = [...selected];
+	if (!boxes.length) return null;
+	return {
+		x: Math.max(...boxes.map((b) => b.x + b.w)) + GRID,
+		y: Math.min(...boxes.map((b) => b.y))
+	};
+}

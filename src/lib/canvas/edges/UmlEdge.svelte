@@ -144,15 +144,23 @@
 			moved = true;
 			onmove(toPaper(pe));
 		};
-		const up = (ev: Event) => {
+		const stop = () => {
 			el.removeEventListener('pointermove', move);
 			el.removeEventListener('pointerup', up);
-			el.removeEventListener('pointercancel', up);
+			el.removeEventListener('pointercancel', cancel);
+		};
+		const up = (ev: Event) => {
+			stop();
 			onend(toPaper(ev as PointerEvent), moved);
+		};
+		// A cancelled pointer (touch taken by the browser, capture lost) drops the draft; nothing commits.
+		const cancel = (ev: Event) => {
+			stop();
+			onend(toPaper(ev as PointerEvent), false);
 		};
 		el.addEventListener('pointermove', move);
 		el.addEventListener('pointerup', up);
-		el.addEventListener('pointercancel', up);
+		el.addEventListener('pointercancel', cancel);
 	}
 
 	function dragWaypoint(e: PointerEvent, i: number) {
@@ -237,8 +245,8 @@
 			marker-end={marker(notation.end)}
 			stroke-dasharray={notation.dashed ? '6 4' : undefined}
 		/>
-		<!-- 10 px invisible hit band (ui.md). -->
-		<path class="edge-hit" {d} />
+		<!-- 10 CSS px invisible hit band at every zoom (ui.md). -->
+		<path class="edge-hit" {d} style:stroke-width={10 / zoom} />
 		{#each dots as p, i (i)}<circle class="edge-dot" cx={p.x} cy={p.y} r="3" />{/each}
 		{#each labels as label (label.key)}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -247,11 +255,13 @@
 				data-label={label.key}
 				onpointerdown={(e) => dragLabel(e, label)}
 			>
+				<!-- The fill masks the line; an invisible stroke pads the drag target to 24 CSS px tall. -->
 				<rect
 					x={label.c.x - label.w / 2}
 					y={label.c.y - label.h / 2}
 					width={label.w}
 					height={label.h}
+					stroke-width={Math.max(0, 24 / zoom - label.h)}
 				/>
 				{#each label.lines as text, i (i)}
 					<text
@@ -324,12 +334,13 @@
 		stroke: var(--paper-ink);
 		stroke-width: var(--uml-stroke);
 	}
-	/* Board 12: the selected line itself turns accent. */
+	/* Board 12/13: the selected line itself turns accent, 2 px. */
 	.uml-edge.hovered:not(.selected) .edge-line {
 		stroke: color-mix(in srgb, var(--paper-accent) 60%, var(--paper-ink));
 	}
 	.uml-edge.selected .edge-line {
 		stroke: var(--paper-accent);
+		stroke-width: max(2px, var(--uml-stroke));
 	}
 	.edge-end {
 		fill: var(--paper-bg);
@@ -339,7 +350,6 @@
 	.edge-hit {
 		fill: none;
 		stroke: transparent;
-		stroke-width: 10;
 		pointer-events: stroke;
 		cursor: pointer;
 	}
@@ -352,6 +362,7 @@
 	}
 	.edge-label rect {
 		fill: var(--paper-bg);
+		stroke: transparent;
 	}
 	.edge-label text {
 		fill: var(--paper-ink);

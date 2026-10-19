@@ -178,29 +178,29 @@
 		text-align: center;
 		background: color-mix(in srgb, var(--paper-accent) 8%, transparent);
 	}
-	/* Board 01/13: hollow 6 px corner handles. */
+	/* Board 01/13, ui.md: hollow 6 px corner handles, centred on the corners. */
 	.handle {
 		position: absolute;
 		box-sizing: border-box;
-		width: 7px;
-		height: 7px;
+		width: 6px;
+		height: 6px;
 		background: var(--paper-bg);
 		border: 1.5px solid var(--paper-accent);
 	}
 	.handle.tl {
-		top: -4px;
-		left: -4px;
+		top: -3px;
+		left: -3px;
 	}
 	.handle.tr {
-		top: -4px;
-		right: -4px;
+		top: -3px;
+		right: -3px;
 	}
 	.handle.bl {
-		bottom: -4px;
-		left: -4px;
+		bottom: -3px;
+		left: -3px;
 	}
 	.handle.br {
-		bottom: -4px;
-		right: -4px;
+		bottom: -3px;
+		right: -3px;
 	}
 </style>

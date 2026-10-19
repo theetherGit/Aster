@@ -64,7 +64,7 @@ export function handleCanvasKey(e: KeyboardEvent, ctx: CanvasKeyContext) {
 			ctx.openPicker(ui.link.sourceId, ui.link.targetId);
 		} else if (e.key === 'Escape') {
 			ui.link = null;
-		}
+		} else return; // Tab and the rest keep their meaning; only the link's own keys are taken
 		e.preventDefault();
 		return;
 	}

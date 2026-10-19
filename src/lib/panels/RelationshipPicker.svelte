@@ -54,6 +54,13 @@
 	}
 
 	function onkeydown(e: KeyboardEvent) {
+		// Bits moves Tab past the menu's trigger; this menu has none (it anchors to a point), so
+		// Tab closes it and focus goes back to the canvas rather than to the document body.
+		if (e.key === 'Tab') {
+			e.preventDefault();
+			close();
+			return;
+		}
 		if (e.metaKey || e.ctrlKey || e.altKey) return;
 		const n = Number(e.key);
 		if (Number.isInteger(n) && n >= 1 && n <= KINDS.length) {

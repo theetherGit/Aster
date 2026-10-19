@@ -41,7 +41,6 @@
 			class:static={'isStatic' in m && m.isStatic}
 			class:raw={'raw' in m && m.raw !== undefined}
 			class:abstract={'isAbstract' in m && m.isAbstract}
-			title={'raw' in m && m.raw !== undefined ? t('inspector.unparsed') : undefined}
 			ondblclick={(e) => ondblclick(e, i)}
 		>
 			{#if editing === i}
@@ -55,7 +54,10 @@
 					/>
 				{/key}
 			{:else}
-				{text(m)}
+				<!-- Adjacent, so the line's text has no stray space; the raw note reads with the line, no hover needed. -->
+				{text(m)}{#if 'raw' in m && m.raw !== undefined}<span class="sr-only">
+						({t('inspector.unparsed')})</span
+					>{/if}
 			{/if}
 		</li>
 	{/each}
@@ -77,8 +79,12 @@
 	<!-- Board 04: parse state, then the keys that matter right now. -->
 	<div class="chip nodrag nopan" class:warn={!summary.ok}>
 		<span class="dot" aria-hidden="true"></span>
-		<span class="chip-summary" role="status">{summary.parts.join(t('member.summary.join'))}</span>
+		<span class="chip-summary">{summary.parts.join(t('member.summary.join'))}</span>
 		<span class="chip-hint">{t(`member.hints.${kind}`)}</span>
+		<!-- Announced only when the parse state flips, not on every keystroke. -->
+		<span class="sr-only" role="status"
+			>{summary.ok ? t('member.summary.parsed') : t('member.summary.raw')}</span
+		>
 	</div>
 {/if}
 
@@ -115,6 +121,8 @@
 	}
 	/* Parse summary chip under the node while a line is open (board 04). */
 	.chip {
+		/* Board 04's green for "parses"; no chrome token is a success colour (DECISIONS.md). */
+		--chip-ok: #1e8a5f;
 		position: absolute;
 		top: calc(100% + 10px);
 		left: 0;
@@ -136,7 +144,7 @@
 		width: 7px;
 		height: 7px;
 		border-radius: 50%;
-		background: #3fb950;
+		background: var(--chip-ok);
 	}
 	.chip.warn .dot {
 		background: var(--warning);

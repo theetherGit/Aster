@@ -10,11 +10,13 @@ import {
 	reorderMember,
 	setMemberText
 } from '#lib/commands/index.ts';
+import { t } from '#lib/i18n/index.ts';
 import { memberFromText, renderMember, type MemberKind } from '#lib/mdj/expression.ts';
 import { newId } from '#lib/model/ids.ts';
 import { getClassifier } from '#lib/model/project.ts';
 import type { Classifier, Id } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
+import { announceAssertive } from '#lib/stores/live.svelte.ts';
 import { selection, type EditTarget } from '#lib/stores/selection.svelte.ts';
 import { canvasFocus } from './focus.ts';
 
@@ -62,7 +64,9 @@ export function endEditing() {
 
 export function commitName(id: Id, text: string) {
 	const name = text.trim();
-	if (name && name !== classifier(id).name) projectStore.run(renameClassifier, { id, name });
+	const current = classifier(id).name;
+	if (!name) return announceAssertive(t('live.nameKept', { name: current }));
+	if (name !== current) projectStore.run(renameClassifier, { id, name });
 }
 
 /**
@@ -113,22 +117,40 @@ export function nameEnter(id: Id, text: string) {
 /** Tab / ⇧Tab: commit, then move to the next / previous part (name, then each compartment). */
 export function moveCompartment(id: Id, from: EditTarget, text: string, backwards: boolean) {
 	if (from.part === 'text') return; // notes and text have one field
+	// The parts as they were: emptying an enum's last attribute removes that compartment,
+	// and the move is still "the one after it".
+	const parts: EditTarget['part'][] = ['name', ...compartmentsFor(classifier(id))];
 	if (from.part === 'name') commitName(id, text);
 	else commitLine(id, from.part, from.index, text);
-	const c = classifier(id);
-	const parts: EditTarget['part'][] = ['name', ...compartmentsFor(c)];
 	const pos = parts.indexOf(from.part);
 	const next = parts[(pos + (backwards ? -1 : 1) + parts.length) % parts.length];
 	edit(id, next === 'name' ? { part: 'name' } : { part: next, index: 0 });
 }
 
-/** ⌘↩ / ⌘⇧↩: commit, then open a new attribute / operation line below. */
+/**
+ * ⌘↩ / ⌘⇧↩: commit, then open a new attribute / operation line below. In the middle of a
+ * compartment a blank member is inserted there (keyboard.md: "add below", not "open the next");
+ * Esc or an empty commit removes it again.
+ */
 export function addLineBelow(id: Id, from: EditTarget, text: string, kind: MemberKind) {
 	if (from.part === 'text') return;
-	if (from.part === 'name') commitName(id, text);
-	else commitLine(id, from.part, from.index, text);
-	const c = classifier(id);
-	const index = from.part === kind ? from.index + 1 : membersOf(c, kind).length;
+	let index: number;
+	if (from.part === 'name') {
+		commitName(id, text);
+		index = membersOf(classifier(id), kind).length;
+	} else {
+		const kept = commitLine(id, from.part, from.index, text);
+		const list = membersOf(classifier(id), kind);
+		index = from.part === kind ? (kept ? from.index + 1 : from.index) : list.length;
+		if (index < list.length) {
+			projectStore.run(addMember, {
+				classifierId: id,
+				kind,
+				member: memberFromText(kind, '', newId()),
+				index
+			});
+		}
+	}
 	edit(id, { part: kind, index });
 }
 

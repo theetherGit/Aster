@@ -6,6 +6,7 @@
  */
 import { canvasApi } from '#lib/canvas/api.ts';
 import { canvasFocus, explorerFocus } from '#lib/canvas/focus.ts';
+import { rightOf } from '#lib/canvas/place.ts';
 import {
 	deleteSelection,
 	nudgeSelection,
@@ -196,7 +197,13 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('⌘⇧D'),
 		context: 'global',
 		when: () => ui.lastCreated !== null,
-		run: () => ui.lastCreated && canvasApi.create(ui.lastCreated)
+		// keyboard.md: placed to the right of the selection; at the cursor when nothing is selected.
+		run: () => {
+			if (!ui.lastCreated) return;
+			const r = canvasApi.rects();
+			const at = rightOf(selection.list.flatMap((id) => r.get(id) ?? []));
+			canvasApi.create(ui.lastCreated, at ?? undefined);
+		}
 	},
 	{
 		id: 'link.start',
@@ -208,6 +215,17 @@ export const COMMANDS: AppCommand[] = [
 		run: () => canvasApi.startLink()
 	},
 	sheetRow('link.kind', 'create', 'cmd.linkKind', ['1', '6']),
+	{
+		// features.md, Pin a tool: the palette and menu path beside the toolbox's double-click.
+		id: 'tool.pin',
+		group: 'create',
+		label: () => t('cmd.pinTool'),
+		keys: [],
+		context: 'global',
+		when: () => ui.tool !== 'select',
+		state: () => ui.pinned === ui.tool,
+		run: () => (ui.pinned = ui.pinned === ui.tool ? null : ui.tool)
+	},
 
 	// Edit
 	{
@@ -245,6 +263,7 @@ export const COMMANDS: AppCommand[] = [
 		label: () => t('ui.undo'),
 		keys: k('⌘Z'),
 		context: 'global',
+		inText: true,
 		when: () => projectStore.canUndo,
 		run: () => projectStore.undo()
 	},
@@ -254,6 +273,7 @@ export const COMMANDS: AppCommand[] = [
 		label: () => t('ui.redo'),
 		keys: k('⌘⇧Z', '⌘Y'),
 		context: 'global',
+		inText: true,
 		when: () => projectStore.canRedo,
 		run: () => projectStore.redo()
 	},
@@ -397,7 +417,7 @@ export const COMMANDS: AppCommand[] = [
 	{
 		id: 'view.outline',
 		group: 'view',
-		label: () => t('cmd.toggleOutline'),
+		label: () => t(classic() ? 'cmd.toggleExplorer' : 'cmd.toggleOutline'),
 		keys: k('⌘B'),
 		context: 'global',
 		inText: true,
@@ -410,7 +430,7 @@ export const COMMANDS: AppCommand[] = [
 	{
 		id: 'view.inspector',
 		group: 'view',
-		label: () => t('cmd.toggleInspector'),
+		label: () => t(classic() ? 'cmd.toggleEditors' : 'cmd.toggleInspector'),
 		keys: k('⌘\\'),
 		context: 'global',
 		inText: true,

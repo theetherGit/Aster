@@ -20,7 +20,8 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 
 	await create(page, 'c', 'Book');
 	await typeInto(page, attr, '- isbn: String');
-	await expect(page.getByRole('status')).toHaveText('private · String');
+	await expect(page.locator('.chip-summary')).toHaveText('private · String');
+	await expect(page.getByRole('status').filter({ hasText: 'Parses' })).toHaveCount(1);
 	await page.keyboard.press('Enter');
 	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String']);
 	await expect(attr).toHaveValue('');
@@ -29,10 +30,10 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await typeInto(page, attr, '+ {static} count: int = 0');
 	await page.keyboard.press('Enter');
 	await typeInto(page, attr, '+ broken(');
-	await expect(page.getByRole('status')).toHaveText('Not parsed; kept as text');
+	await expect(page.locator('.chip-summary')).toHaveText('Not parsed; kept as text');
 	await page.keyboard.press('Enter');
 	await expect(node(page, 'Book').locator('[data-compartment="attribute"] li.raw')).toHaveText(
-		'+ broken('
+		/^\+ broken\(/
 	);
 	await expect(node(page, 'Book').locator('[data-compartment="attribute"] li.static')).toHaveText(
 		'+ count: int = 0' // underline carries static on paper; the keyword stays in the edit text
@@ -65,7 +66,7 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await expect(lines(page, 'Book', 'attribute')).toHaveText([
 		'- isbn: String',
 		'+ count: int = 0',
-		'+ broken(',
+		/^\+ broken\(/,
 		'# pages: int'
 	]);
 	await expect(lines(page, 'Book', 'operation')).toHaveText([
@@ -170,4 +171,35 @@ test('I, E and D create interface, enum and data type nodes with the right compa
 
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(dt).toHaveCount(0);
+});
+
+test('app chords reach the app from an inline editor: ⌘Z undoes, ⌘S saves, no browser dialog', async ({
+	page
+}) => {
+	// No native save dialog: the init script applies from the next load, so reload after it.
+	await page.addInitScript(() => {
+		Object.defineProperty(window, 'showSaveFilePicker', { value: undefined, configurable: true });
+	});
+	await page.reload();
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	await page.mouse.move(640, 420);
+	const attr = canvas.getByRole('combobox', { name: 'Attribute line' });
+	await create(page, 'c', 'Book');
+	await typeInto(page, attr, '- isbn: String');
+	await page.keyboard.press('Enter');
+	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String']);
+	await expect(attr).toBeFocused();
+
+	// ⌘S from the editor runs the app's save (a download here), not the browser's.
+	const download = page.waitForEvent('download');
+	await page.keyboard.press('ControlOrMeta+s');
+	expect((await download).suggestedFilename()).toBe('library.aster');
+	await expect(attr).toBeFocused();
+
+	// ⌘Z while the next line is open undoes the member that was just added; undo ends editing
+	// (the step may have removed what was being edited) and the canvas takes focus.
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(lines(page, 'Book', 'attribute')).toHaveCount(0);
+	await expect(canvas).toBeFocused();
 });
