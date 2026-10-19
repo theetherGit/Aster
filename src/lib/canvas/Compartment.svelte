@@ -194,8 +194,7 @@
 	}
 	/* Parse summary chip under the node while a line is open (board 04). */
 	.chip {
-		/* Board 04's green for "parses"; no chrome token is a success colour (DECISIONS.md). */
-		--chip-ok: #1e8a5f;
+		--chip-ok: var(--ok);
 		position: absolute;
 		top: calc(100% + 10px);
 		left: 0;

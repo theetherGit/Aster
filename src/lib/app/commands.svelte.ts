@@ -30,7 +30,7 @@ import { copyDiagramAsPng } from '#lib/export/actions.ts';
 import { t, type MessageKey } from '#lib/i18n/index.ts';
 import { newId } from '#lib/model/ids.ts';
 import type { ClassifierKind, DisplayFlags, Id, LineStyle } from '#lib/model/types.ts';
-import { newProject, openFromPicker, saveFile } from '#lib/persist/files.svelte.ts';
+import { newProject, openFromPicker, saveFile, exportPuml } from '#lib/persist/files.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { validation } from '#lib/stores/validation.svelte.ts';
@@ -495,6 +495,29 @@ export const COMMANDS: AppCommand[] = [
 		staruml: true,
 		inText: true,
 		run: () => (ui.paletteOpen = true)
+	},
+	{
+		// features.md M2, Text view: the inspector's Text tab, open and focused (no key in keyboard.md).
+		id: 'view.text',
+		group: 'view',
+		label: () => t('cmd.textView'),
+		keys: [],
+		context: 'global',
+		run: () => {
+			if (classic()) ui.classic.editors = true;
+			else ui.panels.inspector = true;
+			ui.inspectorTab = 'text';
+			requestAnimationFrame(() => document.getElementById('text-view')?.focus());
+		}
+	},
+	{
+		// features.md M2, Text view: ".puml import and export" (no key in keyboard.md).
+		id: 'file.exportPuml',
+		group: 'file',
+		label: () => t('cmd.exportPuml'),
+		keys: [],
+		context: 'global',
+		run: () => exportPuml()
 	},
 	{
 		id: 'view.quickFind',

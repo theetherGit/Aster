@@ -17,6 +17,8 @@
 	--accent-text: #2a63cc;
 	--on-accent: #ffffff;
 	--warning: #b8781a;
+	/* Board 04's "parses" green: the chip's dot and the Text view's "In sync" dot. */
+	--ok: #1e8a5f;
 	--danger: #c43a2c;
 	--paper-bg: #ffffff;
 	--paper-grid: #e0e0e6;
@@ -187,6 +189,7 @@
 	--color-paper-muted: var(--paper-muted);
 	--color-on-accent: var(--on-accent);
 	--color-warning: var(--warning);
+	--color-ok: var(--ok);
 	--color-danger: var(--danger);
 	--color-paper-bg: var(--paper-bg);
 	--color-paper-ink: var(--paper-ink);

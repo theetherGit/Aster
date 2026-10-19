@@ -1,4 +1,5 @@
 <script lang="ts">
+	import TextView from './TextView.svelte';
 	import { renameClass } from '#lib/canvas/inline.ts';
 	import { Collapsible, Select, Tabs } from 'bits-ui';
 	import { byId, effective, runCommand } from '#lib/app/commands.svelte.ts';
@@ -102,7 +103,7 @@
 </script>
 
 <!-- Every field dispatches the same commands as inline editing (docs/spec/features.md, Properties panel). -->
-{#if !classic && (!ui.panels.inspector || (selection.size === 0 && ui.inspectorTab !== 'diagram'))}
+{#if !classic && (!ui.panels.inspector || (selection.size === 0 && ui.inspectorTab !== 'diagram' && ui.inspectorTab !== 'text'))}
 	<!-- Boards 18–19: a 40 px rail with one button when nothing is selected or the panel is hidden. -->
 	<aside
 		aria-label={t('inspector.collapsed')}
@@ -135,9 +136,12 @@
 						<Tab value="diagram" class="px-2">{t('classic.tab.style')}</Tab>
 						<Tab value="properties" class="px-2">{t('classic.tab.property')}</Tab>
 						<Tab value="documentation" class="px-2">{t('classic.tab.documentation')}</Tab>
+						<!-- No feature is exclusive to a layout (overview.md): Classic's Editors carry Text too. -->
+						<Tab value="text" class="px-2">{t('text.tab')}</Tab>
 					{:else}
-						<!-- The Text tab (ui.md) arrives with the Text view in M2; no placeholder until then. -->
+						<!-- Board 09: Properties, Text, Diagram. -->
 						<Tab value="properties">{t('inspector.tab.properties')}</Tab>
+						<Tab value="text">{t('text.tab')}</Tab>
 						<Tab value="diagram">{t('inspector.tab.diagram')}</Tab>
 					{/if}
 				</Tabs.List>
@@ -282,6 +286,9 @@
 					<p class="text-chrome-muted">{t('ui.selectedCount', { count: selection.size })}</p>
 				{/if}
 			</Tabs.Content>
+			<Tabs.Content value="text">
+				<TextView />
+			</Tabs.Content>
 			<Tabs.Content value="diagram" class="p-4">
 				<DiagramTab />
 			</Tabs.Content>
@@ -312,7 +319,9 @@
 		<div transition:panelSlide|global class="inspector flex shrink-0 overflow-hidden">
 			<aside
 				aria-label={t('inspector.title')}
-				class="w-[300px] shrink-0 overflow-auto border-s border-chrome-border bg-chrome-surface"
+				class="{ui.inspectorTab === 'text'
+					? 'w-[360px]'
+					: 'w-[300px]'} shrink-0 overflow-auto border-s border-chrome-border bg-chrome-surface"
 			>
 				{@render panel()}
 			</aside>

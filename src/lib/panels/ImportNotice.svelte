@@ -116,6 +116,8 @@
 					{t('import.restored', { file: notice.file })}
 				{:else if notice.kind === 'changed'}
 					{t('file.changedOutside', { file: notice.file })}
+				{:else if notice.kind === 'imported'}
+					{t('import.imported', { file: notice.file })}
 				{:else}
 					{t('import.failed', { file: notice.file })}
 				{/if}

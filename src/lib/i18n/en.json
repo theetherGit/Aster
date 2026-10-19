@@ -701,5 +701,22 @@
 	"tip.dependency": "Dependency: {source} uses {target}",
 	"tip.navigable": "Navigable: {from} can reach {to}",
 	"tip.composition": "Composition: {whole} owns {part}; the part goes with the whole",
-	"tip.aggregation": "Aggregation: {whole} has {part} as a part, which may be shared"
+	"tip.aggregation": "Aggregation: {whole} has {part} as a part, which may be shared",
+	"cmd.textEdit": "edit the text view",
+	"import.imported": "Imported {file} as a new project",
+	"cmd.exportPuml": "Export the diagram as PlantUML (.puml)",
+	"text.label": "PlantUML text",
+	"text.tab": "Text",
+	"text.inSync": "In sync",
+	"text.pending": "Updating…",
+	"text.errors": "{count} errors",
+	"text.errorsOne": "1 error",
+	"text.caret": "Ln {line}, Col {col}",
+	"text.dialect": "PlantUML",
+	"text.error.missingBrace": "Line {line}: missing } for class {name}",
+	"text.error.strayBrace": "Line {line}: a } that closes nothing",
+	"text.errorList": "Errors in the text",
+	"live.textErrors": "{count} errors in the text; the diagram waits until they are fixed",
+	"text.notApplied": "Waiting for a fix",
+	"cmd.textView": "Text view (PlantUML)"
 }

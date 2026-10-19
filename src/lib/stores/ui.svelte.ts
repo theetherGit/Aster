@@ -88,7 +88,7 @@ class Ui {
 		editors: true
 	});
 	/** Which inspector tab shows (board 15: Diagram holds the display defaults); Classic's Editors add Documentation. */
-	inspectorTab: 'properties' | 'diagram' | 'documentation' = $state('properties');
+	inspectorTab: 'properties' | 'text' | 'diagram' | 'documentation' = $state('properties');
 	tool: Tool = $state('select');
 	/** features.md, Pin a tool: a double-clicked tool keeps placing until Esc or another tool. */
 	pinned: Tool | null = $state(null);

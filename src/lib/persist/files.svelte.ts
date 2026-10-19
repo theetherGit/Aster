@@ -18,6 +18,10 @@ import { MdjError, type ParseReport } from '#lib/mdj/parse.ts';
 import { serializeMdjText } from '#lib/mdj/serialize.ts';
 import { parseInWorker } from '#lib/mdj/worker.ts';
 import { createDiagram, createProject } from '#lib/model/project.ts';
+import { batch, Stack } from '#lib/commands/index.ts';
+import { parsePuml } from '#lib/puml/parse.ts';
+import { printDiagram } from '#lib/puml/print.ts';
+import { planSync } from '#lib/puml/sync.ts';
 import type { Project } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
@@ -40,7 +44,8 @@ export type ImportNotice =
 	| { kind: 'opened'; file: string; report: ParseReport }
 	| { kind: 'restored'; file: string }
 	| { kind: 'failed'; file: string; message: string; invalid: boolean }
-	| { kind: 'changed'; file: string; lastModified: number };
+	| { kind: 'changed'; file: string; lastModified: number }
+	| { kind: 'imported'; file: string };
 
 /** Board 20: what the user was about to do when the prompt opened. */
 export interface PendingAction {
@@ -91,12 +96,13 @@ const TYPES = [
  * The open dialog starts filtered on its first type, so one entry covers both formats; the two
  * single-format entries follow for anyone who wants to narrow the list.
  */
-const OPEN_TYPES = [
+const OPEN_TYPES: { description: string; accept: Record<string, string[]> }[] = [
 	{
-		description: 'Aster or StarUML project',
-		accept: { 'application/json': ['.aster', '.aster.json', '.mdj'] }
+		description: 'Aster or StarUML project, or PlantUML',
+		accept: { 'application/json': ['.aster', '.aster.json', '.mdj'], 'text/plain': ['.puml'] }
 	},
-	...TYPES
+	...TYPES,
+	{ description: 'PlantUML class diagram', accept: { 'text/plain': ['.puml'] } }
 ];
 /** ⌘O: ask for a file. Resolves to null when the user cancels. */
 export async function pickFile(): Promise<OpenedFile | null> {
@@ -119,7 +125,7 @@ export async function pickFile(): Promise<OpenedFile | null> {
 		// Attached while the chooser is open: a detached input has nothing keeping it alive.
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.accept = '.mdj,.aster,.aster.json,application/json';
+		input.accept = '.mdj,.aster,.aster.json,.puml,application/json';
 		input.hidden = true;
 		document.body.append(input);
 		const done = (file: OpenedFile | null) => {
@@ -162,6 +168,7 @@ export function loadFixture(project: Project, route: 'sample' | 'notation') {
 
 /** Open a file: `.aster` validates and loads; `.mdj` restores its autosave on a hash match, else parses. */
 export async function openFile(f: OpenedFile) {
+	if (isPuml(f)) return openPuml(f);
 	files.notice = { kind: 'opening', file: f.name };
 	// By content first: a StarUML file renamed `.aster` still opens as StarUML (and the reverse).
 	const format = sniffFormat(f.name, new TextDecoder('utf-8').decode(f.data.slice(0, 1024)));
@@ -384,4 +391,62 @@ export async function reloadFromDisk() {
 		handle,
 		lastModified: file.lastModified
 	});
+}
+
+// ---------------------------------------------------------------------------
+// PlantUML (features.md M2, Text view: ".puml import and export")
+// ---------------------------------------------------------------------------
+
+const isPuml = (f: OpenedFile) =>
+	/\.puml$/i.test(f.name) ||
+	/^\s*@startuml/.test(new TextDecoder('utf-8').decode(f.data.slice(0, 64)));
+
+/** A `.puml` opens as a new project, one diagram, the classes on a grid; it lives in the browser until saved. */
+async function openPuml(f: OpenedFile) {
+	const doc = parsePuml(new TextDecoder('utf-8').decode(f.data));
+	if (doc.errors.length) {
+		files.notice = {
+			kind: 'failed',
+			file: f.name,
+			message: t('text.error.missingBrace', {
+				line: doc.errors[0].line,
+				name: doc.errors[0].name ?? ''
+			}),
+			invalid: true
+		};
+		return;
+	}
+	const name = f.name.replace(/\.puml$/i, '') || t('model.untitled');
+	const project = createProject({ name });
+	const diagram = createDiagram({ name: t('model.newDiagramName') });
+	project.diagrams.push(diagram);
+	let k = 0;
+	const plan = planSync(project, diagram.id, doc, {
+		place: () => ({ x: 40 + (k % 4) * 240, y: 40 + Math.floor(k++ / 4) * 220 })
+	});
+	if (plan) new Stack(() => project).run(batch(project, plan));
+	startFresh();
+	projectStore.load(project);
+	files.current = null;
+	files.origin = null;
+	files.knownModified = null;
+	files.savedVersion = projectStore.version;
+	files.lastSavedAt = null;
+	files.notice = { kind: 'imported', file: f.name };
+	canvasFocus.focus();
+}
+
+/** The open diagram as `<diagram>.puml`, downloaded. */
+export function exportPuml() {
+	const d = projectStore.diagram;
+	const a = document.createElement('a');
+	a.href = URL.createObjectURL(
+		new Blob([printDiagram(projectStore.project, d)], { type: 'text/plain' })
+	);
+	a.download = `${slug(d.name) || 'diagram'}.puml`;
+	a.hidden = true;
+	document.body.append(a);
+	a.click();
+	a.remove();
+	setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
