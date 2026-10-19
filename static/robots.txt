@@ -1,3 +1,6 @@
-# allow crawling everything by default
+# Crawl everything; only the welcome page is meant for search results (the editor routes carry
+# a noindex meta tag, which crawlers can only read if they may fetch the page).
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://asteruml.app/sitemap.xml

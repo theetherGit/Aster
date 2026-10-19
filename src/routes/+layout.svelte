@@ -4,6 +4,8 @@
 	import paperFont from '#lib/assets/fonts/source-sans-3/source-sans-3-latin-wght-normal.woff2';
 	import { isRtl, locale, startLocale } from '#lib/i18n/locale.svelte.ts';
 	import { live } from '#lib/stores/live.svelte.ts';
+	import { t } from '#lib/i18n/index.ts';
+	import { OG_IMAGE } from '#lib/seo.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Tooltip } from 'bits-ui';
@@ -36,6 +38,17 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<!-- The card every shared link shows (static/og.png); pages add their own title and description. -->
+	<meta property="og:site_name" content={t('app.name')} />
+	<meta property="og:image" content={OG_IMAGE.url} />
+	<meta property="og:image:width" content={String(OG_IMAGE.width)} />
+	<meta property="og:image:height" content={String(OG_IMAGE.height)} />
+	<meta property="og:image:alt" content={t('seo.imageAlt')} />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content={OG_IMAGE.url} />
+	<!-- The browser chrome takes the app's background (tokens.css --chrome-bg; meta tags take no variables). -->
+	<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f8" />
+	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a1f" />
 	<link rel="preload" href={paperFont} as="font" type="font/woff2" crossorigin="anonymous" />
 </svelte:head>
 

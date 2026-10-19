@@ -718,5 +718,9 @@
 	"text.errorList": "Errors in the text",
 	"live.textErrors": "{count} errors in the text; the diagram waits until they are fixed",
 	"text.notApplied": "Waiting for a fix",
-	"cmd.textView": "Text view (PlantUML)"
+	"cmd.textView": "Text view (PlantUML)",
+	"seo.title": "Aster · The open-source StarUML alternative",
+	"seo.headline": "The open-source StarUML alternative",
+	"seo.description": "Draw UML class diagrams in your browser. Opens and saves .mdj files, and nothing leaves your machine.",
+	"seo.imageAlt": "Aster: the open-source StarUML alternative. A UML class diagram in the browser: Member and Librarian generalize the abstract class Person."
 }

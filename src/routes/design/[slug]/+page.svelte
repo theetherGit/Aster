@@ -220,6 +220,8 @@
 
 <svelte:head>
 	<title>{title}</title>
+	<!-- The editor is one app, not pages to rank: only the welcome is indexed (sitemap.xml). -->
+	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <svelte:window
