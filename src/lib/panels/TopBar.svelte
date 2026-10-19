@@ -102,7 +102,7 @@
 									{...props}
 									value={d.id}
 									class="-mb-px shrink-0 border-b-2 border-transparent pl-3 text-[13px] text-chrome-muted hover:text-chrome-text data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-chrome-text {canDelete
-										? 'pr-8'
+										? 'pr-9'
 										: 'pr-3'}"
 									ondblclick={() => rename(d.id)}
 									onkeydown={(e: KeyboardEvent) => {
@@ -138,7 +138,7 @@
 					{#if canDelete}
 						<button
 							type="button"
-							class="tab-delete pointer-events-none absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 rounded-control text-chrome-muted opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-chrome-surface hover:text-danger"
+							class="tab-delete pointer-events-none absolute top-1/2 right-1.5 h-6 w-6 -translate-y-1/2 rounded-control text-chrome-muted opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[[aria-selected=true]]:pointer-events-auto group-has-[[aria-selected=true]]:opacity-100 hover:bg-chrome-surface hover:text-danger"
 							aria-label={t('ui.deleteDiagramNamed', { name: d.name })}
 							onclick={() => {
 								projectStore.activeDiagramId = d.id;

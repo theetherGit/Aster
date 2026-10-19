@@ -10,6 +10,8 @@
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import Icon from './Icon.svelte';
+	import Tip from './Tip.svelte';
+	import { panelSlide } from './motion.ts';
 	import {
 		ROOT,
 		buildRows,
@@ -146,6 +148,7 @@
 <!-- Modern: a landmark of its own. Classic: a section inside the sidebar's aside, never a nested one. -->
 <svelte:element
 	this={variant === 'classic' ? 'section' : 'aside'}
+	transition:panelSlide={{ duration: variant === 'classic' ? 0 : 160 }}
 	aria-labelledby="explorer-title"
 	class={variant === 'classic'
 		? 'flex min-h-0 flex-1 flex-col overflow-auto'
@@ -161,14 +164,17 @@
 			>
 				{t('explorer.title')}
 			</h2>
-			<button
-				type="button"
-				class="icon-btn w-auto px-1.5 text-[11px] text-chrome-muted"
-				onclick={() => (ui.panels.outline = false)}
-				><span class="sr-only">{t('explorer.hide')}</span><kbd aria-hidden="true"
-					>{format(byId('view.outline')!.keys[0])}</kbd
-				></button
-			>
+			<Tip text={t('explorer.hide')} key={format(byId('view.outline')!.keys[0])}>
+				{#snippet children({ props })}
+					<button
+						{...props}
+						type="button"
+						class="icon-btn text-chrome-muted"
+						aria-label={t('explorer.hide')}
+						onclick={() => (ui.panels.outline = false)}><Icon name="panel-left-close" /></button
+					>
+				{/snippet}
+			</Tip>
 		</div>
 	{/if}
 	<ul role="tree" aria-label={t('explorer.tree')} bind:this={treeEl} class="pb-3" {onkeydown}>

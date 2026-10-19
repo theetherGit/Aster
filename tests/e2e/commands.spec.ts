@@ -395,3 +395,22 @@ test('the browser-only banner offers to name the project in place', async ({ pag
 	await page.keyboard.press('Enter');
 	await expect(page.getByTestId('project-name')).toHaveText('Orders');
 });
+
+test('each panel has its own close button, and the rails bring it back', async ({ page }) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const tree = page.getByRole('tree', { name: 'Model tree' });
+	await expect(tree).toBeVisible();
+	await page.getByRole('button', { name: 'Hide outline' }).click();
+	await expect(tree).toHaveCount(0);
+	await page.getByRole('button', { name: 'Show Outline' }).click();
+	await expect(tree).toBeVisible();
+
+	await page.locator('.classifier-node[data-name="Customer"]').click();
+	const inspector = page.getByRole('complementary', { name: 'Inspector', exact: true });
+	await expect(inspector).toBeVisible();
+	await inspector.getByRole('button', { name: 'Hide inspector' }).click();
+	await expect(inspector).toHaveCount(0);
+	await page.getByRole('button', { name: 'Show inspector' }).click();
+	await expect(inspector).toBeVisible();
+});

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Collapsible, Select, Tabs } from 'bits-ui';
-	import { effective } from '#lib/app/commands.svelte.ts';
+	import { byId, effective, runCommand } from '#lib/app/commands.svelte.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import {
 		renameClassifier,
 		setClassifierFlags,
@@ -24,6 +25,8 @@
 	import NoteInspector from './NoteInspector.svelte';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import Icon from './Icon.svelte';
+	import Tip from './Tip.svelte';
+	import { panelSlide } from './motion.ts';
 
 	// Modern: the 300 px inspector with its rail. Classic: StarUML's Editors, tabs Style /
 	// Property / Documentation over the same fields (board 03).
@@ -103,22 +106,27 @@
 		aria-label={t('inspector.collapsed')}
 		class="flex w-10 shrink-0 justify-center border-l border-chrome-border bg-chrome-surface pt-2"
 	>
-		<button
-			type="button"
-			class="icon-btn"
-			aria-label={t('inspector.show')}
-			title={t('inspector.show')}
-			onclick={() => {
-				ui.panels.inspector = true;
-				if (selection.size === 0) ui.inspectorTab = 'diagram';
-			}}
-		>
-			<Icon name="panel-right" />
-		</button>
+		<Tip text={t('inspector.show')} key={format(byId('view.inspector')!.keys[0])}>
+			{#snippet children({ props })}
+				<button
+					{...props}
+					type="button"
+					class="icon-btn"
+					aria-label={t('inspector.show')}
+					onclick={() => {
+						ui.panels.inspector = true;
+						if (selection.size === 0) ui.inspectorTab = 'diagram';
+					}}
+				>
+					<Icon name="panel-right" />
+				</button>
+			{/snippet}
+		</Tip>
 	</aside>
 {:else}
 	<aside
 		aria-label={classic ? t('classic.editors') : t('inspector.title')}
+		transition:panelSlide={{ duration: classic ? 0 : 160 }}
 		class={classic
 			? 'flex min-h-0 flex-1 flex-col overflow-auto border-t border-chrome-border bg-chrome-surface'
 			: 'inspector w-[300px] shrink-0 overflow-auto border-l border-chrome-border bg-chrome-surface'}
@@ -147,6 +155,20 @@
 						<Tabs.Trigger value="diagram" class="tab">{t('inspector.tab.diagram')}</Tabs.Trigger>
 					{/if}
 				</Tabs.List>
+				{#if !classic}
+					<Tip text={t('inspector.hide')} key={format(byId('view.inspector')!.keys[0])}>
+						{#snippet children({ props })}
+							<button
+								{...props}
+								type="button"
+								class="icon-btn my-0.5 ml-auto text-chrome-muted"
+								aria-label={t('inspector.hide')}
+								onclick={() => runCommand('view.inspector')}
+								><Icon name="panel-right-close" /></button
+							>
+						{/snippet}
+					</Tip>
+				{/if}
 			</div>
 			<Tabs.Content value="properties" class="p-4">
 				{#if classifier}
