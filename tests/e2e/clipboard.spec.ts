@@ -66,6 +66,7 @@ test('paste in another project, another tab, creates the elements there', async 
 	await expect(canvasOf(page)).toBeFocused();
 	await page.keyboard.press('ArrowRight');
 	await expect(node(page, 'Account')).toBeFocused();
+	await expect(node(page, 'Account')).toHaveClass(/selected/);
 	await page.keyboard.press('ControlOrMeta+c');
 	await expect(page.getByTestId('live')).toHaveText('Copied Account');
 

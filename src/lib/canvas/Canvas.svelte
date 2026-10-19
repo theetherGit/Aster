@@ -179,6 +179,21 @@
 
 	// ⌘C / ⌘X / ⌘V: the browser's clipboard events land on the body when no text field has focus,
 	// so they are heard on the document and taken only while the diagram has the keyboard.
+	/** The diagram has the keyboard (not a text field in it): clipboard keys are the diagram's. */
+	function canvasHasKeys() {
+		const active = document.activeElement;
+		return el.contains(active) && !active?.closest('input, textarea, [contenteditable="true"]');
+	}
+	// Chromium on Linux and Windows runs Ctrl+C / X / V with no text selected only when a
+	// before-event is handled; claiming them here makes the copy, cut and paste events fire.
+	function onbeforeclipboard(e: Event) {
+		if (canvasHasKeys() && !selection.editing) e.preventDefault();
+	}
+	$effect(() => {
+		const kinds = ['beforecopy', 'beforecut', 'beforepaste'];
+		for (const k of kinds) document.addEventListener(k, onbeforeclipboard);
+		return () => kinds.forEach((k) => document.removeEventListener(k, onbeforeclipboard));
+	});
 	function onclipboard(e: ClipboardEvent) {
 		const active = document.activeElement;
 		const onCanvas =
