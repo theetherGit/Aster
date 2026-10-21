@@ -225,10 +225,11 @@
 		if (rows.length) focusRow(rows[Math.min(i, rows.length - 1)].id);
 	}
 
-	async function reorder(row: TreeRow, delta: -1 | 1) {
+	/** One place, or ±Infinity to the top / bottom (⌘⇧↑ / ⌘⇧↓). */
+	async function reorder(row: TreeRow, delta: number) {
 		const list = membersOf(getClassifier(projectStore.project, row.owner!), row.memberKind!);
-		const to = row.memberIndex! + delta;
-		if (to < 0 || to >= list.length) return;
+		const to = Math.max(0, Math.min(row.memberIndex! + delta, list.length - 1));
+		if (to === row.memberIndex) return;
 		projectStore.run(reorderMember, {
 			classifierId: row.owner!,
 			kind: row.memberKind!,
@@ -349,6 +350,8 @@
 					},
 					{ label: t('outline.moveUp'), keys: keys('⌘↑'), run: () => reorder(row, -1) },
 					{ label: t('outline.moveDown'), keys: keys('⌘↓'), run: () => reorder(row, 1) },
+					{ label: t('outline.moveTop'), keys: keys('⌘⇧↑'), run: () => reorder(row, -Infinity) },
+					{ label: t('outline.moveBottom'), keys: keys('⌘⇧↓'), run: () => reorder(row, Infinity) },
 					{
 						label: t('outline.delete'),
 						keys: keys('⌫', 'Delete', '⌘⌫'),

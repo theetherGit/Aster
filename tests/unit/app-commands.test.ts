@@ -103,7 +103,6 @@ describe('the command registry (docs/spec/keyboard.md, M1 rows)', () => {
 		'⌘0',
 		'⌘9',
 		'⌘1',
-		'⌘⇧9',
 		'⌘⇧]',
 		'⌘⇧[',
 		'⌘L',
@@ -125,6 +124,11 @@ describe('the command registry (docs/spec/keyboard.md, M1 rows)', () => {
 		'?'
 	])('binds %s', (key) => {
 		expect(bound.has(key)).toBe(true);
+	});
+
+	// The owner's keyboard.md (2026-10-21) has no row for these; their commands stay in the palette.
+	it.each(['⌘⇧9', '⌘⇧D'])('leaves %s unbound', (key) => {
+		expect(bound.has(key)).toBe(false);
 	});
 
 	it('has unique ids and no two commands on one key in one context, unless one is layout-scoped', () => {

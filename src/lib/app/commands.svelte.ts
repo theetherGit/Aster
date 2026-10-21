@@ -233,7 +233,8 @@ export const COMMANDS: AppCommand[] = [
 		id: 'create.repeat',
 		group: 'create',
 		label: () => t('cmd.create.repeat'),
-		keys: k('⌘⇧D'),
+		// No key: keyboard.md has none (owner's copy, 2026-10-21); the palette offers it.
+		keys: [],
 		context: 'global',
 		when: () => ui.lastCreated !== null,
 		// keyboard.md: placed to the right of the selection; at the cursor when nothing is selected.
@@ -282,6 +283,7 @@ export const COMMANDS: AppCommand[] = [
 	sheetRow('edit.quickFix', 'edit', 'cmd.quickFix', ['⌥↩']),
 	sheetRow('edit.compartment', 'edit', 'cmd.nextCompartment', ['Tab', '⇧Tab']),
 	sheetRow('edit.moveMember', 'edit', 'cmd.moveMember', ['⌘↑', '⌘↓']),
+	sheetRow('edit.moveMemberEnds', 'edit', 'cmd.moveMemberEnds', ['⌘⇧↑', '⌘⇧↓']),
 	{
 		id: 'edit.escape',
 		group: 'edit',
@@ -683,7 +685,8 @@ export const COMMANDS: AppCommand[] = [
 		id: 'zoom.selection',
 		group: 'view',
 		label: () => t('cmd.zoomSelection'),
-		keys: k('⌘⇧9'),
+		// No key: keyboard.md has none (owner's copy, 2026-10-21); the palette offers it.
+		keys: [],
 		context: 'global',
 		inText: true,
 		run: () => (selection.size ? canvasApi.fitSelection() : canvasApi.fitAll())

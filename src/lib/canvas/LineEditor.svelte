@@ -139,7 +139,9 @@
 			open = false;
 			moveCompartment(id, own as EditTarget, draft, e.shiftKey);
 		} else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && mod && own.part !== 'name') {
-			reorderLine(id, own.part, own.index, draft, e.key === 'ArrowUp' ? -1 : 1);
+			// ⌘⇧ jumps to the top / bottom (keyboard.md).
+			const step = e.shiftKey ? Infinity : 1;
+			reorderLine(id, own.part, own.index, draft, e.key === 'ArrowUp' ? -step : step);
 		} else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && open) {
 			return; // Bits moves the highlight
 		} else return;

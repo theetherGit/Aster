@@ -176,8 +176,8 @@ export function addLineBelow(id: Id, from: EditTarget, text: string, kind: Membe
 	edit(id, { part: kind, index });
 }
 
-/** ⌘↑ / ⌘↓: commit, then move the member one place and follow it. */
-export function reorderLine(id: Id, kind: MemberKind, index: number, text: string, delta: -1 | 1) {
+/** ⌘↑ / ⌘↓: commit, then move the member one place and follow it; ±Infinity (⌘⇧) to the ends. */
+export function reorderLine(id: Id, kind: MemberKind, index: number, text: string, delta: number) {
 	if (!commitLine(id, kind, index, text)) return endEditing();
 	const list = membersOf(classifier(id), kind);
 	const to = Math.max(0, Math.min(index + delta, list.length - 1));

@@ -44,6 +44,13 @@ test('outline editing: add, rename, write members, reorder, link and delete from
 	await page.keyboard.press('ControlOrMeta+ArrowUp');
 	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String', '- title: String']);
 	await expect(isbn).toBeFocused();
+	// ⌘⇧↓ / ⌘⇧↑ move it to the bottom and back to the top (keyboard.md).
+	await page.keyboard.press('ControlOrMeta+Shift+ArrowDown');
+	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- title: String', '- isbn: String']);
+	await expect(isbn).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+Shift+ArrowUp');
+	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String', '- title: String']);
+	await expect(isbn).toBeFocused();
 
 	// F2 edits a member line as text; F2 on the class renames it.
 	await page.keyboard.press('F2');

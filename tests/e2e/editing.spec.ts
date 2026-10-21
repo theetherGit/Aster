@@ -103,6 +103,31 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await expect(lines(page, 'Book', 'attribute')).toHaveCount(3);
 });
 
+/** keyboard.md: ⌘⇧↑ / ⌘⇧↓ move a member to the top / bottom, on the canvas as in the inspector. */
+test('⌘⇧↓ and ⌘⇧↑ move the open line to the bottom and back to the top, the editor following', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	await node(page, 'Account').click();
+	await page.keyboard.press('Enter');
+	await expect(canvas.getByRole('textbox', { name: 'Name' })).toBeFocused();
+	await page.keyboard.press('Tab');
+	const attr = canvas.getByRole('combobox', { name: 'Attribute line' });
+	await expect(attr).toHaveValue('# {static} attribute0: String');
+	const rows = node(page, 'Account').locator('[data-compartment="attribute"] li');
+	await page.keyboard.press('ControlOrMeta+Shift+ArrowDown');
+	await expect(attr).toBeFocused();
+	await expect(attr).toHaveValue('# {static} attribute0: String');
+	await expect(rows.last().locator('input')).toHaveCount(1); // the open line is now the last
+	await page.keyboard.press('ControlOrMeta+Shift+ArrowUp');
+	await expect(attr).toBeFocused();
+	await expect(rows.first().locator('input')).toHaveCount(1);
+	await page.keyboard.press('Escape');
+	await expect(lines(page, 'Account', 'attribute').first()).toContainText('attribute0');
+});
+
 test('type-name completion offers project classifiers after a colon', async ({ page }) => {
 	const canvas = canvasOf(page);
 	await create(page, 'c', 'Shelf');

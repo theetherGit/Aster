@@ -64,10 +64,13 @@ test('shortcut sheet (board 17) opens on ?, is generated from the registry and f
 	const sheet = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
 	await expect(sheet).toBeVisible();
 	await expect(sheet).toContainText('Create and connect');
-	await expect(sheet).toContainText('Repeat last create');
+	await expect(sheet).toContainText('Move member to top / bottom');
+	// Commands with no key in keyboard.md stay in the palette, not on the sheet.
+	await expect(sheet).not.toContainText('Repeat last create');
 	await expect(sheet.locator('kbd', { hasText: /^⌘⇧V$|^Ctrl\+Shift\+V$/ })).toHaveCount(1);
 	await sheet.getByLabel('Filter shortcuts').fill('zoom');
-	await expect(sheet).toContainText('Zoom to selection');
+	await expect(sheet).toContainText('Zoom to fit');
+	await expect(sheet).not.toContainText('Zoom to selection');
 	await expect(sheet).not.toContainText('Save / save as');
 	await expect(sheet).not.toContainText('New class');
 	await sheet.getByLabel('Filter shortcuts').fill('qqq');

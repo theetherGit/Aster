@@ -118,7 +118,7 @@ class Ui {
 	} | null = $state(null);
 	/** The picker's default: the kind chosen last. */
 	lastRelationshipKind: RelationshipKind = $state('association');
-	/** ⌘⇧D repeats the last kind created. */
+	/** The palette's "Repeat last create" makes this kind again. */
 	lastCreated: ClassifierKind | null = $state(null);
 	/** Owner's first-run ruling (#1): the sample shows a strip until the user starts their own work. */
 	sampleStrip = $state(false);

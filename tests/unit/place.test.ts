@@ -31,7 +31,7 @@ describe('free-space placement', () => {
 	});
 });
 
-describe('⌘⇧D placement (keyboard.md: right of the selection)', () => {
+describe('repeat-last-create placement (right of the selection)', () => {
 	it('is one grid step past the right edge of the selection, level with its top', () => {
 		expect(rightOf([box(100, 50)])).toEqual({ x: 100 + 160 + GRID, y: 50 });
 		expect(rightOf([box(100, 50), box(400, 20, 100, 40)])).toEqual({ x: 500 + GRID, y: 20 });
