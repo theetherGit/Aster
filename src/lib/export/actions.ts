@@ -4,7 +4,7 @@ import { t } from '#lib/i18n/index.ts';
 import { announce } from '#lib/stores/live.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
-import { fileText } from '#lib/persist/files.svelte.ts';
+import { files, fileText } from '#lib/persist/files.svelte.ts';
 import { copyPng, download, embeddedFontCss, svgBlob, svgToPng } from './image.ts';
 import { diagramToSvg, slug } from './svg.ts';
 
@@ -49,6 +49,16 @@ export async function exportBlob(o: ExportOptions): Promise<Blob> {
 
 export async function downloadExport(o: ExportOptions) {
 	download(await exportBlob(o), fileName(o));
+}
+
+/**
+ * The ⌘S notice's and the browser-only banner's one click (owner's ruling, 2026-10-21): the
+ * export's .mdj, which StarUML opens; like every export it leaves the file link alone. The
+ * banner has done its job once a copy exists.
+ */
+export async function downloadMdj() {
+	await downloadExport({ ...DEFAULT_EXPORT, format: 'mdj' });
+	files.bannerDismissed = true;
 }
 
 /**

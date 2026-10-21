@@ -43,9 +43,9 @@
 		loadFixture,
 		newProject,
 		openDropped,
-		saveFile,
 		watchOutside
 	} from '#lib/persist/files.svelte.ts';
+	import { downloadMdj } from '#lib/export/actions.ts';
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -321,7 +321,7 @@
 									<Button size="sm" onclick={() => runCommand('project.rename')}
 										>{t('file.bannerName')}</Button
 									>
-									<Button size="sm" onclick={() => saveFile(true)}>{t('file.bannerSave')}</Button>
+									<Button size="sm" onclick={() => downloadMdj()}>{t('file.bannerSave')}</Button>
 								{/snippet}
 							</Banner>
 						{/if}

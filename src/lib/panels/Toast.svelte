@@ -3,6 +3,7 @@
 	import { byId } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
+	import { downloadMdj } from '#lib/export/actions.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
@@ -33,6 +34,15 @@
 		canvasFocus.focus();
 	}
 	const undoKey = format(byId('edit.undo')!.keys[0]);
+	// The ⌘S notice for a browser-only project: one click to a file, or the export sheet.
+	async function downloadCopy() {
+		dismiss();
+		await downloadMdj();
+	}
+	function moreFormats() {
+		dismiss();
+		ui.exportOpen = true;
+	}
 </script>
 
 {#if ui.toast}
@@ -47,6 +57,10 @@
 		onfocusout={(e) => (held = el?.contains(e.relatedTarget as Node) ?? false)}
 	>
 		<span class="min-w-0 flex-1">{ui.toast.text}</span>
+		{#if ui.toast.save}
+			<Button variant="secondary" size="sm" onclick={downloadCopy}>{t('toast.downloadMdj')}</Button>
+			<Button variant="ghost" size="sm" onclick={moreFormats}>{t('toast.moreFormats')}</Button>
+		{/if}
 		{#if ui.toast.undo}
 			<Button variant="secondary" size="sm" onclick={undo}
 				>{t('ui.undo')} <Kbd quiet>{undoKey}</Kbd></Button
@@ -70,9 +84,14 @@
 		left: 50%;
 		z-index: var(--z-toast);
 		display: flex;
-		gap: var(--space-3);
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-3);
 		align-items: center;
-		max-width: min(640px, calc(100% - var(--space-12)));
+		/* Sized by its content up to the cap: pinned at left 50%, it would otherwise shrink to the
+		   half that remains and wrap its sentence into a column. Narrow screens put the buttons on
+		   a second row. */
+		width: max-content;
+		max-width: min(640px, calc(100% - var(--space-12)), calc(100vw - var(--space-6)));
 		padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
 		font-size: var(--text-body);
 		color: var(--chrome-text);

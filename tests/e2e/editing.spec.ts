@@ -216,10 +216,9 @@ test('app chords reach the app from an inline editor: ⌘Z undoes, ⌘S saves, n
 	await expect(lines(page, 'Book', 'attribute')).toHaveText(['- isbn: String']);
 	await expect(attr).toBeFocused();
 
-	// ⌘S from the editor runs the app's save (a download here), not the browser's.
-	const download = page.waitForEvent('download');
+	// ⌘S from the editor runs the app's save (the browser copy and its notice), not the browser's.
 	await page.keyboard.press('ControlOrMeta+s');
-	expect((await download).suggestedFilename()).toBe('library.aster');
+	await expect(page.getByTestId('toast')).toContainText('Saved in this browser only.');
 	await expect(attr).toBeFocused();
 
 	// ⌘Z while the next line is open undoes the member that was just added; undo ends editing

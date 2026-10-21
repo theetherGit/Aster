@@ -41,6 +41,7 @@ import type { ClassifierKind, DisplayFlags, Id, LineStyle } from '#lib/model/typ
 import {
 	newProject,
 	openFromPicker,
+	quickSave,
 	saveFile,
 	exportPuml,
 	importPumlProject
@@ -508,7 +509,8 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('⌘S'),
 		context: 'global',
 		inText: true,
-		run: () => void saveFile()
+		// Never a dialog (owner's ruling, 2026-10-21): the linked file, else the browser and a notice.
+		run: () => void quickSave()
 	},
 	{
 		id: 'project.rename',

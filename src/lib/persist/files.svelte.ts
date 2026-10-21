@@ -27,7 +27,7 @@ import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
 import { formatOf, sniffFormat, type FileFormat } from './format.ts';
-import { findBySourceHash, mintSlug, openSaved, persist } from './autosave.svelte.ts';
+import { findBySourceHash, flush, mintSlug, openSaved, persist } from './autosave.svelte.ts';
 
 export { formatOf, type FileFormat };
 
@@ -281,8 +281,41 @@ export const suggestedName = (format: FileFormat) =>
 		: `${(files.current?.name ?? slug(projectStore.project.name)).replace(/\.(aster(\.json)?|mdj)$/i, '')}.${format}`;
 
 /**
- * ⌘S writes back in the format the file was opened as (an Aster-born project writes `.aster`);
- * ⌘⇧S or no handle asks where, either format, or downloads. A written `.mdj` becomes the origin.
+ * ⌘S (owner's ruling, 2026-10-21): never a dialog. A file the project is linked to is written
+ * once the browser allows it (after a reload Chrome asks with its own small bar, not the file
+ * picker); otherwise the browser copy is brought up to date and the notice offers a download.
+ * ⌘⇧S, and the unsaved-changes prompt's Save, are where a file is asked for (saveFile).
+ */
+export async function quickSave(): Promise<void> {
+	const handle = files.current?.handle;
+	if (handle && (await mayWrite(handle))) {
+		await saveFile();
+		return;
+	}
+	await flush();
+	ui.toast = { text: t('toast.savedInBrowser'), undo: false, save: true, at: Date.now() };
+}
+
+/** File System Access permissions are Chromium's; where the API is missing, a handle is writable. */
+interface Permissioned {
+	queryPermission?(d: { mode: 'readwrite' }): Promise<PermissionState>;
+	requestPermission?(d: { mode: 'readwrite' }): Promise<PermissionState>;
+}
+async function mayWrite(handle: FileSystemFileHandle): Promise<boolean> {
+	const h = handle as FileSystemFileHandle & Permissioned;
+	const mode = { mode: 'readwrite' } as const;
+	try {
+		if (!h.queryPermission || (await h.queryPermission(mode)) === 'granted') return true;
+		return (await h.requestPermission?.(mode)) === 'granted';
+	} catch {
+		return false; // the file moved, or the prompt could not be shown: keep it in the browser
+	}
+}
+
+/**
+ * Writes back in the format the file was opened as (an Aster-born project writes `.aster`);
+ * `as` (⌘⇧S) or no handle asks where, either format, or downloads. A written `.mdj` becomes the
+ * origin.
  */
 export async function saveFile(as = false): Promise<boolean> {
 	if (files.saving) return false;

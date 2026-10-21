@@ -33,6 +33,11 @@ export interface Saved {
 	bannerDismissed: boolean;
 	/** The project's `/design/<slug>`; null for an unnamed draft. */
 	slug?: string | null;
+	/**
+	 * The file it is linked to, so ⌘S keeps writing it after a reload (owner's ruling,
+	 * 2026-10-21). File System Access handles survive IndexedDB; the permission does not.
+	 */
+	handle?: FileSystemFileHandle;
 }
 /** The first records (before the .aster format) held the Project by structured clone. */
 interface SavedV1 extends Omit<Saved, 'version' | 'file' | 'fileFormat'> {
@@ -114,10 +119,17 @@ export async function saveNow(): Promise<void> {
 		at: Date.now(),
 		thumbnail: thumb,
 		bannerDismissed: files.bannerDismissed,
-		slug: persist.slug
+		slug: persist.slug,
+		handle: files.current?.handle
 	};
 	const key = recordKey(p);
-	await set(KEY(key), record);
+	try {
+		await set(KEY(key), record);
+	} catch (e) {
+		// A handle IndexedDB cannot hold (a test double, an older browser): keep the rest.
+		if (!(e instanceof DOMException && e.name === 'DataCloneError') || !record.handle) throw e;
+		await set(KEY(key), { ...record, handle: undefined });
+	}
 	const entry: RecentEntry = {
 		id: key,
 		name: p.name,
@@ -246,7 +258,8 @@ export async function openSaved(id: string): Promise<boolean> {
 	files.current = record.fileName
 		? {
 				name: record.fileName,
-				format: record.version === 2 ? (record.fileFormat ?? 'mdj') : 'mdj'
+				format: record.version === 2 ? (record.fileFormat ?? 'mdj') : 'mdj',
+				handle: record.version === 2 ? record.handle : undefined
 			}
 		: null;
 	files.origin = origin;

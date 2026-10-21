@@ -164,7 +164,8 @@ class Ui {
 	quickFindOpen = $state(false);
 	shortcutsOpen = $state(false);
 	/** Board 19: the last removal, undoable from a toast. */
-	toast: { text: string; undo: boolean; at: number } | null = $state(null);
+	/** `save`: the ⌘S notice for a browser-only project, with Download .mdj and More formats…. */
+	toast: { text: string; undo: boolean; at: number; save?: boolean } | null = $state(null);
 	/** Edge under the pointer: its two end nodes light up (features list #14). */
 	hoveredEdge: Id | null = $state(null);
 }

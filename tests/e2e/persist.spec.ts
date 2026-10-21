@@ -53,7 +53,7 @@ test('autosave: close mid-edit and reopen loses nothing, undo history included',
 	await expect(node(page, 'Book')).toHaveCount(0);
 });
 
-test('⌘S downloads the native .aster for an Aster-born project; the save states follow', async ({
+test('⌘⇧S saves the native .aster for an Aster-born project; the save states follow', async ({
 	page
 }) => {
 	await page.goto('/design/sample');
@@ -65,8 +65,9 @@ test('⌘S downloads the native .aster for an Aster-born project; the save state
 	await expect(page.getByTestId('save-state')).toHaveAttribute('data-state', 'never');
 	await page.keyboard.press('Escape');
 
+	// ⌘⇧S is the one key that asks for a file (no picker in this browser: a download).
 	const download = page.waitForEvent('download');
-	await page.keyboard.press('ControlOrMeta+s');
+	await page.keyboard.press('ControlOrMeta+Shift+s');
 	const d = await download;
 	expect(d.suggestedFilename()).toBe('library.aster');
 	const json = JSON.parse((await downloadText(d)).toString('utf8'));
@@ -167,7 +168,7 @@ test('board 20: opening another file over unsaved edits asks first', async ({ pa
 	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
 	const download = page.waitForEvent('download');
-	await page.keyboard.press('ControlOrMeta+s');
+	await page.keyboard.press('ControlOrMeta+Shift+s');
 	await download;
 	// The download event lands before the save flow records the file; wait for the footer.
 	await expect(page.getByRole('button', { name: 'library.aster' })).toBeVisible();
@@ -317,4 +318,110 @@ test.describe('the welcome at /', () => {
 		await expect(node(page, 'Thing')).toBeVisible();
 		await expect(page).toHaveURL(/\/design\/new$/);
 	});
+});
+
+/** Owner's ruling, 2026-10-21: ⌘S never opens the save dialog. */
+test('⌘S keeps a browser-only project in the browser and offers a download, never a dialog', async ({
+	page
+}) => {
+	await page.addInitScript(() => {
+		const w = window as unknown as { __picker: number };
+		w.__picker = 0;
+		Object.defineProperty(window, 'showSaveFilePicker', {
+			configurable: true,
+			value: async () => {
+				w.__picker++;
+				throw new DOMException('cancelled', 'AbortError');
+			}
+		});
+	});
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.mouse.move(600, 400);
+	await create(page, 'c', 'Book');
+	await page.keyboard.press('Escape');
+	let downloads = 0;
+	page.on('download', () => downloads++);
+
+	await page.keyboard.press('ControlOrMeta+s');
+	const toast = page.getByTestId('toast');
+	await expect(toast).toContainText('Saved in this browser only.');
+	// Pressed again: the same notice, not a second one; it never takes the keyboard.
+	await page.keyboard.press('ControlOrMeta+s');
+	await expect(toast).toHaveCount(1);
+	await expect(node(page, 'Book')).toBeFocused();
+	expect(await page.evaluate(() => (window as unknown as { __picker: number }).__picker)).toBe(0);
+	expect(downloads).toBe(0);
+
+	// Download .mdj: the export's own file, named after the project.
+	const download = page.waitForEvent('download');
+	await toast.getByRole('button', { name: 'Download .mdj' }).click();
+	const d = await download;
+	expect(d.suggestedFilename()).toBe('library.mdj');
+	expect(JSON.parse((await downloadText(d)).toString('utf8'))._type).toBe('Project');
+	await expect(toast).toHaveCount(0);
+
+	// More formats… opens the export sheet.
+	await canvasOf(page).focus();
+	await page.keyboard.press('ControlOrMeta+s');
+	await toast.getByRole('button', { name: 'More formats…' }).click();
+	await expect(page.getByRole('dialog', { name: 'Export diagram' })).toBeVisible();
+	await page.keyboard.press('Escape');
+
+	// ⌘S brought the browser copy up to date: a reload has Book.
+	await page.reload();
+	await expect(node(page, 'Book')).toBeVisible();
+});
+
+test('⌘S writes a linked file without a dialog once the browser allows it', async ({ page }) => {
+	const text = readFileSync(fixture('public-vrview.mdj'), 'utf8');
+	await page.addInitScript((t) => {
+		const w = window as unknown as { __writes: string[]; __permission: string; __deny: boolean };
+		w.__writes = [];
+		w.__permission = 'prompt';
+		w.__deny = false;
+		const handle = {
+			kind: 'file',
+			name: 'vr.mdj',
+			getFile: async () => new File([t], 'vr.mdj'),
+			createWritable: async () => ({
+				write: async (x: unknown) => void w.__writes.push(String(x)),
+				close: async () => {}
+			}),
+			queryPermission: async () => w.__permission,
+			// Chrome's small "allow saving" bar, standing in for the file picker after a reload.
+			requestPermission: async () => (w.__permission = w.__deny ? 'denied' : 'granted')
+		};
+		Object.defineProperty(window, 'showOpenFilePicker', {
+			configurable: true,
+			value: async () => [handle]
+		});
+	}, text);
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+o');
+	await expect(page.getByTestId('import-notice')).toContainText('vr.mdj');
+	await page.keyboard.press('Escape');
+	await canvasOf(page).focus();
+	await page.mouse.move(600, 500);
+	await create(page, 'c', 'Shelf');
+	await page.keyboard.press('Escape');
+	await expect(page).toHaveTitle(/vr\.mdj • /);
+
+	await page.keyboard.press('ControlOrMeta+s');
+	await expect
+		.poll(() => page.evaluate(() => (window as unknown as { __writes: string[] }).__writes.length))
+		.toBe(1);
+	await expect(page).toHaveTitle('vr.mdj – Aster');
+	await expect(page.getByTestId('toast')).toHaveCount(0);
+
+	// Saving refused: the project stays in the browser, and the notice says so.
+	await page.evaluate(() => {
+		const w = window as unknown as { __permission: string; __deny: boolean };
+		w.__permission = 'prompt';
+		w.__deny = true;
+	});
+	await page.keyboard.press('Delete');
+	await page.keyboard.press('ControlOrMeta+s');
+	await expect(page.getByTestId('toast')).toContainText('Saved in this browser only.');
 });
