@@ -511,6 +511,7 @@
 					maxZoom={4}
 					deleteKey={null}
 					selectionKey={null}
+					multiSelectionKey="Shift"
 					selectionOnDrag
 					panOnDrag={[1]}
 					panActivationKey=" "
