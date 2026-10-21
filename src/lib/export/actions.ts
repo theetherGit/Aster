@@ -4,7 +4,7 @@ import { t } from '#lib/i18n/index.ts';
 import { announce } from '#lib/stores/live.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
-import { files, fileText } from '#lib/persist/files.svelte.ts';
+import { baseName, files, fileText } from '#lib/persist/files.svelte.ts';
 import { copyPng, download, embeddedFontCss, svgBlob, svgToPng } from './image.ts';
 import { diagramToSvg, slug } from './svg.ts';
 
@@ -23,9 +23,9 @@ export const DEFAULT_EXPORT: ExportOptions = {
 
 export const isImage = (f: ExportOptions['format']) => f === 'png' || f === 'svg';
 
-/** Images are named after the diagram, files after the project (docs/file-format.md). */
+/** Images are named after the diagram, files as saving names them (baseName: the file, the project, the diagram). */
 export function fileName(o: ExportOptions) {
-	if (!isImage(o.format)) return `${slug(projectStore.project.name)}.${o.format}`;
+	if (!isImage(o.format)) return `${baseName()}.${o.format}`;
 	return `${slug(projectStore.diagram.name)}${o.format === 'png' && o.scale === 2 ? '@2x' : ''}.${o.format}`;
 }
 

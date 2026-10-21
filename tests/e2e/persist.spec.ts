@@ -425,3 +425,40 @@ test('⌘S writes a linked file without a dialog once the browser allows it', as
 	await page.keyboard.press('ControlOrMeta+s');
 	await expect(page.getByTestId('toast')).toContainText('Saved in this browser only.');
 });
+
+/** Owner's report, 2026-10-21: downloads came down as untitled.mdj / untitled.aster. */
+test('downloads carry the file name, else the project name, else the diagram name', async ({
+	page
+}) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	// StarUML names its projects "Untitled" inside the file; the download keeps the file's name.
+	const text = readFileSync(fixture('public-hydgl.mdj'), 'utf8');
+	await drop(page, 'public-hydgl.mdj', text);
+	await expect(page.getByTestId('import-notice')).toContainText('public-hydgl.mdj');
+	await expect(page.getByTestId('project-name')).toHaveText('Untitled');
+	await canvasOf(page).focus();
+	await page.keyboard.press('ControlOrMeta+Shift+e');
+	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('radio', { name: '.mdj' }).click();
+	await expect(sheet.getByTestId('export-name')).toHaveText('public-hydgl.mdj');
+	await sheet.getByRole('radio', { name: '.aster' }).click();
+	await expect(sheet.getByTestId('export-name')).toHaveText('public-hydgl.aster');
+	await page.keyboard.press('Escape');
+	await canvasOf(page).focus();
+	await page.keyboard.press('ControlOrMeta+s');
+	const download = page.waitForEvent('download');
+	await page.getByTestId('toast').getByRole('button', { name: 'Download .mdj' }).click();
+	expect((await download).suggestedFilename()).toBe('public-hydgl.mdj');
+
+	// A new project, nothing named yet: its diagram's name.
+	await page.getByTestId('project-name').click();
+	await page.getByRole('menuitem', { name: 'New diagram' }).click();
+	await expect(page.getByTestId('project-name')).toHaveText('Untitled');
+	await page.keyboard.press('ControlOrMeta+Shift+e');
+	await page
+		.getByRole('dialog', { name: 'Export diagram' })
+		.getByRole('radio', { name: '.mdj' })
+		.click();
+	await expect(page.getByTestId('export-name')).toHaveText('class-diagram.mdj');
+});

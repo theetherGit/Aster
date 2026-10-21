@@ -274,11 +274,22 @@ export const fileText = (format: FileFormat) =>
 		? serializeMdjText(projectStore.project)
 		: serializeAsterText(projectStore.project, files.origin ?? undefined);
 
-/** A file name for the format: the open file's own, or the project's slug; never a doubled extension. */
+/**
+ * What a downloaded or saved file is called, without its extension: the open file's own name
+ * (StarUML names its projects "Untitled" inside the file), else the project's name, else the
+ * diagram's. Owner's report, 2026-10-21: everything had come down as untitled.mdj.
+ */
+export function baseName(): string {
+	const own = files.current?.name.replace(/\.(aster(\.json)?|mdj|puml)$/i, '');
+	if (own) return own;
+	const p = projectStore.project;
+	if (p.name.trim() && p.name !== t('model.untitled')) return slug(p.name);
+	return slug(projectStore.diagram.name) || 'diagram';
+}
+
+/** A file name for the format: the open file's own when the format matches; never a doubled extension. */
 export const suggestedName = (format: FileFormat) =>
-	files.current?.format === format
-		? files.current.name
-		: `${(files.current?.name ?? slug(projectStore.project.name)).replace(/\.(aster(\.json)?|mdj)$/i, '')}.${format}`;
+	files.current?.format === format ? files.current.name : `${baseName()}.${format}`;
 
 /**
  * ⌘S (owner's ruling, 2026-10-21): never a dialog. A file the project is linked to is written
