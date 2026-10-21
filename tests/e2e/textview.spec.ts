@@ -137,6 +137,8 @@ test('the Text tab resizes by keyboard and pointer, remembers its width, and col
 	await page.mouse.up();
 	await expect(handle).toHaveValue('488'); // 392 + 100, on the 16 px grid
 	await page.reload();
+	// The app must have booted before ⌘K means anything (CI is slower than a laptop).
+	await expect(canvasOf(page)).toBeFocused();
 	await fromPalette(page, 'Text view');
 	await expect(page.getByRole('slider', { name: 'Resize the inspector' })).toHaveValue('488');
 	// The colouring: keywords are their own spans, behind the text area.
