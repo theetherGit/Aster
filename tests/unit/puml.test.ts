@@ -193,6 +193,24 @@ C o-- "many" D
 		expect(doc.kept).toEqual(["' a comment is kept", 'skinparam classAttributeIconSize 0']);
 	});
 
+	it('reads extends, implements and a #colour on a class line (owner review, 2026-10-21)', () => {
+		const doc = parsePuml(
+			'@startuml\nclass Member extends Person implements Searchable, Comparable {\n  -memberId: String\n}\nclass Book <<entity>> #FFF8E1 {\n  -isbn: String\n}\ninterface Sorted extends Comparable\n@enduml\n'
+		);
+		expect(doc.errors).toEqual([]);
+		const member = doc.classifiers.find((c) => c.name === 'Member')!;
+		expect(member.lines.map((l) => l.text)).toEqual(['-memberId: String']);
+		const book = doc.classifiers.find((c) => c.name === 'Book')!;
+		expect(book.stereotype).toBe('entity');
+		expect(book.lines.map((l) => l.text)).toEqual(['-isbn: String']);
+		expect(doc.relationships.map((r) => `${r.source} ${r.kind} ${r.target}`)).toEqual([
+			'Member generalization Person',
+			'Member realization Searchable',
+			'Member realization Comparable',
+			'Sorted generalization Comparable'
+		]);
+	});
+
 	it('says where a brace is missing or stray, and plans nothing then', () => {
 		expect(parsePuml('class A {\n  +x: int\n').errors).toEqual([
 			{ line: 1, message: 'missingBrace', name: 'A' }

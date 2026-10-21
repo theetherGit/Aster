@@ -43,17 +43,71 @@ describe('PlantUML highlighting', () => {
 		]);
 	});
 
-	it('marks arrows, multiplicities and labels in a relationship line', () => {
-		expect(kinds('Member "1" -- "0..*" Loan : loans')[0]).toEqual([
+	it('reads a relationship line: both class names, multiplicities, arrow, label, direction', () => {
+		expect(kinds('Member "1" -- "0..*" Loan : loans >')[0]).toEqual([
+			['name', 'Member'],
 			['string', '"1"'],
 			['arrow', '--'],
-			['string', '"0..*"']
+			['string', '"0..*"'],
+			['name', 'Loan'],
+			['modifier', '>']
 		]);
 		expect(kinds('Loan ..> LoanStatus : <<use>>')[0]).toEqual([
+			['name', 'Loan'],
 			['arrow', '..>'],
+			['name', 'LoanStatus'],
 			['stereotype', '<<use>>']
 		]);
-		expect(kinds('Order *-up- OL')[0]).toEqual([['arrow', '*-up-']]);
+		expect(kinds('Order *-up- OL')[0]).toEqual([
+			['name', 'Order'],
+			['arrow', '*-up-'],
+			['name', 'OL']
+		]);
+	});
+
+	it('reads arrow variants: colour and style brackets, x, # and + heads', () => {
+		for (const arrow of [
+			'-[#red]->',
+			'-[hidden]-',
+			'.[#blue,dashed].>',
+			'x--',
+			'#--',
+			'+--',
+			'--x'
+		])
+			expect(kinds(`A ${arrow} B`)[0]).toEqual([
+				['name', 'A'],
+				['arrow', arrow],
+				['name', 'B']
+			]);
+	});
+
+	it('marks extends, implements and a colour on a declaration', () => {
+		expect(kinds('class Member extends Person implements Searchable, Comparable {\n}')[0]).toEqual([
+			['keyword', 'class'],
+			['name', 'Member'],
+			['keyword', 'extends'],
+			['name', 'Person'],
+			['keyword', 'implements'],
+			['name', 'Searchable'],
+			['name', 'Comparable']
+		]);
+		expect(kinds('class Book #FFF8E1 {\n}')[0]).toEqual([
+			['keyword', 'class'],
+			['name', 'Book'],
+			['modifier', '#FFF8E1']
+		]);
+	});
+
+	it('marks the layout keywords and preprocessor lines', () => {
+		expect(
+			kinds('title Library\nleft to right direction\n!include common.puml\nhide empty members')
+		).toEqual([
+			[['keyword', 'title']],
+			[['keyword', 'left to right direction']],
+			[['directive', '!include common.puml']],
+			[['keyword', 'hide']]
+		]);
 	});
 
 	it('marks comments, directives and note blocks', () => {

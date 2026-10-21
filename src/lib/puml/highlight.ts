@@ -31,18 +31,34 @@ export interface Token {
 const keyword = { name: 'keyword.other.plantuml' };
 const name = { name: 'entity.name.type.plantuml' };
 
+// PlantUML's arrows: a head, dashes or dots with an optional `[#colour,style]` and direction word,
+// a tail (<| |> * o x # + ^ < >). A letter head needs a non-word before it, so `Box-->X` keeps its x.
+const HEAD = String.raw`(?:(?<![\w$])(?:o|x)|<\|?|\*|#|\+|\^)`;
+const TAIL = String.raw`(?:\|?>|\*|o|x|#|\+|\^)`;
+const ARROW = String.raw`${HEAD}?(?:-+|\.+)(?:\[[^\]]*\])?(?:-+|\.+)?(?:(?:up|down|left|right|u|d|l|r)(?:-+|\.+))?${TAIL}?`;
+const NAME_RE = String.raw`"[^"]*"|[\w.$]+`;
+
 const grammar: LanguageRegistration = {
 	name: 'plantuml',
 	scopeName: 'source.plantuml',
 	patterns: [
 		{ include: '#comment' },
 		{ match: '^\\s*@\\w+.*$', name: 'meta.directive.plantuml' },
+		// Preprocessor lines (!include, !theme, !define …) read as directives too.
+		{ match: '^\\s*!\\w+.*$', name: 'meta.directive.plantuml' },
 		{ include: '#note' },
 		{ include: '#declaration' },
+		{ include: '#relationship' },
+		{ include: '#parents' },
+		{ include: '#colour' },
 		{ include: '#body' },
 		{ include: '#stereotype' },
 		{ include: '#string' },
-		{ match: '^\\s*(note|skinparam|hide|show)\\b', captures: { 1: keyword } },
+		{
+			match:
+				'^\\s*(note|skinparam|hide|show|remove|title|caption|legend|endlegend|end\\s+legend|header|endheader|footer|endfooter|together|newpage|left\\s+to\\s+right\\s+direction|top\\s+to\\s+bottom\\s+direction)\\b',
+			captures: { 1: keyword }
+		},
 		{ include: '#alias' },
 		{ include: '#arrow' }
 	],
@@ -56,17 +72,35 @@ const grammar: LanguageRegistration = {
 		stereotype: { match: '<<[^<>]*>>', name: 'entity.other.stereotype.plantuml' },
 		string: { match: '"[^"]*"', name: 'string.quoted.double.plantuml' },
 		declaration: {
-			match:
-				'^\\s*(?:(abstract)\\s+)?(class|interface|enum|annotation|package|namespace)\\b\\s*("[^"]*"|[\\w.$]+)?',
+			match: `^\\s*(?:(abstract)\\s+)?(class|interface|enum|annotation|package|namespace)\\b\\s*(${NAME_RE})?`,
 			captures: { 1: keyword, 2: keyword, 3: name }
 		},
-		alias: { match: '\\b(as)\\s+([\\w.$]+)', captures: { 1: keyword, 2: name } },
-		// The same arrow the parser reads: optional head, dashes or dots, a direction word, optional tail.
-		arrow: {
-			match:
-				'(?:<\\|?|\\*|o)?(?:-+|\\.+)(?:(?:up|down|left|right|u|d|l|r)(?:-+|\\.+))?(?:\\|?>|\\*|o)?',
-			name: 'keyword.operator.arrow.plantuml'
+		// `extends A` / `implements A, B` after a class's name.
+		parents: {
+			match: `\\b(extends|implements)\\s+(${NAME_RE})(?:\\s*,\\s*(${NAME_RE}))?(?:\\s*,\\s*(${NAME_RE}))?(?:\\s*,\\s*(${NAME_RE}))?`,
+			captures: { 1: keyword, 2: name, 3: name, 4: name, 5: name }
 		},
+		colour: {
+			match: '(?<![\\w$])#(?:[0-9A-Fa-f]{3,8}|[A-Za-z]\\w*)\\b',
+			name: 'storage.modifier.plantuml'
+		},
+		// A whole relationship line: both class names, multiplicities, the arrow, and the label
+		// with its stereotype and direction mark (`: loans >`).
+		relationship: {
+			match: `^\\s*(${NAME_RE})\\s*("[^"]*")?\\s*(${ARROW})\\s*("[^"]*")?\\s*(${NAME_RE})\\s*(?::\\s*(?:([<>])\\s+)?(.*?)(?:\\s+([<>]))?)?\\s*$`,
+			captures: {
+				1: name,
+				2: { name: 'string.quoted.double.plantuml' },
+				3: { name: 'keyword.operator.arrow.plantuml' },
+				4: { name: 'string.quoted.double.plantuml' },
+				5: name,
+				6: { name: 'storage.modifier.plantuml' },
+				7: { patterns: [{ include: '#stereotype' }] },
+				8: { name: 'storage.modifier.plantuml' }
+			}
+		},
+		alias: { match: '\\b(as)\\s+([\\w.$]+)', captures: { 1: keyword, 2: name } },
+		arrow: { match: ARROW, name: 'keyword.operator.arrow.plantuml' },
 		// `note as N1` or `note left of X` with no text on the line: a block up to `end note`.
 		note: {
 			begin: '^\\s*(note)\\b(?=[^":]*$)',

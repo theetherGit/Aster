@@ -95,6 +95,8 @@ const theme = EditorView.theme({
 	},
 	'.tk-keyword, .tk-arrow, .tk-type': { color: 'var(--accent-text)' },
 	'.tk-comment, .tk-directive, .tk-stereotype, .tk-modifier': { color: 'var(--chrome-muted)' },
+	// Class names carry the diagram's structure: weight, not a third colour (design.md).
+	'.tk-name': { fontWeight: '600' },
 	// Parse errors: a wavy underline and a dot in the gutter, both in the danger token.
 	'.cm-lintRange-error': {
 		backgroundImage: 'none',

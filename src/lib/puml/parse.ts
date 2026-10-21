@@ -65,7 +65,16 @@ export interface PumlDoc {
 
 const NAME = String.raw`"[^"]+"|[A-Za-z_$][\w$.]*`;
 const HEADER = new RegExp(
-	String.raw`^(abstract\s+class|abstract|class|interface|enum)\s+(${NAME})(?:\s+as\s+([\w$]+))?((?:\s*<<[^>]+>>)*)\s*(\{)?(.*)$`
+	String.raw`^(abstract\s+class|abstract|class|interface|enum)\s+(${NAME})(?:\s+as\s+([\w$]+))?(.*)$`
+);
+/**
+ * What may follow a class's name before its `{`, in any order: stereotypes, a `#colour`, and
+ * PlantUML's `extends X` / `implements X, Y` (owner review, 2026-10-21).
+ */
+const STEREO_TAIL = /^<<\s*([^>]+?)\s*>>/;
+const COLOUR_TAIL = /^#\w+/;
+const PARENTS_TAIL = new RegExp(
+	String.raw`^(extends|implements)\s+((?:${NAME})(?:\s*,\s*(?:${NAME}))*)`
 );
 // An arrow: optional head, dashes or dots with an optional direction word, optional tail.
 const ARROW = String.raw`(<\|?|\*|o)?([-.]+)(?:(?:up|down|left|right|u|d|l|r)[-.]*)?(\|?>|\*|o)?`;
@@ -148,18 +157,51 @@ export function parsePuml(text: string): PumlDoc {
 		}
 		const h = HEADER.exec(line);
 		if (h) {
-			const [, keyword, rawName, as, stereos, brace, rest] = h;
+			const [, keyword, rawName, as, after] = h;
 			const name = unquote(rawName);
+			const stereos: string[] = [];
+			const parents: [RelationshipKind, string][] = [];
+			let tail = after;
+			for (;;) {
+				const t = tail.trimStart();
+				const m = STEREO_TAIL.exec(t) ?? COLOUR_TAIL.exec(t) ?? PARENTS_TAIL.exec(t);
+				if (!m) {
+					tail = t;
+					break;
+				}
+				if (m[0].startsWith('<<')) stereos.push(m[1]);
+				// ponytail: a #colour is read and dropped; fill colours are M3.4 (features.md).
+				else if (m[1] === 'extends' || m[1] === 'implements')
+					for (const p of m[2].split(','))
+						parents.push([m[1] === 'extends' ? 'generalization' : 'realization', p.trim()]);
+				tail = t.slice(m[0].length);
+			}
+			const brace = tail.startsWith('{');
+			const rest = brace ? tail.slice(1) : '';
 			if (as) alias.set(as, name);
 			const c = classifier(name, n);
 			c.declared = true;
 			c.line = n;
 			c.isAbstract = keyword.startsWith('abstract');
 			c.kind = keyword === 'interface' ? 'interface' : keyword === 'enum' ? 'enum' : 'class';
-			for (const [, s] of (stereos ?? '').matchAll(/<<\s*([^>]+?)\s*>>/g)) {
+			for (const s of stereos) {
 				if (c.kind === 'class' && s === 'dataType') c.kind = 'dataType';
 				else if (c.kind === 'class' && s === 'primitive') c.kind = 'primitiveType';
 				else c.stereotype ??= s;
+			}
+			// `class A extends B`: a generalisation (an interface's `extends` too), `implements`: a
+			// realisation, as the arrows would say.
+			for (const [kind, parent] of parents) {
+				const target = resolve(parent);
+				classifier(target, n);
+				doc.relationships.push({
+					kind,
+					source: name,
+					target,
+					sourceEnd: {},
+					targetEnd: {},
+					line: n
+				});
 			}
 			if (brace) {
 				const close = rest.lastIndexOf('}');
