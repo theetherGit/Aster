@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aster board 24 member rows</title>
+    <!--
+  Aster design board 24-member-rows: Inspector member rows: rest, hover with actions, editing, dragging with insertion line; reorder via one command and three routes.
+  Spec: features.md Properties panel, Inline UML text editing; keyboard.md ⌘↑/⌘↓. Picture: ../24-member-rows.png
+
+  STATIC REFERENCE SNAPSHOT, NOT PRODUCTION CODE.
+  - Use it for structure, ARIA, copy, sizes and spacing. Inline styles are the design tokens resolved to
+    hex for the dark theme; in the app every colour comes from the token CSS variables in docs/spec/ui.md.
+  - Rebuild in Svelte 5. Menus, dialogs, popovers, tabs, comboboxes, toggle groups and tooltips use Bits UI
+    primitives; the canvas and the Outline tree are hand-built. Never copy the inline styles or the absolute positions.
+  - Diagram positions are fixed here for the picture; in the app they come from the model and layout.
+  - Where this file and docs/spec disagree, the spec wins; log it in DECISIONS.md.
+  Tokens in this board: chrome.bg #1A1A1F · chrome.surface #222229 · chrome.border #2F2F38 · chrome.text #ECECF1 · chrome.muted #9B9BA8 · accent #4F8CFF · on-accent #FFFFFF · danger #E5533D · selection tint rgba(79,140,255,0.14).
+  Paper (all themes): paper.bg #FFFFFF · paper.ink #1B1B1B · dot grid #E0E0E6 · warning #B8781A (light) / #E0A33A (dark).
+-->
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #d9d9de;
+        display: flex;
+        justify-content: center;
+      }
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      @keyframes aster-caret {
+        50% {
+          opacity: 0;
+        }
+      }
+      .caret {
+        animation: aster-caret 1s steps(1) infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .caret {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div style="width: 1000px; height: 820px; box-sizing: border-box; display: flex; gap: 40px; padding: 28px; overflow: hidden; border-radius: 10px; background: #1a1a1f; color: #ececf1; font-family: -apple-system, BlinkMacSystemFont, &quot; Segoe UI&quot;, &quot; Helvetica Neue&quot;, sans-serif; font-size: 13px; line-height: 1.4">
+      <aside aria-label="Inspector" style="width: 300px; flex-shrink: 0; box-sizing: border-box; display: flex; flex-direction: column; border: 1px solid #2f2f38; border-radius: 10px; background: #1a1a1f; overflow: hidden">
+        <div style="height: 36px; flex-shrink: 0; display: flex; align-items: stretch; border-bottom: 1px solid #2f2f38; padding: 0 8px">
+          <button type="button" style="font: inherit; padding: 0 10px; border-width: 0 0 2px; border-bottom-style: solid; border-bottom-color: #4f8cff; margin-bottom: -1px; background: transparent; color: #ececf1; font-size: 12.5px; font-weight: 600; cursor: pointer">Properties</button>
+          <button type="button" style="font: inherit; padding: 0 10px; border-width: 0 0 2px; border-bottom-style: solid; border-bottom-color: transparent; margin-bottom: -1px; background: transparent; color: #9b9ba8; font-size: 12.5px; cursor: pointer">Text</button>
+          <button type="button" style="font: inherit; padding: 0 10px; border-width: 0 0 2px; border-bottom-style: solid; border-bottom-color: transparent; margin-bottom: -1px; background: transparent; color: #9b9ba8; font-size: 12.5px; cursor: pointer">Diagram</button>
+          <span style="flex: 1 1 0%"></span>
+          <button type="button" aria-label="Collapse inspector (⌘\)" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #2f2f38; border-radius: 6px; background: transparent; color: #9b9ba8; cursor: pointer; align-self: center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+              <path d="M15 4v16"></path>
+            </svg>
+          </button>
+        </div>
+        <div style="padding: 14px 14px 0; display: flex; flex-direction: column; gap: 14px; font-size: 12.5px; overflow: hidden">
+          <div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #9b9ba8; margin-bottom: 6px">CLASS</div>
+            <label for="mr-name" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0)">Name</label>
+            <input id="mr-name" type="text" value="Account" style="font: inherit; width: 100%; box-sizing: border-box; padding: 0 8px; border: 1px solid #2f2f38; border-radius: 6px; background: #222229; color: #ececf1; height: 30px; font-size: 13px" />
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px">
+              <label style="display: flex; flex-direction: column; gap: 4px; color: #9b9ba8; font-size: 11.5px">Stereotype<input type="text" value="entity" style="font: inherit; width: 100%; height: 28px; box-sizing: border-box; padding: 0 8px; border: 1px solid #2f2f38; border-radius: 6px; background: #222229; color: #ececf1; font-size: 12px" /></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; color: #9b9ba8; font-size: 11.5px"
+                >Visibility<select style="font: inherit; width: 100%; height: 28px; box-sizing: border-box; padding: 0 8px; border: 1px solid #2f2f38; border-radius: 6px; background: #222229; color: #ececf1; font-size: 12px">
+                  <option selected="">public</option>
+                  <option>protected</option>
+                  <option>private</option>
+                  <option>package</option>
+                </select></label
+              >
+            </div>
+            <div style="display: flex; gap: 16px; margin-top: 10px">
+              <label style="display: flex; align-items: center; gap: 8px"><input type="checkbox" checked="" /> Abstract</label><label style="display: flex; align-items: center; gap: 8px"><input type="checkbox" /> Leaf (final)</label>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; align-items: center; margin-bottom: 6px"><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #9b9ba8">ATTRIBUTES</span><span style="flex: 1 1 0%"></span><button type="button" style="font: inherit; height: 24px; padding: 0 8px; border: 1px solid #2f2f38; border-radius: 5px; background: transparent; color: #ececf1; font-size: 11.5px; cursor: pointer">+ Add</button></div>
+            <div role="list" style="border: 1px solid #2f2f38; border-radius: 6px; background: #222229; overflow: hidden">
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1">
+                <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">#</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><span style="color: #9b9ba8">{static} </span>id: UUID</span>
+              </div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">balance: double = 0.0</span></div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 6px 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; background: #26262e">
+                <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">#</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">owner: Customer {readOnly}</span
+                ><span style="display: inline-flex; gap: 2px; flex-shrink: 0"
+                  ><button type="button" aria-label="Visibility: protected. Change" style="font: inherit; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; background: transparent; color: #9b9ba8; font-size: 12px; cursor: pointer; border: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace">#</button
+                  ><button type="button" aria-label="Move up" style="font: inherit; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 4px; background: transparent; color: #9b9ba8; font-size: 12px; cursor: pointer">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button
+                  ><button type="button" aria-label="Move down" style="font: inherit; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 4px; background: transparent; color: #9b9ba8; font-size: 12px; cursor: pointer">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"></path></svg></button
+                  ><button type="button" aria-label="Remove owner">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button
+                ></span>
+              </div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; background: rgba(79, 140, 255, 0.14); box-shadow: #4f8cff 2px 0 0 inset">
+                <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">~</span><span style="flex: 1 1 0%; min-width: 0; text-overflow: ellipsis; white-space: nowrap; overflow: visible">branchCode: Str<span class="caret" style="display: inline-block; width: 1.5px; height: 13px; margin-left: 1px; vertical-align: -2px; background: #4f8cff"></span></span><span style="flex-shrink: 0; font-size: 11px; color: #9b9ba8">↩ next · Esc</span>
+              </div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">createdAt: Date</span></div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1">
+                <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><span style="color: #9b9ba8">{static} </span>MAX_OVERDRAFT: Money = 500</span>
+              </div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">+</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">kind: AccountKind</span></div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; border-bottom: 0"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">transactions: Transaction[0..*] {ordered}</span></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; align-items: center; margin-bottom: 6px"><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #9b9ba8">OPERATIONS</span><span style="flex: 1 1 0%"></span><button type="button" style="font: inherit; height: 24px; padding: 0 8px; border: 1px solid #2f2f38; border-radius: 5px; background: transparent; color: #ececf1; font-size: 11.5px; cursor: pointer">+ Add</button></div>
+            <div role="list" style="border: 1px solid #2f2f38; border-radius: 6px; background: #222229; overflow: hidden">
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">+</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">deposit(amount: Money): void</span></div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">+</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">withdraw(amount: Money): boolean</span></div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1">
+                <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">+</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><span style="font-style: italic">{abstract} interestRate(): double</span></span>
+              </div>
+              <div role="listitem" style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; border-bottom: 0"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">audit(out log: List&lt;String&gt;): void {query}</span></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #9b9ba8; margin-bottom: 6px">RELATIONSHIPS</div>
+            <div style="font-size: 12px; color: #9b9ba8; padding: 2px 0 4px">No relationships. Press <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">L</kbd> on the canvas to link Account to another class.</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; padding-bottom: 14px">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" style="color: #9b9ba8"><path d="M9 6l6 6-6 6"></path></svg><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #9b9ba8">DISPLAY</span><span style="font-size: 12px; color: #9b9ba8">Follows the diagram</span>
+          </div>
+        </div>
+      </aside>
+
+      <div style="flex: 1 1 0%; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+        <div>
+          <div style="font-size: 16px; font-weight: 600">Member rows: states and reorder</div>
+          <div style="font-size: 12.5px; color: #9b9ba8; margin-top: 2px">One bordered list per compartment, 30 px rows, 1 px hairlines. The line is a flat input; actions are flex siblings, never positioned over the text.</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 12px 20px; align-items: center; font-size: 12px">
+          <div style="border: 1px solid #2f2f38; border-radius: 6px; background: #222229; overflow: hidden">
+            <div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; border-bottom: 0"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">balance: double = 0.0</span></div>
+          </div>
+          <div><b style="font-weight: 600">Rest.</b> 10 px visibility column in muted ink, then the line in 12 px mono. <span style="color: #9b9ba8">{static}</span> and other prefixes muted so the name leads. Overflow ends in an ellipsis; the full line is the row's title.</div>
+
+          <div style="border: 1px solid #2f2f38; border-radius: 6px; background: #222229; overflow: hidden">
+            <div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 6px 0 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; background: #26262e; border-bottom: 0">
+              <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">transactions: Transaction[0..*] {ordered}</span
+              ><span style="display: inline-flex; gap: 2px; flex-shrink: 0"><span style="font: inherit; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; background: transparent; color: #9b9ba8; font-size: 12px; cursor: pointer; border: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace">-</span><span style="font: inherit; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 4px; background: transparent; color: #9b9ba8; font-size: 12px; cursor: pointer">↑</span><span style="font: inherit; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 4px; background: transparent; color: #9b9ba8; font-size: 12px; cursor: pointer">↓</span><span>×</span></span>
+            </div>
+          </div>
+          <div><b style="font-weight: 600">Hover or focus-within.</b> Four 24 px actions appear: visibility (opens a menu: + public, # protected, ~ package, - private), move up, move down, remove. The text shrinks and truncates. Up/down disable at the ends. Remove needs no confirm; the undo toast covers it.</div>
+
+          <div style="border: 1px solid #2f2f38; border-radius: 6px; background: #222229; overflow: hidden">
+            <div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; background: rgba(79, 140, 255, 0.14); box-shadow: #4f8cff 2px 0 0 inset; border-bottom: 0">
+              <span style="width: 10px; flex-shrink: 0; color: #9b9ba8">#</span><span style="flex: 1 1 0%; min-width: 0; text-overflow: ellipsis; white-space: nowrap; overflow: visible">owner: Custo<span class="caret" style="display: inline-block; width: 1.5px; height: 13px; margin-left: 1px; vertical-align: -2px; background: #4f8cff"></span></span><span style="flex-shrink: 0; font-size: 11px; color: #9b9ba8">↩ next · Esc</span>
+            </div>
+          </div>
+          <div>
+            <b style="font-weight: 600">Editing.</b> Same row, accent tint and a 2 px inset bar. <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">↩</kbd> commits and moves to the next row, appending a new one on the last; <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">Esc</kbd> ends. Type completion opens after a colon, as on
+            the canvas.
+          </div>
+
+          <div style="border: 1px solid #2f2f38; border-radius: 6px; background: #222229; overflow: visible; position: relative">
+            <div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border-bottom: 1px solid #2f2f38; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">#</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">owner: Customer</span></div>
+            <div style="height: 0; border-top: 2px solid #4f8cff; margin: 0 6px; position: relative"><span style="position: absolute; left: -6px; top: -4px; width: 6px; height: 6px; border-radius: 3px; background: #4f8cff"></span></div>
+            <div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #ececf1; border-bottom: 0; opacity: 0.35"><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">createdAt: Date</span></div>
+            <div style="position: absolute; left: 16px; top: 46px; width: 96%; box-sizing: border-box; display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px; border: 1px solid #4f8cff; border-radius: 6px; background: #222229; box-shadow: rgba(0, 0, 0, 0.4) 0 8px 20px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; transform: rotate(-0.6deg)"><span style="color: #9b9ba8; letter-spacing: -2px">⋮⋮</span><span style="width: 10px; flex-shrink: 0; color: #9b9ba8">-</span><span style="flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">createdAt: Date</span></div>
+          </div>
+          <div><b style="font-weight: 600">Dragging.</b> A <span style="font-family: ui-monospace, Menlo, monospace; letter-spacing: -2px">⋮⋮</span> grip appears at the left edge on hover; pointer events on the grip only. The row lifts (accent border, shadow), a 2 px accent line with a dot marks the slot, the origin dims to 35%. Drop outside or <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">Esc</kbd> cancels. Inside one compartment in M1.</div>
+        </div>
+
+        <div style="margin-top: 4px; padding: 12px 14px; border: 1px solid #2f2f38; border-radius: 8px; background: #222229; font-size: 12px; line-height: 1.6">
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #9b9ba8; margin-bottom: 4px">ONE COMMAND, THREE ROUTES</div>
+          <div>
+            <span style="font-family: ui-monospace, Menlo, monospace">reorderMember(classifierId, memberId, toIndex)</span> is called by <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">⌘↑</kbd> <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">⌘↓</kbd> (focus travels with the row;
+            <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">⌘⇧↑</kbd> <kbd style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-width: 1px 1px 2px; border-style: solid; border-color: #2f2f38; border-radius: 4px; background: #1a1a1f; color: #ececf1; font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; line-height: 1; vertical-align: middle">⌘⇧↓</kbd> jump to the ends), by the row buttons, and by drag. Each announces “Moved balance to 2 of 10”. The canvas compartment and the Outline use the same command, so order is one fact everywhere.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
