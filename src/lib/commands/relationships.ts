@@ -297,6 +297,21 @@ export const removeWaypoint: Factory<EdgeRef & { index: number }> = define(
 	})
 );
 
+/** All of an edge's waypoints at once (auto-layout); the inverse puts the old ones back. */
+export const setWaypoints: Factory<EdgeRef & { waypoints: Point[] }> = define(
+	'setWaypoints',
+	(project, { diagramId, id, waypoints }) => ({
+		label: t('cmd.setWaypoints', { name: nameOf(project, id) }),
+		touches: [id],
+		apply(p): Command {
+			const l = edge(p, diagramId, id);
+			const previous = l.waypoints;
+			l.waypoints = waypoints.map((w) => ({ ...w }));
+			return setWaypoints(p, { diagramId, id, waypoints: previous });
+		}
+	})
+);
+
 /** `null` returns the label to its default position. */
 export const setLabelOffset: Factory<EdgeRef & { key: LabelKey; offset: LabelOffset | null }> =
 	define('setLabelOffset', (project, { diagramId, id, key, offset }) => ({

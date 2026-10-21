@@ -8,8 +8,14 @@ import { canvasApi } from '#lib/canvas/api.ts';
 import { canvasFocus, explorerFocus, focusElement } from '#lib/canvas/focus.ts';
 import { rightOf } from '#lib/canvas/place.ts';
 import {
+	alignSelection,
+	autoLayout,
 	copyFromMenu,
 	deleteSelection,
+	distributeSelection,
+	restackSelection,
+	sameSizeSelection,
+	selectedNodes,
 	hasClipboard,
 	nudgeSelection,
 	pasteFrom,
@@ -133,6 +139,37 @@ const display = (
 	state: () => flagState(key) as boolean,
 	run: toggle(key)
 });
+
+// features.md M3, "Auto-layout and tidy": palette and Classic Format menu rows, no keys of their
+// own (keyboard.md has none); each needs enough selected nodes to act on.
+const tidy = (id: string, label: MessageKey, need: number, run: () => unknown): AppCommand => ({
+	id,
+	group: 'format',
+	label: () => t(label),
+	keys: [],
+	context: 'global',
+	when: () => selectedNodes() >= need,
+	run: () => void run()
+});
+const LAYOUTS = (['layered', 'orthogonal'] as const).flatMap((algorithm) =>
+	(['DOWN', 'UP', 'RIGHT', 'LEFT'] as const).map((direction): AppCommand => ({
+		id: `layout.${algorithm}.${direction.toLowerCase()}`,
+		group: 'format',
+		label: () =>
+			t('cmd.layout', {
+				algorithm: t(`layout.${algorithm}`),
+				direction: t(`layout.dir.${direction}`)
+			}),
+		keys: [],
+		context: 'global',
+		// The selected nodes (two or more), else the whole diagram.
+		when: () =>
+			projectStore.diagram.elementIds.filter(
+				(id) => projectStore.diagram.layout.get(id)?.kind === 'node'
+			).length >= 2,
+		run: () => void autoLayout(algorithm, direction)
+	}))
+);
 
 const lineStyle = (id: string, style: LineStyle, key: string): AppCommand => ({
 	id,
@@ -767,6 +804,42 @@ export const COMMANDS: AppCommand[] = [
 	lineStyle('format.oblique', 'oblique', '⌘⇧B'),
 	lineStyle('format.roundrect', 'roundrect', '⌘⌥L'),
 	lineStyle('format.curve', 'curve', '⌘⌥B'),
+	...LAYOUTS,
+	tidy('align.left', 'cmd.align.left', 2, () => alignSelection('left')),
+	tidy('align.centre', 'cmd.align.centre', 2, () => alignSelection('centre')),
+	tidy('align.right', 'cmd.align.right', 2, () => alignSelection('right')),
+	tidy('align.top', 'cmd.align.top', 2, () => alignSelection('top')),
+	tidy('align.middle', 'cmd.align.middle', 2, () => alignSelection('middle')),
+	tidy('align.bottom', 'cmd.align.bottom', 2, () => alignSelection('bottom')),
+	tidy('distribute.horizontal', 'cmd.distribute.horizontal', 3, () =>
+		distributeSelection('horizontal')
+	),
+	tidy('distribute.vertical', 'cmd.distribute.vertical', 3, () => distributeSelection('vertical')),
+	tidy('size.width', 'cmd.size.width', 2, () => sameSizeSelection('width')),
+	tidy('size.height', 'cmd.size.height', 2, () => sameSizeSelection('height')),
+	tidy('size.both', 'cmd.size.size', 2, () => sameSizeSelection('size')),
+	tidy('arrange.front', 'cmd.front', 1, () => restackSelection('front')),
+	tidy('arrange.back', 'cmd.back', 1, () => restackSelection('back')),
+	{
+		id: 'view.grid',
+		group: 'view',
+		label: () => t('cmd.grid'),
+		keys: k('⌘G'),
+		context: 'global',
+		staruml: true,
+		state: () => ui.showGrid,
+		run: () => (ui.showGrid = !ui.showGrid)
+	},
+	{
+		id: 'view.snap',
+		group: 'view',
+		label: () => t('cmd.snap'),
+		keys: k('⌘⇧G'),
+		context: 'global',
+		staruml: true,
+		state: () => ui.snap,
+		run: () => (ui.snap = !ui.snap)
+	},
 
 	// Display (StarUML's keys; "Show property strings" has none, ⌘⇧P is the palette alias)
 	display('display.visibility', 'showVisibility', ['⌘⇧V'], 'flag.showVisibility'),

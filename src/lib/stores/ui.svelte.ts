@@ -30,6 +30,13 @@ const storedTextWidth = new PersistedState<number>('aster:textWidth', 360, {
 		deserialize: (v) => (Number.isFinite(Number(v)) ? Number(v) : 360)
 	}
 });
+/** keyboard.md ⌘G / ⌘⇧G (StarUML's keys): the paper grid is shown, snapping is off, both remembered. */
+const storedGrid = new PersistedState<boolean>('aster:grid', true, {
+	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v !== '0' }
+});
+const storedSnap = new PersistedState<boolean>('aster:snap', false, {
+	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' }
+});
 /** Owner's ruling #30: notation tooltips on paper, on by default, remembered. */
 const storedTips = new PersistedState<boolean>('aster:notationTips', true, {
 	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v !== '0' }
@@ -80,6 +87,18 @@ class Ui {
 	/** Tooltips on markers and visibility symbols: Modern only (Classic is StarUML's plain paper). */
 	get showNotationTips(): boolean {
 		return this.notationTips && this.layoutPreset === 'modern';
+	}
+	get showGrid(): boolean {
+		return storedGrid.current;
+	}
+	set showGrid(v: boolean) {
+		storedGrid.current = v;
+	}
+	get snap(): boolean {
+		return storedSnap.current;
+	}
+	set snap(v: boolean) {
+		storedSnap.current = v;
 	}
 	get captions(): boolean {
 		return storedCaptions.current;

@@ -7,13 +7,16 @@ import {
 	deleteFromModel,
 	moveNode,
 	resizeNode,
-	setLineStyle
+	restack,
+	setLineStyle,
+	setNodePositions,
+	setWaypoints
 } from '#lib/commands/index.ts';
 import { serialise } from '#lib/commands/registry.ts';
 import { t } from '#lib/i18n/index.ts';
 import { newId } from '#lib/model/ids.ts';
 import { createClassifier, elementName, nextClassName } from '#lib/model/project.ts';
-import type { ClassifierKind, Id, LineStyle, Point } from '#lib/model/types.ts';
+import type { ClassifierKind, Id, LineStyle, NodeLayout, Point } from '#lib/model/types.ts';
 import type { MemberKind } from '#lib/mdj/expression.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
@@ -28,7 +31,10 @@ import {
 	plainText,
 	type ClipboardPayload
 } from './clipboard.ts';
+import { canvasApi } from './api.ts';
+import type { Algorithm, Direction, LayoutInput } from './autolayout.ts';
 import { canvasFocus, explorerFocus, focusElement } from './focus.ts';
+import { align, distribute, sameSize, type Axis, type Dimension, type Side } from './tidy.ts';
 import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
 import { freePosition } from './place.ts';
@@ -134,6 +140,140 @@ export function setLineStyleForSelection(lineStyle: LineStyle): boolean {
 }
 
 export { endEditing as stopEditing };
+
+// ---- Tidy tools and auto-layout (features.md M3, "Auto-layout and tidy") -------------------------
+
+/** The node's rect as drawn, or as laid out when it has not been measured (off screen). */
+function rectOf(id: Id) {
+	const drawn = canvasApi.rects().get(id);
+	if (drawn) return drawn;
+	const l = projectStore.diagram.layout.get(id) as NodeLayout | undefined;
+	return l && { x: l.x, y: l.y, w: l.w, h: l.h };
+}
+const rectsOf = (ids: Id[]) =>
+	new Map(ids.flatMap((id) => (rectOf(id) ? [[id, rectOf(id)!] as const] : [])));
+/** How many selected nodes a tool needs before the palette offers it. */
+export const selectedNodes = () => selectedWith('node').length;
+
+/** One undo step under the tool's own label, from the positions that actually change. */
+function placeAll(positions: { id: Id; x: number; y: number }[], label: string) {
+	const diagramId = projectStore.activeDiagramId;
+	const moved = positions.filter((q) => {
+		const r = rectOf(q.id);
+		return r && (r.x !== q.x || r.y !== q.y);
+	});
+	if (!moved.length) return;
+	const p = projectStore.project;
+	projectStore.run(batch, {
+		label,
+		commands: [serialise(setNodePositions(p, { diagramId, positions: moved }))]
+	});
+}
+const many = (ids: Id[]) => t('cmd.many', { count: ids.length });
+
+export function alignSelection(side: Side) {
+	const ids = selectedWith('node');
+	if (ids.length < 2) return;
+	placeAll(align(rectsOf(ids), ids, side), t('cmd.tidy.align', { name: many(ids) }));
+}
+
+export function distributeSelection(axis: Axis) {
+	const ids = selectedWith('node');
+	if (ids.length < 3) return;
+	placeAll(distribute(rectsOf(ids), ids, axis), t('cmd.tidy.distribute', { name: many(ids) }));
+}
+
+export function sameSizeSelection(dim: Dimension) {
+	const ids = selectedWith('node');
+	if (ids.length < 2) return;
+	const diagramId = projectStore.activeDiagramId;
+	const p = projectStore.project;
+	const commands = sameSize(rectsOf(ids), ids, dim).flatMap(({ id, w, h }) => {
+		const l = projectStore.diagram.layout.get(id) as NodeLayout;
+		return l.w === w && l.h === h ? [] : [serialise(resizeNode(p, { diagramId, id, w, h }))];
+	});
+	if (commands.length)
+		projectStore.run(batch, { label: t('cmd.tidy.size', { name: many(ids) }), commands });
+}
+
+export function restackSelection(place: 'front' | 'back') {
+	if (!selection.size) return;
+	projectStore.run(restack, {
+		diagramId: projectStore.activeDiagramId,
+		ids: [...selection.list],
+		place
+	});
+}
+
+/**
+ * ELK on the selected nodes (two or more), else the whole diagram, as one undo step: the nodes
+ * move, the edges between them take ELK's bends as waypoints and the line style that matches
+ * them (rectilinear for orthogonal, oblique for layered), and edges that leave the laid-out set
+ * lose their old bends. The layout keeps its top-left where the nodes' top-left was.
+ */
+export async function autoLayout(algorithm: Algorithm, direction: Direction) {
+	const d = projectStore.diagram;
+	const diagramId = d.id;
+	const all = d.elementIds.filter((id) => d.layout.get(id)?.kind === 'node');
+	const picked = selectedWith('node');
+	const ids = picked.length >= 2 ? picked : all;
+	if (ids.length < 2) return;
+	const rects = rectsOf(ids);
+	const inScope = new Set(rects.keys());
+	const input: LayoutInput = { nodes: [], edges: [] };
+	for (const [id, r] of rects) input.nodes.push({ id, w: r.w, h: r.h });
+	const laidOut: Id[] = [];
+	const leaving: Id[] = [];
+	for (const id of d.elementIds) {
+		const el = projectStore.project.elements.get(id);
+		if (el?.kind === 'note')
+			for (const target of el.linkedIds)
+				if (inScope.has(id) && inScope.has(target))
+					input.edges.push({ id: `${id}\u0000${target}`, source: id, target });
+		if (el?.kind !== 'relationship' || d.layout.get(id)?.kind !== 'edge') continue;
+		const ends = [inScope.has(el.sourceId), inScope.has(el.targetId)];
+		if (ends[0] && ends[1] && el.sourceId !== el.targetId) {
+			laidOut.push(id);
+			const upward =
+				el.relationshipKind === 'generalization' || el.relationshipKind === 'realization';
+			input.edges.push({ id, source: el.sourceId, target: el.targetId, upward });
+		} else if (ends[0] || ends[1]) leaving.push(id);
+	}
+	const origin = {
+		x: Math.min(...[...rects.values()].map((r) => r.x)),
+		y: Math.min(...[...rects.values()].map((r) => r.y))
+	};
+	const [{ layout }, { workerElk }] = await Promise.all([
+		import('./autolayout.ts'),
+		import('./elk.ts')
+	]);
+	const out = await layout(workerElk(), input, { algorithm, direction }, origin);
+	// Another diagram opened while ELK worked: this result is not for it.
+	if (projectStore.activeDiagramId !== diagramId) return;
+
+	const p = projectStore.project;
+	const positions = [...out.positions].map(([id, at]) => ({ id, ...at }));
+	const lineStyle: LineStyle = algorithm === 'orthogonal' ? 'rectilinear' : 'oblique';
+	const commands = [serialise(setNodePositions(p, { diagramId, positions }))];
+	for (const id of laidOut) {
+		const l = d.layout.get(id);
+		if (l?.kind !== 'edge') continue;
+		commands.push(
+			serialise(setWaypoints(p, { diagramId, id, waypoints: out.waypoints.get(id) ?? [] }))
+		);
+		if (l.lineStyle !== lineStyle)
+			commands.push(serialise(setLineStyle(p, { diagramId, id, lineStyle })));
+	}
+	for (const id of leaving) {
+		const l = d.layout.get(id);
+		if (l?.kind === 'edge' && l.waypoints.length)
+			commands.push(serialise(setWaypoints(p, { diagramId, id, waypoints: [] })));
+	}
+	projectStore.run(batch, {
+		label: t('cmd.autoLayout', { name: ids === all ? d.name : many(ids) }),
+		commands
+	});
+}
 
 /** N: a note at a paper position, its text open for typing. */
 export function createNoteAt(at: Point, taken: Iterable<Rect>) {

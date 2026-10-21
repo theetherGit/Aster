@@ -345,6 +345,39 @@ export const resizeNode: Factory<{ diagramId: Id; id: Id; w: number; h: number }
 	}
 }));
 
+/** Bring to front / send to back: the views' z-order (Diagram.elementIds, back to front). */
+export const restack: Factory<{ diagramId: Id; ids: Id[]; place: 'front' | 'back' }> = define(
+	'restack',
+	(project, { diagramId, ids, place }) => ({
+		label: t(place === 'front' ? 'cmd.toFront' : 'cmd.toBack', { name: namesOf(project, ids) }),
+		touches: ids,
+		apply(p): Command {
+			const d = getDiagram(p, diagramId);
+			const previous = d.elementIds;
+			const moving = new Set(ids);
+			const moved = previous.filter((id) => moving.has(id));
+			const rest = previous.filter((id) => !moving.has(id));
+			d.elementIds = place === 'front' ? [...rest, ...moved] : [...moved, ...rest];
+			return setViewOrder(p, { diagramId, order: previous });
+		}
+	})
+);
+
+/** The inverse of restack: the z-order as it was. */
+export const setViewOrder: Factory<{ diagramId: Id; order: Id[] }> = define(
+	'setViewOrder',
+	(project, { diagramId, order }) => ({
+		label: t('cmd.viewOrder'),
+		touches: [],
+		apply(p): Command {
+			const d = getDiagram(p, diagramId);
+			const previous = d.elementIds;
+			d.elementIds = [...order];
+			return setViewOrder(p, { diagramId, order: previous });
+		}
+	})
+);
+
 /** Documentation of any element that carries it (classifier, relationship, package). */
 export const setDocumentation: Factory<{ id: Id; documentation: string }> = define(
 	'setDocumentation',

@@ -30,6 +30,7 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import { GRID } from './place.ts';
 	import ClassifierNode from './ClassifierNode.svelte';
 	import NoteNode from './NoteNode.svelte';
 	import NoteLinkEdge from './edges/NoteLinkEdge.svelte';
@@ -506,7 +507,7 @@
 					edges={flow.canvasEdges}
 					{nodeTypes}
 					{edgeTypes}
-					snapGrid={[1, 1]}
+					snapGrid={ui.snap ? [GRID, GRID] : [1, 1]}
 					minZoom={0.1}
 					maxZoom={4}
 					deleteKey={null}
@@ -540,8 +541,8 @@
 							? BackgroundVariant.Lines
 							: BackgroundVariant.Dots}
 						bgColor="var(--paper-bg)"
-						patternColor="var(--paper-grid)"
-						gap={20}
+						patternColor={ui.showGrid ? 'var(--paper-grid)' : 'transparent'}
+						gap={GRID}
 						size={1.5}
 						lineWidth={1}
 					/>
