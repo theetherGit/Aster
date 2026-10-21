@@ -284,6 +284,8 @@ export const COMMANDS: AppCommand[] = [
 	sheetRow('edit.compartment', 'edit', 'cmd.nextCompartment', ['Tab', '⇧Tab']),
 	sheetRow('edit.moveMember', 'edit', 'cmd.moveMember', ['⌘↑', '⌘↓']),
 	sheetRow('edit.moveMemberEnds', 'edit', 'cmd.moveMemberEnds', ['⌘⇧↑', '⌘⇧↓']),
+	// keyboard.md ⌘F: the Text view's editor owns the key (its search panel).
+	sheetRow('text.find', 'edit', 'cmd.findInText', ['⌘F']),
 	{
 		id: 'edit.escape',
 		group: 'edit',
@@ -515,7 +517,7 @@ export const COMMANDS: AppCommand[] = [
 			if (classic()) ui.classic.editors = true;
 			else ui.panels.inspector = true;
 			ui.inspectorTab = 'text';
-			requestAnimationFrame(() => document.getElementById('text-view')?.focus());
+			ui.focusText = true;
 		}
 	},
 	{

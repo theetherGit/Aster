@@ -85,7 +85,6 @@ The axe run in CI that the M2.7 prompt asks for is a gap: it needs `@axe-core/pl
 ## Gaps
 
 - **Axe in CI:** waits for the owner's approval of `@axe-core/playwright` and the lockfile unfreeze after 2026-10-24.
-- **Text view editor:** the CodeMirror editor waits for the same approval; the textarea stands in (`DECISIONS.md`, 2026-10-19, text view).
 
 ## Manual runs
 

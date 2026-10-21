@@ -1,24 +1,25 @@
 <script lang="ts">
-	import { tick, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import { canvasApi } from '#lib/canvas/api.ts';
 	import { freePosition } from '#lib/canvas/place.ts';
 	import { batch } from '#lib/commands/index.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import { parsePuml, type PError } from '#lib/puml/parse.ts';
 	import { printDiagram } from '#lib/puml/print.ts';
-	import type { Token } from '#lib/puml/highlight.ts';
+	import type { PumlEditor } from './plantumlEditor.ts';
 	import { exportPuml, pickPumlText } from '#lib/persist/files.svelte.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import { planSync } from '#lib/puml/sync.ts';
 	import { announce } from '#lib/stores/live.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import { ui } from '#lib/stores/ui.svelte.ts';
 
 	// features.md M2, Text view (board 09): the open diagram as PlantUML, both ways. Text edits
 	// parse 250 ms after the last key and apply as one command; a change made elsewhere (canvas,
-	// Outline, inspector, undo) prints the text again. A plain <textarea> until the CodeMirror
-	// editor is allowed in (DECISIONS.md): line numbers, status line and errors are drawn here.
-	let area: HTMLTextAreaElement;
-	let gutter: HTMLDivElement;
+	// Outline, inspector, undo) prints the text again. The editor is CodeMirror (plantumlEditor.ts),
+	// loaded with the tab; the status line and the error list are drawn here.
+	let host: HTMLDivElement;
+	let editor = $state.raw<PumlEditor | null>(null);
 	let value = $state('');
 	let errors: PError[] = $state([]);
 	let pending = $state(false);
@@ -36,20 +37,15 @@
 		if (key === ours) return;
 		untrack(() => {
 			if (pending) return; // the text being typed wins; it applies in a moment
-			// Setting a textarea's value sends the caret to the end: keep where the reader was.
-			const at = area ? area.selectionStart : 0;
-			const top = area ? area.scrollTop : 0;
 			value = printDiagram(projectStore.project, diagram, kept);
 			errors = [];
-			tick().then(() => {
-				if (!area) return;
-				area.setSelectionRange(Math.min(at, value.length), Math.min(at, value.length));
-				area.scrollTop = top;
-			});
+			editor?.set(value); // only what differs is replaced, so the caret stays put
+			editor?.diagnose([]);
 		});
 	});
 
-	function oninput() {
+	function oninput(text: string) {
+		value = text;
 		pending = true;
 		clearTimeout(timer);
 		timer = setTimeout(apply, 250);
@@ -60,6 +56,7 @@
 		const doc = parsePuml(value);
 		const had = errors.length;
 		errors = doc.errors;
+		editor?.diagnose(doc.errors.map((e) => ({ line: e.line, message: errorText(e) })));
 		if (doc.errors.length) {
 			if (doc.errors.length !== had) announce(t('live.textErrors', { count: doc.errors.length }));
 			return;
@@ -77,39 +74,74 @@
 		ours = `${projectStore.version}/${projectStore.activeDiagramId}`;
 	}
 
-	function track() {
-		const before = area.value.slice(0, area.selectionStart);
-		caret = { line: before.split('\n').length, col: before.length - before.lastIndexOf('\n') };
-	}
-	function goTo(line: number) {
-		const at =
-			value
-				.split('\n')
-				.slice(0, line - 1)
-				.join('\n').length + (line > 1 ? 1 : 0);
-		area.focus();
-		area.setSelectionRange(at, at);
-		track();
-	}
-	const lineCount = $derived(value.split('\n').length);
-	let layer: HTMLDivElement;
-	// Shiki loads with the tab, not with the app; until then the lines show plain.
-	let highlight = $state<((text: string) => Token[][]) | null>(null);
+	// CodeMirror and Shiki load with the tab, not with the app.
 	$effect(() => {
-		import('#lib/puml/highlight.ts').then((m) => (highlight = m.highlight));
+		let gone = false;
+		let made: PumlEditor | undefined;
+		import('./plantumlEditor.ts').then((m) => {
+			if (gone) return;
+			made = m.createPumlEditor(host, untrack(options), {
+				input: oninput,
+				caret: (line, col) => (caret = { line, col })
+			});
+			made.set(untrack(() => value));
+			editor = made;
+		});
+		return () => {
+			gone = true;
+			made?.destroy();
+			editor = null;
+		};
 	});
-	const coloured = $derived<Token[][]>(
-		highlight ? highlight(value) : value.split('\n').map((text) => [{ kind: 'text', text }])
-	);
+	// The label, the description and CodeMirror's own words follow the locale and the errors.
+	const options = () => ({
+		label: t('text.label'),
+		describedBy: `text-status${errors.length ? ' text-errors' : ''}`,
+		phrases: {
+			Find: t('text.cm.find'),
+			Replace: t('text.cm.replace'),
+			next: t('text.cm.next'),
+			previous: t('text.cm.previous'),
+			all: t('text.cm.all'),
+			'match case': t('text.cm.matchCase'),
+			'by word': t('text.cm.byWord'),
+			regexp: t('text.cm.regexp'),
+			replace: t('text.cm.replaceOne'),
+			'replace all': t('text.cm.replaceAll'),
+			close: t('text.cm.close'),
+			'current match': t('text.cm.currentMatch'),
+			'on line': t('text.cm.onLine'),
+			'replaced $ matches': t('text.cm.replacedMany'),
+			'replaced match on line $': t('text.cm.replacedOne'),
+			'Go to line': t('text.cm.goToLine'),
+			go: t('text.cm.go'),
+			Diagnostics: t('text.cm.diagnostics'),
+			'No diagnostics': t('text.cm.noDiagnostics'),
+			'Control character': t('text.cm.controlCharacter')
+		}
+	});
+	$effect(() => {
+		const o = options();
+		untrack(() => editor)?.configure(o);
+	});
+	// The palette's "Text view" asks for focus; the editor takes it once it exists.
+	$effect(() => {
+		if (ui.focusText && editor) {
+			editor.focus();
+			ui.focusText = false;
+		}
+	});
+	const goTo = (line: number) => editor?.goTo(line);
 
 	/** Import here: a .puml file's text replaces this diagram's, applied at once (one undo step). */
 	async function importHere() {
 		const text = await pickPumlText();
 		if (text === null) return;
 		value = text;
+		editor?.set(text);
 		clearTimeout(timer);
 		apply();
-		area?.focus();
+		editor?.focus();
 	}
 	const errorText = (e: PError) =>
 		t(`text.error.${e.message}` as MessageKey, { line: e.line, name: e.name ?? '' });
@@ -125,51 +157,11 @@
 		<Button variant="ghost" size="sm" onclick={importHere}>{t('text.import')}</Button>
 		<Button variant="ghost" size="sm" onclick={() => exportPuml()}>{t('text.export')}</Button>
 	</div>
+	<!-- The editor fills this box; until CodeMirror has loaded it is empty. -->
 	<div
-		class="flex h-[calc(100dvh-220px)] min-h-60 border-y border-chrome-border bg-chrome-bg font-mono text-[12px] leading-5"
-	>
-		<div
-			bind:this={gutter}
-			class="w-10 shrink-0 overflow-hidden py-2 pe-2 text-end text-chrome-muted select-none"
-			aria-hidden="true"
-		>
-			{#each { length: lineCount }, i (i)}<div>{i + 1}</div>{/each}
-		</div>
-		<!-- Owner's request: colour. The coloured copy sits behind a text area whose own text is
-		     transparent, so typing, selection and screen readers stay the native field's. In forced
-		     colours the field shows its own text and the copy hides. -->
-		<div class="relative min-w-0 flex-1">
-			<div
-				bind:this={layer}
-				aria-hidden="true"
-				class="pointer-events-none absolute inset-0 overflow-hidden py-2 pe-2 font-mono text-[12px] leading-5 whitespace-pre text-chrome-text forced-colors:hidden"
-			>
-				{#each coloured as line, i (i)}<div class="h-5">
-						{#each line as tk, j (j)}<span class="tk-{tk.kind}">{tk.text}</span>{/each}
-					</div>{/each}
-			</div>
-			<textarea
-				id="text-view"
-				bind:this={area}
-				bind:value
-				class="absolute inset-0 h-full w-full resize-none overflow-auto bg-transparent py-2 pe-2 whitespace-pre text-transparent caret-chrome-text selection:bg-accent/25 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-dashed forced-colors:text-[CanvasText]"
-				dir="ltr"
-				wrap="off"
-				spellcheck="false"
-				autocomplete="off"
-				aria-label={t('text.label')}
-				aria-describedby="text-status{errors.length ? ' text-errors' : ''}"
-				{oninput}
-				onkeyup={track}
-				onclick={track}
-				onselect={track}
-				onscroll={() => {
-					gutter.scrollTop = area.scrollTop;
-					layer.scrollTop = area.scrollTop;
-					layer.scrollLeft = area.scrollLeft;
-				}}></textarea>
-		</div>
-	</div>
+		bind:this={host}
+		class="h-[calc(100dvh-220px)] min-h-60 border-y border-chrome-border bg-chrome-bg"
+	></div>
 	{#if errors.length}
 		<ul id="text-errors" aria-label={t('text.errorList')} class="px-2 pt-2">
 			{#each errors as e (e.line + e.message)}
@@ -201,19 +193,3 @@
 		<span class="ms-auto">{t('text.caret', caret)}</span>
 	</div>
 </div>
-
-<style>
-	/* Two colours beside the text's own, each 4.5:1 on the chrome in every theme (tokens.css,
-	   contrast test); design.md colours nothing else. Names and strings stay in the text colour. */
-	.tk-keyword,
-	.tk-arrow,
-	.tk-type {
-		color: var(--accent-text);
-	}
-	.tk-comment,
-	.tk-directive,
-	.tk-stereotype,
-	.tk-modifier {
-		color: var(--chrome-muted);
-	}
-</style>

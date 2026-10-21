@@ -102,6 +102,8 @@ class Ui {
 	});
 	/** Which inspector tab shows (board 15: Diagram holds the display defaults); Classic's Editors add Documentation. */
 	inspectorTab: 'properties' | 'text' | 'diagram' | 'documentation' = $state('properties');
+	/** Set by the palette's "Text view": the Text tab's editor takes focus once it has loaded. */
+	focusText = $state(false);
 	tool: Tool = $state('select');
 	/** features.md, Pin a tool: a double-clicked tool keeps placing until Esc or another tool. */
 	pinned: Tool | null = $state(null);
