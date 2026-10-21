@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { cn } from 'cn';
 	import { Menubar } from 'bits-ui';
-	import { MENUS, menuItems } from '#lib/app/menus.ts';
+	import { MENUS, entries, entryKey, menuItems } from '#lib/app/menus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { files } from '#lib/persist/files.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import { menu as menuClass, menuItem } from '#lib/ui/styles.ts';
@@ -23,12 +24,43 @@
 				<Menubar.Trigger class="menubar-trigger">{t(menu.label)}</Menubar.Trigger>
 				<Menubar.Portal>
 					<Menubar.Content class={cn(menuClass, 'min-w-60')} sideOffset={2} align="start">
-						{#each menuItems(menu) as c (c.id)}
-							{#if c.state}
+						{#each entries(menuItems(menu)) as entry (entryKey(entry))}
+							{#if entry.kind === 'separator'}
+								<!-- The menu bar's lists carry no rules; only context menus have them. -->
+							{:else if entry.kind === 'sub'}
+								<!-- Owner's review: Auto-layout, Align, Distribute, Same size, Order as submenus,
+								     the way StarUML's Format menu nests them. -->
+								<Menubar.Sub>
+									<Menubar.SubTrigger
+										class={menuItem}
+										disabled={entry.commands.every((c) => c.when && !c.when())}
+									>
+										<span class="w-4"></span>
+										<span>{t(entry.label)}</span>
+										<Icon
+											name="chevron-right"
+											size={12}
+											class="ms-auto text-chrome-muted rtl:-scale-x-100"
+										/>
+									</Menubar.SubTrigger>
+									<Menubar.SubContent class={cn(menuClass, 'min-w-48')} sideOffset={4}>
+										{#each entry.commands as c (c.id)}
+											<MenuItem
+												kind="menubar"
+												disabled={c.when ? !c.when() : false}
+												onSelect={() => c.run()}
+											>
+												<span>{c.short?.() ?? c.label()}</span>
+											</MenuItem>
+										{/each}
+									</Menubar.SubContent>
+								</Menubar.Sub>
+							{:else if entry.command.state}
+								{@const c = entry.command}
 								<!-- MenuItem has no checkbox kind: the Bits item keeps the atom's row class. -->
 								<Menubar.CheckboxItem
 									class={menuItem}
-									checked={c.state() ?? false}
+									checked={c.state?.() ?? false}
 									disabled={c.when ? !c.when() : false}
 									onCheckedChange={() => c.run()}
 								>
@@ -39,6 +71,7 @@
 									{/snippet}
 								</Menubar.CheckboxItem>
 							{:else}
+								{@const c = entry.command}
 								<MenuItem
 									kind="menubar"
 									disabled={c.when ? !c.when() : false}

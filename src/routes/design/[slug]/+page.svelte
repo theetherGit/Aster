@@ -353,6 +353,10 @@
 						{:else if !classic || ui.classic.statusbar}
 							<footer class="footer">
 								<span>{countsText}</span>
+								{#if ui.layingOut}
+									<span aria-hidden="true">·</span>
+									<span data-testid="footer-layout">{t('layout.working')}</span>
+								{/if}
 								{#if validation.findings.length}
 									<span aria-hidden="true">·</span>
 									<button

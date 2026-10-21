@@ -5,6 +5,7 @@
  * Model commands stay in src/lib/commands; these call them.
  */
 import { canvasApi } from '#lib/canvas/api.ts';
+import type { Algorithm, Direction } from '#lib/canvas/autolayout.ts';
 import { canvasFocus, explorerFocus, focusElement } from '#lib/canvas/focus.ts';
 import { rightOf } from '#lib/canvas/place.ts';
 import {
@@ -13,6 +14,7 @@ import {
 	copyFromMenu,
 	deleteSelection,
 	distributeSelection,
+	drawnNodes,
 	restackSelection,
 	sameSizeSelection,
 	selectedNodes,
@@ -51,6 +53,7 @@ import { ui, cycleTheme } from '#lib/stores/ui.svelte.ts';
 import { parse, type Shortcut } from './shortcuts.ts';
 
 export type Group = 'create' | 'edit' | 'select' | 'file' | 'view' | 'format' | 'display';
+export type Sub = 'layout' | 'align' | 'distribute' | 'size' | 'order';
 export type Context = 'global' | 'canvas';
 
 export interface AppCommand {
@@ -74,6 +77,10 @@ export interface AppCommand {
 	native?: boolean;
 	/** On/off for toggles, shown in the palette. */
 	state?: () => boolean | null;
+	/** Gathered into one submenu in the Classic menus and the canvas context menu (menus.ts). */
+	sub?: Sub;
+	/** The label inside that submenu, where the submenu already says the rest ("Left"). */
+	short?: () => string;
 	run: () => void;
 }
 
@@ -142,31 +149,38 @@ const display = (
 
 // features.md M3, "Auto-layout and tidy": palette and Classic Format menu rows, no keys of their
 // own (keyboard.md has none); each needs enough selected nodes to act on.
-const tidy = (id: string, label: MessageKey, need: number, run: () => unknown): AppCommand => ({
+const tidy = (
+	id: string,
+	[sub, short]: [Sub, MessageKey],
+	label: MessageKey,
+	need: number,
+	run: () => unknown
+): AppCommand => ({
 	id,
 	group: 'format',
 	label: () => t(label),
+	short: () => t(short),
+	sub,
 	keys: [],
 	context: 'global',
 	when: () => selectedNodes() >= need,
 	run: () => void run()
 });
+const layoutName = (algorithm: Algorithm, direction: Direction) => ({
+	algorithm: t(`layout.${algorithm}`),
+	direction: t(`layout.dir.${direction}`)
+});
 const LAYOUTS = (['layered', 'orthogonal'] as const).flatMap((algorithm) =>
 	(['DOWN', 'UP', 'RIGHT', 'LEFT'] as const).map((direction): AppCommand => ({
 		id: `layout.${algorithm}.${direction.toLowerCase()}`,
 		group: 'format',
-		label: () =>
-			t('cmd.layout', {
-				algorithm: t(`layout.${algorithm}`),
-				direction: t(`layout.dir.${direction}`)
-			}),
+		label: () => t('cmd.layout', layoutName(algorithm, direction)),
+		short: () => t('cmd.layoutShort', layoutName(algorithm, direction)),
+		sub: 'layout',
 		keys: [],
 		context: 'global',
 		// The selected nodes (two or more), else the whole diagram.
-		when: () =>
-			projectStore.diagram.elementIds.filter(
-				(id) => projectStore.diagram.layout.get(id)?.kind === 'node'
-			).length >= 2,
+		when: () => drawnNodes().length >= 2,
 		run: () => void autoLayout(algorithm, direction)
 	}))
 );
@@ -804,22 +818,46 @@ export const COMMANDS: AppCommand[] = [
 	lineStyle('format.oblique', 'oblique', '⌘⇧B'),
 	lineStyle('format.roundrect', 'roundrect', '⌘⌥L'),
 	lineStyle('format.curve', 'curve', '⌘⌥B'),
+	{
+		// The palette's one-stop row: the last layout chosen, orthogonal top to bottom at first.
+		id: 'layout.auto',
+		group: 'format',
+		label: () => t('cmd.layoutAgain', layoutName(ui.lastLayout.algorithm, ui.lastLayout.direction)),
+		keys: [],
+		context: 'global',
+		when: () => drawnNodes().length >= 2,
+		run: () => void autoLayout(ui.lastLayout.algorithm, ui.lastLayout.direction)
+	},
 	...LAYOUTS,
-	tidy('align.left', 'cmd.align.left', 2, () => alignSelection('left')),
-	tidy('align.centre', 'cmd.align.centre', 2, () => alignSelection('centre')),
-	tidy('align.right', 'cmd.align.right', 2, () => alignSelection('right')),
-	tidy('align.top', 'cmd.align.top', 2, () => alignSelection('top')),
-	tidy('align.middle', 'cmd.align.middle', 2, () => alignSelection('middle')),
-	tidy('align.bottom', 'cmd.align.bottom', 2, () => alignSelection('bottom')),
-	tidy('distribute.horizontal', 'cmd.distribute.horizontal', 3, () =>
-		distributeSelection('horizontal')
+	tidy('align.left', ['align', 'tidy.left'], 'cmd.align.left', 2, () => alignSelection('left')),
+	tidy('align.centre', ['align', 'tidy.centre'], 'cmd.align.centre', 2, () =>
+		alignSelection('centre')
 	),
-	tidy('distribute.vertical', 'cmd.distribute.vertical', 3, () => distributeSelection('vertical')),
-	tidy('size.width', 'cmd.size.width', 2, () => sameSizeSelection('width')),
-	tidy('size.height', 'cmd.size.height', 2, () => sameSizeSelection('height')),
-	tidy('size.both', 'cmd.size.size', 2, () => sameSizeSelection('size')),
-	tidy('arrange.front', 'cmd.front', 1, () => restackSelection('front')),
-	tidy('arrange.back', 'cmd.back', 1, () => restackSelection('back')),
+	tidy('align.right', ['align', 'tidy.right'], 'cmd.align.right', 2, () => alignSelection('right')),
+	tidy('align.top', ['align', 'tidy.top'], 'cmd.align.top', 2, () => alignSelection('top')),
+	tidy('align.middle', ['align', 'tidy.middle'], 'cmd.align.middle', 2, () =>
+		alignSelection('middle')
+	),
+	tidy('align.bottom', ['align', 'tidy.bottom'], 'cmd.align.bottom', 2, () =>
+		alignSelection('bottom')
+	),
+	tidy(
+		'distribute.horizontal',
+		['distribute', 'tidy.horizontally'],
+		'cmd.distribute.horizontal',
+		3,
+		() => distributeSelection('horizontal')
+	),
+	tidy('distribute.vertical', ['distribute', 'tidy.vertically'], 'cmd.distribute.vertical', 3, () =>
+		distributeSelection('vertical')
+	),
+	tidy('size.width', ['size', 'tidy.width'], 'cmd.size.width', 2, () => sameSizeSelection('width')),
+	tidy('size.height', ['size', 'tidy.height'], 'cmd.size.height', 2, () =>
+		sameSizeSelection('height')
+	),
+	tidy('size.both', ['size', 'tidy.both'], 'cmd.size.size', 2, () => sameSizeSelection('size')),
+	tidy('arrange.front', ['order', 'cmd.front'], 'cmd.front', 1, () => restackSelection('front')),
+	tidy('arrange.back', ['order', 'cmd.back'], 'cmd.back', 1, () => restackSelection('back')),
 	{
 		id: 'view.grid',
 		group: 'view',

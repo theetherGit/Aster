@@ -78,3 +78,82 @@ describe('auto-layout', () => {
 		expect(left.positions.get('A')!.x).toBeGreaterThan(left.positions.get('B')!.x);
 	});
 });
+
+describe('auto-layout quality (owner review, 2026-10-21)', () => {
+	const box = (id: string, x = 0, y = 0, w = 140, h = 60) => ({ id, w, h, x, y });
+	const opts = { algorithm: 'orthogonal', direction: 'DOWN', aspect: 1.6 } as const;
+
+	it('packs unconnected classes into a block beside the graph, not a strip', async () => {
+		const input: LayoutInput = {
+			nodes: [
+				...['A', 'B', 'C', 'D'].map((id) => box(id)),
+				...Array.from({ length: 12 }, (_, i) => box(`E${i}`, 1000, i * 70))
+			],
+			edges: [
+				{ id: 'ab', source: 'A', target: 'B' },
+				{ id: 'bc', source: 'B', target: 'C' },
+				{ id: 'cd', source: 'C', target: 'D' }
+			]
+		};
+		const out = await layout(elk, input, opts, { x: 0, y: 0 });
+		const at = (id: string) => out.positions.get(id)!;
+		const mainRight = Math.max(...['A', 'B', 'C', 'D'].map((id) => at(id).x + 140));
+		const loose = Array.from({ length: 12 }, (_, i) => at(`E${i}`));
+		// Beside the graph (to its right, in a top-to-bottom layout) …
+		for (const p of loose) expect(p.x).toBeGreaterThan(mainRight);
+		// … in a block, not a single row or column.
+		expect(new Set(loose.map((p) => p.x)).size).toBeGreaterThan(1);
+		expect(new Set(loose.map((p) => p.y)).size).toBeGreaterThan(1);
+		// Kept in the order they were in (top to bottom here).
+		expect(loose[0].y).toBeLessThanOrEqual(loose[1].y);
+	});
+
+	it('brings every subclass into its parent at one point, so one triangle shows', async () => {
+		const input: LayoutInput = {
+			nodes: [box('P'), ...['a', 'b', 'c', 'd', 'e'].map((id, i) => box(id, i * 200, 200))],
+			edges: ['a', 'b', 'c', 'd', 'e'].map((id) => ({
+				id: `g${id}`,
+				source: id,
+				target: 'P',
+				upward: true
+			}))
+		};
+		const out = await layout(elk, input, opts, { x: 0, y: 0 });
+		const centre = out.positions.get('P')!.x + 70;
+		for (const id of ['a', 'b', 'c', 'd', 'e']) {
+			const bends = out.waypoints.get(`g${id}`) ?? [];
+			const lastX = bends.length ? bends.at(-1)!.x : out.positions.get(id)!.x + 70;
+			expect(lastX).toBe(centre);
+		}
+	});
+
+	it('leaves more room between rows when edges carry labels', async () => {
+		const pair = (labelled: boolean): LayoutInput => ({
+			nodes: [box('A'), box('B')],
+			edges: [{ id: 'e', source: 'A', target: 'B', labelled }]
+		});
+		const gap = async (labelled: boolean) => {
+			const out = await layout(elk, pair(labelled), opts, { x: 0, y: 0 });
+			return out.positions.get('B')!.y - out.positions.get('A')!.y;
+		};
+		expect(await gap(true)).toBeGreaterThan(await gap(false));
+	});
+
+	it('gives the same layout when run again on its own result, loose classes included', async () => {
+		const base = hundred();
+		const input: LayoutInput = {
+			...base,
+			nodes: [
+				...base.nodes,
+				...Array.from({ length: 9 }, (_, i) => box(`L${i}`, 500 - i * 40, i * 30))
+			]
+		};
+		const first = await layout(elk, input, opts, { x: 40, y: 40 });
+		const again: LayoutInput = {
+			...input,
+			nodes: input.nodes.map((n) => ({ ...n, ...first.positions.get(n.id)! }))
+		};
+		const second = await layout(elk, again, opts, { x: 40, y: 40 });
+		expect([...second.positions]).toEqual([...first.positions]);
+	});
+});

@@ -211,8 +211,10 @@ test('context menu: right-click or ⇧F10 on a node or edge lists its commands; 
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(customer).toBeVisible();
 
-	// Right-click on empty paper opens nothing.
+	// Right-click on empty paper opens the paper's own menu (owner's review, 2026-10-21).
 	await page.mouse.click(900, 600, { button: 'right' });
+	await expect(page.getByRole('menu', { name: 'Diagram commands' })).toBeVisible();
+	await page.keyboard.press('Escape');
 	await expect(menu).toHaveCount(0);
 
 	// An edge's menu carries the line styles.

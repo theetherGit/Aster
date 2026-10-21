@@ -1,4 +1,5 @@
 import { PersistedState } from 'runed';
+import type { Algorithm, Direction } from '#lib/canvas/autolayout.ts';
 import type { ClassifierKind, Id, RelationshipKind } from '#lib/model/types.ts';
 
 export type Tool = 'select' | 'class' | 'interface' | 'enum' | 'package' | 'link';
@@ -37,6 +38,11 @@ const storedGrid = new PersistedState<boolean>('aster:grid', true, {
 const storedSnap = new PersistedState<boolean>('aster:snap', false, {
 	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v === '1' }
 });
+/** The palette's "Auto-layout" repeats the last layout chosen; orthogonal top to bottom at first. */
+const storedLayoutChoice = new PersistedState<{ algorithm: Algorithm; direction: Direction }>(
+	'aster:layoutChoice',
+	{ algorithm: 'orthogonal', direction: 'DOWN' }
+);
 /** Owner's ruling #30: notation tooltips on paper, on by default, remembered. */
 const storedTips = new PersistedState<boolean>('aster:notationTips', true, {
 	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v !== '0' }
@@ -100,6 +106,12 @@ class Ui {
 	set snap(v: boolean) {
 		storedSnap.current = v;
 	}
+	get lastLayout() {
+		return storedLayoutChoice.current;
+	}
+	set lastLayout(v: { algorithm: Algorithm; direction: Direction }) {
+		storedLayoutChoice.current = v;
+	}
 	get captions(): boolean {
 		return storedCaptions.current;
 	}
@@ -121,6 +133,8 @@ class Ui {
 	});
 	/** Which inspector tab shows (board 15: Diagram holds the display defaults); Classic's Editors add Documentation. */
 	inspectorTab: 'properties' | 'text' | 'diagram' | 'documentation' = $state('properties');
+	/** An auto-layout is running (the first one also fetches ELK's worker): the footer says so. */
+	layingOut = $state(false);
 	/** Set by the palette's "Text view": the Text tab's editor takes focus once it has loaded. */
 	focusText = $state(false);
 	tool: Tool = $state('select');

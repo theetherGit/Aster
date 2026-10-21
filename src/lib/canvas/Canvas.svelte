@@ -17,10 +17,13 @@
 	import { ContextMenu, Tooltip } from 'bits-ui';
 	import { untrack } from 'svelte';
 	import { runCommand } from '#lib/app/commands.svelte.ts';
-	import { contextItems } from '#lib/app/menus.ts';
+	import { contextEntries, entryKey, type ContextKind } from '#lib/app/menus.ts';
 	import { format } from '#lib/app/shortcuts.ts';
+	import Icon from '#lib/ui/atoms/Icon.svelte';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import Separator from '#lib/ui/atoms/Separator.svelte';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
-	import { menu, tooltip } from '#lib/ui/styles.ts';
+	import { menu, menuItem, tooltip } from '#lib/ui/styles.ts';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
@@ -148,24 +151,29 @@
 	// keyboard.md: right-click or ⇧F10 opens, for the element under the pointer or in focus, the
 	// commands the palette has for it. One Bits ContextMenu on the container; the hit decides.
 	let menuOpen = $state(false);
-	let menuKind: 'node' | 'edge' = $state('node');
+	let menuKind: ContextKind = $state('node');
 	function oncontextmenu(e: MouseEvent, open: ((e: MouseEvent) => void) | undefined) {
 		const hit = (e.target as Element | null)?.closest<HTMLElement | SVGElement>(
 			'[data-focus-id], .uml-edge'
 		);
-		// The app owns its paper: no native menu on empty paper either. Bits skips a prevented
-		// event, so a hit leaves the default to it.
-		if (!hit) return e.preventDefault();
+		// Empty paper has its own menu (auto-layout, grid, snap), never the browser's.
+		if (!hit) {
+			menuKind = 'pane';
+			return open?.(e);
+		}
 		const edge = hit.classList.contains('uml-edge');
 		const id = edge ? hit.dataset.relId : hit.dataset.focusId;
 		if (!id) return;
 		menuKind = edge ? 'edge' : 'node';
-		focusElement(id);
+		// A right-click inside a selection of several keeps them all (align needs them); the
+		// focus ring still moves to the one under the pointer.
+		if (!edge && selection.size > 1 && selection.has(id)) selection.focus = { id, part: 'self' };
+		else focusElement(id);
 		open?.(e);
 	}
-	/** ⇧F10: the same menu, raised at the focused element. */
+	/** ⇧F10: the same menu, raised at the focused element, or the paper's at its centre. */
 	function openMenu() {
-		const owner = focusOwner(el);
+		const owner = focusOwner(el) ?? el.querySelector<HTMLElement>('.svelte-flow__pane');
 		if (!owner) return;
 		const r = owner.getBoundingClientRect();
 		owner.dispatchEvent(
@@ -577,20 +585,67 @@
 	<ContextMenu.Portal>
 		<ContextMenu.Content
 			class={menu}
-			aria-label={t('ui.elementMenu')}
+			aria-label={menuKind === 'pane' ? t('ui.paperMenu') : t('ui.elementMenu')}
 			onCloseAutoFocus={(e) => {
 				e.preventDefault();
 				canvasFocus.focus(); // back to the element, or the container when it was deleted
 			}}
 		>
-			{#each contextItems(menuKind) as c (c.id)}
-				<MenuItem
-					kind="context"
-					label={c.label()}
-					keys={c.keys[0] ? format(c.keys[0]) : undefined}
-					disabled={c.when ? !c.when() : false}
-					onSelect={() => runCommand(c.id)}
-				/>
+			{#each contextEntries(menuKind) as entry (entryKey(entry))}
+				{#if entry.kind === 'separator'}
+					<Separator class="my-1" />
+				{:else if entry.kind === 'sub'}
+					<!-- Owner's review: the arrange tools as submenus (Bits ContextMenu.Sub). -->
+					<ContextMenu.Sub>
+						<ContextMenu.SubTrigger
+							class={menuItem}
+							disabled={entry.commands.every((c) => c.when && !c.when())}
+						>
+							<span>{t(entry.label)}</span>
+							<Icon
+								name="chevron-right"
+								size={12}
+								class="ms-auto text-chrome-muted rtl:-scale-x-100"
+							/>
+						</ContextMenu.SubTrigger>
+						<ContextMenu.SubContent class={menu} sideOffset={4}>
+							{#each entry.commands as c (c.id)}
+								<MenuItem
+									kind="context"
+									label={c.short?.() ?? c.label()}
+									disabled={c.when ? !c.when() : false}
+									onSelect={() => runCommand(c.id)}
+								/>
+							{/each}
+						</ContextMenu.SubContent>
+					</ContextMenu.Sub>
+				{:else if entry.command.state}
+					{@const c = entry.command}
+					<!-- A toggle (grid, snap): the MenuItem atom has no checked state, so the Bits item
+					     keeps its row class, as the project menu's checkbox rows do. -->
+					<ContextMenu.CheckboxItem
+						class={menuItem}
+						checked={c.state?.() ?? false}
+						onCheckedChange={() => runCommand(c.id)}
+					>
+						{#snippet children({ checked })}
+							<span class="w-4 text-(length:--text-caption)" aria-hidden="true"
+								>{checked ? '✓' : ''}</span
+							>
+							<span>{c.label()}</span>
+							{#if c.keys[0]}<Kbd quiet class="ms-auto">{format(c.keys[0])}</Kbd>{/if}
+						{/snippet}
+					</ContextMenu.CheckboxItem>
+				{:else}
+					{@const c = entry.command}
+					<MenuItem
+						kind="context"
+						label={c.label()}
+						keys={c.keys[0] ? format(c.keys[0]) : undefined}
+						disabled={c.when ? !c.when() : false}
+						onSelect={() => runCommand(c.id)}
+					/>
+				{/if}
 			{/each}
 		</ContextMenu.Content>
 	</ContextMenu.Portal>

@@ -18,11 +18,13 @@ import { newId } from '#lib/model/ids.ts';
 import { createClassifier, elementName, nextClassName } from '#lib/model/project.ts';
 import type { ClassifierKind, Id, LineStyle, NodeLayout, Point } from '#lib/model/types.ts';
 import type { MemberKind } from '#lib/mdj/expression.ts';
+import { flow } from '#lib/stores/flow.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { ui } from '#lib/stores/ui.svelte.ts';
 import type { Rect } from './edges/geometry.ts';
-import { announce } from '#lib/stores/live.svelte.ts';
+import { announce, announceAssertive } from '#lib/stores/live.svelte.ts';
+import { tick } from 'svelte';
 import {
 	copyPayload,
 	parsePayload,
@@ -154,6 +156,11 @@ const rectsOf = (ids: Id[]) =>
 	new Map(ids.flatMap((id) => (rectOf(id) ? [[id, rectOf(id)!] as const] : [])));
 /** How many selected nodes a tool needs before the palette offers it. */
 export const selectedNodes = () => selectedWith('node').length;
+/**
+ * The nodes the canvas draws, in the diagram's order. Views it does not draw yet (packages until
+ * M3.1, as an imported .mdj can carry) are left where they are rather than laid out unseen.
+ */
+export const drawnNodes = () => flow.nodes.map((n) => n.id);
 
 /** One undo step under the tool's own label, from the positions that actually change. */
 function placeAll(positions: { id: Id; x: number; y: number }[], label: string) {
@@ -214,14 +221,15 @@ export function restackSelection(place: 'front' | 'back') {
 export async function autoLayout(algorithm: Algorithm, direction: Direction) {
 	const d = projectStore.diagram;
 	const diagramId = d.id;
-	const all = d.elementIds.filter((id) => d.layout.get(id)?.kind === 'node');
+	const all = drawnNodes();
 	const picked = selectedWith('node');
-	const ids = picked.length >= 2 ? picked : all;
+	// The diagram's own order, whatever order the selection was made in: it seeds ELK (stable).
+	const ids = picked.length >= 2 ? all.filter((id) => picked.includes(id)) : all;
 	if (ids.length < 2) return;
 	const rects = rectsOf(ids);
 	const inScope = new Set(rects.keys());
 	const input: LayoutInput = { nodes: [], edges: [] };
-	for (const [id, r] of rects) input.nodes.push({ id, w: r.w, h: r.h });
+	for (const [id, r] of rects) input.nodes.push({ id, w: r.w, h: r.h, x: r.x, y: r.y });
 	const laidOut: Id[] = [];
 	const leaving: Id[] = [];
 	for (const id of d.elementIds) {
@@ -236,18 +244,38 @@ export async function autoLayout(algorithm: Algorithm, direction: Direction) {
 			laidOut.push(id);
 			const upward =
 				el.relationshipKind === 'generalization' || el.relationshipKind === 'realization';
-			input.edges.push({ id, source: el.sourceId, target: el.targetId, upward });
+			const labelled = !!(
+				el.name ||
+				el.stereotype ||
+				[el.sourceEnd, el.targetEnd].some((end) => end?.role || end?.multiplicity)
+			);
+			input.edges.push({ id, source: el.sourceId, target: el.targetId, upward, labelled });
 		} else if (ends[0] || ends[1]) leaving.push(id);
 	}
 	const origin = {
 		x: Math.min(...[...rects.values()].map((r) => r.x)),
 		y: Math.min(...[...rects.values()].map((r) => r.y))
 	};
-	const [{ layout }, { workerElk }] = await Promise.all([
-		import('./autolayout.ts'),
-		import('./elk.ts')
-	]);
-	const out = await layout(workerElk(), input, { algorithm, direction }, origin);
+	const name = ids === all ? d.name : many(ids);
+	// The first run fetches ELK's worker: say so, and ignore the command until it is done.
+	if (ui.layingOut) return;
+	ui.layingOut = true;
+	ui.lastLayout = { algorithm, direction };
+	announce(t('live.layingOut', { name }));
+	let out: Awaited<ReturnType<typeof import('./autolayout.ts').layout>>;
+	try {
+		const [{ layout }, { workerElk }] = await Promise.all([
+			import('./autolayout.ts'),
+			import('./elk.ts')
+		]);
+		const aspect = innerWidth / Math.max(1, innerHeight);
+		out = await layout(workerElk(), input, { algorithm, direction, aspect }, origin);
+	} catch {
+		announceAssertive(t('live.layoutFailed'));
+		return;
+	} finally {
+		ui.layingOut = false;
+	}
 	// Another diagram opened while ELK worked: this result is not for it.
 	if (projectStore.activeDiagramId !== diagramId) return;
 
@@ -269,10 +297,12 @@ export async function autoLayout(algorithm: Algorithm, direction: Direction) {
 		if (l?.kind === 'edge' && l.waypoints.length)
 			commands.push(serialise(setWaypoints(p, { diagramId, id, waypoints: [] })));
 	}
-	projectStore.run(batch, {
-		label: t('cmd.autoLayout', { name: ids === all ? d.name : many(ids) }),
-		commands
-	});
+	projectStore.run(batch, { label: t('cmd.autoLayout', { name }), commands });
+	// A layout moves everything: the undo toast keeps the way back in sight (board 19), and the
+	// view frames the result once the canvas has drawn it.
+	ui.toast = { text: t('toast.laidOut', { name }), undo: true, at: Date.now() };
+	await tick();
+	requestAnimationFrame(() => (ids === all ? canvasApi.fitAll() : canvasApi.fitSelection()));
 }
 
 /** N: a note at a paper position, its text open for typing. */
