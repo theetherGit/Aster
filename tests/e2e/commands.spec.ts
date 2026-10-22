@@ -166,6 +166,7 @@ test('display toggles: keys change the diagram defaults or the selection, and ro
 
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('tab', { name: 'Project' }).click();
 	await sheet.getByRole('radio', { name: '.mdj' }).click();
 	const download = page.waitForEvent('download');
 	await sheet.getByRole('button', { name: 'Download' }).click();

@@ -58,6 +58,7 @@ test('notes: N creates one, text commits with ⌘↩, L links it to a class, the
 	// Round trip: UMLNoteView and UMLNoteLinkView in the .mdj export.
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('tab', { name: 'Project' }).click();
 	await sheet.getByRole('radio', { name: '.mdj' }).click();
 	const download = page.waitForEvent('download');
 	await sheet.getByRole('button', { name: 'Download' }).click();

@@ -89,6 +89,7 @@ test('⌘⇧S saves the native .aster for an Aster-born project; the save states
 	// The export sheet's .mdj row is a plain download and leaves the file alone.
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('tab', { name: 'Project' }).click();
 	await sheet.getByRole('radio', { name: '.mdj' }).click();
 	await expect(sheet.getByTestId('export-name')).toHaveText('library.mdj');
 	const mdj = page.waitForEvent('download');
@@ -105,6 +106,7 @@ test('an .aster file opens by drop and round-trips the project', async ({ page }
 	await expect(page.locator('.uml-edge')).toHaveCount(8);
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('tab', { name: 'Project' }).click();
 	await sheet.getByRole('radio', { name: '.aster' }).click();
 	const download = page.waitForEvent('download');
 	await sheet.getByRole('button', { name: 'Download' }).click();
@@ -204,11 +206,11 @@ test('export sheet (board 06): SVG with the font embedded, 2× PNG under 2 MB, c
 	await expect(sheet.getByTestId('export-name')).toHaveText('library.svg');
 	// Disabled controls say why, in the sheet.
 	await expect(sheet.getByTestId('export-reason')).toHaveText('Scale applies to PNG.');
-	await sheet.getByRole('radio', { name: '.mdj' }).click();
-	await expect(sheet.getByTestId('export-reason')).toHaveText(
-		'Scale and background apply to PNG and SVG.'
-	);
-	await sheet.getByRole('radio', { name: 'SVG' }).click();
+	// Project formats have no image options: the Project tab does not show them at all.
+	await sheet.getByRole('tab', { name: 'Project' }).click();
+	await expect(sheet.getByLabel('Transparent background')).toBeHidden();
+	await sheet.getByRole('tab', { name: 'Image' }).click();
+	await expect(sheet.getByRole('radio', { name: 'SVG' })).toHaveAttribute('aria-checked', 'true');
 	let download = page.waitForEvent('download');
 	await sheet.getByRole('button', { name: 'Download' }).click();
 	const svg = (await downloadText(await download)).toString('utf8');
@@ -440,6 +442,7 @@ test('downloads carry the file name, else the project name, else the diagram nam
 	await canvasOf(page).focus();
 	await page.keyboard.press('ControlOrMeta+Shift+e');
 	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('tab', { name: 'Project' }).click();
 	await sheet.getByRole('radio', { name: '.mdj' }).click();
 	await expect(sheet.getByTestId('export-name')).toHaveText('public-hydgl.mdj');
 	await sheet.getByRole('radio', { name: '.aster' }).click();
@@ -456,9 +459,7 @@ test('downloads carry the file name, else the project name, else the diagram nam
 	await page.getByRole('menuitem', { name: 'New diagram' }).click();
 	await expect(page.getByTestId('project-name')).toHaveText('Untitled');
 	await page.keyboard.press('ControlOrMeta+Shift+e');
-	await page
-		.getByRole('dialog', { name: 'Export diagram' })
-		.getByRole('radio', { name: '.mdj' })
-		.click();
+	await sheet.getByRole('tab', { name: 'Project' }).click();
+	await sheet.getByRole('radio', { name: '.mdj' }).click();
 	await expect(page.getByTestId('export-name')).toHaveText('class-diagram.mdj');
 });
