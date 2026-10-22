@@ -6,6 +6,7 @@ import {
 	deleteDiagram,
 	renameProject,
 	addToDiagram,
+	connect,
 	deleteFromDiagram,
 	deleteFromModel,
 	moveNode,
@@ -308,5 +309,20 @@ describe('renameProject and deleteDiagram', () => {
 		expect(project.diagrams.map((d) => d.id)).toEqual(['d1', 'd2']);
 		expect(structural(project)).toEqual(before);
 		expect(getDiagram(project, 'd1').layout.size).toBeGreaterThan(0);
+	});
+});
+
+describe('deleteFromModel and undo keep the z-order', () => {
+	it('puts a class and the relationship drawn above it back in their places', () => {
+		const { project, stack, d } = setup();
+		const [a, b] = d.elementIds;
+		stack.run(
+			connect(project, { diagramId: 'd1', id: 'r', sourceId: a, targetId: b, kind: 'association' })
+		);
+		const order = [...d.elementIds];
+		expect(order.indexOf('r')).toBeGreaterThan(order.indexOf(a) + 1);
+		stack.run(deleteFromModel(project, { ids: [a] }));
+		stack.undo();
+		expect(d.elementIds).toEqual(order);
 	});
 });

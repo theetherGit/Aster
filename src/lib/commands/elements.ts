@@ -44,13 +44,15 @@ export const restoreElements: Factory<{ items: RestoreItem[] }> = define<{ items
 		}),
 		touches: items.map((i) => i.element.id),
 		apply(p): Command {
-			for (const { element, views } of items) {
-				p.elements.set(element.id, structuredClone(element));
-				for (const v of [...views].sort((a, b) => a.index - b.index)) {
-					const d = getDiagram(p, v.diagramId);
-					d.elementIds.splice(Math.min(v.index, d.elementIds.length), 0, element.id);
-					d.layout.set(element.id, structuredClone(v.layout));
-				}
+			for (const { element } of items) p.elements.set(element.id, structuredClone(element));
+			// Lowest index first across every item, so each lands where it was before any went.
+			const views = items.flatMap(({ element, views }) =>
+				views.map((v) => ({ id: element.id, v }))
+			);
+			for (const { id, v } of views.sort((a, b) => a.v.index - b.v.index)) {
+				const d = getDiagram(p, v.diagramId);
+				d.elementIds.splice(Math.min(v.index, d.elementIds.length), 0, id);
+				d.layout.set(id, structuredClone(v.layout));
 			}
 			return deleteFromModel(p, { ids: items.map((i) => i.element.id) });
 		}
@@ -69,6 +71,7 @@ export const deleteFromModel: Factory<{ ids: Id[] }> = define<{ ids: Id[] }>(
 				if (el.kind === 'relationship' && (doomed.has(el.sourceId) || doomed.has(el.targetId)))
 					doomed.add(el.id);
 			}
+			// Every index is read before anything is removed: restore puts them back in that order.
 			const items: RestoreItem[] = [];
 			for (const id of doomed) {
 				const element = p.elements.get(id);
@@ -79,10 +82,15 @@ export const deleteFromModel: Factory<{ ids: Id[] }> = define<{ ids: Id[] }>(
 					const layout = d.layout.get(id);
 					if (index >= 0 && layout)
 						views.push({ diagramId: d.id, index, layout: structuredClone(layout) });
+				}
+				items.push({ element: structuredClone(element), views });
+			}
+			for (const id of doomed) {
+				for (const d of p.diagrams) {
+					const index = d.elementIds.indexOf(id);
 					if (index >= 0) d.elementIds.splice(index, 1);
 					d.layout.delete(id);
 				}
-				items.push({ element: structuredClone(element), views });
 				p.elements.delete(id);
 			}
 			return restoreElements(p, { items });
