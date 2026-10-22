@@ -1,0 +1,72 @@
+---
+title: Arrange a diagram
+description: Lay a diagram out automatically, align and space classes, move them precisely, zoom, and work with several diagrams.
+sidebar:
+  order: 3
+---
+
+## Lay it out automatically
+
+In the command palette (<Key k="⌘K" />), type `layout` and choose **Auto-layout**, with a style and a direction:
+
+- **Layered** puts superclasses above their subclasses and draws oblique lines.
+- **Orthogonal** does the same with right-angled lines.
+- **Directions**: top to bottom, bottom to top, left to right, right to left.
+
+With two or more classes selected, only they move; otherwise the whole diagram does. It is one step to undo, and the toast offers **Undo** too. **Auto-layout (…)**, with your last choice in brackets, repeats it.
+
+Auto-layout is also in the canvas's context menu (<Key k="⇧F10" /> or right-click) and, in the Classic layout, under **Format › Layout**.
+
+## Align, space and size
+
+Select the classes, then choose from the command palette or the context menu:
+
+| Group | Commands | Needs |
+| --- | --- | --- |
+| Align | Align left, centre, right, top, middle, bottom | 2 or more |
+| Distribute | Distribute horizontally, vertically | 3 or more |
+| Same size | Same width, Same height, Same size | 2 or more |
+| Order | Bring to front, Send to back | 1 or more |
+
+These have no keys. Each is one step to undo.
+
+## Move precisely
+
+| Key | Does |
+| --- | --- |
+| <Key k="⌘←" /> <Key k="⌘↑" /> <Key k="⌘↓" /> <Key k="⌘→" /> | Nudge the selection 1 px |
+| <Key k="⌘⇧←" /> <Key k="⌘⇧↑" /> <Key k="⌘⇧↓" /> <Key k="⌘⇧→" /> | Nudge 8 px |
+| <Key k="⌘G" /> | Show or hide the grid |
+| <Key k="⌘⇧G" /> | Snap to the 20 px grid when moving |
+
+Dragging with the mouse works too; one continuous drag is one step to undo. Aster remembers the grid and snap settings.
+
+## Zoom and pan
+
+| Key | Does |
+| --- | --- |
+| <Key k="⌘=" /> / <Key k="⌘−" /> | Zoom in, zoom out |
+| <Key k="⌘0" /> | Zoom to 100 % |
+| <Key k="⌘9" /> | Zoom to fit the diagram |
+
+**Zoom to selection** is in the command palette. Zoom runs from 10 % to 400 %. To pan, scroll, or drag with the middle button or with <Key k="Space" /> held down.
+
+## Several diagrams
+
+A project can hold any number of class diagrams. In the Modern layout they are tabs along the top:
+
+- **+** adds a diagram.
+- Double-click a tab, or press <Key k="F2" /> on it, to rename it.
+- The tab's **×** deletes the diagram, after you type its name to confirm. Its classes stay in the model, and the toast offers **Undo**.
+- <Key k="⌘⇧]" /> and <Key k="⌘⇧[" /> go to the next and previous diagram, as in StarUML.
+
+The Classic layout lists the open diagrams under **Working Diagrams**, as StarUML does.
+
+## Copy, cut and paste
+
+<Key k="⌘C" />, <Key k="⌘X" /> and <Key k="⌘V" /> work on classes and the lines between them.
+
+- **Within one project**, pasting onto another diagram shows the same classes there, not copies: edit one and both diagrams change. Pasting onto a diagram that already shows them makes new copies, 20 px to the side.
+- **Into another project**, in another tab, pasting creates new classes.
+
+Cut removes the classes from the diagram, not from the model.

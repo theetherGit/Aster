@@ -2,11 +2,33 @@
 title: Coming from StarUML
 description: StarUML's features one by one, and what Aster does with each today. What matches, what differs, and what is planned.
 sidebar:
-  order: 1
-  label: StarUML parity
+  order: 2
 ---
 
-Aster opens and saves StarUML's `.mdj` files and uses StarUML's keys where it has them, so a class diagram can move between the two without loss. This page goes through StarUML's features and says what Aster does with each **today**, not what is planned for it.
+Aster opens and saves StarUML's `.mdj` files and uses StarUML's keys where it has them, so a class diagram can move between the two without loss.
+
+## The short version
+
+- **The same**: the `.mdj` file, the member syntax you type in QuickEdit, the split between a model and its views, StarUML's keys wherever it has one, and its validation rules.
+- **Different**: Aster runs in the browser, with nothing to install, and every action can be done from the keyboard. Its Modern layout moves the panels around; <Key k="⌘⇧L" /> brings back StarUML's arrangement.
+- **Not yet**: Aster draws class diagrams only. Packages, object diagrams and the other UML diagrams are kept in your files and saved back, but not drawn.
+
+## Where StarUML's names went
+
+| In StarUML | In Aster |
+| --- | --- |
+| Model Explorer | The **Outline** (Model Explorer in the Classic layout), where you can edit too |
+| Editors (Properties, Documentation) | The **inspector** (the Editors in the Classic layout) |
+| QuickEdit | Editing in place: double-click, or <Key k="F2" /> |
+| Command Palette (<Key k="⌘⇧P" />) | The **command palette**, <Key k="⌘K" />; StarUML's key opens it too |
+| Quick Find | **Quick find**, <Key k="⌘P" /> |
+| Working Diagrams | Diagram **tabs** (Working Diagrams in the Classic layout) |
+| Validation results | The **Validation panel** |
+| Style Editor | The **Style** section of the inspector |
+
+## Feature by feature
+
+The rest of this page goes through StarUML's features and says what Aster does with each **today**, not what is planned for it.
 
 | Status | Meaning |
 | --- | --- |
@@ -18,7 +40,7 @@ Aster opens and saves StarUML's `.mdj` files and uses StarUML's keys where it ha
 
 Anything Aster does not show yet is still kept: open a file with a sequence diagram or a profile, save it, and StarUML gets it back unchanged apart from your edits.
 
-## Diagrams
+### Diagrams
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |
@@ -30,74 +52,74 @@ Anything Aster does not show yet is still kept: open a file with a sequence diag
 | Composite structure, communication, timing, interaction overview, information flow, profile | Kept and saved back. No renderer is planned. | Never |
 | SysML, ERD, flowchart, DFD, C4, BPMN, mind map, wireframe, cloud diagrams | Not UML. | Never |
 
-## Modelling and editing
+### Modelling and editing
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |
-| Model and views | The same split: <kbd>Del</kbd> removes a view from the diagram, and delete from model removes the element everywhere. Delete from model is <kbd>⌘⌫</kbd> on macOS and <kbd>Ctrl+Backspace</kbd> on Windows and Linux, where StarUML uses <kbd>Ctrl+Delete</kbd>. | Yes |
+| Model and views | The same split: <Key k="Del" /> removes a view from the diagram, and delete from model removes the element everywhere. Delete from model is <Key k="⌘⌫" />; on Windows, StarUML uses <kbd>Ctrl+Delete</kbd> for it. | Yes |
 | Drag from the Model Explorer onto a diagram | To show an existing class on another diagram, copy it and paste it there, or type its name in the Text view. Dragging from the Outline is not built. | Partly |
-| QuickEdit | Edit any name or member line in place. A chip under the line shows how it parses as you type, types complete after `:`, and <kbd>⌘↩</kbd> adds the next attribute, as in StarUML. The whole diagram is also editable as PlantUML text. | Yes |
+| QuickEdit | Edit any name or member line in place. A chip under the line shows how it parses as you type, types complete after `:`, and <Key k="⌘↩" /> adds the next attribute, as in StarUML. The whole diagram is also editable as PlantUML text. | Yes |
 | Member syntax | StarUML's grammar: `<<stereotype>> visibility name : type [multiplicity] = default`, and operations with parameters and a return type. | Yes |
 | Association ends | Role name, visibility, navigability, multiplicity and aggregation or composition are editable. The ownership dot and `{ordered}` are drawn and saved but have no control yet. Qualifiers are not supported. | Partly |
 | Association classes, n-ary associations, qualifiers | Kept and saved back, not shown. | Planned, v0.2 |
 | Template parameters and bindings | Kept and saved back, not shown. | Planned, v0.2 |
 | Tags and constraints | Kept and saved back, not editable. | Planned, v0.2 |
 | Receptions, signals, ports, parts, connectors | Kept and saved back. | Later |
-| Notes, note links, text | Notes (<kbd>N</kbd>), note links (<kbd>L</kbd> from a note) and free text (**New text** in the command palette). | Yes |
+| Notes, note links, text | Notes (<Key k="N" />), note links (<Key k="L" /> from a note) and free text (**New text** in the command palette). | Yes |
 | Documentation | Markdown with a preview in the inspector, for classes, members and relationships. It is not shown in the Outline. | Partly |
 | Hyperlinks, frames, images | Not built. | Planned, v0.2 |
-| Stereotypes | Text stereotypes, shown as a label or hidden (<kbd>⌘⇧1</kbd>, <kbd>⌘⇧0</kbd>). Icon display and profiles are not built. | Partly |
+| Stereotypes | Text stereotypes, shown as a label or hidden (<Key k="⌘⇧1" />, <Key k="⌘⇧0" />). Icon display and profiles are not built. | Partly |
 | Model validation | Ten of StarUML's class rules (UML001 to UML004, UML006 to UML011) checked as you edit, listed in the Validation panel with a jump to each element, plus one rule of Aster's own that offers a fix. | Yes |
 
-## Look and layout
+### Look and layout
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |
 | Line styles | Rectilinear, oblique, rounded and curved, saved as StarUML saves them. | Yes |
 | Fill and line colour | Per element, from the inspector's Style section. Font per element is not built. | Yes |
 | Show visibility, namespace, property, type, multiplicity, signature | For the whole diagram, and per class on top of that. | Yes |
-| Suppress attributes, operations, literals | <kbd>⌘⇧A</kbd>, <kbd>⌘⇧O</kbd>, <kbd>⌘⇧T</kbd>. | Yes |
-| Auto resize, word wrap | Classes size to their content, and <kbd>⌘⇧R</kbd> keeps a stored size; there are no resize handles. Word wrap is saved with the file but does not wrap text yet. | Partly |
+| Suppress attributes, operations, literals | <Key k="⌘⇧A" />, <Key k="⌘⇧O" />, <Key k="⌘⇧T" />. | Yes |
+| Auto resize, word wrap | Classes size to their content, and <Key k="⌘⇧R" /> keeps a stored size; there are no resize handles. Word wrap is saved with the file but does not wrap text yet. | Partly |
 | Align, distribute, bring to front, send to back | Plus same width, height or size. From the command palette and the context menu; no keys. | Yes |
-| Grid and snap | <kbd>⌘G</kbd> and <kbd>⌘⇧G</kbd>. | Yes |
+| Grid and snap | <Key k="⌘G" /> and <Key k="⌘⇧G" />. | Yes |
 | Auto layout | Layered or orthogonal, in four directions, from the command palette. | Yes |
 | Shadow | Not drawn. | Never |
-| Light and dark themes | Light, dark, high contrast or the system's choice (<kbd>⌘⌥T</kbd>), and Windows' forced colours. | Yes |
+| Light and dark themes | Light, dark, high contrast or the system's choice (<Key k="⌘⌥T" />), and Windows' forced colours. | Yes |
 
-## Files and export
+### Files and export
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |
-| Open and save `.mdj` | Both file styles: older files that write every field and StarUML 4 and later, which leave defaults out. Every `_id` is kept, and what Aster does not model is written back as it was read. See [.mdj compatibility](/mdj/). | Yes |
+| Open and save `.mdj` | Both file styles: older files that write every field and StarUML 4 and later, which leave defaults out. Every `_id` is kept, and what Aster does not model is written back as it was read. See [.mdj compatibility](/reference/mdj/). | Yes |
 | Fragments | Import a `.mfj` (or a `.mdj`) into the selected package, from the command palette. Exporting a fragment is not built. | Partly |
 | Templates on new | One sample project on the welcome page; no gallery yet. | Planned, v0.1 |
-| Export PNG, SVG, copy as image | PNG at 1× or 2×, SVG with the font embedded, PNG to the clipboard (<kbd>⌘⇧C</kbd>). The current diagram or the selection; StarUML's "all diagrams" is not built. JPEG is not offered. | Yes |
+| Export PNG, SVG, copy as image | PNG at 1× or 2×, SVG with the font embedded, PNG to the clipboard (<Key k="⌘⇧C" />). The current diagram or the selection; StarUML's "all diagrams" is not built. JPEG is not offered. | Yes |
 | PDF | One vector page, A4, A3 or Letter, either orientation. The text is drawn as outlines, so it cannot be selected. | Yes |
 | Mermaid | Mermaid export. PlantUML both ways: the Text view, and `.puml` import and export. Mermaid import is not built. | Partly |
 | HTML documentation | Not built. | Planned, v0.2 |
 | StarUML 1 `.uml` files | Not read. | Never |
 
-## Finding your way
+### Finding your way
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |
-| Several diagrams, next and previous | Tabs, with <kbd>⌘⇧]</kbd> and <kbd>⌘⇧[</kbd>. | Yes |
+| Several diagrams, next and previous | Tabs, with <Key k="⌘⇧]" /> and <Key k="⌘⇧[" />. | Yes |
 | Model Explorer | The Outline. You can also edit there: add, rename, write members, reorder, link and delete. It has no search box; use quick find. | Yes |
-| Find and quick find | <kbd>⌘P</kbd> finds classes, named relationships and diagrams; <kbd>⌘F</kbd> finds within the Text view. | Yes |
-| Command palette | <kbd>⌘K</kbd>, with StarUML's <kbd>⌘⇧P</kbd> as well. | Yes |
+| Find and quick find | <Key k="⌘P" /> finds classes, named relationships and diagrams; <Key k="⌘F" /> finds within the Text view. | Yes |
+| Command palette | <Key k="⌘K" />, with StarUML's <Key k="⌘⇧P" /> as well. | Yes |
 | Relationships panel | In the inspector. | Yes |
 | Minimap, diagram thumbnails | Not built. | Planned, v0.2 |
 
-## Keyboard and accessibility
+### Keyboard and accessibility
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |
-| Keyboard shortcuts | <kbd>?</kbd> shows every key; the [keyboard reference](/keyboard/) lists them for both platforms. About forty actions have no key, and every one of them is in the command palette. | Yes |
+| Keyboard shortcuts | <Key k="?" /> shows every key; the [keyboard reference](/reference/keyboard/) lists them for both platforms. About forty actions have no key, and every one of them is in the command palette. | Yes |
 | Moving around the canvas by keyboard | The diagram is one Tab stop; arrow keys move between classes by where they sit, and Tab goes through the parts of a class. | Yes |
-| Screen readers | The Outline and the Text view are full editing surfaces, and every change is announced. Checked by automated tests; a run by people with VoiceOver and NVDA is still to come. See [Accessibility](/accessibility/). | Yes |
+| Screen readers | The Outline and the Text view are full editing surfaces, and every change is announced. Checked by automated tests; a run by people with VoiceOver and NVDA is still to come. See [Accessibility](/project/accessibility/). | Yes |
 | High contrast, reduced motion | A high-contrast theme; reduced motion is honoured. | Yes |
 
-## The app
+### The app
 
 | StarUML | Aster today | Status |
 | --- | --- | --- |

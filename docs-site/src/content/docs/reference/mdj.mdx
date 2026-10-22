@@ -1,0 +1,52 @@
+---
+title: .mdj compatibility
+description: Which StarUML files Aster opens, what it keeps when it saves them back, how that is tested, and the known differences.
+sidebar:
+  order: 4
+---
+
+Aster reads and writes StarUML's `.mdj` format itself; there is no import step and no conversion. A file you open in Aster and save goes back to StarUML with your edits and nothing else changed. How to open and save is in [Open and save](/guides/files/).
+
+## Which files
+
+- **`.mdj`** in both of StarUML's file styles: StarUML 2 and 3 write every field, and StarUML 4 and later leave out fields at their default value.
+- **`.mfj`** fragments, through **Import fragment…** in the command palette. The fragment's model goes into the selected package, and its diagrams open as tabs, as one step to undo.
+
+The file is read in your browser. Nothing is uploaded.
+
+## What you see
+
+Class diagrams open as StarUML drew them: each class where StarUML left it, each line with its style, and the colours and display options of each view.
+
+A notice says what was placed, and names what Aster keeps without showing.
+
+## What is kept
+
+Everything Aster cannot show yet is kept and written back as it was read:
+
+- sequence, use case and the other diagram types;
+- profiles, tags and constraints;
+- association classes and template parameters;
+- fields Aster does not know.
+
+Every element keeps its StarUML `_id`, so references from those parts still point at the right element after a save.
+
+## How it is tested
+
+Every change to Aster runs a golden test over fifteen public `.mdj` files taken unedited from open-source projects on GitHub, under MIT and BSD licences, in both file styles. Each file must:
+
+- open, and save back to the same JSON with no edits;
+- save back with only the name changed after one class is renamed.
+
+The files and where they come from are listed in [`fixtures/mdj/SOURCES.md`](https://github.com/theetherGit/Aster/blob/main/fixtures/mdj/SOURCES.md).
+
+## Known differences
+
+- **Word wrap** is kept in the file but does not wrap names on the canvas yet.
+- **Font per element**, from StarUML's Style Editor, is kept but not shown.
+- **Fonts**: Aster draws diagrams in Source Sans 3, so text is a little wider or narrower than in StarUML, and so are classes sized to their content.
+- **Packages** are kept and listed in the Outline but not drawn yet. **Object diagrams** are kept but not shown. See [Coming from StarUML](/start/staruml/).
+
+## A file that does not round-trip
+
+[Open an issue](https://github.com/theetherGit/Aster/issues/new) with the file attached, or a smaller copy that still shows the problem, and say what changed after saving. Files that fail become tests.

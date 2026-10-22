@@ -1,0 +1,64 @@
+---
+title: Open and save
+description: Open a .mdj, save back to it, keep work safe in the browser, and what each browser can do with files.
+sidebar:
+  order: 5
+---
+
+Aster keeps your work in two places: **files** on your computer, which you open and save, and an **autosave** in the browser, which happens on its own. Nothing is uploaded anywhere.
+
+## Open
+
+On the welcome page or in the editor:
+
+- **Open file** (<Key k="⌘O" />) opens a `.mdj` or an `.aster`.
+- **Drop** a file anywhere on the window.
+- **Recent** on the welcome page lists the last ten projects, with where each one lives: a file name, or **in this browser**.
+- **Open sample** opens a small library system to try things on. The first change makes it a project of your own.
+
+When a file opens, a notice in the top right says what was placed, and names anything Aster keeps without showing, such as a sequence diagram: it is saved back unchanged. A file Aster cannot read changes nothing; **Show details** says why.
+
+If you open a file over unsaved changes to another file, Aster asks first: **Save and open**, **Don't save** or **Cancel**.
+
+In the editor, opening a `.puml` makes a new project from its PlantUML; see [Edit as text](/guides/text-view/).
+
+## Save
+
+| You press | Chrome and Edge | Firefox and Safari |
+| --- | --- | --- |
+| <Key k="⌘S" /> on a file you opened | Writes the file back, in the format you opened. After a reload, the browser asks once for permission, in a small bar. | Saves in the browser, and the notice offers **Download .mdj**. |
+| <Key k="⌘S" /> on a new project | Saves in the browser, and the notice offers **Download .mdj** or **More formats…** | The same |
+| <Key k="⌘⇧S" /> (Save as…) | Asks where to save, as `.mdj` or `.aster` | Downloads a copy: `.aster` for a project that has no file yet |
+
+<Key k="⌘S" /> never opens a dialog. To save a project as a `.mdj` for StarUML, download it from the notice, or use the export sheet's **Project** tab (<Key k="⌘⇧E" />).
+
+Downloads are named after the file you opened, else the project, else the diagram.
+
+## Know what is saved
+
+The dot beside the project name in the top bar says where your work stands:
+
+| Dot | Means |
+| --- | --- |
+| none | Saved to its file, or nothing to save yet |
+| blue | Changes not yet saved to the file |
+| amber | Only in this browser, never saved to a file |
+
+While a project lives only in the browser, a banner says so, with **Name it** and **Download .mdj**. Browsers can clear their storage, so download anything you want to keep.
+
+If a file you opened changes on disk while Aster has it open, for example because you saved it in StarUML, Aster offers **Reload** or **Keep mine**.
+
+## Autosave
+
+Every change is saved in the browser a moment after you make it, with your undo history and a thumbnail for Recent.
+
+- **Reopen the same file**, unchanged since, and your autosave comes back, undo history included.
+- **Reopen a file that has changed**, for example in StarUML, and the file wins.
+
+<Aside type="caution" title="Clear deletes the browser copies">
+  **Clear** in the welcome page's Recent list deletes the projects stored in this browser, not just the list. Files on disk are not touched.
+</Aside>
+
+## Aster's own format
+
+`.aster` is the project as JSON, with everything Aster holds, including the parts of a `.mdj` it keeps without showing. Use it if you like; for anything you share with StarUML users, stay with `.mdj`. See [.mdj compatibility](/reference/mdj/).

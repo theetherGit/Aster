@@ -1,0 +1,110 @@
+---
+title: Member syntax
+description: How to write attributes, operations and enumeration literals as one line of UML text, the way StarUML's QuickEdit reads them.
+sidebar:
+  order: 2
+---
+
+Every line in a class is UML text: you type it as you would in StarUML's QuickEdit, and Aster reads it into the model. The same syntax works on the canvas, in the inspector's rows and in the Text view.
+
+## Attributes
+
+```text
+<<stereotype>> visibility {static} /name : Type [multiplicity] = default {properties}
+```
+
+Only the name is required. Everything else is optional and comes in this order:
+
+| Part | Write | Example |
+| --- | --- | --- |
+| Stereotype | `<<name>>` first | `<<key>> -isbn: String` |
+| Visibility | `+` `-` `#` `~` (below) | `-balance: double` |
+| Static | `{static}` before the name | `+{static} MAX_LOANS: int = 5` |
+| Derived | `/` before the name | `+/age: int` |
+| Type | `: Type` | `-balance: double` |
+| Multiplicity | `[*]`, `[1]`, `[0..1]`, `[1..*]` after the type | `-copies: Copy[1..*]` |
+| Default value | `= value` | `~count: int = 0` |
+| Properties | `{name, name}` last | `-id: UUID {readOnly}` |
+
+## Operations
+
+```text
+<<stereotype>> visibility {static} name(parameters) : ReturnType {properties}
+```
+
+Parameters are separated by commas, each written as:
+
+```text
+direction name : Type = default
+```
+
+The direction is `in`, `out` or `inout`; `in` is the default and is not shown. Commas inside a generic type such as `Map<String, int>` do not split parameters.
+
+## Enumeration literals
+
+A literal is just its name, with an optional stereotype in front: `ON_LOAN`, or `<<default>> ON_LOAN`.
+
+## Visibility
+
+| Symbol | Visibility | Visible to |
+| --- | --- | --- |
+| `+` | public | everyone |
+| `-` | private | this class only |
+| `#` | protected | this class and its subclasses |
+| `~` | package | its package |
+
+A line without a symbol is public. Point at the symbol on the canvas to see its name.
+
+## Static, abstract and derived
+
+- **Static**: write `{static}` before the name, or `static` among the properties at the end. A static member is underlined on the canvas.
+- **Abstract** is for operations: `{abstract}` before the name, or `abstract` among the properties. An abstract operation is in italics. To make a whole class abstract, tick **Abstract** in the inspector.
+- **Derived** is for attributes: `/` before the name, or `derived` among the properties. It is always shown as `/`.
+
+On the canvas the braces disappear and the line shows the UML notation; when you edit the line again, you get your text back.
+
+## Properties
+
+The words Aster reads between `{` and `}` at the end of a line:
+
+| On | Properties |
+| --- | --- |
+| Attributes | `static`, `readOnly`, `derived`, `ordered`, `unique`, `id` |
+| Operations | `static`, `abstract`, `query` |
+
+Any other word makes the line one Aster cannot read (below).
+
+## Examples
+
+Every line here is read by Aster's parser in the docs' own tests, so the table cannot drift from the app.
+
+| Line | Kind | Reads as |
+| --- | --- | --- |
+| `-balance: double` | attribute | private, of type double |
+| `~count: int = 0` | attribute | package, starting at 0 |
+| `-copies: Copy[1..*]` | attribute | one or more copies |
+| `+{static} MAX_LOANS: int = 5` | attribute | a static constant |
+| `+/age: int` | attribute | derived |
+| `-id: UUID {readOnly}` | attribute | read-only |
+| `<<key>> -isbn: String` | attribute | with a stereotype |
+| `#tags: Tag[*] {ordered, unique}` | attribute | protected, any number, two properties |
+| `+deposit(amount: double, note: String = ""): void` | operation | two parameters, one with a default |
+| `+{abstract} area(): double` | operation | abstract |
+| `-validate(out errors: List<String>, inout state: State): boolean {query}` | operation | an `out` and an `inout` parameter, a query |
+| `<<create>> +Book(isbn: String, title: String)` | operation | a constructor, by stereotype |
+| `<<default>> ON_LOAN` | literal | a literal with a stereotype |
+
+## Lines Aster cannot read
+
+A line that does not fit the syntax is kept exactly as you typed it, so nothing you write is lost. It gets an amber wavy underline on the canvas, and screen readers hear that it was kept as text.
+
+While the line is open, the chip under the class says why:
+
+| Line | Kind | The chip says |
+| --- | --- | --- |
+| `+name: String[0..1` | attribute | Missing `]` |
+| `-x: int {abstract}` | attribute | Unknown property: an attribute cannot be abstract |
+| `+f(: int)` | operation | Cannot read the parameter `: int` |
+| `: String` | attribute | Not a member line |
+
+Where adding the missing closer, `]`, `)`, `}` or `>>`, makes the line readable, the chip offers to add it: press <Key k="⌥↩" /> or click the chip.

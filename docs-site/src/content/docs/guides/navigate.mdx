@@ -1,0 +1,50 @@
+---
+title: Find your way around
+description: The Modern and Classic layouts, the Outline, quick find, the command palette, and moving around the canvas by keyboard.
+sidebar:
+  order: 4
+---
+
+## Two layouts
+
+<Key k="⌘⇧L" /> switches between them; both show the same project.
+
+- **Modern**: a top bar with the project menu and the diagram tabs, the **Outline** on the left, a floating toolbox, and the **inspector** on the right with its **Properties**, **Text** and **Diagram** tabs.
+- **Classic**: StarUML's arrangement. A menu bar (File, Edit, Format, Model, View, Help), a toolbar, a sidebar with **Working Diagrams** and the **Toolbox**, the **Model Explorer** and the **Editors** (Style, Property, Documentation, Text) on the right, and a status bar. <Key k="⌘1" /> to <Key k="⌘6" /> show and hide them, as in StarUML.
+
+| Key | Shows or hides |
+| --- | --- |
+| <Key k="⌘B" /> | the Outline (the Model Explorer in Classic) |
+| <Key k="⌘\" /> | the inspector (the Editors in Classic) |
+| <Key k="⌘⌥T" /> | the theme: system, light, dark, high contrast |
+
+<Key k="F6" /> and <Key k="⇧F6" /> move between the panels.
+
+## The Outline
+
+The Outline is a tree of the whole model, and you can edit there as well as browse.
+
+- Move with the arrow keys, <Key k="Home" /> and <Key k="End" />, or type the start of a name. <Key k="↩" /> or <Key k="Space" /> selects.
+- <Key k="⇧F10" /> (or right-click) opens the row's menu: rename, add a class, a diagram or a member, create a relationship, move members, delete.
+- <Key k="⌘E" /> finds the selected class in the Outline, and <Key k="⌘D" /> finds the selected row on the diagram.
+
+## Find anything
+
+| Key | Opens |
+| --- | --- |
+| <Key k="⌘P" /> | **Quick find**: diagrams, classes and named relationships by name. <Key k="↩" /> opens the diagram that shows it and centres it. |
+| <Key k="⌘K" /> | **The command palette**: every command, grouped, with on or off for toggles. StarUML's <Key k="⌘⇧P" /> opens it too. |
+| <Key k="?" /> | **Keyboard shortcuts**: every key, with a filter. |
+
+Quick find does not search members or notes.
+
+## The canvas from the keyboard
+
+- The diagram is **one Tab stop**. Inside it, the arrow keys move to the nearest class in that direction; the first press lands top left.
+- <Key k="Tab" /> and <Key k="⇧Tab" /> go through the parts of the focused class: its name, each member line, then the lines attached to it.
+- <Key k="F2" /> or <Key k="↩" /> edits what is focused. <Key k="⇧F10" /> opens its context menu.
+- <Key k="Esc" /> steps back out one level at a time: from editing to the part, to the class, to no selection, and finally out of the canvas.
+
+## Undo
+
+<Key k="⌘Z" /> undoes and <Key k="⌘⇧Z" /> or <Key k="⌘Y" /> redoes, up to 500 steps back. The history is saved with the project in the browser, so it survives a reload. Each step is announced to screen readers, and the undo button's tooltip names what it will undo.

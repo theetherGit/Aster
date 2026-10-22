@@ -67,6 +67,18 @@ const resolvedMarkdownUrl =
     <WebMCP />
 
     <script is:inline>
+      // Keys are written for the reader's platform (Key.astro): mark macOS before first paint, and
+      // again after each client-side navigation, which swaps <html>'s attributes.
+      (() => {
+        const mark = () => {
+          if (/Mac|iPhone|iPad/.test(navigator.platform)) document.documentElement.dataset.os = "mac";
+        };
+        mark();
+        document.addEventListener("astro:after-swap", mark);
+      })();
+    </script>
+
+    <script is:inline>
       (() => {
         const KEY = "ui-mode";
         const media = window.matchMedia("(prefers-color-scheme: dark)");

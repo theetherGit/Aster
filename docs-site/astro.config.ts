@@ -14,6 +14,16 @@ const nimbusConfig = defineNimbusConfig({
   locale: "en",
   github: "https://github.com/theetherGit/Aster",
   socialImageAlt: "Aster documentation",
+  // One folder per group under src/content/docs/; the order is the reader's: start, then how to
+  // do things, then what to look up, then the project.
+  sidebar: {
+    items: [
+      { label: "Start here", autogenerate: { directory: "start" } },
+      { label: "Guides", autogenerate: { directory: "guides" } },
+      { label: "Reference", autogenerate: { directory: "reference" } },
+      { label: "Project", autogenerate: { directory: "project" } },
+    ],
+  },
 });
 
 export default defineConfig({

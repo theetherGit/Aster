@@ -1,0 +1,50 @@
+---
+title: Export and share
+description: Export a diagram as PNG, SVG, PDF, Mermaid or PlantUML, copy it as an image, or download the whole project.
+sidebar:
+  order: 6
+---
+
+<Key k="⌘⇧E" /> opens the export sheet. Its four tabs remember the one you used last. The arrow keys move between tabs.
+
+## Image
+
+| Option | Choices |
+| --- | --- |
+| Format | **PNG** or **SVG** |
+| Scale | **1×** or **2×** (the default), PNG only |
+| Background | **White background** or **Transparent background** |
+| What | The whole diagram, or **Selection only** |
+
+The image is cropped to what is drawn, with a small margin, wherever it sits on the canvas. SVG files carry their font, so they look the same on any computer. The sheet shows the size before you download.
+
+**Copy to clipboard** puts the image on the clipboard instead. <Key k="⌘⇧C" /> does the same from anywhere: the whole diagram as a 2× PNG on white, ready to paste into a report.
+
+With **Selection only**, a relationship is included when both of its classes are.
+
+## PDF
+
+| Option | Choices |
+| --- | --- |
+| Page size | **A4**, **A3** or **Letter** |
+| Orientation | **Auto**, **Landscape** or **Portrait**. Auto picks landscape for a wide diagram. |
+| What | The whole diagram, or **Selection only** |
+
+The PDF is one vector page on white. The diagram is scaled down to fit the page, never up; the sheet shows the scale. Its text is drawn as shapes, so it cannot be selected or searched. The first PDF takes a moment while the PDF maker loads.
+
+## Text
+
+| Format | For |
+| --- | --- |
+| **Mermaid** (`.mmd`) | GitHub, GitLab and docs sites that draw Mermaid |
+| **PlantUML** (`.puml`) | PlantUML, and the same text as Aster's [Text view](/guides/text-view/) |
+
+The sheet shows a preview. **Copy text** copies it; **Download** saves the file.
+
+## Project
+
+**.mdj** downloads the whole project, every diagram, for StarUML. **.aster** downloads it in Aster's own format. Either way, the file you are working on stays the same, and so does where <Key k="⌘S" /> saves.
+
+## File names
+
+Images, PDFs and text are named after the diagram, such as `library@2x.png` or `library.pdf`. Project downloads are named after the file you opened, else the project.

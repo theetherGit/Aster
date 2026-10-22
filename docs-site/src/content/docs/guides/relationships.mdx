@@ -1,0 +1,78 @@
+---
+title: Relationships and notes
+description: Link classes with the keyboard, the mouse or the Outline, pick the kind, and set ends, line styles and bends.
+sidebar:
+  order: 2
+---
+
+## Link two classes
+
+**From the keyboard.** Select one class and press <Key k="L" />. Aster points at the nearest other class; move to another with the arrow keys, then press <Key k="↩" />. <Key k="Esc" /> cancels at any step. Pointing back at the class you started from makes a self-association.
+
+**With the mouse.** Drag from one of the four handles on a class's edges and drop on another class. Clicking a class while you are linking from the keyboard picks it too.
+
+**From the Outline.** On a class's row, press <Key k="⇧F10" /> (or right-click) and choose **Create relationship…**, then type the target's name.
+
+Each way ends in the kind picker:
+
+| Key | Kind | Drawn as |
+| --- | --- | --- |
+| <Key k="1" /> | Association | a plain line; an arrow at an end that is navigable when the other is not |
+| <Key k="2" /> | Aggregation | a hollow diamond at the target |
+| <Key k="3" /> | Composition | a filled diamond at the target |
+| <Key k="4" /> | Generalization | a hollow triangle at the target |
+| <Key k="5" /> | Realization | a hollow triangle at the target, dashed |
+| <Key k="6" /> | Dependency | an open arrow at the target, dashed |
+
+The picker opens on the kind you chose last, so <Key k="↩" /> repeats it. <Key k="Tab" /> or <Key k="Esc" /> closes it without linking.
+
+### Which way round
+
+The relationship runs from the class you started at to the one you picked:
+
+- **Generalization and realization**: start at the subclass or the implementing class; the triangle points at the parent or the interface.
+- **Aggregation and composition**: start at the part; the diamond goes on the whole.
+- **Dependency**: start at the class that depends; the arrow points at what it uses.
+
+If an abstract class or an interface ends up drawn as the child of a concrete class, the [Validation panel](/reference/validation/) says so and offers **Flip**.
+
+## Ends, names and kind
+
+Select a line and the inspector shows:
+
+- **Kind**: change it after the fact.
+- **Name**, and a **Stereotype** for generalizations, realizations and dependencies.
+- **Ends**, one column each: **Role**, **Multiplicity** (with presets `1`, `0..1`, `*`, `1..*`, `0..*`), **Navigable** and **Visibility**.
+- **Line style**, **Waypoints**, **Label positions**, **Style** and **Documentation**.
+
+A new composition starts with `0..*` at the part and `1` at the whole.
+
+## Line styles and bends
+
+| Style | Key |
+| --- | --- |
+| Rectilinear | <Key k="⌘L" /> |
+| Oblique | <Key k="⌘⇧B" /> |
+| Rounded | <Key k="⌘⌥L" /> |
+| Curved | <Key k="⌘⌥B" /> |
+
+New lines are oblique. To bend one, select it and drag the round handle in its middle; drag a square handle to move a bend, or drop it on the next point to remove it. From the keyboard, the inspector's **Waypoints** section adds bends, sets their position and removes them.
+
+The ends of a line cannot be moved to another class yet: delete it and link again.
+
+## Select and delete a line
+
+From the keyboard, focus one of its classes and press <Key k="Tab" /> until the line is selected; lines are part of the classes they connect. The Outline also lists each relationship under the class it starts at.
+
+| Key | Does |
+| --- | --- |
+| <Key k="⌫" /> or <Key k="Del" /> | Remove from this diagram; the relationship stays in the model |
+| <Key k="⌘⌫" /> | Delete from the model, on every diagram |
+
+Both show a toast to undo.
+
+## Notes and text
+
+<Key k="N" /> adds a note. To attach it to a class, link from the note as above, with <Key k="L" /> or by dragging; a note link has no kind, so the picker does not open. The note's inspector lists its links, with **Unlink**.
+
+Free text has no key: choose **New text** in the command palette (<Key k="⌘K" />).

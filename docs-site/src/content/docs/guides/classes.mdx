@@ -1,0 +1,100 @@
+---
+title: Classes and members
+description: Add classes, interfaces, enumerations and data types, write their members as UML text, and choose what each class shows.
+sidebar:
+  order: 1
+---
+
+## Add a class
+
+With the canvas focused, press:
+
+| Key | Adds |
+| --- | --- |
+| <Key k="C" /> | a class |
+| <Key k="I" /> | an interface |
+| <Key k="E" /> | an enumeration |
+| <Key k="D" /> | a data type |
+| <Key k="N" /> | a note |
+
+The new element appears under the pointer, or in the middle of the view if the pointer is elsewhere, moved to the nearest free spot if something is already there. Its name is selected, so you can type straight away.
+
+With the mouse, click a tool in the toolbox, then click the canvas where it should go.
+
+Interfaces, enumerations and data types are boxes with «interface», «enumeration» or «dataType» above the name. To change what an element is after the fact, use the kind at the top of the inspector: Class, Interface, Enumeration, Data type or Primitive type.
+
+## Write the name and members
+
+Type the name and press <Key k="↩" />. The first member line opens: attributes for a class, operations for an interface, literals for an enumeration. Then:
+
+| Key | In a member line |
+| --- | --- |
+| <Key k="↩" /> | Keep the line and open the next one. On an empty line, stop editing. |
+| <Key k="Tab" /> / <Key k="⇧Tab" /> | Keep the line and move to the next compartment: name, attributes, operations, and back. |
+| <Key k="⌘↩" /> | Add an attribute below, as in StarUML |
+| <Key k="⌘⇧↩" /> | Add an operation below, as in StarUML |
+| <Key k="⌘↑" /> / <Key k="⌘↓" /> | Move the member up or down |
+| <Key k="⌘⇧↑" /> / <Key k="⌘⇧↓" /> | Move the member to the top or bottom |
+| <Key k="Esc" /> | Close the type list if it is open; press again to put the line back as it was and stop |
+
+To edit an existing name or line, double-click it, or select the class and press <Key k="F2" /> or <Key k="↩" />. Emptying an existing line deletes that member.
+
+Lines are StarUML's member syntax, such as `- balance: double = 0` or `+ deposit(amount: double): void`. The [member syntax](/reference/member-syntax/) reference covers every part.
+
+### While you type
+
+- **Type names complete** after a `:`. The list offers the common types (String, int, long, double, float, boolean, char, void, Date) and every class in the project. Press <Key k="↓" />, then <Key k="↩" /> to take one.
+- **The chip** under the class says how Aster reads the line, or why it cannot.
+- **Suggestions**: the chip offers one action when it helps. Press <Key k="⌥↩" />, or click it:
+  - **Create class**, when the type names a class that does not exist yet. The class appears in free space to the right.
+  - **Link with association**, when the type names a class on this diagram that is not linked to this one yet.
+  - **Add** a missing `)`, `]`, `}` or `>>`.
+
+  Each is one step to undo, and the line stays open.
+
+A line Aster cannot read is kept exactly as typed, with an amber wavy underline, so nothing is lost.
+
+## Abstract, static and final
+
+- **An abstract class**: tick **Abstract** in the inspector. Its name turns italic. **Leaf (final)** sits next to it.
+- **A static or abstract member**: write it in the line, as `{static}` or `{abstract}` before the name. Static members are underlined and abstract operations are italic.
+
+## In the inspector
+
+Select a class and the inspector's **Properties** tab shows, from the top: its kind, name, stereotype and visibility, Abstract and Leaf, its members, its relationships, its style, its display options and its documentation.
+
+The member rows work like the lines on the canvas: <Key k="↩" /> moves to the next row and adds one after the last, <Key k="Esc" /> puts a row back, and the × removes a member with a toast to undo it. Drag a row by its grip to reorder.
+
+## What a class shows
+
+Display options are StarUML's. Each applies to the selected classes, or, with none selected, to the whole diagram as its default.
+
+| Option | Key |
+| --- | --- |
+| Show visibility | <Key k="⌘⇧V" /> |
+| Show type | <Key k="⌘⇧Y" /> |
+| Show multiplicity | <Key k="⌘⇧M" /> |
+| Show operation signature | <Key k="⌘⇧J" /> |
+| Show namespace | <Key k="⌘⇧N" /> |
+| Hide attributes | <Key k="⌘⇧A" /> |
+| Hide operations | <Key k="⌘⇧O" /> |
+| Hide literals | <Key k="⌘⇧T" /> |
+| Stereotype: none | <Key k="⌘⇧0" /> |
+| Stereotype: label | <Key k="⌘⇧1" /> |
+| Auto resize | <Key k="⌘⇧R" /> |
+
+Show property strings and Word wrap have no key; both are in the command palette and the inspector. Word wrap is saved with the file but does not wrap names yet.
+
+The diagram's defaults are on the inspector's **Diagram** tab. A class's own settings are in the **Display** section of its Properties tab, which says when it follows the diagram; **Follow diagram** clears what was set on the class.
+
+## Colour
+
+The **Style** section of the inspector sets a **Fill** and a **Line** colour for a class or note, and a line colour for a relationship. **Reset** goes back to the default.
+
+Colours belong to the class as drawn on this diagram, so the same class can have different colours on two diagrams. They are saved in the `.mdj` as StarUML saves them. The inspector warns when text on a fill would be hard to read, but does not stop you.
+
+In high contrast, the canvas is drawn in black and white; the colours stay in the file and in exports.
+
+## Documentation
+
+Every class, member and relationship has a **Documentation** field, written in Markdown with a **Preview**. Aster renders paragraphs, headings (`#` to `###`), bulleted and numbered lists, `code`, bold, italic and links.

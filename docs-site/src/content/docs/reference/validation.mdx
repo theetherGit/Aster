@@ -1,0 +1,38 @@
+---
+title: Validation rules
+description: The rules Aster checks as you edit, StarUML's class-diagram rules and one of its own, and how to read and fix what they find.
+sidebar:
+  order: 3
+---
+
+Aster checks a diagram as you edit, a moment after each change, with StarUML's own class-diagram rules. The findings never stop you saving.
+
+## Open the panel
+
+Choose **Validation panel** in the command palette (<Key k="⌘K" />). When there are findings, a button in the status bar says how many, such as **2 warnings**, and opens the panel too. The panel sits under the canvas.
+
+Each row shows the rule, its message and where the problem is. Click a row, or press <Key k="↩" /> on it, to go to the element: Aster opens a diagram that shows it and selects it there, or selects it in the Outline if no diagram shows it.
+
+## The rules
+
+The rule numbers and messages are StarUML's, so a finding reads the same in both apps.
+
+| Rule | Message | Flags |
+| --- | --- | --- |
+| UML001 | Name expected. | A class, operation, parameter or literal without a name, or an attribute with neither a name nor a type |
+| UML002 | Name is already defined. | Two classes with the same name in one package, or two attributes, literals or parameters with the same name in one place. Overloaded operations are fine. |
+| UML003 | Conflict with inherited attributes. | An attribute that repeats one from a superclass |
+| UML004 | Signature conflict. | Two operations with the same name and parameter types |
+| UML006 | Final and leaf element must not have child. | A subclass of a class marked Leaf (final) |
+| UML007 | Duplicated generalizations. | Two generalizations between the same two classes |
+| UML008 | Circular generalizations. | A class that is, through its parents, its own ancestor; each class in the circle is listed |
+| UML009 | Duplicated realizations. | Two realizations between the same class and interface |
+| UML010 | Duplicated role names of associated classifiers. | Two of a class's associations whose far ends have the same role name |
+| UML011 | All attributes and operations of interface must be public. | A member of an interface that is not public |
+| ASTER001 | *Name* is abstract (or an interface) but is drawn as the child. Flip? | A generalization or realization drawn the wrong way round: an abstract class or interface as the child of a concrete class |
+
+StarUML's list has no UML005. Its UML012, that an association has at most one aggregation end, cannot be broken in Aster, so it is not checked.
+
+## Fixes
+
+ASTER001 has a **Flip** button that turns the relationship round, as one step to undo. The other rules point at the problem; you fix it by editing, and the row goes away on its own.

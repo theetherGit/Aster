@@ -5,6 +5,7 @@
  */
 
 import { Aside } from "./components/ui/aside";
+import Key from "./components/Key.astro";
 import Render from "./components/Render.astro";
 import { Card } from "./components/ui/card";
 import { CardGrid } from "./components/ui/card-grid";
@@ -15,6 +16,7 @@ import { Tabs, TabItem } from "./components/ui/tabs";
 export const components = {
   Aside,
   Card,
+  Key,
   CardGrid,
   PackageManagers,
   Render,

@@ -2,7 +2,7 @@
 title: Contributing
 description: Set up Aster, run its tests, and the rules every change follows.
 sidebar:
-  order: 6
+  order: 2
 ---
 
 Aster is MIT-licensed and [on GitHub](https://github.com/theetherGit/Aster). The full guide is [`CONTRIBUTING.md`](https://github.com/theetherGit/Aster/blob/main/CONTRIBUTING.md); this page is the short version.
@@ -43,11 +43,11 @@ Everything is green before a commit.
 1. If it changes the model, write it in `src/lib/commands/` with `define`, returning its inverse, with a unit test that runs it and undoes it.
 2. Register the action once in `src/lib/app/commands.svelte.ts`: its group, its label through `src/lib/i18n`, its keys from the spec, and what it runs.
 
-The keyboard, the command palette, the <kbd>?</kbd> sheet and this site's [keyboard reference](/keyboard/) all read that one list.
+The keyboard, the command palette, the <Key k="?" /> sheet and this site's [keyboard reference](/reference/keyboard/) all read that one list.
 
 ## Report a `.mdj` that does not round-trip
 
-[Open an issue](https://github.com/theetherGit/Aster/issues/new) with the file, or a smaller copy that still shows the problem. See [.mdj compatibility](/mdj/).
+[Open an issue](https://github.com/theetherGit/Aster/issues/new) with the file, or a smaller copy that still shows the problem. See [.mdj compatibility](/reference/mdj/).
 
 ## This site
 
@@ -59,7 +59,11 @@ pnpm install
 pnpm dev
 ```
 
-Two parts are written by the app's tests, not by hand:
+Pages are grouped by folder: `start/`, `guides/`, `reference/` and `project/`, in the order `astro.config.ts` lists them. Write a key as `<Key k="⌘⇧E" />`, in the notation of `docs/spec/keyboard.md`; it shows the reader's platform, formatted by the app's own code.
 
-- the [keyboard reference](/keyboard/), from the command registry: run `pnpm test -u` at the root after changing a key;
-- the colours, which must match the app's `src/lib/ui/tokens.css`: the test names the value that drifted.
+The app's tests keep the site honest:
+
+- the [keyboard reference](/reference/keyboard/) is written from the command registry: run `pnpm test -u` at the root after changing a key;
+- every line in [Member syntax](/reference/member-syntax/) and every PlantUML example in [Edit as text](/guides/text-view/) goes through the app's parsers;
+- the [validation rules](/reference/validation/) must list each rule the app checks, with its message;
+- the colours must match the app's `src/lib/ui/tokens.css`.

@@ -1,0 +1,79 @@
+---
+title: Edit as text
+description: The Text view shows a diagram as PlantUML. Edit the text and the diagram follows; import and export .puml files.
+sidebar:
+  order: 7
+---
+
+The Text view holds the current diagram as PlantUML text. Edit the diagram and the text changes; edit the text and the diagram follows. It is a full editing surface, so it also suits screen-reader users and anyone who types faster than they draw.
+
+## Open it
+
+Open the inspector's **Text** tab, or choose **Text view (PlantUML)** in the command palette (<Key k="⌘K" />), which also puts the cursor in it. In the Classic layout it is the **Text** tab of the Editors.
+
+## How edits apply
+
+- The text is read a quarter of a second after you stop typing, and applied as **one step to undo**. <Key k="⌘Z" /> is the app's undo, in the text too.
+- The status line says **In sync**, **Updating…** or **Waiting for a fix**, with the cursor's line and column.
+- An unpaired `{` or `}` stops the update: the errors are listed under the text, by line, and the diagram waits until they are fixed. Click an error to go to its line.
+- A class removed from the text leaves the diagram but stays in the model. One class removed and one added in the same edit count as a rename, so its documentation and association roles stay with it.
+- Lines Aster does not use, such as comments and `skinparam`, are kept as you wrote them. Direction hints in arrows (`-up->`) are ignored.
+- <Key k="⌘F" /> opens find and replace. <Key k="Tab" /> leaves the editor, so the keyboard never gets stuck in it.
+
+## Example
+
+This text makes a small library model:
+
+```text
+@startuml
+abstract class Person {
+  #name: String
+  +getName(): String
+}
+class Loan {
+  -dueDate: Date
+  -status: LoanStatus
+  +isOverdue(): boolean
+}
+interface Searchable {
+  +search(q: String): Book[*]
+}
+enum LoanStatus { ACTIVE; RETURNED; OVERDUE }
+class Member
+class Library
+class Book
+
+Member --|> Person
+Library *-- Book
+Book ..|> Searchable
+Member "1" -- "0..*" Loan : loans
+Loan --> "1" Book : book
+Loan ..> LoanStatus : <<use>>
+@enduml
+```
+
+## What Aster reads
+
+**Classifiers**: `class`, `abstract class`, `interface` and `enum`, with a quoted name or an `as` alias. After the name: a `<<stereotype>>`, `extends` and `implements`. `<<dataType>>` or `<<primitive>>` on a class makes it a data type or a primitive type. Members inside the braces use the [member syntax](/reference/member-syntax/); in an `enum`, plain names are literals, and `enum E { A; B }` fits on one line.
+
+**Relationships**:
+
+- `A --|> B`: generalization, A is a B
+- `A ..|> B`: realization, A implements B
+- `A ..> B`: dependency, A uses B
+- `A *-- B`: composition, A is the whole
+- `A o-- B`: aggregation, A is the whole
+- `A -- B`: association
+- `A --> B`: association, navigable towards B
+
+Each arrow can also be written the other way round, such as `B <|-- A`. Put multiplicities in quotes next to the classes, `A "1" -- "0..*" B`, and a name after a colon, `: loans`. A stereotype after the colon, `: <<use>>`, becomes the relationship's stereotype.
+
+**Notes**: `note "text" as N1`, or `note as N1` … `end note`, linked with `N1 .. A`.
+
+**Packages**: `package` and `namespace` blocks are kept as you wrote them, and the classes inside are read as if outside, until Aster draws packages.
+
+## Import and export `.puml`
+
+- **Import .puml into this diagram**, at the top of the Text view, replaces this diagram's text with a file's, as one step to undo.
+- **Import PlantUML as a new project…** in the project menu, or opening a `.puml` with <Key k="⌘O" />, makes a new project with one class diagram, after asking about unsaved changes.
+- **Export .puml**, at the top of the Text view, downloads the diagram's text. The export sheet's **Text** tab has it too.

@@ -275,6 +275,17 @@ body {
 	}
 }
 
+/* ---- Keys for the reader's platform (Key.astro): Windows and Linux unless <html> says macOS ---- */
+.key-mac {
+	display: none;
+}
+[data-os="mac"] .key-mac {
+	display: inline;
+}
+[data-os="mac"] .key-pc {
+	display: none;
+}
+
 /* ---- Scroll lock (used by native <dialog> overlays) ---- */
 [data-scroll-locked] {
 	overflow: hidden;

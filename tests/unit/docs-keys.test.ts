@@ -3,7 +3,7 @@ import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.
 import { format, spoken, type Shortcut } from '#lib/app/shortcuts.ts';
 import { t, type MessageKey } from '#lib/i18n/index.ts';
 
-// The docs site's keyboard reference (docs-site/src/content/docs/keyboard.mdx) is written from the
+// The docs site's keyboard reference (docs-site/src/content/docs/reference/keyboard.mdx) is written from the
 // command registry, as the in-app sheet is, with both platforms side by side. The file is a
 // snapshot: `pnpm test -u` rewrites it, and the suite fails when the registry and the page drift.
 
@@ -54,7 +54,7 @@ function page() {
 		'title: Keyboard reference',
 		'description: Every key in Aster on macOS and on Windows and Linux, and which ones are StarUML’s own.',
 		'sidebar:',
-		'  order: 3',
+		'  order: 1',
 		'---',
 		'',
 		'{/* Written by tests/unit/docs-keys.test.ts from the app’s command registry. Do not edit by hand: change the registry, then run `pnpm test -u`. */}',
@@ -82,6 +82,8 @@ describe('docs site', () => {
 	it('the keyboard reference is the registry, on both platforms', async () => {
 		const mdx = page();
 		expect(mdx).toContain('| Action | macOS | Windows and Linux | StarUML |');
-		await expect(mdx).toMatchFileSnapshot('../../docs-site/src/content/docs/keyboard.mdx');
+		await expect(mdx).toMatchFileSnapshot(
+			'../../docs-site/src/content/docs/reference/keyboard.mdx'
+		);
 	});
 });

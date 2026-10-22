@@ -1,0 +1,40 @@
+---
+/**
+ * Key — a key or chord, written in keyboard.md's notation (`⌘⇧E`, `⌥↩`, `F2`, `?`), shown for
+ * the reader's platform as the app shows it: ⌘⇧E on macOS, Ctrl+Shift+E elsewhere. Both forms are
+ * rendered; BaseLayout marks macOS on <html> and CSS shows one (Windows and Linux without
+ * script). Formatting is the app's own (src/lib/app/shortcuts.ts), so the two cannot disagree.
+ *
+ *   <Key k="⌘⇧E" />
+ */
+import { format, parse, spoken } from "../../../src/lib/app/shortcuts.ts";
+
+interface Props {
+  k: string;
+}
+
+const s = parse(Astro.props.k);
+const mac = format(s, true);
+const macWords = spoken(s, true);
+const pc = format(s, false);
+---
+
+{
+  mac === pc && macWords === pc ? (
+    <kbd>{pc}</kbd>
+  ) : (
+    <kbd>
+      <span class="key-mac">
+        {mac === macWords ? (
+          mac
+        ) : (
+          <>
+            <span aria-hidden="true">{mac}</span>
+            <span class="sr-only">{macWords}</span>
+          </>
+        )}
+      </span>
+      <span class="key-pc">{pc}</span>
+    </kbd>
+  )
+}
