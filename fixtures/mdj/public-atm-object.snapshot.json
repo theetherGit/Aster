@@ -7,7 +7,137 @@
 				"kind": "package",
 				"id": "AAAAAAGV9yrUp7Hp4MU=",
 				"name": "Model1",
-				"memberIds": [],
+				"memberIds": [
+					"AAAAAAGV9yyfALHuqdM=",
+					"AAAAAAGV9yzOeLIMdEw=",
+					"AAAAAAGV9y0JbrIrNMk=",
+					"AAAAAAGV9y1hTrJLN1k="
+				],
+				"documentation": ""
+			},
+			{
+				"kind": "instance",
+				"id": "AAAAAAGV9yyfALHuqdM=",
+				"name": "atm1",
+				"slots": [
+					{
+						"id": "AAAAAAGV9y4jhLJq3fA=",
+						"name": "location",
+						"value": "\"Chennai\""
+					},
+					{
+						"id": "AAAAAAGV9y5EUbJxYro=",
+						"name": "bankName",
+						"value": "\"SBI\""
+					},
+					{
+						"id": "AAAAAAGV9y5aGLJ4rPY=",
+						"name": "balance",
+						"value": "500000"
+					}
+				],
+				"documentation": "",
+				"packageId": "AAAAAAGV9yrUp7Hp4MU=",
+				"classifier": "ATM"
+			},
+			{
+				"kind": "instance",
+				"id": "AAAAAAGV9yzOeLIMdEw=",
+				"name": "Customer1",
+				"slots": [
+					{
+						"id": "AAAAAAGV9y5/vrJ/hoI=",
+						"name": "name",
+						"value": "\"Chetan\""
+					},
+					{
+						"id": "AAAAAAGV9y6TLLKGjY4=",
+						"name": "accountNumber",
+						"value": "1234567890"
+					},
+					{
+						"id": "AAAAAAGV9y6lyrKNooc=",
+						"name": "cardNumber",
+						"value": "9876543210"
+					},
+					{
+						"id": "AAAAAAGV9y7AA7KUtCY=",
+						"name": "pin",
+						"value": "1234"
+					}
+				],
+				"documentation": "",
+				"packageId": "AAAAAAGV9yrUp7Hp4MU=",
+				"classifier": "Customr"
+			},
+			{
+				"kind": "instance",
+				"id": "AAAAAAGV9y0JbrIrNMk=",
+				"name": "bank1",
+				"slots": [
+					{
+						"id": "AAAAAAGV9y8OHrKpgn0=",
+						"name": "bankName",
+						"value": "\"SBI\""
+					}
+				],
+				"documentation": "",
+				"packageId": "AAAAAAGV9yrUp7Hp4MU=",
+				"classifier": "Bank"
+			},
+			{
+				"kind": "instance",
+				"id": "AAAAAAGV9y1hTrJLN1k=",
+				"name": "technician1",
+				"slots": [
+					{
+						"id": "AAAAAAGV9y7fk7KbVc4=",
+						"name": "technicianID",
+						"value": "101"
+					},
+					{
+						"id": "AAAAAAGV9y72/bKi8pI=",
+						"name": "name",
+						"value": "\"Ramesh\""
+					}
+				],
+				"documentation": "",
+				"packageId": "AAAAAAGV9yrUp7Hp4MU=",
+				"classifier": "Technician"
+			},
+			{
+				"kind": "link",
+				"id": "AAAAAAGV9y9aiLrqbuk=",
+				"sourceId": "AAAAAAGV9yyfALHuqdM=",
+				"targetId": "AAAAAAGV9y1hTrJLN1k=",
+				"documentation": ""
+			},
+			{
+				"kind": "link",
+				"id": "AAAAAAGV9y9T67haV80=",
+				"sourceId": "AAAAAAGV9yzOeLIMdEw=",
+				"targetId": "AAAAAAGV9yyfALHuqdM=",
+				"documentation": ""
+			},
+			{
+				"kind": "link",
+				"id": "AAAAAAGV9y86srKwiVs=",
+				"sourceId": "AAAAAAGV9y0JbrIrNMk=",
+				"targetId": "AAAAAAGV9y1hTrJLN1k=",
+				"documentation": ""
+			},
+			{
+				"kind": "link",
+				"id": "AAAAAAGV9y9KoLTe3KE=",
+				"sourceId": "AAAAAAGV9y0JbrIrNMk=",
+				"targetId": "AAAAAAGV9yzOeLIMdEw=",
+				"documentation": ""
+			},
+			{
+				"kind": "link",
+				"id": "AAAAAAGV9y9OWLZI80U=",
+				"sourceId": "AAAAAAGV9y0JbrIrNMk=",
+				"targetId": "AAAAAAGV9yyfALHuqdM=",
 				"documentation": ""
 			}
 		],
@@ -32,47 +162,246 @@
 					"wordWrap": false,
 					"autoResize": false
 				}
+			},
+			{
+				"id": "AAAAAAGV9yrUp7HqaCA=",
+				"name": "ObjectDiagram1",
+				"diagramKind": "object",
+				"elementIds": [
+					"AAAAAAGV9yyfALHuqdM=",
+					"AAAAAAGV9yzOeLIMdEw=",
+					"AAAAAAGV9y0JbrIrNMk=",
+					"AAAAAAGV9y1hTrJLN1k=",
+					"AAAAAAGV9y86srKwiVs=",
+					"AAAAAAGV9y9KoLTe3KE=",
+					"AAAAAAGV9y9OWLZI80U=",
+					"AAAAAAGV9y9T67haV80=",
+					"AAAAAAGV9y9aiLrqbuk="
+				],
+				"layout": {
+					"AAAAAAGV9yyfALHuqdM=": {
+						"kind": "node",
+						"x": 344,
+						"y": 88,
+						"w": 192,
+						"h": 160
+					},
+					"AAAAAAGV9yzOeLIMdEw=": {
+						"kind": "node",
+						"x": 104,
+						"y": 288,
+						"w": 216,
+						"h": 152
+					},
+					"AAAAAAGV9y0JbrIrNMk=": {
+						"kind": "node",
+						"x": 584,
+						"y": 232,
+						"w": 169.68359375,
+						"h": 153
+					},
+					"AAAAAAGV9y1hTrJLN1k=": {
+						"kind": "node",
+						"x": 360,
+						"y": 432,
+						"w": 256,
+						"h": 160
+					},
+					"AAAAAAGV9y86srKwiVs=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAGV9y9KoLTe3KE=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAGV9y9OWLZI80U=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAGV9y9T67haV80=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					},
+					"AAAAAAGV9y9aiLrqbuk=": {
+						"kind": "edge",
+						"waypoints": [],
+						"lineStyle": "oblique",
+						"labelOffsets": {
+							"name": {
+								"alpha": 1.5707963267948966,
+								"distance": 15
+							},
+							"sourceRole": {
+								"alpha": 0.5235987755982988,
+								"distance": 30
+							},
+							"sourceMultiplicity": {
+								"alpha": -0.5235987755982988,
+								"distance": 25
+							},
+							"sourceProperty": {
+								"alpha": 0.7853981633974483,
+								"distance": 40
+							},
+							"targetRole": {
+								"alpha": -0.5235987755982988,
+								"distance": 30
+							},
+							"targetMultiplicity": {
+								"alpha": 0.5235987755982988,
+								"distance": 25
+							},
+							"targetProperty": {
+								"alpha": -0.7853981633974483,
+								"distance": 40
+							}
+						}
+					}
+				},
+				"defaults": {
+					"showVisibility": true,
+					"showType": true,
+					"showMultiplicity": true,
+					"showOperationSignature": true,
+					"showNamespace": false,
+					"showProperty": true,
+					"suppressAttributes": false,
+					"suppressOperations": false,
+					"suppressLiterals": false,
+					"stereotypeDisplay": "label",
+					"wordWrap": false,
+					"autoResize": false
+				}
 			}
 		]
 	},
-	"unknown": [
-		{
-			"type": "UMLObjectDiagram",
-			"id": "AAAAAAGV9yrUp7HqaCA=",
-			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
-			"path": "ownedElements",
-			"index": 0
-		},
-		{
-			"type": "UMLObject",
-			"id": "AAAAAAGV9yyfALHuqdM=",
-			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
-			"path": "ownedElements",
-			"index": 1
-		},
-		{
-			"type": "UMLObject",
-			"id": "AAAAAAGV9yzOeLIMdEw=",
-			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
-			"path": "ownedElements",
-			"index": 2
-		},
-		{
-			"type": "UMLObject",
-			"id": "AAAAAAGV9y0JbrIrNMk=",
-			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
-			"path": "ownedElements",
-			"index": 3
-		},
-		{
-			"type": "UMLObject",
-			"id": "AAAAAAGV9y1hTrJLN1k=",
-			"parentId": "AAAAAAGV9yrUp7Hp4MU=",
-			"path": "ownedElements",
-			"index": 4
-		}
-	],
-	"sourceRecords": 4,
+	"unknown": [],
+	"sourceRecords": 33,
 	"report": {
 		"diagrams": [
 			{
@@ -80,6 +409,15 @@
 				"name": "Main",
 				"nodes": 0,
 				"edges": 0,
+				"notes": 0,
+				"texts": 0,
+				"hiddenViews": 0
+			},
+			{
+				"id": "AAAAAAGV9yrUp7HqaCA=",
+				"name": "ObjectDiagram1",
+				"nodes": 4,
+				"edges": 5,
 				"notes": 0,
 				"texts": 0,
 				"hiddenViews": 0
@@ -95,17 +433,9 @@
 			"notes": 0,
 			"texts": 0
 		},
-		"hiddenDiagrams": [
-			{
-				"type": "UMLObjectDiagram",
-				"name": "ObjectDiagram1"
-			}
-		],
-		"unknownElements": 5,
-		"unknownTypes": {
-			"UMLObjectDiagram": 1,
-			"UMLObject": 4
-		},
+		"hiddenDiagrams": [],
+		"unknownElements": 0,
+		"unknownTypes": {},
 		"warnings": []
 	}
 }

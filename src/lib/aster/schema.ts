@@ -14,14 +14,17 @@ import type {
 	EdgeLayout,
 	Element,
 	End,
+	Instance,
 	LabelKey,
 	Literal,
+	Link,
 	NodeLayout,
 	Note,
 	Operation,
 	Package,
 	Parameter,
 	Relationship,
+	Slot,
 	TextElement,
 	Unknown
 } from '#lib/model/types.ts';
@@ -203,6 +206,26 @@ const note = strict<Note>({
 	linkedIds: arrayOf(str)
 });
 const textElement = strict<TextElement>({ kind: oneOf(['text'] as const), id: str, text: str });
+const slot = strict<Slot>({ id: str, name: str, value: str });
+const instance = strict<Instance>({
+	kind: oneOf(['instance'] as const),
+	id: str,
+	name: str,
+	classifier: optStr,
+	slots: arrayOf(slot),
+	stereotype: optStr,
+	documentation: str,
+	packageId: optStr
+});
+const link = strict<Link>({
+	kind: oneOf(['link'] as const),
+	id: str,
+	sourceId: str,
+	targetId: str,
+	name: optStr,
+	associationId: optStr,
+	documentation: str
+});
 
 const element = (v: unknown, path: string): Element => {
 	const kind = isObj(v) ? v.kind : undefined;
@@ -217,10 +240,14 @@ const element = (v: unknown, path: string): Element => {
 			return note(v, path);
 		case 'text':
 			return textElement(v, path);
+		case 'instance':
+			return instance(v, path);
+		case 'link':
+			return link(v, path);
 		default:
 			return fail(
 				`${path}.kind`,
-				`expected classifier, relationship, package, note or text, got ${describe(kind)}`
+				`expected classifier, relationship, package, note, text, instance or link, got ${describe(kind)}`
 			);
 	}
 };

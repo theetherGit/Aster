@@ -37,3 +37,25 @@ export function rng(seed: number) {
 		pick: <T>(xs: readonly T[]) => xs[Math.floor(next() * xs.length)]
 	};
 }
+
+/** Paths where two JSON values differ; key order is irrelevant, array order is not. */
+export function jsonDiff(a: unknown, b: unknown, path = '$'): string[] {
+	if (Array.isArray(a) || Array.isArray(b)) {
+		if (!Array.isArray(a) || !Array.isArray(b)) return [`${path}: array vs ${typeof b}`];
+		if (a.length !== b.length) return [`${path}: length ${a.length} vs ${b.length}`];
+		return a.flatMap((v, i) => jsonDiff(v, b[i], `${path}[${i}]`));
+	}
+	if (isJsonObj(a) || isJsonObj(b)) {
+		if (!isJsonObj(a) || !isJsonObj(b)) return [`${path}: ${typeof a} vs ${typeof b}`];
+		const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+		return [...keys].flatMap((k) =>
+			k in a && k in b
+				? jsonDiff(a[k], b[k], `${path}.${k}`)
+				: [`${path}.${k}: ${k in a ? 'missing in output' : 'added in output'}`]
+		);
+	}
+	return Object.is(a, b) ? [] : [`${path}: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`];
+}
+
+const isJsonObj = (v: unknown): v is Record<string, unknown> =>
+	typeof v === 'object' && v !== null && !Array.isArray(v);

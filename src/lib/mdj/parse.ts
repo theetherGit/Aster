@@ -17,6 +17,8 @@ import {
 	type Element,
 	type End,
 	type Id,
+	type Instance,
+	type Link,
 	type LabelKey,
 	type LabelOffset,
 	type Literal,
@@ -30,6 +32,7 @@ import {
 	type Project,
 	type Relationship,
 	type RelationshipKind,
+	type Slot,
 	type TextElement,
 	type Unknown,
 	type Visibility
@@ -110,7 +113,8 @@ const RELATIONSHIPS: Record<string, RelationshipKind> = {
 };
 // A subsystem owns model elements like a package does; later models are packages too.
 const PACKAGES = new Set(['UMLPackage', 'UMLModel', 'UMLSubsystem']);
-const NODE_VIEWS: Record<string, 'classifier' | 'package'> = {
+const NODE_VIEWS: Record<string, 'classifier' | 'package' | 'instance'> = {
+	UMLObjectView: 'instance',
 	UMLClassView: 'classifier',
 	UMLInterfaceView: 'classifier',
 	UMLEnumerationView: 'classifier',
@@ -224,6 +228,8 @@ class Parser {
 	readonly diagrams: Diagram[] = [];
 	readonly diagramJson = new Map<Id, Json>();
 	readonly relationships: PendingRelationship[] = [];
+	/** Links (owned by their end1 object), mapped once every object is known. */
+	readonly links: PendingRelationship[] = [];
 	/** Deferred `$ref` lookups (types, stereotypes) that need the whole index. */
 	readonly late: (() => void)[] = [];
 	/** Associations stored with their ends swapped so the diamond side is the target. */
@@ -326,6 +332,7 @@ class Parser {
 			}
 		});
 		for (const r of this.relationships) this.mapRelationship(r);
+		for (const l of this.links) this.mapLink(l);
 		for (const f of this.late) f();
 		for (const d of this.diagrams) this.mapViews(d, this.diagramJson.get(d.id)!);
 		for (const id of this.elements.keys()) this.project.importedIds.add(id);
@@ -345,7 +352,9 @@ class Parser {
 			const type = isObj(child) ? str(child._type) : undefined;
 			if (!isObj(child) || type === undefined)
 				return this.keepUnknown(child, parentId, 'ownedElements', i);
-			if (type === 'UMLClassDiagram') return this.mapDiagram(child, i);
+			if (type === 'UMLClassDiagram' || type === 'UMLObjectDiagram')
+				return this.mapDiagram(child, i);
+			if (type === 'UMLObject') return this.mapInstance(child, packageId, i);
 			if (PACKAGES.has(type)) return this.mapPackage(child, packageId, i);
 			if (type in CLASSIFIERS) return this.mapClassifier(child, packageId, i);
 			if (type in RELATIONSHIPS)
@@ -579,6 +588,76 @@ class Parser {
 		this.elements.set(id, r);
 	}
 
+	// ---- objects and links (M3.2) -------------------------------------------
+
+	mapInstance(o: Json, packageId: Id | undefined, index: number) {
+		this.keepSource(o, ['ownedElements', 'slots'], false, index);
+		const id = o._id as Id;
+		const inst: Instance = compact({
+			kind: 'instance' as const,
+			id,
+			name: str(o.name) ?? '',
+			slots: [],
+			documentation: str(o.documentation) ?? '',
+			packageId
+		});
+		this.elements.set(id, inst);
+		if (packageId) (this.elements.get(packageId) as Package).memberIds.push(id);
+		// The class is a name, as an attribute's type is: StarUML writes a string or a $ref.
+		this.late.push(() => {
+			const c = this.nameOf(o.classifier, 'classifier', inst.name || id);
+			if (c) inst.classifier = c;
+			const s = this.nameOf(o.stereotype, 'stereotype', inst.name || id);
+			if (s) inst.stereotype = s;
+		});
+		arr(o.slots).forEach((slot, i) => {
+			if (!isObj(slot) || slot._type !== 'UMLSlot') return this.keepUnknown(slot, id, 'slots', i);
+			this.keepSource(slot, [], false, i);
+			const sl: Slot = {
+				id: slot._id as Id,
+				name: str(slot.name) ?? '',
+				value: str(slot.value) ?? ''
+			};
+			inst.slots.push(sl);
+		});
+		arr(o.ownedElements).forEach((child, i) =>
+			isObj(child) && child._type === 'UMLLink'
+				? this.links.push({ json: child, parentId: id, index: i })
+				: this.keepUnknown(child, id, 'ownedElements', i)
+		);
+	}
+
+	mapLink({ json: o, parentId, index }: PendingRelationship) {
+		const id = o._id as Id;
+		const end = (k: string) => refOf(isObj(o[k]) ? (o[k] as Json).reference : undefined);
+		const [sourceId, targetId] = [end('end1'), end('end2')];
+		const isObject = (x: string | undefined) => !!x && this.elements.get(x)?.kind === 'instance';
+		if (!isObject(sourceId) || !isObject(targetId)) {
+			this.warnings.push({
+				code: 'relationshipEndpoint',
+				type: 'UMLLink',
+				name: str(o.name) ?? id
+			});
+			return this.keepUnknown(o, parentId, 'ownedElements', index);
+		}
+		this.keepSource(o, ['ownedElements'], false, index);
+		this.ownedUnknowns(o);
+		const association = refOf(o.association);
+		const link: Link = compact({
+			kind: 'link' as const,
+			id,
+			sourceId: sourceId!,
+			targetId: targetId!,
+			name: text(o.name),
+			documentation: str(o.documentation) ?? '',
+			associationId:
+				association && this.elements.get(association)?.kind === 'relationship'
+					? association
+					: undefined
+		});
+		this.elements.set(id, link);
+	}
+
 	// ---- diagrams and views ------------------------------------------------
 
 	mapDiagram(o: Json, index: number) {
@@ -586,7 +665,7 @@ class Parser {
 		const d: Diagram = {
 			id: o._id as Id,
 			name: str(o.name) ?? '',
-			diagramKind: 'class',
+			diagramKind: o._type === 'UMLObjectDiagram' ? 'object' : 'class',
 			elementIds: [],
 			layout: new Map(),
 			defaults: { ...STARUML_VIEW_DEFAULTS }
@@ -631,6 +710,7 @@ class Parser {
 		const viewToElement = new Map<string, Id>();
 		const edges: [Json, number][] = [];
 		const links: [Json, number][] = [];
+		const linkViews: [Json, number][] = [];
 		const containers: [Json, Id][] = [];
 		const hide = (v: unknown, i: number) => {
 			report.hiddenViews++;
@@ -662,7 +742,7 @@ class Parser {
 				this.keepSource(v, [], true, i);
 				viewToElement.set(v._id as string, el.id);
 				place(el.id, this.nodeLayout(v));
-				if (el.kind === 'classifier') report.nodes++;
+				if (el.kind === 'classifier' || el.kind === 'instance') report.nodes++;
 				if (refOf(v.containerView)) containers.push([v, el.id]);
 				return;
 			}
@@ -681,6 +761,7 @@ class Parser {
 				return;
 			}
 			if (EDGE_VIEWS.has(type)) return edges.push([v, i]);
+			if (type === 'UMLLinkView') return linkViews.push([v, i]);
 			if (type === 'UMLNoteLinkView') return links.push([v, i]);
 			hide(v, i);
 		});
@@ -720,6 +801,29 @@ class Parser {
 				});
 			}
 			place(rel.id, this.edgeLayout(v, swapped));
+			report.edges++;
+		}
+
+		// Links between objects: the tail is end1, as on an association view.
+		for (const [v, i] of linkViews) {
+			const link = this.elements.get(refOf(v.model) ?? '');
+			if (!link || link.kind !== 'link' || d.layout.has(link.id)) {
+				this.warnings.push({ code: 'viewWithoutModel', diagram: d.name, type: 'UMLLinkView' });
+				hide(v, i);
+				continue;
+			}
+			this.keepSource(v, [], true, i);
+			const [tail, head] = [
+				viewToElement.get(refOf(v.tail) ?? ''),
+				viewToElement.get(refOf(v.head) ?? '')
+			];
+			if (tail === undefined || head === undefined)
+				this.warnings.push({
+					code: 'edgeEndNotShown',
+					diagram: d.name,
+					relationship: link.name ?? link.id
+				});
+			place(link.id, this.edgeLayout(v, false));
 			report.edges++;
 		}
 

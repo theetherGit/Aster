@@ -148,7 +148,17 @@ export interface TextElement {
   text: string;
 }
 
-export type Element = Classifier | Relationship | Package | Note | TextElement;
+export interface Slot { id: Id; name: string; value: string }          // value as written, quotes included
+export interface Instance {
+  kind: 'instance'; id: Id; name: string;        // '' = anonymous (": ATM")
+  classifier?: string;                           // a NAME, like Attribute.type; export restores the $ref while it resolves
+  slots: Slot[]; stereotype?: string; documentation: string; packageId?: Id;
+}
+export interface Link {
+  kind: 'link'; id: Id; sourceId: Id; targetId: Id; name?: string;
+  associationId?: Id; documentation: string;    // owned by the source instance (end1), as StarUML does
+}
+export type Element = Classifier | Relationship | Package | Note | TextElement | Instance | Link;
 
 // ---------------------------------------------------------------------------
 // Layout (per diagram; pixels in StarUML's coordinate space)

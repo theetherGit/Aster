@@ -10,11 +10,14 @@ import {
 	type End,
 	type Element,
 	type Id,
+	type Instance,
+	type Link,
 	type NodeLayout,
 	type Operation,
 	type Project,
 	type Relationship,
-	type RelationshipKind
+	type RelationshipKind,
+	type Slot
 } from './types.ts';
 
 // ---------------------------------------------------------------------------
@@ -155,6 +158,59 @@ export function createRelationship(
 	};
 }
 
+/** An object on an object diagram (M3.2): its class by name, as an attribute's type is. */
+export function createInstance(init: Partial<Omit<Instance, 'kind'>> = {}): Instance {
+	const { classifier, stereotype, packageId } = init;
+	return {
+		kind: 'instance',
+		id: init.id ?? newId(),
+		name: init.name ?? '',
+		slots: init.slots ?? [],
+		documentation: init.documentation ?? '',
+		...(classifier !== undefined && { classifier }),
+		...(stereotype !== undefined && { stereotype }),
+		...(packageId !== undefined && { packageId })
+	};
+}
+
+export const createSlot = (name: string, value: string, id: Id = newId()): Slot => ({
+	id,
+	name,
+	value
+});
+
+/** A link between two objects, owned by its source (end1), as StarUML owns it. */
+export function createLink(
+	init: Partial<Omit<Link, 'kind'>> & Pick<Link, 'sourceId' | 'targetId'>
+): Link {
+	const { name, associationId } = init;
+	return {
+		kind: 'link',
+		id: init.id ?? newId(),
+		sourceId: init.sourceId,
+		targetId: init.targetId,
+		documentation: init.documentation ?? '',
+		...(name !== undefined && { name }),
+		...(associationId !== undefined && { associationId })
+	};
+}
+
+/** "acc: Account" as StarUML writes it, ": Account" when anonymous, the bare name with no class. */
+export function instanceLabel(i: Pick<Instance, 'name' | 'classifier'>): string {
+	if (!i.classifier) return i.name;
+	return i.name ? `${i.name}: ${i.classifier}` : `: ${i.classifier}`;
+}
+
+/** First unused "Object1", "Object2", … among the project's objects. */
+export function nextInstanceName(project: Project): string {
+	const taken = new Set<string>();
+	for (const el of project.elements.values()) if (el.kind === 'instance') taken.add(el.name);
+	for (let n = 1; ; n++) {
+		const name = t('model.defaultName.object', { n });
+		if (!taken.has(name)) return name;
+	}
+}
+
 /** Edges start straight, as the spec's default routing. */
 export const defaultEdgeLayout = (): EdgeLayout => ({
 	kind: 'edge',
@@ -232,6 +288,10 @@ export function elementName(el: Element): string {
 		case 'note':
 		case 'text':
 			return el.text;
+		case 'instance':
+			return instanceLabel(el);
+		case 'link':
+			return el.name ?? t('rel.link');
 	}
 }
 

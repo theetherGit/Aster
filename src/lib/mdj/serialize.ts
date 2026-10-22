@@ -9,7 +9,7 @@
  */
 import { clipToRect } from '#lib/canvas/edges/geometry.ts';
 import { newId } from '#lib/model/ids.ts';
-import { isAssociationKind } from '#lib/model/project.ts';
+import { instanceLabel, isAssociationKind } from '#lib/model/project.ts';
 import {
 	DEFAULT_DISPLAY_FLAGS,
 	type Attribute,
@@ -21,6 +21,8 @@ import {
 	type Element,
 	type End,
 	type Id,
+	type Instance,
+	type Link,
 	type LabelKey,
 	type LabelOffset,
 	type Literal,
@@ -75,7 +77,8 @@ const WALKED = [
 	'operations',
 	'literals',
 	'parameters',
-	'ownedViews'
+	'ownedViews',
+	'slots'
 ];
 const FONT = 'Arial;13;0';
 const LABEL_REFS: [string, LabelKey][] = [
@@ -377,6 +380,11 @@ class Serializer {
 				return isAssociationKind(el.relationshipKind) && this.swapped(el)
 					? el.targetId
 					: el.sourceId;
+			case 'instance':
+				return el.packageId ?? this.modelId;
+			case 'link':
+				// StarUML owns a link by its end1 object.
+				return el.sourceId;
 			default:
 				return this.modelId;
 		}
@@ -397,7 +405,11 @@ class Serializer {
 		// Diagrams first (their views need every element's view id), then elements.
 		const diagramJson = new Map<Id, Json>();
 		for (const d of p.diagrams) {
-			const o = this.base(d.id, 'UMLClassDiagram', this.parentOf(d));
+			const o = this.base(
+				d.id,
+				d.diagramKind === 'object' ? 'UMLObjectDiagram' : 'UMLClassDiagram',
+				this.parentOf(d)
+			);
 			this.setStr(o, this.records.get(d.id), 'name', d.name);
 			diagramJson.set(d.id, o);
 			own(this.parentOf(d), { json: o, index: this.indexOf(d.id) });
@@ -408,6 +420,8 @@ class Serializer {
 			if (el.kind === 'classifier') o = this.emitClassifier(el);
 			else if (el.kind === 'package') o = this.emitPackage(el);
 			else if (el.kind === 'relationship') o = this.emitRelationship(el);
+			else if (el.kind === 'instance') o = this.emitInstance(el);
+			else if (el.kind === 'link') o = this.emitLink(el);
 			else continue; // notes and texts are views
 			elementJson.set(el.id, o);
 			own(this.parentOf(el), { json: o, index: this.indexOf(el.id) });
@@ -662,6 +676,62 @@ class Serializer {
 		return changed;
 	}
 
+	// ---- objects and links (M3.2) -------------------------------------------
+
+	emitInstance(inst: Instance): Json {
+		const rec = this.records.get(inst.id);
+		const o = this.base(inst.id, 'UMLObject', this.parentOf(inst));
+		let changed = !rec;
+		changed = this.setStr(o, rec, 'name', inst.name) || changed;
+		changed = this.setNamed(o, rec, 'classifier', inst.classifier) || changed;
+		changed = this.setNamed(o, rec, 'stereotype', inst.stereotype) || changed;
+		this.setStr(o, rec, 'documentation', inst.documentation);
+		const slots = inst.slots.map((sl) => {
+			const srec = this.records.get(sl.id);
+			const so = this.base(sl.id, 'UMLSlot', inst.id);
+			let c = !srec;
+			c = this.setStr(so, srec, 'name', sl.name) || c;
+			c = this.setStr(so, srec, 'value', sl.value) || c;
+			if (c) changed = true;
+			return { json: so, index: this.indexOf(sl.id) };
+		});
+		// A removed slot changes the object's view too.
+		const before = arr(rec?.slots).length;
+		if (rec && before !== inst.slots.length) changed = true;
+		this.setArray(o, inst.id, 'slots', slots);
+		if (changed) this.changed.add(inst.id);
+		return o;
+	}
+
+	emitLink(link: Link): Json {
+		const rec = this.records.get(link.id);
+		const o = this.base(link.id, 'UMLLink', this.parentOf(link));
+		let changed = !rec;
+		if (this.setStr(o, rec, 'name', link.name)) {
+			changed = true;
+			this.changed.add(`${link.id}:name`);
+		}
+		this.setStr(o, rec, 'documentation', link.documentation);
+		if (link.associationId)
+			changed = this.setRef(o, rec, 'association', link.associationId) || changed;
+		else if (rec?.association !== undefined) delete o.association;
+		for (const [key, id] of [
+			['end1', link.sourceId],
+			['end2', link.targetId]
+		] as const) {
+			const erec = isObj(rec?.[key]) ? (rec[key] as Json) : undefined;
+			const e: Json = erec
+				? (o[key] as Json)
+				: { _type: 'UMLLinkEnd', _id: newId(), _parent: ref(link.id) };
+			changed = this.setRef(e, erec, 'reference', id) || changed;
+			o[key] = e;
+		}
+		if (changed) this.changed.add(link.id);
+		this.setArray(o, link.id, 'ownedElements', []);
+		this.spliceRest(o, link.id, ['ownedElements']);
+		return o;
+	}
+
 	// ---- views ---------------------------------------------------------------
 
 	viewIdOf(d: Diagram, elementId: Id): Id {
@@ -681,6 +751,7 @@ class Serializer {
 	emitViews(d: Diagram, o: Json) {
 		const children: Child[] = [];
 		const edges: [Relationship, EdgeLayout][] = [];
+		const linkEdges: [Link, EdgeLayout][] = [];
 		for (const id of d.elementIds) {
 			const el = this.project.elements.get(id);
 			const l = d.layout.get(id);
@@ -689,7 +760,11 @@ class Serializer {
 				edges.push([el, l]);
 				continue;
 			}
-			if (l.kind !== 'node' || el.kind === 'relationship') continue;
+			if (el.kind === 'link' && l.kind === 'edge') {
+				linkEdges.push([el, l]);
+				continue;
+			}
+			if (l.kind !== 'node' || el.kind === 'relationship' || el.kind === 'link') continue;
 			const rec =
 				el.kind === 'note' || el.kind === 'text'
 					? this.records.get(id)
@@ -698,6 +773,7 @@ class Serializer {
 			let v: Json;
 			if (el.kind === 'classifier') v = this.emitClassifierView(d, el, l, rec, vid);
 			else if (el.kind === 'package') v = this.emitPackageView(d, el, l, rec, vid);
+			else if (el.kind === 'instance') v = this.emitObjectView(d, el, l, rec, vid);
 			else v = this.emitNoteView(d, el, l, rec, vid);
 			children.push({ json: v, index: rec ? this.indexOf(vid) : Number.POSITIVE_INFINITY });
 		}
@@ -705,6 +781,12 @@ class Serializer {
 			const rec = this.viewRecords.get(`${d.id}/${rel.id}`);
 			const vid = this.viewIdOf(d, rel.id);
 			const v = this.emitEdgeView(d, rel, l, rec, vid);
+			children.push({ json: v, index: rec ? this.indexOf(vid) : Number.POSITIVE_INFINITY });
+		}
+		for (const [link, l] of linkEdges) {
+			const rec = this.viewRecords.get(`${d.id}/${link.id}`);
+			const vid = this.viewIdOf(d, link.id);
+			const v = this.emitLinkView(d, link, l, rec, vid);
 			children.push({ json: v, index: rec ? this.indexOf(vid) : Number.POSITIVE_INFINITY });
 		}
 		// Note links come from Note.linkedIds: an existing view (either direction) is kept as it
@@ -1049,6 +1131,172 @@ class Serializer {
 		return v;
 	}
 
+	emitObjectView(d: Diagram, inst: Instance, l: NodeLayout, rec: Json | undefined, vid: Id): Json {
+		const v: Json = rec
+			? clone(rec)
+			: {
+					_type: 'UMLObjectView',
+					_id: vid,
+					_parent: ref(d.id),
+					model: ref(inst.id),
+					subViews: [],
+					font: FONT
+				};
+		const moved = this.nodeFields(d, l, rec, v);
+		// An untouched view is written back as it was read (StarUML's own geometry included).
+		if (rec && !moved && !this.changed.has(inst.id)) return v;
+		const subs = arr(v.subViews).filter(isObj) as Json[];
+		const ensure = (type: string, refKey: string): Json => {
+			let c = subs.find((x) => x._type === type);
+			if (!c) {
+				c = {
+					_type: type,
+					_id: newId(),
+					_parent: ref(vid),
+					model: ref(inst.id),
+					subViews: [],
+					font: FONT,
+					parentStyle: true
+				};
+				subs.push(c);
+			}
+			if (refOf(v[refKey]) !== c._id) v[refKey] = ref(c._id as string);
+			return c;
+		};
+		const nameComp = ensure('UMLNameCompartmentView', 'nameCompartment');
+		const slotComp = ensure('UMLSlotCompartmentView', 'slotCompartment');
+		const labels = arr(nameComp.subViews).filter(isObj) as Json[];
+		const label = (refKey: string, extra: Json): Json => {
+			let s = labels.find((x) => x._id === refOf(nameComp[refKey]));
+			if (!s) {
+				s = {
+					_type: 'LabelView',
+					_id: newId(),
+					_parent: ref(nameComp._id as string),
+					font: FONT,
+					parentStyle: true,
+					height: 13,
+					...extra
+				};
+				labels.push(s);
+				nameComp[refKey] = ref(s._id as string);
+			}
+			return s;
+		};
+		const stereo = label('stereotypeLabel', { visible: false });
+		const name = label('nameLabel', { font: 'Arial;13;1', underline: true });
+		label('namespaceLabel', { visible: false });
+		label('propertyLabel', { visible: false, horizontalAlignment: 1 });
+		nameComp.subViews = labels;
+		if (name.text !== instanceLabel(inst)) name.text = instanceLabel(inst);
+		if (inst.stereotype) {
+			stereo.text = `«${inst.stereotype}»`;
+			delete stereo.visible;
+		} else if (stereo.text !== undefined) {
+			delete stereo.text;
+			stereo.visible = false;
+		}
+		const old = arr(slotComp.subViews).filter(isObj) as Json[];
+		const { x, y, w } = { x: l.x, y: l.y, w: l.w };
+		const fresh = !rec || moved;
+		slotComp.subViews = inst.slots.map((sl, k) => {
+			let sv = old.find((o) => refOf(o.model) === sl.id);
+			const isNew = !sv;
+			if (!sv)
+				sv = {
+					_type: 'UMLSlotView',
+					_id: newId(),
+					_parent: ref(slotComp._id as string),
+					model: ref(sl.id),
+					font: FONT,
+					parentStyle: true,
+					horizontalAlignment: 0
+				};
+			const text = `+${sl.name} = ${sl.value}`;
+			if (sv.text !== text) sv.text = text;
+			if (fresh || isNew)
+				Object.assign(sv, { left: x + 5, top: y + 30 + 15 * k, width: w - 10, height: 13 });
+			return sv;
+		});
+		if (fresh) {
+			Object.assign(nameComp, { left: x, top: y, width: w, height: 25 });
+			Object.assign(name, { left: x + 5, top: y + 7, width: w - 10 });
+		}
+		if (fresh || old.length !== inst.slots.length)
+			Object.assign(slotComp, {
+				left: x,
+				top: y + 25,
+				width: w,
+				height: 10 + 15 * inst.slots.length
+			});
+		v.subViews = subs;
+		return v;
+	}
+
+	emitLinkView(d: Diagram, link: Link, l: EdgeLayout, rec: Json | undefined, vid: Id): Json {
+		const v: Json = rec
+			? clone(rec)
+			: {
+					_type: 'UMLLinkView',
+					_id: vid,
+					_parent: ref(d.id),
+					model: ref(link.id),
+					subViews: [],
+					font: FONT,
+					head: ref(this.viewIdOf(d, link.targetId)),
+					tail: ref(this.viewIdOf(d, link.sourceId))
+				};
+		this.setRef(v, rec, 'head', this.viewIdOf(d, link.targetId));
+		this.setRef(v, rec, 'tail', this.viewIdOf(d, link.sourceId));
+		const styleIndex = LINE_STYLES.indexOf(l.lineStyle);
+		if (styleIndex !== (num(rec?.lineStyle) ?? 1)) {
+			if (styleIndex === 1 && rec === undefined) delete v.lineStyle;
+			else v.lineStyle = styleIndex;
+		}
+		this.setStr(v, rec, 'lineColor', l.line);
+		this.edgePoints(d, v, rec, link.sourceId, link.targetId, l, false);
+		const subs = arr(v.subViews).filter(isObj) as Json[];
+		const labelFor = (refKey: string): Json => {
+			let s = subs.find((x) => x._id === refOf(v[refKey]));
+			if (!s) {
+				const dflt = LABEL_DEFAULTS[refKey];
+				s = {
+					_type: 'EdgeLabelView',
+					_id: newId(),
+					_parent: ref(vid),
+					model: ref(link.id),
+					visible: false,
+					font: FONT,
+					alpha: dflt.alpha,
+					distance: dflt.distance,
+					hostEdge: ref(vid)
+				};
+				if (dflt.edgePosition !== undefined) s.edgePosition = dflt.edgePosition;
+				subs.push(s);
+				v[refKey] = ref(s._id as string);
+			}
+			return s;
+		};
+		for (const key of ['nameLabel', 'stereotypeLabel', 'propertyLabel']) labelFor(key);
+		const nameLabel = labelFor('nameLabel');
+		const offset = l.labelOffsets.name;
+		if (offset) {
+			if (num(nameLabel.alpha) !== offset.alpha) nameLabel.alpha = offset.alpha;
+			if (num(nameLabel.distance) !== offset.distance) nameLabel.distance = offset.distance;
+		}
+		if (!rec || this.changed.has(`${link.id}:name`)) {
+			if (link.name) {
+				nameLabel.text = link.name;
+				delete nameLabel.visible;
+			} else if (nameLabel.text !== undefined) {
+				delete nameLabel.text;
+				nameLabel.visible = false;
+			}
+		}
+		v.subViews = subs;
+		return v;
+	}
+
 	emitNoteView(
 		d: Diagram,
 		el: Extract<Element, { kind: 'note' | 'text' }>,
@@ -1067,6 +1315,49 @@ class Serializer {
 		this.nodeFields(d, l, rec, v);
 		this.setStr(v, rec, 'text', el.text);
 		return v;
+	}
+
+	/** Points on the node borders, recomputed when an end moved or a waypoint changed. */
+	edgePoints(
+		d: Diagram,
+		v: Json,
+		base: Json | undefined,
+		sourceId: Id,
+		targetId: Id,
+		l: EdgeLayout,
+		swapped: boolean
+	) {
+		// Points: endpoints on the node borders, recomputed when an end moved or a waypoint changed.
+		const srcRect = this.nodeRect(d, sourceId);
+		const tgtRect = this.nodeRect(d, targetId);
+		const wasPoints = parsePoints(base?.points);
+		let wasWaypoints = wasPoints.slice(1, -1);
+		if (swapped) wasWaypoints = wasWaypoints.reverse();
+		const sameWaypoints =
+			wasWaypoints.length === l.waypoints.length &&
+			wasWaypoints.every((p, i) => p.x === l.waypoints[i].x && p.y === l.waypoints[i].y);
+		const endMoved = [sourceId, targetId].some((id) => {
+			const vr = this.viewRecords.get(`${d.id}/${id}`) ?? this.records.get(id);
+			const now = this.nodeRect(d, id);
+			return (
+				!vr ||
+				!now ||
+				num(vr.left) !== now.x ||
+				num(vr.top) !== now.y ||
+				num(vr.width) !== now.w ||
+				num(vr.height) !== now.h
+			);
+		});
+		if (!base || !sameWaypoints || endMoved || wasPoints.length < 2) {
+			if (srcRect && tgtRect) {
+				const c = (rr: Rect) => ({ x: rr.x + rr.w / 2, y: rr.y + rr.h / 2 });
+				const first = l.waypoints[0] ?? c(tgtRect);
+				const last = l.waypoints.at(-1) ?? c(srcRect);
+				let pts = [clipToRect(srcRect, first), ...l.waypoints, clipToRect(tgtRect, last)];
+				if (swapped) pts = pts.reverse();
+				v.points = fmtPoints(pts);
+			}
+		}
 	}
 
 	emitEdgeView(d: Diagram, r: Relationship, l: EdgeLayout, rec: Json | undefined, vid: Id): Json {
@@ -1106,37 +1397,7 @@ class Serializer {
 		}
 		this.setStr(v, base, 'lineColor', l.line);
 
-		// Points: endpoints on the node borders, recomputed when an end moved or a waypoint changed.
-		const srcRect = this.nodeRect(d, r.sourceId);
-		const tgtRect = this.nodeRect(d, r.targetId);
-		const wasPoints = parsePoints(base?.points);
-		let wasWaypoints = wasPoints.slice(1, -1);
-		if (swapped) wasWaypoints = wasWaypoints.reverse();
-		const sameWaypoints =
-			wasWaypoints.length === l.waypoints.length &&
-			wasWaypoints.every((p, i) => p.x === l.waypoints[i].x && p.y === l.waypoints[i].y);
-		const endMoved = [r.sourceId, r.targetId].some((id) => {
-			const vr = this.viewRecords.get(`${d.id}/${id}`) ?? this.records.get(id);
-			const now = this.nodeRect(d, id);
-			return (
-				!vr ||
-				!now ||
-				num(vr.left) !== now.x ||
-				num(vr.top) !== now.y ||
-				num(vr.width) !== now.w ||
-				num(vr.height) !== now.h
-			);
-		});
-		if (!base || !sameWaypoints || endMoved || wasPoints.length < 2) {
-			if (srcRect && tgtRect) {
-				const c = (rr: Rect) => ({ x: rr.x + rr.w / 2, y: rr.y + rr.h / 2 });
-				const first = l.waypoints[0] ?? c(tgtRect);
-				const last = l.waypoints.at(-1) ?? c(srcRect);
-				let pts = [clipToRect(srcRect, first), ...l.waypoints, clipToRect(tgtRect, last)];
-				if (swapped) pts = pts.reverse();
-				v.points = fmtPoints(pts);
-			}
-		}
+		this.edgePoints(d, v, base, r.sourceId, r.targetId, l, swapped);
 
 		// Labels: reuse the EdgeLabelView each reference key points at; create the full set for a new view.
 		const subs = arr(v.subViews).filter(isObj) as Json[];

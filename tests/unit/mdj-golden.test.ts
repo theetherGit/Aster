@@ -9,6 +9,9 @@ import { Stack, renameClassifier } from '#lib/commands/index.ts';
 import { parseMdjText } from '#lib/mdj/parse.ts';
 import { serializeMdj } from '#lib/mdj/serialize.ts';
 import type { Classifier } from '#lib/model/types.ts';
+import { jsonDiff } from './helpers.ts';
+
+export { jsonDiff };
 
 const dir = new URL('../../fixtures/mdj/', import.meta.url);
 const files = readdirSync(dir)
@@ -17,25 +20,6 @@ const files = readdirSync(dir)
 
 type J = Record<string, unknown>;
 const isObj = (v: unknown): v is J => typeof v === 'object' && v !== null && !Array.isArray(v);
-
-/** Paths where two JSON values differ; key order is irrelevant, array order is not. */
-export function jsonDiff(a: unknown, b: unknown, path = '$'): string[] {
-	if (Array.isArray(a) || Array.isArray(b)) {
-		if (!Array.isArray(a) || !Array.isArray(b)) return [`${path}: array vs ${typeof b}`];
-		if (a.length !== b.length) return [`${path}: length ${a.length} vs ${b.length}`];
-		return a.flatMap((v, i) => jsonDiff(v, b[i], `${path}[${i}]`));
-	}
-	if (isObj(a) || isObj(b)) {
-		if (!isObj(a) || !isObj(b)) return [`${path}: ${typeof a} vs ${typeof b}`];
-		const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-		return [...keys].flatMap((k) =>
-			k in a && k in b
-				? jsonDiff(a[k], b[k], `${path}.${k}`)
-				: [`${path}.${k}: ${k in a ? 'missing in output' : 'added in output'}`]
-		);
-	}
-	return Object.is(a, b) ? [] : [`${path}: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`];
-}
 
 const nameOf = (o: unknown) => (isObj(o) ? o.name : undefined);
 

@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`object diagrams in .mdj > reads the ATM object diagram as objects with slots and links between them 1`] = `
+[
+  "Customer1: Customr",
+  "atm1: ATM",
+  "bank1: Bank",
+  "technician1: Technician",
+]
+`;

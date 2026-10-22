@@ -14,14 +14,16 @@ const NODE_VIEWS = new Set([
 	'UMLInterfaceView',
 	'UMLEnumerationView',
 	'UMLDataTypeView',
-	'UMLPrimitiveTypeView'
+	'UMLPrimitiveTypeView',
+	'UMLObjectView'
 ]);
 const EDGE_VIEWS = new Set([
 	'UMLAssociationView',
 	'UMLGeneralizationView',
 	'UMLInterfaceRealizationView',
 	'UMLRealizationView',
-	'UMLDependencyView'
+	'UMLDependencyView',
+	'UMLLinkView'
 ]);
 
 /** Comparable, diff-friendly view of a parse: Maps flattened, #source records counted, not dumped. */
