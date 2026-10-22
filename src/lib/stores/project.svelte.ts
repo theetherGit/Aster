@@ -18,6 +18,8 @@ class ProjectStore {
 	#project: Project = $state.raw(sampleProject());
 	#stack = new Stack(() => this.#project);
 	version = $state(0);
+	/** Bumps when a project is opened (load), so views can place themselves for it. */
+	opened = $state(0);
 	activeDiagramId: Id = $state('');
 
 	constructor() {
@@ -69,6 +71,7 @@ class ProjectStore {
 				? diagramId
 				: project.diagrams[0]?.id) ?? '';
 		this.version++;
+		this.opened++;
 	}
 	/** The undo and redo stacks as data, for autosave. */
 	snapshot(): CommandStackSnapshot {

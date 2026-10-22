@@ -6,11 +6,14 @@
 		ConnectionMode,
 		SvelteFlow,
 		ViewportPortal,
+		getViewportForBounds,
 		useSvelteFlow,
 		type InternalNode,
 		type NodeTargetEventWithPointer,
 		type OnConnectEnd,
 		type OnMove,
+		type OnMoveEnd,
+		type OnMoveStart,
 		type OnSelectionChange
 	} from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
@@ -33,6 +36,8 @@
 	import { flow, LARGE_DIAGRAM, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
 	import { lineOf } from './paint.ts';
 	import { layout } from '#lib/stores/layout.ts';
+	import { cachedView, rememberView } from '#lib/persist/autosave.svelte.ts';
+	import { contentRect } from '#lib/export/svg.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -86,7 +91,8 @@
 		setZoom,
 		setCenter,
 		fitView,
-		fitBounds
+		fitBounds,
+		setViewport
 	} = useSvelteFlow();
 
 	// Derived nodes are fresh objects after every command. Without `measured`, Svelte Flow
@@ -124,10 +130,18 @@
 			createPackage: (at?: Point) => createPackageAt(at ?? cursorPosition(), rects().values()),
 			createText: () => createTextAt(cursorPosition(), rects().values()),
 			startLink: () => startLink(rects()),
-			zoomBy: (f: number) =>
-				setZoom(Math.min(4, Math.max(0.1, getZoom() * f)), { duration: dur(120) }),
-			zoomTo: (z: number) => setZoom(z, { duration: dur(120) }),
-			fitAll: () => fitView({ padding: 0.1, duration: dur(200) }),
+			zoomBy: (f: number) => {
+				touched = true;
+				setZoom(Math.min(4, Math.max(0.1, getZoom() * f)), { duration: dur(120) });
+			},
+			zoomTo: (z: number) => {
+				touched = true;
+				setZoom(z, { duration: dur(120) });
+			},
+			fitAll: () => {
+				touched = true;
+				fitView({ padding: 0.1, duration: dur(200) });
+			},
 			fitSelection: () => {
 				const r = rects();
 				const boxes = selection.list.map((id) => r.get(id)).filter((b): b is Rect => !!b);
@@ -498,6 +512,63 @@
 	const onmove: OnMove = (_event, viewport) => {
 		ui.zoom = viewport.zoom;
 	};
+	// Owner's report: a reopened project showed the paper's corner. Each diagram opens where the
+	// reader left it (read with the project, so it is at hand), else with all of it in view,
+	// centred, never above 100 %. Placed in the same task as the open, before anything is painted,
+	// so the view never jumps; only when Svelte Flow is not ready yet does it try again a frame
+	// later, and then whatever the reader did meanwhile (a zoom key, a pan, an edit) wins.
+	let placedFor = '';
+	let touched = false;
+	function placement(diagramId: Id) {
+		const saved = cachedView(diagramId);
+		if (saved) return saved;
+		const d = projectStore.diagram;
+		const p = projectStore.project;
+		const boxes = d.elementIds.flatMap((id) => {
+			const l = d.layout.get(id);
+			const item = p.elements.get(id);
+			if (l?.kind !== 'node' || !item) return [];
+			// A class grows to its members; the export's metrics say how tall before it is drawn.
+			return [item.kind === 'classifier' ? contentRect(item, { ...d.defaults, ...l.flags }, l) : l];
+		});
+		if (!boxes.length) return { x: 0, y: 0, zoom: 1 };
+		const x = Math.min(...boxes.map((b) => b.x));
+		const y = Math.min(...boxes.map((b) => b.y));
+		const bounds = {
+			x,
+			y,
+			width: Math.max(...boxes.map((b) => b.x + b.w)) - x,
+			height: Math.max(...boxes.map((b) => b.y + b.h)) - y
+		};
+		// Fitted and centred; a diagram too big to read whole opens at half size from its
+		// top-left instead, so a 5,000-class file draws a screenful, not every box.
+		const fit = getViewportForBounds(bounds, el.clientWidth, el.clientHeight, 0.1, 1, 0.1);
+		const MIN = 0.5;
+		return fit.zoom >= MIN ? fit : { x: GRID * 2 - x * MIN, y: GRID * 2 - y * MIN, zoom: MIN };
+	}
+	$effect(() => {
+		const key = `${projectStore.opened}/${projectStore.activeDiagramId}`;
+		if (key === placedFor) return;
+		placedFor = key;
+		touched = false;
+		const diagramId = projectStore.activeDiagramId;
+		untrack(() => {
+			const version = projectStore.version;
+			const place = (tries: number) => {
+				if (placedFor !== key || touched || projectStore.version !== version) return;
+				void setViewport(placement(diagramId)).then((ok) => {
+					if (!ok && tries < 10) requestAnimationFrame(() => place(tries + 1));
+				});
+			};
+			place(0);
+		});
+	});
+	const onmovestart: OnMoveStart = (event) => {
+		if (event) touched = true; // a pointer or wheel move, not one of ours
+	};
+	const onmoveend: OnMoveEnd = (_event, viewport) => {
+		if (placedFor) void rememberView(projectStore.activeDiagramId, viewport);
+	};
 
 	// A connection dropped on a node (its body or a handle, the source included) opens the
 	// picker at the drop point; Svelte Flow never adds the edge itself.
@@ -597,6 +668,8 @@
 					{onnodedragstop}
 					{onselectionchange}
 					{onmove}
+					{onmovestart}
+					{onmoveend}
 					{onpaneclick}
 					{onnodeclick}
 				>

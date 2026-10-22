@@ -41,7 +41,8 @@ async function classAt(page: Page, name: string, x: number, y: number) {
 test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their UML markers', async ({
 	page
 }) => {
-	await page.goto('/design/sample');
+	// An empty diagram opens at 100 % from the paper's corner: the spots below are paper spots.
+	await page.goto('/design/new');
 	await expect(canvasOf(page)).toBeFocused();
 	await classAt(page, 'Hub', 560, 600);
 	const spots = [
@@ -227,6 +228,9 @@ test.describe('on the notation fixture', () => {
 	});
 
 	test('line style chords, waypoint drags and their panel equivalents', async ({ page }) => {
+		// At 100 %, a 90 px drag is 90 paper units (the diagram opens fitted to the window).
+		await page.keyboard.press('ControlOrMeta+0');
+		await expect(page.getByText('100%').first()).toBeVisible();
 		const gen = edgeOf(page, 'gen');
 		const mid = await pointOnEdge(gen, 0.5);
 		await page.mouse.click(mid.x, mid.y);

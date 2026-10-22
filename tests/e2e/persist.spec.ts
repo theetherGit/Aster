@@ -538,3 +538,27 @@ test('an edited demo survives opening the demo again', async ({ page }) => {
 	await page.getByRole('tab', { name: 'Model' }).click();
 	await expect.poll(() => position(node(page, 'Slot'))).toEqual(laidOut);
 });
+
+// Owner's report: a project opened from Recent showed the paper's corner, not where it was left.
+test('a project reopens where it was left; one never looked at opens fitted', async ({ page }) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const viewport = page.locator('.svelte-flow__viewport');
+	const at = () => viewport.evaluate((el) => (el as HTMLElement).style.transform);
+	// Fitted: both classes in view.
+	for (const name of ['Account', 'Customer']) await expect(node(page, name)).toBeInViewport();
+	await page.mouse.move(700, 500);
+	await create(page, 'c', 'Kept');
+	await page.keyboard.press('Escape');
+	await page.keyboard.press('ControlOrMeta+s');
+	await expect(page.getByText('Saved in this browser only.')).toBeVisible();
+	await page.keyboard.press('ControlOrMeta+-');
+	await page.mouse.wheel(250, 180);
+	await page.waitForTimeout(900); // the view is written half a second after it settles
+	const left = await at();
+
+	await page.goto('/');
+	await page.locator('.recent .row').first().click();
+	await expect(node(page, 'Kept')).toBeAttached();
+	await expect.poll(at).toBe(left);
+});

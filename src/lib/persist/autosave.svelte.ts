@@ -63,6 +63,7 @@ export interface RecentEntry {
 }
 
 const PREFIX = 'aster:project:';
+const VIEW_PREFIX = 'aster:view:';
 const KEY = (key: string) => `${PREFIX}${key}`;
 /**
  * Record key: the project id plus the file name. StarUML files made from its template share one
@@ -146,6 +147,7 @@ export async function saveNow(): Promise<void> {
 		thumbnail: record.thumbnail,
 		slug: persist.slug
 	};
+	if (views?.key === key) await set(VIEW_PREFIX + key, { ...views.map });
 	persist.recent = [entry, ...persist.recent.filter((r) => r.id !== key)].slice(0, RECENT_MAX);
 	await set(RECENT, $state.snapshot(persist.recent));
 	persist.at = record.at;
@@ -187,9 +189,45 @@ export async function thumbnailOf(
 const BUNDLED = new Set(['sample', 'demo', 'notation']);
 const schedule = useDebounce(() => {
 	// Looking around the demo (another tab, the banner) is not an edit: nothing to keep yet.
-	if (BUNDLED.has(persist.route ?? '') && projectStore.version === files.savedVersion) return;
+	if (untouchedBundle()) return;
 	pending = saveNow().catch((e) => console.error('autosave failed', e));
 }, DEBOUNCE_MS);
+
+// ---------------------------------------------------------------------------
+// Where the reader left each diagram (owner's report: a reopened project showed the paper's
+// corner). Browser state, in no file; a small record of its own beside the project's, so a pan
+// never rewrites the project. Kept only for a project the browser keeps.
+// ---------------------------------------------------------------------------
+
+export interface View {
+	x: number;
+	y: number;
+	zoom: number;
+}
+let views: { key: string; map: Record<Id, View> } | null = null;
+async function viewsOf(key: string): Promise<Record<Id, View>> {
+	if (views?.key !== key) {
+		const map = (await get<Record<Id, View>>(VIEW_PREFIX + key)) ?? {};
+		if (views?.key !== key) views = { key, map };
+	}
+	return views!.map;
+}
+/** The open project's diagram as the reader left it, when they did (read when it opened). */
+export function cachedView(diagramId: Id): View | undefined {
+	return views?.key === currentKey() ? views.map[diagramId] : undefined;
+}
+const untouchedBundle = () =>
+	BUNDLED.has(persist.route ?? '') && projectStore.version === files.savedVersion;
+const writeViews = useDebounce(async () => {
+	if (!views || untouchedBundle()) return;
+	await set(VIEW_PREFIX + views.key, { ...views.map });
+}, 500);
+/** After a pan or zoom: remembered for this diagram, written a moment later. */
+export async function rememberView(diagramId: Id, v: View) {
+	const map = await viewsOf(currentKey());
+	map[diagramId] = { x: v.x, y: v.y, zoom: v.zoom };
+	writeViews();
+}
 
 /** Wait for a scheduled or running save (tests, before unload). */
 export async function flush() {
@@ -265,6 +303,8 @@ export async function openSaved(id: string): Promise<boolean> {
 		project = parsed.project;
 		origin = parsed.origin ?? null;
 	} else project = record.project;
+	// Where each diagram was left, at hand before the canvas places itself.
+	await viewsOf(id);
 	projectStore.load(project, record.activeDiagramId, record.history);
 	files.current = record.fileName
 		? {
@@ -349,6 +389,7 @@ export async function openDraft(): Promise<boolean> {
 
 export async function forget(id: string) {
 	await del(KEY(id));
+	await del(VIEW_PREFIX + id);
 	persist.recent = persist.recent.filter((r) => r.id !== id);
 	await set(RECENT, $state.snapshot(persist.recent));
 	if (id === currentKey()) letGo();
@@ -363,7 +404,8 @@ function letGo() {
 /** Deletes every project this browser keeps, in Recent or not (Recent's Clear, the projects page). */
 export async function deleteAllProjects() {
 	for (const key of await keys())
-		if (typeof key === 'string' && key.startsWith(PREFIX)) await del(key);
+		if (typeof key === 'string' && (key.startsWith(PREFIX) || key.startsWith(VIEW_PREFIX)))
+			await del(key);
 	persist.recent = [];
 	await del(RECENT);
 	letGo();
