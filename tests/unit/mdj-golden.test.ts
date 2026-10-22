@@ -100,3 +100,51 @@ describe.each(files)('%s', (file) => {
 		void nameOf;
 	});
 });
+
+/**
+ * StarUML does not keep a hidden compartment's member views in step with the model: the lab's
+ * reference files (vivekhathwar/OOADP, Manual/Facade, Bridge, Strategy) hide operations and hold
+ * one view fewer than the class has operations. A no-op save must leave such a view as it is.
+ */
+describe('a hidden compartment with stale member views', () => {
+	const source = readFileSync(new URL('public-hydgl.mdj', dir), 'utf8');
+	const stale = () => {
+		const json = JSON.parse(source) as J;
+		const byId = new Map<string, J>();
+		(function walk(o: unknown) {
+			if (Array.isArray(o)) return o.forEach(walk);
+			if (!isObj(o)) return;
+			if (typeof o._id === 'string') byId.set(o._id, o);
+			for (const [k, v] of Object.entries(o)) if (k !== '_parent') walk(v);
+		})(json);
+		const view = [...byId.values()].find(
+			(v) =>
+				v._type === 'UMLClassView' &&
+				nameOf(byId.get((v.model as J).$ref as string)) === 'GraphGenerator'
+		)!;
+		const ops = (view.subViews as J[]).find((s) => s._type === 'UMLOperationCompartmentView')!;
+		view.suppressOperations = true;
+		ops.visible = false;
+		(ops.subViews as J[]).pop();
+		return json;
+	};
+
+	it('saves back unchanged, twice', () => {
+		const json = stale();
+		const { project } = parseMdjText(JSON.stringify(json));
+		expect(jsonDiff(json, serializeMdj(project))).toEqual([]);
+		expect(jsonDiff(json, serializeMdj(project))).toEqual([]);
+	});
+
+	it('still drops the view of an operation that was deleted', () => {
+		const json = stale();
+		const { project } = parseMdjText(JSON.stringify(json));
+		const c = [...project.elements.values()].find(
+			(e) => e.kind === 'classifier' && e.name === 'GraphGenerator'
+		) as Classifier;
+		const gone = c.operations[0].id;
+		c.operations.shift();
+		const out = JSON.stringify(serializeMdj(project));
+		expect(out).not.toContain(`"model":{"$ref":"${gone}"}`);
+	});
+});

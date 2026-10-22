@@ -881,13 +881,38 @@ class Serializer {
 		}
 
 		// Member views: one per member, in model order, keyed by model ref.
+		const render = (kind: 'attribute' | 'operation' | 'literal', m: { id: Id }) =>
+			renderMember(kind, m as never, {
+				showVisibility: true,
+				showType: true,
+				showMultiplicity: true,
+				showOperationSignature: true,
+				showProperty: true
+			});
 		const members = (
 			comp: Json,
 			type: string,
 			kind: 'attribute' | 'operation' | 'literal',
-			list: { id: Id }[]
+			list: { id: Id }[],
+			hidden: boolean
 		) => {
 			const old = arr(comp.subViews).filter(isObj) as Json[];
+			// StarUML does not keep a hidden compartment's views in step with the model (the lab's
+			// reference files hold one view fewer than the class has operations there). A save
+			// leaves it as written, dropping only views of members that are gone.
+			if (hidden) {
+				const alive = new Map(list.map((m) => [m.id, m]));
+				const kept = old.filter((x) => alive.has(refOf(x.model) as Id));
+				for (const x of kept) {
+					const m = alive.get(refOf(x.model) as Id)!;
+					if (this.changed.has(m.id)) x.text = render(kind, m);
+				}
+				if (kept.length !== old.length) {
+					comp.subViews = kept;
+					memberChange = true;
+				}
+				return;
+			}
 			const next: Json[] = [];
 			for (const m of list) {
 				let s = old.find((x) => refOf(x.model) === m.id);
@@ -902,23 +927,16 @@ class Serializer {
 					};
 					memberChange = true;
 				}
-				if (this.changed.has(m.id) || s.text === undefined) {
-					s.text = renderMember(kind, m as never, {
-						showVisibility: true,
-						showType: true,
-						showMultiplicity: true,
-						showOperationSignature: true,
-						showProperty: true
-					});
-				}
+				if (this.changed.has(m.id) || s.text === undefined) s.text = render(kind, m);
 				next.push(s);
 			}
 			if (old.length !== next.length) memberChange = true;
 			if (next.length || Array.isArray(comp.subViews)) comp.subViews = next;
 		};
-		members(attrComp, 'UMLAttributeView', 'attribute', c.attributes);
-		members(opComp, 'UMLOperationView', 'operation', c.operations);
-		if (litComp) members(litComp, 'UMLEnumerationLiteralView', 'literal', c.literals);
+		members(attrComp, 'UMLAttributeView', 'attribute', c.attributes, flags.suppressAttributes);
+		members(opComp, 'UMLOperationView', 'operation', c.operations, flags.suppressOperations);
+		if (litComp)
+			members(litComp, 'UMLEnumerationLiteralView', 'literal', c.literals, flags.suppressLiterals);
 
 		if (moved || memberChange)
 			this.layoutCompartments(
