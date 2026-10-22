@@ -10,6 +10,8 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	// The docs site (Nimbus, Astro) is its own project, with its own lockfile and checks.
+	{ ignores: ['docs-site/'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

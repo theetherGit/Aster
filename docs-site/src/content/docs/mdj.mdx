@@ -1,0 +1,62 @@
+---
+title: .mdj compatibility
+description: Which StarUML files Aster opens, what it keeps when it saves them back, and how that is tested.
+sidebar:
+  order: 2
+---
+
+Aster reads and writes StarUML's `.mdj` format itself; there is no import step and no conversion. A file you open in Aster and save goes back to StarUML with your edits and nothing else changed.
+
+## Opening a file
+
+Press <kbd>⌘O</kbd> (<kbd>Ctrl+O</kbd> on Windows and Linux), or drop the file anywhere on the window. Aster opens:
+
+- **`.mdj`**, in both of StarUML's file styles: StarUML 2 and 3 write every field, and StarUML 4 and later leave out fields at their default value.
+- **`.aster`**, Aster's own format (below).
+- **`.mfj`** fragments, through **Import fragment…** in the command palette (<kbd>⌘K</kbd>). The fragment's model goes into the selected package, and its diagrams open as tabs.
+
+The file is read in your browser. Nothing is uploaded: Aster has no server for your files, no account and no telemetry.
+
+## What you see, and what is kept
+
+Class diagrams open as StarUML drew them: every class where StarUML left it, every line with its style, colours and the display options of each view.
+
+Everything else in the file is kept, even what Aster cannot show yet: sequence, use case and other diagrams, profiles, tags, constraints, association classes, template parameters, and fields Aster does not know. The whole file is written back as it was read, apart from your edits.
+
+Every element keeps its StarUML `_id`, so references from parts of the model Aster does not show still point at the right element after a save.
+
+## Saving
+
+| You press | What happens |
+| --- | --- |
+| <kbd>⌘S</kbd> on a file you opened | In Chrome and Edge, Aster writes the file back in the format you opened it in; the first save after a reload asks for permission in a small bar. Firefox and Safari cannot write to files: the project is saved in the browser, and a notice offers **Download .mdj**. |
+| <kbd>⌘S</kbd> on a new project | The project is saved in this browser, and a notice offers **Download .mdj**. |
+| <kbd>⌘⇧S</kbd> | Save as. Chrome and Edge ask where to save, as `.mdj` or `.aster`; other browsers download a copy in the project's format. |
+| <kbd>⌘⇧E</kbd>, then **Project** | Downloads the project as `.mdj` or `.aster`, without changing the file you are working on. |
+
+Aster also autosaves every change in the browser, with your undo history. If you open the same file again and its bytes have not changed, you get your autosave back, undo history included. If the file has changed since, for example because you edited it in StarUML, the file wins.
+
+A project that lives only in the browser shows a banner until you save it to a file. Browsers can clear their storage, so download anything you want to keep.
+
+## The `.aster` format
+
+`.aster` is Aster's own save format: the project as JSON, with a `$schema` and a version number. It holds exactly what Aster holds, including the parts of a `.mdj` it keeps without showing, so a `.mdj` saved as `.aster` and back loses nothing. For work you share with StarUML users, stay with `.mdj`.
+
+## How compatibility is tested
+
+Every change to Aster runs a golden test over fifteen public `.mdj` files taken unedited from open-source projects on GitHub, under MIT and BSD licences, in both file styles. Each file must:
+
+- open, and save back to the same JSON with no edits;
+- save back with only the name changed after one class is renamed.
+
+The files and their sources are listed in [`fixtures/mdj/SOURCES.md`](https://github.com/theetherGit/Aster/blob/main/fixtures/mdj/SOURCES.md).
+
+## Found a file that does not round-trip?
+
+[Open an issue](https://github.com/theetherGit/Aster/issues/new) with the file attached, or a smaller copy that still shows the problem, and say what changed after saving. Files that fail become tests.
+
+## Known differences
+
+- **Word wrap** is kept in the file but does not wrap names on the canvas yet.
+- **Fonts**: Aster draws diagrams in Source Sans 3, so text is a little wider or narrower than in StarUML, and so are classes sized to their content.
+- **Font per element**, set in StarUML's Style Editor, is kept but not shown.

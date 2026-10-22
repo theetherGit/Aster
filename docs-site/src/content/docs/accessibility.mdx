@@ -1,0 +1,45 @@
+---
+title: Accessibility
+description: How Aster works from the keyboard, with a screen reader and in high contrast, and how far it has been tested.
+sidebar:
+  order: 5
+---
+
+Aster aims at WCAG 2.2 AA. A diagramming tool that only works with a mouse leaves people out of a class that uses it, so everything below is a requirement for every change, not polish added later.
+
+## From the keyboard
+
+- **Every action is reachable.** Most have a key ([keyboard reference](/keyboard/)); the rest are in the command palette, <kbd>⌘K</kbd>.
+- **The canvas is one Tab stop.** Inside it, the arrow keys move between classes by where they sit on the diagram, and <kbd>Tab</kbd> goes through the parts of a class: its name, attributes and operations.
+- **Nothing needs a drag.** <kbd>⌘</kbd> with an arrow moves a class, <kbd>L</kbd> links it to another, and the Outline's menu (<kbd>⇧F10</kbd>) creates relationships from the tree.
+- **Focus is always visible**, as a dashed ring in the accent colour.
+
+## With a screen reader
+
+- **The Outline** is a tree of the whole model, and you can edit there: add classes, rename, write members, reorder, link and delete.
+- **The Text view** holds the diagram as PlantUML text in a standard text editor. Edits apply to the diagram, and the editor reports the lines it cannot read.
+- **Changes are announced**: what a command did, what undo and redo reverted, and a summary of each class as focus reaches it.
+- Glyphs such as <kbd><span aria-hidden="true">⌘⇧E</span><span class="sr-only">Command Shift E</span></kbd> are read as words.
+
+## Seeing the diagram
+
+- **Themes**: light, dark, and high contrast with white edges on black and a yellow accent, or the system's choice. <kbd>⌘⌥T</kbd> goes through them.
+- **Windows' forced colours** (Contrast themes) are followed.
+- **Contrast**: text is at least 4.5:1 and control edges 3:1 in every theme.
+- **Colour is never the only signal.** Relationship kinds differ in line pattern and arrowhead, and a line Aster cannot read is underlined as well as coloured.
+- **Reduced motion** is honoured: panels stop sliding.
+
+## How far it is tested
+
+Automated tests run on every change. They cover the keys, the tree's roles and states, the announcements, the token contrast ratios, and keyboard-only runs of whole exercises, from an empty diagram to a saved `.mdj`.
+
+They do not prove the criteria. Two things are still to come:
+
+- **A run by people with screen readers**, VoiceOver on macOS and NVDA on Windows, following a written script. Until it has been run and logged, no criterion is marked as passing.
+- **An automated axe scan** on every change.
+
+The criterion-by-criterion record is in [`docs/accessibility-audit.md`](https://github.com/theetherGit/Aster/blob/main/docs/accessibility-audit.md): which test covers what, and which step of the script a person must run.
+
+## Report a barrier
+
+If something in Aster does not work with your keyboard, screen reader or settings, [open an issue](https://github.com/theetherGit/Aster/issues/new) and say what you used and what happened.

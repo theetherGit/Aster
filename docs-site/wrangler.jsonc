@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "aster-docs",
+	"compatibility_date": "2026-10-12",
+	// The docs live under the app's domain. A route runs before asteruml.app's custom domain (the
+	// app's Worker, ../wrangler.jsonc), so /docs is served here and every other path by the app.
+	// The two discovery files sit at the origin root, where the docs' Link headers point.
+	"routes": [
+		{ "pattern": "asteruml.app/docs", "zone_name": "asteruml.app" },
+		{ "pattern": "asteruml.app/docs/*", "zone_name": "asteruml.app" },
+		{ "pattern": "asteruml.app/.well-known/ard.json", "zone_name": "asteruml.app" },
+		{ "pattern": "asteruml.app/.well-known/ai-catalog.json", "zone_name": "asteruml.app" }
+	],
+	"assets": {
+		// The build puts pages under dist/docs/, the path they are served at.
+		"directory": "./dist",
+		"not_found_handling": "404-page"
+	}
+}

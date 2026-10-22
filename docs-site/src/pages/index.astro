@@ -1,0 +1,109 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import { LinkButton } from "../components/ui/link-button";
+import { config } from "virtual:nimbus/config";
+import { getIndexedEntries, withBase } from "@cloudflare/nimbus-docs/runtime";
+
+// The home is an index of the questions a StarUML user asks first (the owner's ruling: StarUML
+// users comparing are the first audience), each answered in a line and linked to its page.
+// Links go through each page's entry, so a page that is gone drops out instead of 404ing.
+const questions = [
+  {
+    id: "mdj",
+    q: "Will my .mdj files open?",
+    a: "Yes, in both of StarUML's file styles. What Aster cannot show yet is kept and saved back unchanged.",
+  },
+  {
+    id: "parity",
+    q: "What differs from StarUML?",
+    a: "StarUML's features one by one: what matches, what works differently, and what is planned.",
+  },
+  {
+    id: "keyboard",
+    q: "Do my keys still work?",
+    a: "Aster uses StarUML's own key wherever it has one. Every key, on macOS and on Windows and Linux.",
+  },
+  {
+    id: "tour",
+    q: "Where do I start?",
+    a: "Draw, link, tidy and save a class diagram in five minutes, from the keyboard.",
+  },
+  {
+    id: "accessibility",
+    q: "Is it accessible?",
+    a: "What works with a keyboard, a screen reader and high contrast, and how far it has been tested.",
+  },
+  {
+    id: "contributing",
+    q: "Can I help?",
+    a: "Set up, run the tests, and the rules every change follows.",
+  },
+];
+const entries = await getIndexedEntries();
+const links = questions.flatMap((item) => {
+  const entry = entries.find((e) => e.collection === "docs" && e.entry.id === item.id);
+  return entry ? [{ ...item, href: withBase(entry.url, import.meta.env.BASE_URL) }] : [];
+});
+const tour = links.find((l) => l.id === "tour");
+---
+
+<BaseLayout title={config.title} description={config.description}>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main id="main-content" tabindex="-1" class="mx-auto w-full max-w-2xl flex-1 px-6 py-16 sm:py-24">
+      <h1
+        class="min-w-0 leading-tight text-foreground [overflow-wrap:anywhere]"
+        style="font-size: var(--nb-h1-size); font-weight: var(--nb-h1-weight); letter-spacing: var(--nb-h1-tracking);"
+      >
+        Aster docs
+      </h1>
+      <p class="mt-3 text-[1.0625rem] leading-relaxed text-muted-foreground">
+        Aster draws UML class diagrams in the browser, and opens and saves StarUML's <code
+          class="font-mono text-[0.9375rem] text-foreground">.mdj</code
+        > files. There is nothing to install, and nothing leaves your computer.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <LinkButton href="https://asteruml.app/" variant="primary">Open Aster</LinkButton>
+        {tour && <LinkButton href={tour.href} variant="secondary">Take the tour</LinkButton>}
+      </div>
+
+      <h2
+        class="mt-16 text-foreground"
+        style="font-size: var(--nb-h2-size); font-weight: var(--nb-h2-weight); letter-spacing: var(--nb-h2-tracking);"
+      >
+        Coming from StarUML
+      </h2>
+      <dl class="mt-4 border-t border-border">
+        {
+          links.map((l) => (
+            <div class="border-b border-border py-4">
+              <dt>
+                <a
+                  href={l.href}
+                  class="font-semibold whitespace-nowrap text-link underline decoration-1 underline-offset-3 hover:decoration-2"
+                >
+                  {l.q}
+                </a>
+              </dt>
+              <dd class="mt-1 text-[0.9375rem] leading-relaxed text-muted-foreground">{l.a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </main>
+    <footer class="border-t border-border">
+      <p class="mx-auto w-full max-w-2xl px-6 py-6 text-sm text-muted-foreground">
+        Aster is free and open source, under the MIT licence. Made by <a
+          href="https://ethercorps.io"
+          rel="noopener"
+          class="text-link underline underline-offset-3">EtherCorps</a
+        >; the source is <a
+          href="https://github.com/theetherGit/Aster"
+          rel="noopener"
+          class="text-link underline underline-offset-3">on GitHub</a
+        >.
+      </p>
+    </footer>
+  </div>
+</BaseLayout>

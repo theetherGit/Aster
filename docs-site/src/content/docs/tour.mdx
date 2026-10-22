@@ -1,0 +1,82 @@
+---
+title: Five-minute tour
+description: Draw a small class diagram from the keyboard, tidy it, check it, and save it as a .mdj StarUML opens.
+sidebar:
+  order: 4
+---
+
+This tour draws an account, a savings account and a customer, links them, and saves the result as a `.mdj`. Keys are shown for macOS; on Windows and Linux, <kbd>⌘</kbd> is <kbd>Ctrl</kbd>, <kbd>⌥</kbd> is <kbd>Alt</kbd> and <kbd>↩</kbd> is <kbd>Enter</kbd>.
+
+## 1. Start a diagram
+
+Open [asteruml.app](https://asteruml.app/). There is nothing to install and no account. Choose **New diagram** (<kbd>⌘N</kbd>). To work on a StarUML file instead, choose **Open file** (<kbd>⌘O</kbd>) or drop the `.mdj` on the window.
+
+<Aside type="tip" title="StarUML's layout">
+  <kbd>⌘⇧L</kbd> switches to the Classic layout: StarUML's menus, Model Explorer, toolbox and editors in the places you know. Press it again to come back.
+</Aside>
+
+## 2. Make a class
+
+Point at an empty spot and press <kbd>C</kbd>. A class appears with its name selected.
+
+1. Type `Account` and press <kbd>↩</kbd>. The first attribute line opens.
+2. Type `- balance: float = 0` and press <kbd>↩</kbd> for the next line, or <kbd>Tab</kbd> to move to the operations.
+3. Type `+ deposit(amount: float): void`.
+4. Press <kbd>Esc</kbd> when you are done.
+
+Lines are StarUML's member syntax. While you type, a chip under the class says how Aster reads the line. A line it cannot read is kept as you typed it, with an amber wavy underline, so nothing you write is lost.
+
+Make two more the same way: `SavingsAccount` with `- rate: float`, and `Customer` with `- name: String`. <kbd>I</kbd>, <kbd>E</kbd> and <kbd>D</kbd> make an interface, an enumeration and a data type; <kbd>N</kbd> makes a note.
+
+## 3. Connect them
+
+Select `SavingsAccount`, then press <kbd>L</kbd>. Move to `Account` with the arrow keys and press <kbd>↩</kbd>. Pick the kind with its number:
+
+| Key | Relationship |
+| --- | --- |
+| <kbd>1</kbd> | Association |
+| <kbd>2</kbd> | Aggregation |
+| <kbd>3</kbd> | Composition |
+| <kbd>4</kbd> | Generalization |
+| <kbd>5</kbd> | Realization |
+| <kbd>6</kbd> | Dependency |
+
+Press <kbd>4</kbd>: a savings account is an account. The line runs from the class you selected to the one you picked, so the triangle points at `Account`. For an aggregation or composition, start from the part: the diamond goes on the whole.
+
+Now link `Customer` to `Account` with <kbd>1</kbd>, an association. With the line selected, the inspector on the right sets its role names and multiplicities.
+
+## 4. Edit in place
+
+Double-click any name or line to edit it, or select it and press <kbd>F2</kbd> or <kbd>↩</kbd>. <kbd>⌘↩</kbd> adds an attribute below the one you are on, and <kbd>⌘⇧↩</kbd> an operation, as in StarUML.
+
+<kbd>⌘Z</kbd> undoes, up to 500 steps back, and the history survives a reload.
+
+## 5. Tidy it
+
+Press <kbd>⌘K</kbd> for the command palette, type `layout` and choose **Auto-layout: Layered, top to bottom**. Superclasses go above their subclasses, and nothing overlaps. Orthogonal layout draws right-angled lines instead.
+
+Move a class by dragging it, or select it and press <kbd>⌘</kbd> with an arrow key. <kbd>⌘G</kbd> shows the grid, and <kbd>⌘⇧G</kbd> snaps to it.
+
+## 6. Check it
+
+In the command palette, choose **Validation panel**. It lists what StarUML's validation rules would flag, such as two classes with the same name, and jumps to each one.
+
+Choose **Text view (PlantUML)** to see the whole diagram as text. Edit the text and the diagram follows; edit the diagram and the text follows.
+
+## 7. Save and hand in
+
+Press <kbd>⌘S</kbd>. A new project is saved in the browser, and the notice offers **Download .mdj**: that file opens in StarUML. A file you opened is written back to itself in Chrome and Edge. See [.mdj compatibility](/mdj/) for what each browser does.
+
+<kbd>⌘⇧E</kbd> opens the export sheet:
+
+- **Image**: PNG at 1× or 2×, or SVG, of the diagram or the selection.
+- **PDF**: one page, A4, A3 or Letter.
+- **Text**: Mermaid or PlantUML.
+- **Project**: `.mdj` or Aster's own `.aster`.
+
+<kbd>⌘⇧C</kbd> copies the diagram as a PNG, ready to paste into a report.
+
+## Next
+
+- Press <kbd>?</kbd> in Aster for every key, or read the [keyboard reference](/keyboard/).
+- [Coming from StarUML](/parity/) goes through what matches StarUML and what differs.

@@ -1,0 +1,22 @@
+# Declines install scripts for esbuild and sharp (they ship prebuilds),
+# clearing pnpm's build-scripts gate. Adding a package here lets it run scripts.
+packages: []
+supportedArchitectures:
+  cpu:
+    - current
+    - wasm32
+allowBuilds: # pnpm 11
+  esbuild: false
+  sharp: false
+  workerd: false
+ignoredBuiltDependencies: # pnpm 10
+  - esbuild
+  - sharp
+  - workerd
+minimumReleaseAgeExclude:
+    - '@astrojs/markdown-satteri@0.4.5'
+    - '@astrojs/prism@4.1.1'
+    - '@astrojs/telemetry@3.4.1'
+    - astro@7.4.2
+    - '@astrojs/check@0.9.12'
+    - '@astrojs/language-server@2.17.3'

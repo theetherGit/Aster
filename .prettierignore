@@ -23,3 +23,6 @@ docs/design/html/
 
 # Hairline bench pages and look sheets: design artifacts, kept as built
 docs/figures/
+
+# The docs site (Nimbus, Astro) is its own project, formatted by its own conventions
+docs-site/

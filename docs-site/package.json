@@ -1,0 +1,36 @@
+{
+  "name": "aster-docs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "rm -rf dist && astro build && mv dist/docs/_headers dist/docs/.well-known dist/",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "lint:docs": "nimbus-docs lint",
+    "lint:docs:fix": "nimbus-docs lint --fix",
+    "prepreview:cf": "pnpm run build",
+    "preview:cf": "wrangler dev",
+    "predeploy": "astro check && pnpm run build",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@cloudflare/nimbus-docs": "^0.18.1",
+    "@iconify-json/ph": "^1.2.0",
+    "astro": "7.4.2",
+    "astro-og-canvas": "^0.13.0",
+    "canvaskit-wasm": "^0.41.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@astrojs/language-server": "2.17.3",
+    "@tailwindcss/vite": "^4.1.4",
+    "pagefind": "^1.5.2",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.95.0"
+  }
+}

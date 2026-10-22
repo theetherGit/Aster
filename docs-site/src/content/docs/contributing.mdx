@@ -1,0 +1,65 @@
+---
+title: Contributing
+description: Set up Aster, run its tests, and the rules every change follows.
+sidebar:
+  order: 6
+---
+
+Aster is MIT-licensed and [on GitHub](https://github.com/theetherGit/Aster). The full guide is [`CONTRIBUTING.md`](https://github.com/theetherGit/Aster/blob/main/CONTRIBUTING.md); this page is the short version.
+
+## Set up
+
+You need Node 24 and pnpm.
+
+```sh
+pnpm install
+pnpm exec playwright install chromium   # once
+pnpm dev                                # http://localhost:5173
+```
+
+Ask before adding a dependency.
+
+## Run the tests
+
+| Command | What it runs |
+| --- | --- |
+| `pnpm test` | Unit tests: the member grammar, every command and its undo, the `.mdj` golden tests, contrast of the colour tokens, and this site's keyboard reference and theme. |
+| `pnpm test:e2e` | Browser tests against the production build: keyboard-only flows, open and save, export, screenshots. |
+| `pnpm lint` | Prettier and ESLint. |
+| `pnpm check` | Strict TypeScript and Svelte checks. |
+
+Everything is green before a commit.
+
+## The rules every change follows
+
+- **The model is the one source of truth.** Every user action is a command that returns its inverse, so everything can be undone. Nothing on the canvas is changed directly.
+- **Accessibility is a requirement.** Real buttons, links and labelled inputs; targets of at least 24 × 24 px; focus always visible; 4.5:1 text contrast; a keyboard or menu way to do every drag. A change that cannot meet this stops and says so.
+- **Keys come from the spec.** Where StarUML has a key for the same action, Aster uses it. A new key goes into `docs/spec/keyboard.md` first.
+- **Deviations are written down.** A change that departs from `docs/spec/` adds one dated line with the reason to `DECISIONS.md`, in the same commit.
+- **Commits** are conventional, one logical change each, and never break the build.
+
+## Add a command
+
+1. If it changes the model, write it in `src/lib/commands/` with `define`, returning its inverse, with a unit test that runs it and undoes it.
+2. Register the action once in `src/lib/app/commands.svelte.ts`: its group, its label through `src/lib/i18n`, its keys from the spec, and what it runs.
+
+The keyboard, the command palette, the <kbd>?</kbd> sheet and this site's [keyboard reference](/keyboard/) all read that one list.
+
+## Report a `.mdj` that does not round-trip
+
+[Open an issue](https://github.com/theetherGit/Aster/issues/new) with the file, or a smaller copy that still shows the problem. See [.mdj compatibility](/mdj/).
+
+## This site
+
+The docs are a [Nimbus](https://nimbus-docs.com) site in `docs-site/`, a project of its own with its own lockfile, served at `/docs` by a separate Worker. Pages are MDX in `docs-site/src/content/docs/`.
+
+```sh
+cd docs-site
+pnpm install
+pnpm dev
+```
+
+Two parts are written by the app's tests, not by hand:
+
+- the [keyboard reference](/keyboard/), from the command registry: run `pnpm test -u` at the root after changing a key;
+- the colours, which must match the app's `src/lib/ui/tokens.css`: the test names the value that drifted.
