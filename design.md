@@ -39,7 +39,7 @@ spec's table, kept as hex (4.5:1 text, 3:1 edges in every theme, checked by `tes
 
 ## Type
 
-- Chrome · `--font-chrome` (system UI) at `--text-body` 13 px; captions 11–12 px; field text 14 px; sheet titles 17 px; the welcome's name 28 px. Weights 400 and 600 only. No italic in chrome.
+- Chrome · `--font-chrome` (system UI) at `--text-body` 13 px; captions 11–12 px; field text 14 px; sheet titles 17 px; the welcome's name 28 px. Weights 400 and 600, and 500 for Secondary and Ghost button labels only. No italic in chrome.
 - Paper · `--font-paper` (bundled Source Sans 3) at 12 px for members, 13 px semibold for names. Italic means abstract, underline means static (UML, not style).
 - Mono · `--font-mono` only in the inline member editor and the Text view.
 
@@ -72,8 +72,8 @@ Rules:
 ## CTA voice
 
 - Primary · `--accent-fill` with `--on-accent`, `--control-radius`, 12 px side padding, weight 600 (Download, Save and open, New diagram on the welcome)
-- Secondary · `--control-border` outline on `--chrome-surface`, same radius, weight 500 (Export, Cancel, Copy)
-- Ghost · no border, `--chrome-muted` text, hover to `--chrome-text` (Preview, Clear, Dismiss)
+- Secondary · `--control-border` outline on `--chrome-surface`, same radius, weight 500 (Export, Copy)
+- Ghost · no border, `--chrome-muted` text, hover to `--chrome-text`, weight 500 (Preview, Clear, Dismiss, Cancel)
 - Danger · `--danger` fill with `--on-accent`, only on the confirm of a destructive action
 - Buttons are one line; labels are verbs; a disabled control says why in its tooltip
 

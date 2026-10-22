@@ -375,6 +375,31 @@ test('⌘S keeps a browser-only project in the browser and offers a download, ne
 	await expect(node(page, 'Book')).toBeVisible();
 });
 
+test('the ⌘S notice stands in for the browser-only banner while it is up: one Download', async ({
+	page
+}) => {
+	await page.goto('/design/new');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.mouse.move(640, 420);
+	await create(page, 'c', 'Order');
+	await page.keyboard.press('Escape');
+	const banner = page.getByRole('region', { name: 'Not saved to a file' });
+	await expect(banner).toBeVisible();
+	const toolbox = page.getByRole('toolbar', { name: 'Toolbox' });
+	const top = (await toolbox.boundingBox())!.y;
+
+	await page.keyboard.press('ControlOrMeta+s');
+	const toast = page.getByTestId('toast');
+	await expect(toast).toContainText('Saved in this browser only.');
+	await expect(banner).toHaveCount(0);
+	await expect(page.getByRole('button', { name: 'Download .mdj' })).toHaveCount(1);
+	// The banner's room is kept, so the toolbox does not jump up and back.
+	expect((await toolbox.boundingBox())!.y).toBe(top);
+
+	await toast.getByRole('button', { name: 'Dismiss' }).click();
+	await expect(banner).toBeVisible();
+});
+
 test('⌘S writes a linked file without a dialog once the browser allows it', async ({ page }) => {
 	const text = readFileSync(fixture('public-vrview.mdj'), 'utf8');
 	await page.addInitScript((t) => {

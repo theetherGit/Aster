@@ -200,9 +200,12 @@
 		document.title = title;
 	});
 
-	const showBanner = $derived(
+	const bannerDue = $derived(
 		files.state === 'never' && projectStore.canUndo && !files.bannerDismissed && !ui.sampleStrip
 	);
+	// Owner's ruling (2026-10-22): the ⌘S notice stands in for the banner while it is up, so one
+	// Download .mdj shows. The banner's room is kept (bannerDue), so the toolbox does not jump.
+	const showBanner = $derived(bannerDue && !ui.toast?.save);
 	let copiedName = $state(false);
 	async function copyName() {
 		if (!files.current) return;
@@ -300,7 +303,7 @@
 					<main
 						id="canvas"
 						class="relative min-h-0 min-w-0 flex-1"
-						style:--canvas-inset-top={showBanner || ui.sampleStrip ? '40px' : '0px'}
+						style:--canvas-inset-top={bannerDue || ui.sampleStrip ? '40px' : '0px'}
 						data-panel="canvas"
 					>
 						<!-- The toolbox precedes the canvas in the DOM so Tab reaches the canvas after it. -->
