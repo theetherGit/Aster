@@ -16,8 +16,12 @@ import { GRID } from './place.ts';
 export type Algorithm = 'layered' | 'orthogonal';
 export type Direction = 'DOWN' | 'UP' | 'RIGHT' | 'LEFT';
 export interface LayoutInput {
-	/** In the diagram's own order, which seeds ELK; `x`, `y` (where it is now) order the loose block. */
-	nodes: { id: Id; w: number; h: number; x?: number; y?: number }[];
+	/**
+	 * In the diagram's own order, which seeds ELK; `x`, `y` (where it is now) order the loose block.
+	 * `parent`: the package frame in the layout that holds this node (M3.1). `frame`: this node is
+	 * a package frame, sized by ELK to hold its members.
+	 */
+	nodes: { id: Id; w: number; h: number; x?: number; y?: number; parent?: Id; frame?: boolean }[];
 	/**
 	 * `upward`: the target belongs above the source (generalisation, realisation: parents on top).
 	 * `labelled`: the edge carries a name, stereotype, role or multiplicity.
@@ -35,7 +39,13 @@ export interface LayoutResult {
 	positions: Map<Id, Point>;
 	/** Interior bend points, in the edge's own source → target order. */
 	waypoints: Map<Id, Point[]>;
+	/** Package frames' new sizes, fitted to what they hold. */
+	sizes: Map<Id, { w: number; h: number }>;
 }
+
+/** ui.md: a package is at least 240 × 160 and its tab 24 px high; members sit a grid step inside. */
+const FRAME_MIN = '(240.0,160.0)';
+const FRAME_PADDING = `[top=${24 + GRID * 2},left=${GRID * 2},bottom=${GRID * 2},right=${GRID * 2}]`;
 
 const GAP = GRID * 2;
 
@@ -48,12 +58,18 @@ export async function layout(
 	const vertical = direction === 'DOWN' || direction === 'UP';
 	const linked = new Set(input.edges.flatMap((e) => [e.source, e.target]));
 	const nodes = input.nodes;
-	const graphed = nodes.filter((n) => linked.has(n.id));
+	// A package frame and what it holds go to ELK as one compound node; only a lone box at the top
+	// level goes to the loose block.
+	const frames = new Set(nodes.filter((n) => n.frame).map((n) => n.id));
+	const parentOf = (n: LayoutInput['nodes'][number]) =>
+		n.parent && frames.has(n.parent) ? n.parent : undefined;
+	const graphed = nodes.filter((n) => linked.has(n.id) || frames.has(n.id) || parentOf(n));
+	const hierarchical = frames.size > 0;
 	// The loose block keeps the order its boxes have now, read the way the block fills: down the
 	// columns beside a top-to-bottom layout, along the rows otherwise. A re-run refills it as is.
 	const byColumn = graphed.length > 0 && vertical;
 	const loose = nodes
-		.filter((n) => !linked.has(n.id))
+		.filter((n) => !graphed.includes(n))
 		.sort((a, b) => {
 			const [ax, ay, bx, by] = [a.x ?? 0, a.y ?? 0, b.x ?? 0, b.y ?? 0];
 			return byColumn ? ax - bx || ay - by : ay - by || ax - bx;
@@ -97,6 +113,7 @@ export async function layout(
 
 	const positions = new Map<Id, Point>();
 	const waypoints = new Map<Id, Point[]>();
+	const sizes = new Map<Id, { w: number; h: number }>();
 	let main = { right: 0, bottom: 0 };
 
 	if (graphed.length) {
@@ -120,20 +137,51 @@ export async function layout(
 				'elk.spacing.edgeEdge': String(labelled ? GRID : GRID / 2),
 				'elk.layered.spacing.edgeEdgeBetweenLayers': String(labelled ? GRID : GRID / 2),
 				'elk.layered.spacing.edgeNodeBetweenLayers': String(GRID),
-				'elk.spacing.componentComponent': String(GRID * 4)
+				'elk.spacing.componentComponent': String(GRID * 4),
+				// Packages (M3.1): one layout across the frames, lines between them included, every
+				// coordinate on the root's.
+				...(hierarchical && {
+					'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
+					'elk.json.shapeCoords': 'ROOT',
+					'elk.json.edgeCoords': 'ROOT'
+				})
 			},
-			children: graphed.map((n) => ({
-				id: n.id,
-				width: n.w,
-				height: n.h,
-				...(ports.has(n.id)
-					? { ports: ports.get(n.id), layoutOptions: { 'elk.portConstraints': 'FREE' } }
-					: {})
-			})),
+			children: elkChildren(undefined),
 			edges: elkEdges
 		};
+		function elkChildren(parent: Id | undefined): ElkNode[] {
+			return graphed
+				.filter((n) => parentOf(n) === parent)
+				.map((n): ElkNode =>
+					frames.has(n.id)
+						? {
+								id: n.id,
+								width: n.w,
+								height: n.h,
+								layoutOptions: {
+									'elk.padding': FRAME_PADDING,
+									'elk.nodeSize.constraints': '[MINIMUM_SIZE]',
+									'elk.nodeSize.minimum': FRAME_MIN
+								},
+								children: elkChildren(n.id)
+							}
+						: {
+								id: n.id,
+								width: n.w,
+								height: n.h,
+								...(ports.has(n.id)
+									? { ports: ports.get(n.id), layoutOptions: { 'elk.portConstraints': 'FREE' } }
+									: {})
+							}
+				);
+		}
 		const out = await elk.layout(graph);
-		const placed = out.children ?? [];
+		const flat = (list: ElkNode[]): ElkNode[] =>
+			list.flatMap((n) => [n, ...flat(n.children ?? [])]);
+		const placed = flat(out.children ?? []);
+		for (const n of placed)
+			if (frames.has(n.id))
+				sizes.set(n.id, { w: Math.round(n.width ?? 0), h: Math.round(n.height ?? 0) });
 		const dx = -Math.min(...placed.map((n) => n.x ?? 0));
 		const dy = -Math.min(...placed.map((n) => n.y ?? 0));
 		const shift = (p: { x: number; y: number }) => ({ x: p.x + dx, y: p.y + dy });
@@ -214,7 +262,7 @@ export async function layout(
 	const place = (p: Point) => ({ x: Math.round(p.x + ox), y: Math.round(p.y + oy) });
 	for (const [id, p] of positions) positions.set(id, place(p));
 	for (const [id, points] of waypoints) waypoints.set(id, points.map(place));
-	return { positions, waypoints };
+	return { positions, waypoints, sizes };
 }
 
 /** Each node's depth in the generalisation / realisation hierarchy: 0 at the top, a parent's + 1 below. */

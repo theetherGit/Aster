@@ -336,13 +336,37 @@ export async function autoLayout(algorithm: Algorithm, direction: Direction) {
 	const diagramId = d.id;
 	const all = drawnNodes();
 	const picked = selectedWith('node');
-	// The diagram's own order, whatever order the selection was made in: it seeds ELK (stable).
-	const ids = picked.length >= 2 ? all.filter((id) => picked.includes(id)) : all;
+	// The diagram's own order, whatever order the selection was made in: it seeds ELK (stable). A
+	// picked package brings what it holds (M3.1).
+	const scoped = new Set(withMembers(picked));
+	const ids = picked.length >= 2 ? all.filter((id) => scoped.has(id)) : all;
 	if (ids.length < 2) return;
 	const rects = rectsOf(ids);
 	const inScope = new Set(rects.keys());
+	const project = projectStore.project;
+	/** The nearest package that holds `id` and is laid out with it: its frame is the node's parent. */
+	const frameOf = (id: Id): Id | undefined => {
+		const seen = new Set<Id>();
+		const el = project.elements.get(id);
+		for (let o = el && ownerOf(el); o && !seen.has(o);) {
+			if (inScope.has(o)) return o;
+			seen.add(o);
+			const up = project.elements.get(o);
+			o = up && ownerOf(up);
+		}
+		return undefined;
+	};
 	const input: LayoutInput = { nodes: [], edges: [] };
-	for (const [id, r] of rects) input.nodes.push({ id, w: r.w, h: r.h, x: r.x, y: r.y });
+	for (const [id, r] of rects)
+		input.nodes.push({
+			id,
+			w: r.w,
+			h: r.h,
+			x: r.x,
+			y: r.y,
+			parent: frameOf(id),
+			frame: kindOf(id) === 'package'
+		});
 	const laidOut: Id[] = [];
 	const leaving: Id[] = [];
 	for (const id of d.elementIds) {
@@ -398,6 +422,12 @@ export async function autoLayout(algorithm: Algorithm, direction: Direction) {
 	const positions = [...out.positions].map(([id, at]) => ({ id, ...at }));
 	const lineStyle: LineStyle = algorithm === 'orthogonal' ? 'rectilinear' : 'oblique';
 	const commands = [serialise(setNodePositions(p, { diagramId, positions }))];
+	// Package frames take the size that holds what ELK put in them.
+	for (const [id, { w, h }] of out.sizes) {
+		const l = d.layout.get(id);
+		if (l?.kind === 'node' && (l.w !== w || l.h !== h))
+			commands.push(serialise(resizeNode(p, { diagramId, id, w, h })));
+	}
 	for (const id of laidOut) {
 		const l = d.layout.get(id);
 		if (l?.kind !== 'edge') continue;

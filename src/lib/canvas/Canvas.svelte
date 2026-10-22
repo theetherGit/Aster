@@ -303,11 +303,15 @@
 	}
 
 	// Roving focus in the DOM: after any re-render, the owner part takes real focus, but only while
-	// the diagram has the keyboard (a selection made from the inspector must not steal it).
+	// the diagram has the keyboard (a selection made from the inspector must not steal it). The view
+	// pans to it only when focus moves: a re-render (a hover, a drag elsewhere) must never pull the
+	// view back while the reader is panning away (owner's report after auto-layout).
+	let revealed = '';
 	$effect(() => {
 		const f = selection.focus;
 		void selection.editing;
 		void flow.canvasNodes;
+		if (!f) revealed = '';
 		if (!f || selection.editing) return;
 		const active = document.activeElement;
 		if (!(active === document.body || el.contains(active))) return;
@@ -325,7 +329,11 @@
 			const owner = focusOwner(el);
 			if (owner) {
 				if (document.activeElement !== owner) owner.focus({ preventScroll: true });
-				reveal(f.id);
+				// Focus moved, or the focused element itself moved (a nudge): pan to it.
+				const l = projectStore.diagram.layout.get(f.id);
+				const key = `${f.id}/${f.part}/${l?.kind === 'node' ? `${l.x},${l.y},${l.w},${l.h}` : ''}`;
+				if (key !== revealed) reveal(f.id);
+				revealed = key;
 			} else if (tries++ < 10) requestAnimationFrame(attempt);
 		};
 		attempt();

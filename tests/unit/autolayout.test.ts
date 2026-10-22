@@ -211,3 +211,57 @@ describe('auto-layout quality (owner review, 2026-10-21)', () => {
 		}
 	});
 });
+
+describe('packages (M3.1): a frame and what it holds lay out together', () => {
+	// model ⊃ { core ⊃ { A, B }, C }; D outside; lines A→B, C→A, D→C. Frames start too small and far away.
+	const input: LayoutInput = {
+		nodes: [
+			{ id: 'model', w: 240, h: 160, x: 2000, y: 2000, frame: true },
+			{ id: 'core', w: 240, h: 160, x: 3000, y: 3000, frame: true, parent: 'model' },
+			{ id: 'A', w: 160, h: 80, parent: 'core' },
+			{ id: 'B', w: 160, h: 80, parent: 'core' },
+			{ id: 'C', w: 160, h: 80, parent: 'model' },
+			{ id: 'D', w: 160, h: 80 },
+			{ id: 'E', w: 160, h: 80, parent: 'core' }
+		],
+		edges: [
+			{ id: 'ab', source: 'A', target: 'B' },
+			{ id: 'ca', source: 'C', target: 'A' },
+			{ id: 'dc', source: 'D', target: 'C' }
+		]
+	};
+	const rect = (out: Awaited<ReturnType<typeof layout>>, id: string) => {
+		const p = out.positions.get(id)!;
+		const s = out.sizes.get(id) ?? input.nodes.find((n) => n.id === id)!;
+		return { x: p.x, y: p.y, w: s.w, h: s.h };
+	};
+	const inside = (a: ReturnType<typeof rect>, b: ReturnType<typeof rect>) =>
+		a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
+	const apart = (a: ReturnType<typeof rect>, b: ReturnType<typeof rect>) =>
+		a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y;
+
+	it.each(['layered', 'orthogonal'] as const)(
+		'%s: members inside their frames, the rest outside',
+		async (algorithm) => {
+			const out = await layout(elk, input, { algorithm, direction: 'DOWN' }, { x: 40, y: 40 });
+			const [model, core, a, b, c, d, e] = ['model', 'core', 'A', 'B', 'C', 'D', 'E'].map((id) =>
+				rect(out, id)
+			);
+			for (const m of [a, b, e]) expect(inside(m, core)).toBe(true);
+			expect(inside(core, model)).toBe(true);
+			expect(inside(c, model)).toBe(true);
+			expect(apart(c, core)).toBe(true);
+			expect(apart(d, model)).toBe(true);
+			// A member never sits under the frame's 24 px tab.
+			for (const m of [a, b, e]) expect(m.y).toBeGreaterThanOrEqual(core.y + 24);
+			expect(model.w).toBeGreaterThanOrEqual(240);
+			expect(model.h).toBeGreaterThanOrEqual(160);
+			// The lines' bends are on the same page as the boxes: within the layout's bounds.
+			for (const points of out.waypoints.values())
+				for (const p of points) {
+					expect(p.x).toBeGreaterThanOrEqual(40);
+					expect(p.x).toBeLessThanOrEqual(model.x + model.w + 400);
+				}
+		}
+	);
+});

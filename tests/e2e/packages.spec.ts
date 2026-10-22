@@ -81,3 +81,46 @@ test('packages: P, joining by inspector and by drop, members move with it, names
 	const pkgView = all.find((o) => o._type === 'UMLPackageView')!;
 	expect((pkgView.containedViews as unknown[]).length).toBe(2);
 });
+
+// Owner's report: auto-layout on the demo left every class outside the "model" frame, and the
+// view kept pulling back to the frame while the reader panned away from it.
+test('auto-layout keeps classes inside their package, and panning away from a selected frame stays put', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1600, height: 1000 });
+	await page.goto('/design/demo');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+k');
+	const palette = page.getByRole('dialog', { name: 'Command palette' });
+	await palette
+		.getByRole('combobox', { name: 'Search commands' })
+		.fill('Auto-layout (orthogonal, top to bottom)');
+	await page.keyboard.press('Enter');
+	await expect(page.getByText(/^Laid out Model\./)).toBeVisible({ timeout: 15_000 });
+	await page.keyboard.press('ControlOrMeta+9');
+	await page.waitForTimeout(400);
+
+	const frame = (await pkg(page, 'model').boundingBox())!;
+	for (const box of await page
+		.locator('.classifier-node')
+		.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON() as DOMRect))) {
+		expect(box.x).toBeGreaterThanOrEqual(frame.x);
+		expect(box.y).toBeGreaterThanOrEqual(frame.y);
+		expect(box.x + box.width).toBeLessThanOrEqual(frame.x + frame.width + 1);
+		expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
+	}
+
+	// Select the frame, pan well away, then hover a line: the view stays where it was panned.
+	await pkg(page, 'model').locator('.tab').click();
+	const viewport = page.locator('.svelte-flow__viewport');
+	const at = () => viewport.evaluate((el) => (el as HTMLElement).style.transform);
+	await page.mouse.move(800, 500);
+	await page.mouse.wheel(0, 900);
+	await page.waitForTimeout(300);
+	const panned = await at();
+	const line = page.locator('.uml-edge .edge-hit').first();
+	await line.hover({ force: true });
+	await page.mouse.move(820, 520);
+	await page.waitForTimeout(400);
+	expect(await at()).toBe(panned);
+});
