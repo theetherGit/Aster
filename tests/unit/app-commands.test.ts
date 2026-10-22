@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COMMANDS } from '#lib/app/commands.svelte.ts';
-import { ariaKeys, format, matches, parse } from '#lib/app/shortcuts.ts';
+import { ariaKeys, format, matches, parse, spoken } from '#lib/app/shortcuts.ts';
 
 const ev = (init: Partial<KeyboardEvent> & { code: string }) => init as KeyboardEvent;
 
@@ -18,6 +18,22 @@ describe('shortcuts as data', () => {
 		expect(format(parse('⌘⇧]'), true)).toBe('⌘⇧]');
 		expect(format(parse('⌫'), true)).toBe('⌫');
 		expect(format(parse('?'), false)).toBe('?');
+	});
+
+	it('names Enter and Backspace as each platform prints them on the key (Kbd audit)', () => {
+		expect(format(parse('↩'), true)).toBe('↩');
+		expect(format(parse('↩'), false)).toBe('Enter');
+		expect(format(parse('⌘↩'), false)).toBe('Ctrl+Enter');
+		expect(format(parse('⌫'), false)).toBe('Backspace');
+		expect(format(parse('Esc'), true)).toBe('Esc');
+	});
+
+	it('says a key in words for a screen reader, where the cap is a glyph', () => {
+		expect(spoken(parse('↩'), true)).toBe('Enter');
+		expect(spoken(parse('⌘⇧E'), true)).toBe('Command Shift E');
+		expect(spoken(parse('⌥↩'), false)).toBe('Alt Enter');
+		expect(spoken(parse('↑'), true)).toBe('Up arrow');
+		expect(spoken(parse('Tab'), false)).toBe('Tab');
 	});
 
 	it('spells shortcuts for aria-keyshortcuts', () => {

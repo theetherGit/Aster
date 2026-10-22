@@ -10,6 +10,7 @@
 	import Field from '#lib/ui/atoms/Field.svelte';
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import KbdGroup from '#lib/ui/atoms/KbdGroup.svelte';
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 
 	// Board 17: generated from the registry, three columns, StarUML's keys marked.
@@ -118,9 +119,9 @@
 								{#if c.staruml}<span class="star" aria-hidden="true"></span><span class="sr-only"
 										>{t('sheet.starumlKey')}</span
 									>{/if}
-								{#each c.keys as key, i (i)}
-									<Kbd>{format(key)}</Kbd>
-								{/each}
+								<KbdGroup>
+									{#each c.keys as key, i (i)}<Kbd>{format(key)}</Kbd>{/each}
+								</KbdGroup>
 							</div>
 						{/each}
 					{/each}

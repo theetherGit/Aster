@@ -18,7 +18,9 @@
 	} = $props();
 
 	const VARIANT = {
-		primary: 'border-accent-fill bg-accent-fill font-semibold text-on-accent',
+		// A key cap inside takes the button's colours: an outline of the label's, no fill.
+		primary:
+			'border-accent-fill bg-accent-fill font-semibold text-on-accent [--kbd-edge:color-mix(in_srgb,var(--on-accent)_55%,transparent)] [--kbd-fill:transparent] [--kbd-text:var(--on-accent)]',
 		secondary:
 			'border-control-border text-chrome-text hover:enabled:border-accent hover:enabled:bg-chrome-surface',
 		ghost:

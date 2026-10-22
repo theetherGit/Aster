@@ -24,10 +24,10 @@ export function matches(e: KeyboardEvent, s: Shortcut): boolean {
 }
 
 const CODE_LABEL: Record<string, string> = {
-	Enter: '↩',
+	Enter: 'Enter',
 	Tab: 'Tab',
 	Escape: 'Esc',
-	Backspace: '⌫',
+	Backspace: 'Backspace',
 	Delete: 'Del',
 	Space: 'Space',
 	Equal: '=',
@@ -43,7 +43,27 @@ const CODE_LABEL: Record<string, string> = {
 	Arrows: '←↑↓→'
 };
 
-/** "⌘⇧V" on macOS, "Ctrl+Shift+V" elsewhere. `?` shows as itself. */
+const SPOKEN: Record<string, string> = {
+	Escape: 'Escape',
+	ArrowLeft: 'Left arrow',
+	ArrowUp: 'Up arrow',
+	ArrowRight: 'Right arrow',
+	ArrowDown: 'Down arrow',
+	Arrows: 'Arrow keys',
+	Minus: 'Minus',
+	Equal: 'Equals',
+	Slash: 'Slash'
+};
+/** A shortcut in words, for a screen reader where the cap is a glyph: "Command Shift E", "Enter". */
+export function spoken(s: Shortcut, mac = isMac()): string {
+	const parts: string[] = [];
+	if (s.mod) parts.push(mac ? 'Command' : 'Control');
+	if (s.alt) parts.push(mac ? 'Option' : 'Alt');
+	if (s.shift) parts.push('Shift');
+	parts.push(SPOKEN[s.code] ?? CODE_LABEL[s.code] ?? s.code.replace(/^Key|^Digit/, ''));
+	return parts.join(' ');
+}
+
 /** The `aria-keyshortcuts` form: "Meta+Shift+V" on macOS, "Control+Shift+V" elsewhere. */
 export function ariaKeys(s: Shortcut, mac = isMac()): string {
 	const parts: string[] = [];
@@ -54,8 +74,12 @@ export function ariaKeys(s: Shortcut, mac = isMac()): string {
 	return parts.join('+');
 }
 
+/** What macOS prints on these keys; elsewhere the key says its name (Kbd audit, 2026-10-22). */
+const MAC_GLYPH: Record<string, string> = { Enter: '↩', Backspace: '⌫' };
+
+/** "⌘⇧V" on macOS, "Ctrl+Shift+V" elsewhere. `?` shows as itself. */
 export function format(s: Shortcut, mac = isMac()): string {
-	let key = CODE_LABEL[s.code] ?? s.code.replace(/^Key|^Digit/, '');
+	let key = (mac && MAC_GLYPH[s.code]) || CODE_LABEL[s.code] || s.code.replace(/^Key|^Digit/, '');
 	if (s.code === 'Slash' && s.shift) return mac ? '?' : '?';
 	if (s.code === 'Equal' && s.mod) key = '=';
 	if (mac) return `${s.mod ? '⌘' : ''}${s.alt ? '⌥' : ''}${s.shift ? '⇧' : ''}${key}`;
@@ -95,4 +119,17 @@ export function parse(spec: string): Shortcut {
 		...(shift && { shift: true }),
 		...(alt && { alt: true })
 	};
+}
+
+/**
+ * A key for a hint (KeyHint molecule): the cap as this platform prints it, and words for a screen
+ * reader when the cap is a glyph.
+ */
+export function hintKey(spec: string, mac = isMac()): { cap: string; label?: string } {
+	if (spec === 'Arrows') return { cap: CODE_LABEL.Arrows, label: SPOKEN.Arrows };
+	if (spec === '⇧') return mac ? { cap: '⇧', label: 'Shift' } : { cap: 'Shift' };
+	const s = parse(spec);
+	const cap = format(s, mac);
+	const words = spoken(s, mac);
+	return words === cap ? { cap } : { cap, label: words };
 }

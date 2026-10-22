@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { linkNote, resizeNode, setElementText, unlinkNote } from '#lib/commands/index.ts';
+	import { byId } from '#lib/app/commands.svelte.ts';
+	import { format, hintKey } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { elementName } from '#lib/model/project.ts';
 	import type { Note, TextElement } from '#lib/model/types.ts';
@@ -10,6 +12,7 @@
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 	import FieldSelect from '#lib/ui/atoms/Select.svelte';
 	import StyleSection from './StyleSection.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 
 	// Board 14: the note's text, what it is linked to, and its size as the non-drag path.
 	let { element }: { element: Note | TextElement } = $props();
@@ -109,7 +112,14 @@
 		<p class="mt-1 text-(length:--text-small) text-chrome-muted">{t('note.noLinks')}</p>
 	{/if}
 	<p class="mt-1 text-(length:--text-small) text-chrome-muted">
-		{candidates.length ? t('note.linkHint') : t('note.nothingToLink')}
+		{#if candidates.length}
+			<KeyHint
+				text={t('note.linkHint')}
+				keys={{ link: { cap: format(byId('link.start')!.keys[0]) }, arrows: hintKey('Arrows') }}
+			/>
+		{:else}
+			{t('note.nothingToLink')}
+		{/if}
 	</p>
 {/if}
 
@@ -138,7 +148,10 @@
 		>
 	</div>
 	<p class="mt-1 text-(length:--text-small) text-chrome-muted">
-		{t('note.sizeHint', { w: MIN.w, h: MIN.h })}
+		<KeyHint
+			text={t('note.sizeHint', { w: MIN.w, h: MIN.h })}
+			keys={{ shift: hintKey('⇧'), arrows: hintKey('Arrows') }}
+		/>
 	</p>
 {/if}
 {#if isNote}

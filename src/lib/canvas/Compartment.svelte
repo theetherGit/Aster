@@ -3,13 +3,17 @@
 	import { renderMember, type Member, type MemberKind } from '#lib/mdj/expression.ts';
 	import type { DisplayFlags, Id, Visibility } from '#lib/model/types.ts';
 	import { byId } from '#lib/app/commands.svelte.ts';
-	import { ariaKeys, format } from '#lib/app/shortcuts.ts';
+	import { ariaKeys, format, hintKey } from '#lib/app/shortcuts.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 	import LineEditor from './LineEditor.svelte';
 	import { applySuggestion, edit } from './inline.ts';
 	import { suggestFor, summarise } from './summary.ts';
+
+	/** The open line's hint: its keys as caps (Kbd audit). */
+	const HINT_KEYS = { enter: hintKey('↩'), tab: hintKey('Tab'), esc: hintKey('Esc') };
 
 	interface Props {
 		classifierId: Id;
@@ -140,10 +144,10 @@
 				class="suggest"
 				aria-keyshortcuts={ariaKeys(quickFix)}
 				onpointerdown={(e) => e.preventDefault()}
-				onclick={apply}>{action} <Kbd quiet>{format(quickFix)}</Kbd></button
+				onclick={apply}>{action} <Kbd>{format(quickFix)}</Kbd></button
 			>
 		{:else}
-			<span class="chip-hint">{t(`member.hints.${kind}`)}</span>
+			<KeyHint class="chip-hint" text={t(`member.hints.${kind}`)} keys={HINT_KEYS} />
 		{/if}
 		<!-- Announced when the parse state flips or a suggestion appears, not on every keystroke. -->
 		<span class="sr-only" role="status"
@@ -241,7 +245,8 @@
 	.suggest:focus-visible {
 		outline: 2px dashed var(--accent);
 	}
-	.chip-hint {
+	/* KeyHint renders the span, so the rule reaches it through the chip. */
+	.chip :global(.chip-hint) {
 		margin-left: var(--space-1);
 		color: var(--chrome-muted);
 	}

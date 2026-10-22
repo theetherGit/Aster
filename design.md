@@ -22,6 +22,7 @@ spec's table, kept as hex (4.5:1 text, 3:1 edges in every theme, checked by `tes
 	--chrome-bg --chrome-surface --chrome-border --chrome-text --chrome-muted
 	--accent --accent-fill --accent-text --on-accent --warning --danger
 	--control-border --control-radius --selection-tint
+	--kbd-text --kbd-fill --kbd-edge            /* key caps; a surface may set its own (the paper, a primary button) */
 	/* Paper (always white) */
 	--paper-bg --paper-grid --paper-ink --paper-fill --paper-accent --paper-muted --uml-stroke
 	/* Scales */
@@ -46,11 +47,11 @@ spec's table, kept as hex (4.5:1 text, 3:1 edges in every theme, checked by `tes
 
 Three layers. The layer says where a thing lives and what may back it.
 
-| Layer    | Lives in                             | Backed by                                                 | Examples                                                                                                                                    |
-| -------- | ------------------------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Atom     | `src/lib/ui/atoms/`                  | one Bits UI primitive, or one native element, plus tokens | Button, IconButton, Kbd, Icon, Tooltip, Field, Checkbox, Select, Segment, Tab, Separator, MenuItem, DialogFrame, SectionHeading, PanelTitle |
-| Molecule | `src/lib/ui/molecules/`              | atoms only, no stores                                     | InlineName, Toast, Banner, ConfirmDialog, PanelHeader, EmptyState                                                                           |
-| Organism | `src/lib/panels/`, `src/lib/canvas/` | molecules, atoms, the stores and the command registry     | TopBar, Explorer, Inspector, Toolbox, Palette, the sheets, nodes and edges                                                                  |
+| Layer    | Lives in                             | Backed by                                                 | Examples                                                                                                                                              |
+| -------- | ------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Atom     | `src/lib/ui/atoms/`                  | one Bits UI primitive, or one native element, plus tokens | Button, IconButton, Kbd, KbdGroup, Icon, Tooltip, Field, Checkbox, Select, Segment, Tab, Separator, MenuItem, DialogFrame, SectionHeading, PanelTitle |
+| Molecule | `src/lib/ui/molecules/`              | atoms only, no stores                                     | InlineName, Toast, Banner, ConfirmDialog, PanelHeader, EmptyState, KeyHint                                                                            |
+| Organism | `src/lib/panels/`, `src/lib/canvas/` | molecules, atoms, the stores and the command registry     | TopBar, Explorer, Inspector, Toolbox, Palette, the sheets, nodes and edges                                                                            |
 
 Rules:
 
@@ -65,6 +66,7 @@ Rules:
 - The Outline tree and everything on the paper are hand-built to the spec; no primitive fits them.
 - A new piece goes to the lowest layer that can hold it. If it needs a store, it is an organism.
 - Every interactive atom ships its states: rest, hover, focus-visible (2 px dashed accent ring, solid and flush on text fields), active, disabled with a reason, and where it applies busy, error and success.
+- Keys: every key the UI shows is the Kbd atom (after shadcn-svelte's Kbd, in our tokens): a 20 px cap, full-strength text on an 8 % tint of it, chrome font. Menus and the palette use its `quiet` form, the platform's shortcut column. A hint never spells a key in its copy: the message carries `{placeholders}` and KeyHint draws them as caps. Keys follow the platform (⌘ ⇧ ↩ ⌫ on macOS; Ctrl, Shift, Enter, Backspace elsewhere), and a glyph cap carries its name for screen readers.
 - Targets are at least `--control-min` (24 px). Icon buttons are `--control-icon` (28 px). Bars' pills are `--control-bar` (32 px).
 
 ## CTA voice

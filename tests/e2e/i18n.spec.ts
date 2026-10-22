@@ -22,7 +22,8 @@ test('?locale=pseudo switches every chrome string to the bracketed pseudo-locale
 // File names and extensions (the export sheet) are data, not messages.
 const USER_DATA =
 	/^(Library|Main|Account|Customer|entity|attribute\d|operation\d|Class diagram \d|[←→↑↓] \w+|String|int|boolean|void|\.\w+|[\w@-]+\.(png|svg|mdj|aster))$/;
-const KEY_CAP = /^(⌘|⇧|⌥|Ctrl|Shift|Alt|Esc|Tab|Space|Del|F\d+|[A-Z0-9?=−\\[\]/↩⌫←↑→↓+]|\d–\d)+$/;
+const KEY_CAP =
+	/^(⌘|⇧|⌥|Ctrl|Shift|Alt|Esc|Tab|Space|Del|Enter|Backspace|F\d+|[A-Z0-9?=−\\[\]/↩⌫←↑→↓+]|\d–\d)+$/;
 async function audit(page: Page) {
 	return page.evaluate(
 		([userData, keyCap]) => {

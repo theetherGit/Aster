@@ -63,7 +63,7 @@
 		{/if}
 		{#if ui.toast.undo}
 			<Button variant="secondary" size="sm" onclick={undo}
-				>{t('ui.undo')} <Kbd quiet>{undoKey}</Kbd></Button
+				>{t('ui.undo')} <Kbd>{undoKey}</Kbd></Button
 			>
 		{/if}
 		<IconButton

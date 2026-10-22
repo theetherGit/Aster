@@ -28,6 +28,12 @@
 	--paper-muted: #5f5f6b;
 	/* The selection tint behind a highlighted row (ui.md: accent at 8%). */
 	--selection-tint: color-mix(in srgb, var(--accent) 8%, transparent);
+	/* Key caps (Kbd atom): full-strength text on a tint of it, so a cap reads on any chrome surface
+	   (13:1 and up; muted text on the tint would fall under 4.5:1). The paper and the primary button
+	   set their own. */
+	--kbd-text: var(--chrome-text);
+	--kbd-fill: color-mix(in srgb, var(--chrome-text) 8%, transparent);
+	--kbd-edge: transparent;
 	/* The accent as drawn on the paper (selection, focus, link preview, handles); yellow would not read on white. */
 	--paper-accent: var(--accent);
 	/* Edges of form controls (inputs, segments): 3:1 against bg and surface, unlike separators. */

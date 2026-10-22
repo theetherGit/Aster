@@ -22,6 +22,7 @@
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 
 	// Boards 07 (first visit) and 23 (returning): two columns, the mark and the two actions on the
 	// left, the sample card and Recent on the right. Every action ends in `/design/<route>`.
@@ -92,7 +93,7 @@
 					onclick={() => goto(resolve('/design/[slug]', { slug: 'new' }))}
 				>
 					<span>{t('welcome.new')}</span>
-					<Kbd quiet>{key('file.new')}</Kbd>
+					<Kbd>{key('file.new')}</Kbd>
 				</Button>
 				<Button class="action" onclick={open}>
 					<span class="inline-flex items-baseline gap-1.5">
@@ -101,7 +102,7 @@
 							>{t('welcome.openFormats')}</span
 						>
 					</span>
-					<Kbd quiet>{key('file.open')}</Kbd>
+					<Kbd>{key('file.open')}</Kbd>
 				</Button>
 			</div>
 			<p class="mt-2.5 text-(length:--text-small) text-chrome-muted">{t('welcome.openHint')}</p>
@@ -114,9 +115,7 @@
 					>{t('welcome.classicAfter')}
 				</p>
 				<p>
-					{t('welcome.pressBefore')}
-					<Kbd>?</Kbd>
-					{t('welcome.pressAfter')}.
+					<KeyHint text={t('welcome.press')} keys={{ key: { cap: key('view.shortcuts') } }} />
 				</p>
 				<p>
 					{t('welcome.byBefore')}<a class="link" href="https://ethercorps.io" rel="noopener"
@@ -276,10 +275,6 @@
 		width: 100%;
 		height: var(--space-10);
 		font-size: var(--text-field);
-	}
-	/* The quiet cap reads muted; on the primary fill it must read in the fill's own ink. */
-	.actions :global(.action.primary kbd) {
-		color: var(--on-accent);
 	}
 	.footer {
 		width: 100%;

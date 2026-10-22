@@ -2,8 +2,9 @@
 	import { Command, Dialog } from 'bits-ui';
 	import { sieve } from '@lucasmarkes/hairline';
 	import EmptyState from '#lib/ui/molecules/EmptyState.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 	import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.ts';
-	import { format } from '#lib/app/shortcuts.ts';
+	import { format, hintKey } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import { elementName } from '#lib/model/project.ts';
@@ -140,7 +141,15 @@
 				<div
 					class="flex items-center justify-between border-t border-chrome-border px-3 py-1.5 text-(length:--text-caption) text-chrome-muted"
 				>
-					<span>{t('palette.hints')}</span>
+					<KeyHint
+						text={t('palette.hints')}
+						keys={{
+							up: hintKey('↑'),
+							down: hintKey('↓'),
+							enter: hintKey('↩'),
+							esc: hintKey('Esc')
+						}}
+					/>
 					<span>{t('palette.matches', { count: matches })}</span>
 				</div>
 			</Command.Root>

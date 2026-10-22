@@ -24,7 +24,7 @@
 		<Tooltip.Content class={tooltip} sideOffset={6}>
 			<!-- Bits puts no role on the content; the tooltip role lives on the text it shows. -->
 			<div role="tooltip" class="flex items-center gap-2">
-				<span>{text}</span>{#if key}<Kbd quiet>{key}</Kbd>{/if}
+				<span>{text}</span>{#if key}<Kbd>{key}</Kbd>{/if}
 			</div>
 		</Tooltip.Content>
 	</Tooltip.Portal>

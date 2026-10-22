@@ -18,9 +18,10 @@
 	import { untrack } from 'svelte';
 	import { runCommand } from '#lib/app/commands.svelte.ts';
 	import { contextEntries, entryKey, type ContextKind } from '#lib/app/menus.ts';
-	import { format } from '#lib/app/shortcuts.ts';
+	import { format, hintKey } from '#lib/app/shortcuts.ts';
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 	import Separator from '#lib/ui/atoms/Separator.svelte';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import { menu, menuItem, tooltip } from '#lib/ui/styles.ts';
@@ -583,7 +584,12 @@
 					{/if}
 				</SvelteFlow>
 				{#if ui.link}
-					<p class="link-hint" role="status">{t('link.hint')}</p>
+					<p class="link-hint" role="status">
+						<KeyHint
+							text={t('link.hint')}
+							keys={{ arrows: hintKey('Arrows'), enter: hintKey('↩'), esc: hintKey('Esc') }}
+						/>
+					</p>
 				{/if}
 			</div>
 		{/snippet}

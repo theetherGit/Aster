@@ -6,7 +6,7 @@
 	import type { Classifier, Relationship } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 	import RelGlyph from './RelGlyph.svelte';
 
@@ -29,12 +29,8 @@
 		const el = projectStore.project.elements.get(id);
 		return el ? elementName(el) : id;
 	};
-	// Day 2 prompt item 6: the section stays when empty and says how to make one; the key sits
-	// in the sentence as a Kbd, so the message is split around it.
+	// Day 2 prompt item 6: the section stays when empty and says how to make one, its key a cap.
 	const linkKey = format(byId('link.start')!.keys[0]);
-	const empty = $derived(
-		t('inspector.noRelationships', { key: '\u0000', name: classifier.name }).split('\u0000')
-	);
 </script>
 
 <SectionHeading>{t('inspector.relationships')}</SectionHeading>
@@ -63,6 +59,9 @@
 	</ul>
 {:else}
 	<p class="text-(length:--text-small) text-chrome-muted">
-		{empty[0]}<Kbd>{linkKey}</Kbd>{empty[1]}
+		<KeyHint
+			text={t('inspector.noRelationships', { name: classifier.name })}
+			keys={{ key: { cap: linkKey } }}
+		/>
 	</p>
 {/if}

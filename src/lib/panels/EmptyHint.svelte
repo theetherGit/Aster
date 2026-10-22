@@ -4,6 +4,8 @@
 	import { byId } from '#lib/app/commands.svelte.ts';
 	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
+	import Kbd from '#lib/ui/atoms/Kbd.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 	// Board 18: an empty class diagram says what the keys do, read from the registry so the glyphs
 	// follow the platform (⌘ here, Ctrl there). Pointer events pass through to the paper.
 	const key = (id: string) => format(byId(id)!.keys[0]);
@@ -28,19 +30,22 @@
 	<dl class="keys">
 		{#each KEYS as [glyph, label] (glyph)}
 			<div>
-				<dt><kbd>{glyph}</kbd></dt>
+				<dt><Kbd>{glyph}</Kbd></dt>
 				<dd>{label}</dd>
 			</div>
 		{/each}
 	</dl>
 	<p class="mt-4 text-(length:--text-body)">
-		{t('empty.open')} <kbd>{key('file.open')}</kbd>{t('empty.openTail')}
+		<KeyHint text={t('empty.open')} keys={{ key: { cap: key('file.open') } }} />
 	</p>
 </div>
 
 <style>
 	.hint {
 		--hairline-plate: var(--paper-bg);
+		/* Key caps on the paper, white in every theme: its ink, on a tint of it. */
+		--kbd-text: var(--paper-ink);
+		--kbd-fill: color-mix(in srgb, var(--paper-ink) 7%, transparent);
 		position: absolute;
 		inset: 0;
 		display: flex;
@@ -70,21 +75,5 @@
 	}
 	.keys dd {
 		margin: 0;
-	}
-	/* Not the Kbd atom: that cap wears chrome colours, and this one sits on the paper, which is
-	   white in every theme, so it takes the paper's ink and its muted edge. */
-	kbd {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-width: var(--control-min);
-		height: var(--control-min);
-		padding: 0 var(--space-1);
-		font-family: var(--font-mono);
-		font-size: var(--text-small);
-		color: var(--paper-ink);
-		background: var(--paper-bg);
-		border: 1px solid var(--paper-muted);
-		border-radius: var(--control-radius);
 	}
 </style>

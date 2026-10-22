@@ -54,7 +54,13 @@ test('rest, hover and editing: 30 px rows, actions beside the text, never over i
 	// Editing: the row tints and shows its keys; the actions step aside.
 	await line.click();
 	await expect(first).toHaveAttribute('data-editing');
-	await expect(first.getByText('↩ next · Esc')).toBeVisible();
+	// The keys are caps (Kbd audit): ↩ on macOS, Enter elsewhere, then Esc.
+	const keys = first.locator('kbd[data-slot="kbd"]');
+	await expect(keys).toHaveCount(2);
+	// A glyph cap carries its spoken name for screen readers: "↩" + "Enter".
+	await expect(keys.nth(0)).toContainText(/↩|Enter/);
+	await expect(keys.nth(1)).toContainText('Esc');
+	await expect(first).toContainText('next');
 	await page.keyboard.press('Escape');
 	await expect(first).not.toHaveAttribute('data-editing');
 	await expect(line).toBeFocused();

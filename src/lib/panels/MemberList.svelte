@@ -27,6 +27,8 @@
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
+	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
+	import { hintKey } from '#lib/app/shortcuts.ts';
 	import { menu, menuItem } from '#lib/ui/styles.ts';
 
 	let { classifier, kind }: { classifier: Classifier; kind: MemberKind } = $props();
@@ -273,7 +275,11 @@
 						{#if editing === m.id}
 							<span
 								class="shrink-0 text-(length:--text-caption) text-chrome-muted"
-								aria-hidden="true">{t('inspector.lineHint')}</span
+								aria-hidden="true"
+								><KeyHint
+									text={t('inspector.lineHint')}
+									keys={{ enter: hintKey('↩'), esc: hintKey('Esc') }}
+								/></span
 							>
 						{/if}
 						<span class="actions sr-only flex shrink-0 items-center gap-0.5">
