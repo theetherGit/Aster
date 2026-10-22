@@ -7,6 +7,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { OG_IMAGE } from '#lib/seo.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
+	import UpdatePrompt from '#lib/panels/UpdatePrompt.svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Tooltip } from 'bits-ui';
 	import type { LayoutProps } from './$types';
@@ -38,6 +39,9 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<!-- Installable (features.md M3, PWA): the manifest and the home-screen icon. -->
+	<link rel="manifest" href="/manifest.webmanifest" />
+	<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 	<!-- The card every shared link shows (static/og.png); pages add their own title and description. -->
 	<meta property="og:site_name" content={t('app.name')} />
 	<meta property="og:image" content={OG_IMAGE.url} />
@@ -55,6 +59,7 @@
 <!-- One tooltip provider for every Tip: 600 ms on hover, none on focus, none between neighbours. -->
 <Tooltip.Provider delayDuration={600} skipDelayDuration={300}>
 	{@render children()}
+	<UpdatePrompt />
 </Tooltip.Provider>
 
 <!-- accessibility.md, Announcements: one polite and one assertive region, mounted once. -->
