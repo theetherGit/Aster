@@ -5,6 +5,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": [".astro/types.d.ts", "**/*"],
+  "include": [".astro/types.d.ts", "**/*", "index.html"],
   "exclude": ["dist"]
 }

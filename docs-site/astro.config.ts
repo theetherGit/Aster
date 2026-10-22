@@ -38,6 +38,13 @@ export default defineConfig({
   // Astro 7's Vite 8 bundler).
   vite: {
     plugins: [tailwindcss()],
+    // The docs import a few of the app's own modules (keys, the member parser, its messages).
+    // Without this, Vite reads the tsconfig nearest each of those files, the app's, which extends
+    // SvelteKit's generated `$app/tsconfig`: absent wherever only the docs are installed, as on
+    // Cloudflare's build. One tsconfig, the docs', for every file. (Loading this config happens
+    // before that applies; there the importer is a virtual index.html, which tsconfig.json's
+    // `include` lists for the same reason.)
+    tsconfig: "./tsconfig.json",
   },
   // Hover-prefetch link targets so full-page navigations feel instant without
   // a client-side router.
