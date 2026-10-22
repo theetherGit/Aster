@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, test, type Download, type Page } from '@playwright/test';
-import { awaitAutosave, canvasOf, create, node } from './helpers';
+import { awaitAutosave, canvasOf, create, node, position } from './helpers';
 
 const fixture = (name: string) =>
 	fileURLToPath(new URL(`../../fixtures/mdj/${name}`, import.meta.url));
@@ -508,4 +508,33 @@ test('downloads carry the file name, else the project name, else the diagram nam
 	await sheet.getByRole('tab', { name: 'Project' }).click();
 	await sheet.getByRole('radio', { name: '.mdj' }).click();
 	await expect(page.getByTestId('export-name')).toHaveText('class-diagram.mdj');
+});
+
+// Owner's report: auto-layout on the demo, save, reopen — and it was back to the default. Opening
+// the demo again shared the edited copy's project id, so its first autosave replaced the copy.
+test('an edited demo survives opening the demo again', async ({ page }) => {
+	await page.goto('/design/demo');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+k');
+	await page
+		.getByRole('dialog', { name: 'Command palette' })
+		.getByRole('combobox', { name: 'Search commands' })
+		.fill('Auto-layout (orthogonal, top to bottom)');
+	await page.keyboard.press('Enter');
+	await expect(page.getByText(/^Laid out Model\./)).toBeVisible({ timeout: 15_000 });
+	const laidOut = await position(node(page, 'Slot'));
+	await page.keyboard.press('ControlOrMeta+s');
+	await expect(page.getByText('Saved in this browser only.')).toBeVisible();
+	await expect(page).toHaveURL(/\/design\/aster$/);
+
+	// The demo again, looked around in (another tab), never edited: nothing is saved over the copy.
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Open the demo' }).click();
+	await page.getByRole('tab', { name: 'From key to canvas' }).click();
+	await page.waitForTimeout(600);
+	await page.goto('/');
+	await expect(page.locator('.recent .row')).toHaveCount(1);
+	await page.locator('.recent .row').first().click();
+	await page.getByRole('tab', { name: 'Model' }).click();
+	await expect.poll(() => position(node(page, 'Slot'))).toEqual(laidOut);
 });

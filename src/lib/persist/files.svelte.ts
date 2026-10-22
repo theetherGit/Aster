@@ -20,6 +20,7 @@ import { parseInWorker } from '#lib/mdj/worker.ts';
 import { createDiagram, createProject } from '#lib/model/project.ts';
 import { batch, importFragment, Stack } from '#lib/commands/index.ts';
 import { readFragment } from '#lib/mdj/fragment.ts';
+import { newId } from '#lib/model/ids.ts';
 import { parsePuml } from '#lib/puml/parse.ts';
 import { printDiagram } from '#lib/puml/print.ts';
 import { planSync } from '#lib/puml/sync.ts';
@@ -162,6 +163,9 @@ function startFresh() {
 
 /** A bundled project (the sample, the demo, the notation fixture) under its reserved route, unnamed until edited. */
 export function loadFixture(project: Project, route: 'sample' | 'demo' | 'notation') {
+	// Each opening is a project of its own: a second look at the demo must never be saved over
+	// the copy made from the first (owner's report: a re-opened demo replaced the edited one).
+	project.id = newId();
 	startFresh();
 	projectStore.load(project);
 	files.current = null;

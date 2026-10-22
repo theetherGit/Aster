@@ -176,7 +176,11 @@ export async function thumbnailOf(
 	}
 }
 
+/** The bundled routes: their projects become the reader's own at the first edit, not before. */
+const BUNDLED = new Set(['sample', 'demo', 'notation']);
 const schedule = useDebounce(() => {
+	// Looking around the demo (another tab, the banner) is not an edit: nothing to keep yet.
+	if (BUNDLED.has(persist.route ?? '') && projectStore.version === files.savedVersion) return;
 	pending = saveNow().catch((e) => console.error('autosave failed', e));
 }, DEBOUNCE_MS);
 
