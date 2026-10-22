@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased — M2 and M3
+
+### Added
+
+- **Object diagrams** (M3): objects of the model's classes with their slots, and links between them; written to StarUML as `UMLObjectDiagram`, `UMLObject`, `UMLSlot` and `UMLLink`. Add one from the palette (Add object diagram).
+- **Packages with containment** (M3): packages drawn as frames, nested to any depth (`P` makes one); a class joins one when dropped in its frame or from the inspector's In package; moving a package moves what it holds; Show namespace draws "(from A::B)"; saved nested as StarUML nests them.
+- **The demo** at `/design/demo`, opened from the welcome: Aster's own design, drawn in Aster.
+- **Offline** (M3): installable, and working offline after one visit, the PDF engine included; an update prompt when a new version is ready.
+- **Performance** (M3): 500 classes and 800 lines pan at 60 fps; a 10 MB `.mdj` opens in under a second; the Outline draws only the rows in view.
+- Auto-layout and the tidy tools, fill and line colours, Mermaid and PDF export, and fragment import (M3).
+- The Text view (PlantUML), the Classic layout, validation, high contrast and Outline editing (M2).
+- Word wrap, documentation in the Outline, and a confirmation before Recent's Clear.
+
+### Fixed
+
+- Deleting from the model and undoing put relationships back in the wrong z-order.
+
+### Not yet
+
+- The template gallery is planned for later.
+
 ## 0.1.0-preview.1 — M1 lab preview (unreleased)
 
 The first public preview, for the OOAD lab on 24 Oct 2026. Class diagrams end to end, StarUML `.mdj` in and out.
