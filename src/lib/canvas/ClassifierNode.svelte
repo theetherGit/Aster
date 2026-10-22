@@ -3,6 +3,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { membersOf } from '#lib/commands/index.ts';
 	import { flow, type ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
+	import { namespaceOf } from '#lib/model/project.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Compartment from './Compartment.svelte';
 	import LineEditor from './LineEditor.svelte';
@@ -23,6 +24,10 @@
 	const flags = $derived(data.flags);
 	// stereotypeDisplay 'none' (⌘⇧0) hides the «stereotype» line; 'label' is the default.
 	const header = $derived(flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c));
+	// ⌘⇧N: "(from A::B)" under the name, as StarUML's namespace label reads (M3.1).
+	const namespace = $derived(
+		flags.showNamespace ? namespaceOf(projectStore.project, c) : undefined
+	);
 	const compartments = $derived(
 		compartmentsFor(c).filter(
 			(k) =>
@@ -68,6 +73,7 @@
 	<div
 		class="name-row"
 		class:with-stereotype={header}
+		class:with-namespace={namespace}
 		ondblclick={(e) => {
 			e.stopPropagation();
 			edit(id, { part: 'name' });
@@ -92,6 +98,7 @@
 				data-part="name">{c.name}</span
 			>
 		{/if}
+		{#if namespace}<span class="namespace">{t('node.from', { namespace })}</span>{/if}
 	</div>
 	{#each compartments as kind (kind)}
 		<Compartment
@@ -209,6 +216,17 @@
 	}
 	.name-row.with-stereotype {
 		height: 40px;
+	}
+	.name-row.with-namespace {
+		height: 44px;
+	}
+	.name-row.with-stereotype.with-namespace {
+		height: 56px;
+	}
+	.namespace {
+		font-size: 12px;
+		font-weight: 400;
+		line-height: 16px;
 	}
 	.stereotype {
 		font-size: 12px;

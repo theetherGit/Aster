@@ -221,7 +221,7 @@ const nudge = (id: string, key: string, dx: number, dy: number, big = false): Ap
 	run: () => nudgeSelection(dx * (big ? 8 : 1), dy * (big ? 8 : 1))
 });
 
-/** ⇧+arrows resize the selected note (keyboard.md § Canvas keyboard model); packages wait for M3. */
+/** ⇧+arrows resize the selected note or package (keyboard.md § Canvas keyboard model). */
 const resize = (id: string, key: string, dw: number, dh: number): AppCommand => ({
 	id,
 	group: 'select',
@@ -229,7 +229,11 @@ const resize = (id: string, key: string, dw: number, dh: number): AppCommand => 
 	keys: k(key),
 	context: 'canvas',
 	sheetOnly: true,
-	when: () => selection.list.some((x) => projectStore.project.elements.get(x)?.kind === 'note'),
+	when: () =>
+		selection.list.some((x) => {
+			const k = projectStore.project.elements.get(x)?.kind;
+			return k === 'note' || k === 'package';
+		}),
 	run: () => resizeSelection(dw, dh)
 });
 
@@ -278,6 +282,15 @@ export const COMMANDS: AppCommand[] = [
 	create('interface', 'I'),
 	create('enum', 'E'),
 	create('dataType', 'D'),
+	{
+		// keyboard.md: P, a package at the cursor, name selected (M3.1).
+		id: 'create.package',
+		group: 'create',
+		label: () => t('cmd.create.package'),
+		keys: k('P'),
+		context: 'canvas',
+		run: () => canvasApi.createPackage()
+	},
 	{
 		id: 'create.note',
 		group: 'create',

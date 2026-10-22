@@ -27,10 +27,8 @@ test('⌘⇧L switches to Classic: StarUML panels, yellow classes, selection and
 	const toolbox = page.getByRole('toolbar', { name: 'Toolbox' });
 	for (const group of ['Annotations', 'Class diagram', 'Relationships'])
 		await expect(toolbox.getByRole('group', { name: group })).toBeVisible();
-	// Package is not built: focusable, aria-disabled, and the reason is in its name.
-	const pkg = toolbox.getByRole('button', { name: /Package/ });
-	await expect(pkg).toHaveAttribute('aria-disabled', 'true');
-	await expect(pkg).toHaveAccessibleName(/Coming soon/);
+	// Package is a placing tool since M3.1, like the classes beside it.
+	await expect(toolbox.getByRole('radio', { name: /Package/ })).toBeVisible();
 	await expect(page.getByRole('region', { name: 'Model Explorer', exact: true })).toBeVisible();
 	const editors = page.getByRole('complementary', { name: 'Editors', exact: true });
 	for (const tab of ['Style', 'Property', 'Documentation'])

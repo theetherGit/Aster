@@ -5,7 +5,8 @@ import {
 	defaultEdgeLayout,
 	elementName,
 	getDiagram,
-	getElement
+	getElement,
+	setOwner
 } from '#lib/model/project.ts';
 import type { Id, Instance, Point } from '#lib/model/types.ts';
 import { deleteFromModel } from './elements.ts';
@@ -19,7 +20,9 @@ export const addInstance: Factory<{ diagramId: Id; instance: Instance; at: Point
 		touches: [instance.id],
 		apply(p): Command {
 			const d = getDiagram(p, diagramId);
-			p.elements.set(instance.id, structuredClone(instance));
+			const el = structuredClone(instance);
+			p.elements.set(el.id, el);
+			if (el.packageId) setOwner(p, el, el.packageId);
 			d.elementIds.push(instance.id);
 			d.layout.set(instance.id, { kind: 'node', x: at.x, y: at.y, w: 160, h: 60 });
 			return deleteFromModel(p, { ids: [instance.id] });

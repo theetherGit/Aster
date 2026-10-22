@@ -40,6 +40,7 @@
 	import ClassifierNode from './ClassifierNode.svelte';
 	import NoteNode from './NoteNode.svelte';
 	import InstanceNode from './InstanceNode.svelte';
+	import PackageNode from './PackageNode.svelte';
 	import NoteLinkEdge from './edges/NoteLinkEdge.svelte';
 	import {
 		clipboardFromMenu,
@@ -47,6 +48,9 @@
 		createClassifierAt,
 		createInstanceAt,
 		createNoteAt,
+		createPackageAt,
+		dropIntoPackages,
+		withMembers,
 		createTextAt,
 		cutSelection,
 		pasteFrom,
@@ -70,7 +74,8 @@
 		primitiveType: ClassifierNode,
 		note: NoteNode,
 		text: NoteNode,
-		instance: InstanceNode
+		instance: InstanceNode,
+		package: PackageNode
 	};
 	const edgeTypes = { uml: UmlEdge, noteLink: NoteLinkEdge };
 	const {
@@ -113,9 +118,10 @@
 		// What commands outside the canvas (palette, shortcuts) can ask of it.
 		Object.assign(canvasApi, {
 			create: (kind: ClassifierKind, at?: Point) =>
-				createClassifierAt(kind, at ?? cursorPosition(), rects().values()),
-			createNote: () => createNoteAt(cursorPosition(), rects().values()),
-			createObject: (at?: Point) => createInstanceAt(at ?? cursorPosition(), rects().values()),
+				createClassifierAt(kind, at ?? cursorPosition(), free()),
+			createNote: () => createNoteAt(cursorPosition(), free()),
+			createObject: (at?: Point) => createInstanceAt(at ?? cursorPosition(), free()),
+			createPackage: (at?: Point) => createPackageAt(at ?? cursorPosition(), rects().values()),
 			createText: () => createTextAt(cursorPosition(), rects().values()),
 			startLink: () => startLink(rects()),
 			zoomBy: (f: number) =>
@@ -395,6 +401,11 @@
 		}
 		return out;
 	}
+	/** Room for a new node: anything but a package frame, which a new node may land inside (M3.1). */
+	const free = () =>
+		[...rects()]
+			.filter(([id]) => projectStore.project.elements.get(id)?.kind !== 'package')
+			.map(([, r]) => r);
 	/** Open the relationship picker over the target node's centre; a note at either end links instead. */
 	function openPicker(sourceId: Id, targetId: Id) {
 		if (linkIfNote(sourceId, targetId) || linkIfObjects(sourceId, targetId)) return;
@@ -453,14 +464,20 @@
 		if (!dx && !dy) return;
 		projectStore.run(moveNode, {
 			diagramId: projectStore.activeDiagramId,
-			ids: nodes.map((n) => n.id),
+			// A package carries what it holds (keyboard.md).
+			ids: withMembers(nodes.map((n) => n.id)),
 			dx,
 			dy
 		});
 	};
+	const onnodedragstop: NodeTargetEventWithPointer<MouseEvent | TouchEvent, FlowNode> = ({
+		nodes
+	}) => dropIntoPackages(nodes.map((n) => n.id));
 
 	/** Link in progress: a click on a node picks it as the target, the same as ↩ (keyboard.md). */
-	function onnodeclick({ node }: { node: FlowNode }) {
+	function onnodeclick({ node, event }: { node: FlowNode; event: MouseEvent | TouchEvent }) {
+		// A placing tool over a package frame places inside it, as on the paper (M3.1).
+		if (!ui.link && node.type === 'package') return onpaneclick({ event });
 		if (!ui.link) return;
 		ui.link = { ...ui.link, targetId: node.id };
 		openPicker(ui.link.sourceId, node.id);
@@ -487,16 +504,11 @@
 	};
 
 	function onpaneclick({ event }: { event: MouseEvent | TouchEvent }) {
-		if (
-			ui.tool === 'select' ||
-			ui.tool === 'package' ||
-			ui.tool === 'link' ||
-			!('clientX' in event)
-		)
-			return;
+		if (ui.tool === 'select' || ui.tool === 'link' || !('clientX' in event)) return;
 		const at = toPaper({ x: event.clientX, y: event.clientY });
-		if (ui.tool === 'object') createInstanceAt(at, rects().values());
-		else createClassifierAt(ui.tool, at, rects().values());
+		if (ui.tool === 'object') createInstanceAt(at, free());
+		else if (ui.tool === 'package') createPackageAt(at, rects().values());
+		else createClassifierAt(ui.tool, at, free());
 		if (ui.pinned !== ui.tool) ui.tool = 'select'; // a pinned tool keeps placing (features.md)
 	}
 
@@ -574,6 +586,7 @@
 					onbeforeconnect={() => false}
 					{onconnectend}
 					{onnodedrag}
+					{onnodedragstop}
 					{onselectionchange}
 					{onmove}
 					{onpaneclick}

@@ -11,7 +11,7 @@ Aster opens and saves StarUML's `.mdj` files and uses StarUML's keys where it ha
 
 - **The same**: the `.mdj` file, the member syntax you type in QuickEdit, the split between a model and its views, StarUML's keys wherever it has one, and its validation rules.
 - **Different**: Aster runs in the browser, with nothing to install, and every action can be done from the keyboard. Its Modern layout moves the panels around; <Key k="⌘⇧L" /> brings back StarUML's arrangement.
-- **Not yet**: Aster draws class and object diagrams. Packages and the other UML diagrams are kept in your files and saved back, but not drawn.
+- **Not yet**: Aster draws class diagrams (with packages) and object diagrams. The other UML diagrams are kept in your files and saved back, but not drawn.
 
 ## Where StarUML's names went
 
@@ -45,7 +45,8 @@ Anything Aster does not show yet is still kept: open a file with a sequence diag
 | StarUML | Aster today | Status |
 | --- | --- | --- |
 | Class diagram | Classes, interfaces, enumerations and data types, the six relationship kinds, notes. | Yes |
-| Package diagram | Packages from a `.mdj` are listed in the Outline and saved back, but not drawn, and you cannot create one. Packages as containers come first, the package diagram with imports after. | Planned, v0.1 and v0.2 |
+| Packages | Packages as containers on a class diagram: <Key k="P" /> makes one, a class joins it by being dropped in its frame or from the inspector's In package, and moving the package moves what it holds. Nested to any depth, saved as StarUML nests them. | Yes |
+| Package diagram | Dependencies and imports between packages. | Planned, v0.2 |
 | Object diagram | Objects of your classes with their slots, and links between them. Add one from the command palette (Add object diagram). A slot is not tied to its class's attribute, and a link's association is kept but not editable. | Yes |
 | Use case diagram | Kept and saved back, not shown. | Planned, v0.2 |
 | Sequence, statechart, activity, component and deployment diagrams | Kept and saved back, not shown. | Later |

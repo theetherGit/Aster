@@ -14,6 +14,7 @@ import {
 	type Link,
 	type NodeLayout,
 	type Operation,
+	type Package,
 	type Project,
 	type Relationship,
 	type RelationshipKind,
@@ -266,6 +267,94 @@ export function nextClassName(project: Project, kind: ClassifierKind = 'class'):
 		const name = t(`model.defaultName.${kind}`, { n });
 		if (!taken.has(name)) return name;
 	}
+}
+
+export function createPackage(init: Partial<Omit<Package, 'kind'>> = {}): Package {
+	return {
+		kind: 'package',
+		id: init.id ?? newId(),
+		name: init.name ?? '',
+		memberIds: init.memberIds ?? [],
+		documentation: init.documentation ?? '',
+		...(init.parentId !== undefined && { parentId: init.parentId })
+	};
+}
+
+/** First unused "Package1", "Package2", … among the project's packages. */
+export function nextPackageName(project: Project): string {
+	const taken = new Set<string>();
+	for (const el of project.elements.values()) if (el.kind === 'package') taken.add(el.name);
+	for (let n = 1; ; n++) {
+		const name = t('model.defaultName.package', { n });
+		if (!taken.has(name)) return name;
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Containment (features.md M3.1): a classifier's or object's `packageId`, a package's `parentId`.
+// Those are what Aster reads; `Package.memberIds` is kept in step with them.
+// ---------------------------------------------------------------------------
+
+/** The package that owns an element, if any. */
+export const ownerOf = (el: Element): Id | undefined =>
+	el.kind === 'package'
+		? el.parentId
+		: el.kind === 'classifier' || el.kind === 'instance'
+			? el.packageId
+			: undefined;
+
+/** Moves an element into a package, or to the top of the model with `null`. */
+export function setOwner(project: Project, el: Element, to: Id | null) {
+	const from = ownerOf(el);
+	const pkg = (id: Id | undefined) => {
+		const p = id ? project.elements.get(id) : undefined;
+		return p?.kind === 'package' ? p : undefined;
+	};
+	const old = pkg(from);
+	if (old) old.memberIds = old.memberIds.filter((x) => x !== el.id);
+	if (el.kind === 'package') {
+		if (to) el.parentId = to;
+		else delete el.parentId;
+	} else if (el.kind === 'classifier' || el.kind === 'instance') {
+		if (to) el.packageId = to;
+		else delete el.packageId;
+	}
+	const next = pkg(to ?? undefined);
+	if (next && !next.memberIds.includes(el.id)) next.memberIds.push(el.id);
+}
+
+/** Everything a package holds, at any depth. */
+export function descendantsOf(project: Project, packageId: Id): Id[] {
+	const out: Id[] = [];
+	const walk = (id: Id) => {
+		for (const el of project.elements.values())
+			if (ownerOf(el) === id && !out.includes(el.id)) {
+				out.push(el.id);
+				if (el.kind === 'package') walk(el.id);
+			}
+	};
+	walk(packageId);
+	return out;
+}
+
+/** The packages around an element, outermost first, as `A::B`; undefined at the top of the model. */
+export function namespaceOf(project: Project, el: Element): string | undefined {
+	const names: string[] = [];
+	const seen = new Set<Id>();
+	for (let id = ownerOf(el); id && !seen.has(id);) {
+		seen.add(id);
+		const p = project.elements.get(id);
+		if (p?.kind !== 'package') break;
+		names.unshift(p.name);
+		id = p.parentId;
+	}
+	return names.length ? names.join('::') : undefined;
+}
+
+/** An element's UML qualified name, `A::B::Name`. */
+export function qualifiedName(project: Project, el: Element): string {
+	const ns = namespaceOf(project, el);
+	return ns ? `${ns}::${elementName(el)}` : elementName(el);
 }
 
 /** First unused default member line for the given kind on a classifier. */

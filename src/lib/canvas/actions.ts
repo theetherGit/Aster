@@ -1,7 +1,10 @@
 import {
+	PACKAGE_MIN,
 	addClassifier,
 	addInstance,
 	addNote,
+	addPackage,
+	moveToPackage,
 	addText,
 	batch,
 	deleteFromDiagram,
@@ -19,9 +22,13 @@ import { newId } from '#lib/model/ids.ts';
 import {
 	createClassifier,
 	createInstance,
+	createPackage,
+	descendantsOf,
 	elementName,
 	nextClassName,
-	nextInstanceName
+	nextInstanceName,
+	nextPackageName,
+	ownerOf
 } from '#lib/model/project.ts';
 import type { ClassifierKind, Id, LineStyle, NodeLayout, Point } from '#lib/model/types.ts';
 import type { MemberKind } from '#lib/mdj/expression.ts';
@@ -58,6 +65,8 @@ export function createClassifierAt(kind: ClassifierKind, at: Point, taken: Itera
 		classifierKind: kind,
 		name: nextClassName(projectStore.project, kind)
 	});
+	const inside = packageAt(at);
+	if (inside) classifier.packageId = inside;
 	projectStore.run(addClassifier, {
 		diagramId: projectStore.activeDiagramId,
 		classifier,
@@ -69,6 +78,8 @@ export function createClassifierAt(kind: ClassifierKind, at: Point, taken: Itera
 /** An object near a paper position, selected, its text open with the name ready for typing (M3.2). */
 export function createInstanceAt(at: Point, taken: Iterable<Rect>) {
 	const instance = createInstance({ name: nextInstanceName(projectStore.project) });
+	const inside = packageAt(at);
+	if (inside) instance.packageId = inside;
 	projectStore.run(addInstance, {
 		diagramId: projectStore.activeDiagramId,
 		instance,
@@ -77,29 +88,111 @@ export function createInstanceAt(at: Point, taken: Iterable<Rect>) {
 	edit(instance.id, { part: 'text' });
 }
 
+/** A package near a paper position (M3.1, key P), inside the package drawn there, its name open. */
+export function createPackageAt(at: Point, taken: Iterable<Rect>) {
+	const parentId = packageAt(at);
+	const pkg = createPackage({ name: nextPackageName(projectStore.project), parentId });
+	projectStore.run(addPackage, {
+		diagramId: projectStore.activeDiagramId,
+		pkg,
+		at: freePosition(at, taken, PACKAGE_MIN)
+	});
+	edit(pkg.id, { part: 'name' });
+}
+
+const kindOf = (id: Id) => projectStore.project.elements.get(id)?.kind;
+
+/**
+ * The innermost package drawn on this diagram whose frame holds a paper point, leaving out
+ * `exclude` (a package being moved, and what it holds).
+ */
+export function packageAt(at: Point, exclude: ReadonlySet<Id> = new Set()): Id | undefined {
+	let best: { id: Id; area: number } | undefined;
+	for (const [id, r] of canvasApi.rects()) {
+		if (kindOf(id) !== 'package' || exclude.has(id)) continue;
+		if (at.x < r.x || at.x > r.x + r.w || at.y < r.y || at.y > r.y + r.h) continue;
+		if (!best || r.w * r.h < best.area) best = { id, area: r.w * r.h };
+	}
+	return best?.id;
+}
+
+/** Nodes to move with `ids`: every package's members drawn on this diagram go along (keyboard.md). */
+export function withMembers(ids: Id[]): Id[] {
+	const d = projectStore.diagram;
+	const out = new Set(ids);
+	for (const id of ids)
+		if (kindOf(id) === 'package')
+			for (const m of descendantsOf(projectStore.project, id))
+				if (d.layout.get(m)?.kind === 'node') out.add(m);
+	return [...out];
+}
+
+/**
+ * After a drag (M3.1): a node let go inside a package frame joins that package; one let go
+ * outside the frame of the package that holds it leaves it. Packages not on this diagram are
+ * left alone. One undo step, said aloud.
+ */
+export function dropIntoPackages(ids: Id[]) {
+	const p = projectStore.project;
+	const d = projectStore.diagram;
+	const r = canvasApi.rects();
+	const moves: { id: Id; to: Id | null }[] = [];
+	for (const id of ids) {
+		const el = p.elements.get(id);
+		const box = r.get(id);
+		if (
+			!el ||
+			!box ||
+			(el.kind !== 'classifier' && el.kind !== 'package' && el.kind !== 'instance')
+		)
+			continue;
+		const now = ownerOf(el);
+		// Members dragged along with their package stay where they are.
+		if (now && ids.includes(now)) continue;
+		const exclude = new Set(el.kind === 'package' ? [id, ...descendantsOf(p, id)] : [id]);
+		const to = packageAt({ x: box.x + box.w / 2, y: box.y + box.h / 2 }, exclude);
+		if (to === now || (!to && !(now && d.layout.get(now)?.kind === 'node'))) continue;
+		moves.push({ id, to: to ?? null });
+	}
+	if (!moves.length) return;
+	projectStore.run(moveToPackage, { moves });
+	const to = moves[0].to;
+	announce(
+		t('live.movedToPackage', {
+			name:
+				moves.length === 1
+					? elementName(p.elements.get(moves[0].id)!)
+					: t('cmd.many', { count: moves.length }),
+			package: to ? elementName(p.elements.get(to)!) : t('cmd.topLevel')
+		})
+	);
+}
+
 const selectedWith = (kind: 'node' | 'edge') =>
 	selection.list.filter((id) => projectStore.diagram.layout.get(id)?.kind === kind);
 
-/** Arrows: nudge the selected nodes. Edges follow their nodes. */
+/** Arrows: nudge the selected nodes, and what a selected package holds. Edges follow their nodes. */
 export function nudgeSelection(dx: number, dy: number) {
-	const ids = selectedWith('node');
+	const ids = withMembers(selectedWith('node'));
 	if (!ids.length) return;
 	projectStore.run(moveNode, { diagramId: projectStore.activeDiagramId, ids, dx, dy });
 }
 
-/** ⇧+arrows: resize the one selected note by 8 px (keyboard.md; packages come with M3). */
+/** ⇧+arrows: resize the one selected note or package by 8 px (keyboard.md). */
 export function resizeSelection(dw: number, dh: number): boolean {
 	const ids = selectedWith('node').filter(
-		(id) => projectStore.project.elements.get(id)?.kind === 'note'
+		(id) => kindOf(id) === 'note' || kindOf(id) === 'package'
 	);
 	if (ids.length !== 1 || selection.size !== 1) return false;
 	const l = projectStore.diagram.layout.get(ids[0]);
 	if (l?.kind !== 'node') return false;
+	// ui.md: a note is at least 120 × 60, a package 240 × 160.
+	const min = kindOf(ids[0]) === 'package' ? PACKAGE_MIN : { w: 120, h: 60 };
 	projectStore.run(resizeNode, {
 		diagramId: projectStore.activeDiagramId,
 		id: ids[0],
-		w: Math.max(120, l.w + dw),
-		h: Math.max(60, l.h + dh)
+		w: Math.max(min.w, l.w + dw),
+		h: Math.max(min.h, l.h + dh)
 	});
 	return true;
 }
@@ -133,6 +226,7 @@ export function startEditing() {
 		edit(id, { part: line[1] as MemberKind, index: Number(line[2]) });
 	else if (kind === 'classifier') edit(id, { part: 'name' });
 	else if (kind === 'note' || kind === 'text' || kind === 'instance') edit(id, { part: 'text' });
+	else if (kind === 'package') edit(id, { part: 'name' });
 }
 
 /** L: start a keyboard link from the one selected node. */

@@ -3,6 +3,7 @@
 	import { runCommand } from '#lib/app/commands.svelte.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { RelationshipKind } from '#lib/model/types.ts';
+	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui, type Tool } from '#lib/stores/ui.svelte.ts';
 	import PanelTitle from '#lib/ui/atoms/PanelTitle.svelte';
 	import Tip from '#lib/ui/atoms/Tooltip.svelte';
@@ -11,12 +12,18 @@
 	// toolbox's; a relationship tool is the Link tool with that kind preset for the picker.
 	// One toolbar (arrow keys walk every tool), three labelled groups inside it.
 	// Derived, so the labels follow a locale applied after the panel mounted.
-	const ELEMENTS: { tool: Tool; label: string; ready: boolean }[] = $derived([
-		{ tool: 'class', label: t('ui.tool.class'), ready: true },
-		{ tool: 'interface', label: t('ui.tool.interface'), ready: true },
-		{ tool: 'enum', label: t('ui.tool.enum'), ready: true },
-		{ tool: 'package', label: t('ui.tool.package'), ready: false }
-	]);
+	// An object diagram offers objects instead (M3.2), as StarUML's own toolbox does.
+	const objects = $derived(projectStore.diagram.diagramKind === 'object');
+	const ELEMENTS: { tool: Tool; label: string; ready: boolean }[] = $derived(
+		objects
+			? [{ tool: 'object', label: t('ui.tool.object'), ready: true }]
+			: [
+					{ tool: 'class', label: t('ui.tool.class'), ready: true },
+					{ tool: 'interface', label: t('ui.tool.interface'), ready: true },
+					{ tool: 'enum', label: t('ui.tool.enum'), ready: true },
+					{ tool: 'package', label: t('ui.tool.package'), ready: true }
+				]
+	);
 	const RELS: RelationshipKind[] = [
 		'association',
 		'aggregation',
@@ -28,7 +35,7 @@
 	const dashed = (k: RelationshipKind) => k === 'realization' || k === 'dependency';
 	const note = () => runCommand('create.note');
 	// Bits single groups: the chosen value, or '' when the chosen item is clicked again.
-	const ELEMENT_TOOLS: Tool[] = ['class', 'interface', 'enum'];
+	const ELEMENT_TOOLS: Tool[] = ['class', 'interface', 'enum', 'package', 'object'];
 	const pick = (v: string) => {
 		ui.tool = v ? (v as Tool) : 'select';
 		if (ui.pinned !== ui.tool) ui.pinned = null;
@@ -61,7 +68,9 @@
 			onValueChange={pick}
 			aria-labelledby="classic-group-class"
 		>
-			<p id="classic-group-class" class="group">{t('classic.group.classDiagram')}</p>
+			<p id="classic-group-class" class="group">
+				{t(objects ? 'classic.group.objectDiagram' : 'classic.group.classDiagram')}
+			</p>
 			{#each ELEMENTS as e (e.tool)}
 				<Tip text={e.ready ? t('ui.pinHint', { tool: e.label }) : t('ui.comingSoon')}>
 					{#snippet children({ props })}
@@ -160,7 +169,8 @@
 		border-radius: 1px;
 	}
 	.glyph.class,
-	.glyph.enum {
+	.glyph.enum,
+	.glyph.object {
 		background: linear-gradient(currentColor, currentColor) 0 4px / 100% 1px no-repeat;
 	}
 	.glyph.interface {

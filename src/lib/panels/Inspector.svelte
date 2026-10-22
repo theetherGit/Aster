@@ -11,7 +11,6 @@
 	import { DEFAULT_DISPLAY_FLAGS, type DisplayFlags } from '#lib/model/types.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { MemberKind } from '#lib/mdj/expression.ts';
-	import { elementName } from '#lib/model/project.ts';
 	import type { ClassifierKind, Visibility } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
@@ -30,6 +29,8 @@
 	import MemberList from './MemberList.svelte';
 	import NoteInspector from './NoteInspector.svelte';
 	import InstanceInspector from './InstanceInspector.svelte';
+	import PackageField from './PackageField.svelte';
+	import PackageInspector from './PackageInspector.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
 	import RelationshipList from './RelationshipList.svelte';
 	import StyleSection from './StyleSection.svelte';
@@ -281,6 +282,9 @@
 							onchange={(v) => flags({ visibility: v as Visibility })}
 						/>
 					</div>
+					<div class="mt-3">
+						<PackageField element={c} />
+					</div>
 					<div class="mt-3 flex items-center gap-5">
 						<Checkbox
 							label={t('inspector.abstract')}
@@ -331,11 +335,10 @@
 					<RelationshipInspector rel={single} />
 				{:else if single && (single.kind === 'note' || single.kind === 'text')}
 					<NoteInspector element={single} />
+				{:else if single?.kind === 'package'}
+					<PackageInspector pkg={single} />
 				{:else if single && (single.kind === 'instance' || single.kind === 'link')}
 					<InstanceInspector element={single} />
-				{:else if single && single.kind !== 'classifier'}
-					<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
-					<h2 class="mt-1 text-(length:--text-lead) font-semibold">{elementName(single)}</h2>
 				{:else if selection.size === 0}
 					<p class="text-chrome-muted">{t('inspector.nothingSelected')}</p>
 				{:else}

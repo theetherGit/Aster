@@ -24,13 +24,14 @@ import {
 } from '#lib/canvas/edges/notation.ts';
 import { membersOf } from '#lib/commands/index.ts';
 import { renderMember, type MemberKind } from '#lib/mdj/expression.ts';
-import { instanceLabel } from '#lib/model/project.ts';
+import { instanceLabel, namespaceOf } from '#lib/model/project.ts';
 import type {
 	Classifier,
 	Diagram,
 	Id,
 	Instance,
 	Note,
+	Package,
 	Project,
 	Relationship,
 	TextElement
@@ -60,6 +61,10 @@ const PAD_Y = 6;
 const PAD_X = 10;
 const EMPTY = 8;
 const LABEL_FONT = 12;
+/** ClassifierNode's "(from A::B)" line under the name when Show namespace is on (M3.1). */
+const NAMESPACE_ROW = 16;
+/** ui.md: a package's tab is 24 px high and 40 % of its width. */
+const TAB_H = 24;
 const LABEL_LINE = 15;
 
 const esc = (s: string) =>
@@ -129,9 +134,16 @@ const paintOf = (l: { fill?: string; line?: string } | undefined): Paint => ({
 	line: lineOf(l) ?? INK
 });
 
-function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], paint: Paint, out: string[]) {
+function nodeSvg(
+	c: Classifier,
+	r: Rect,
+	flags: Diagram['defaults'],
+	paint: Paint,
+	out: string[],
+	namespace?: string
+) {
 	const header = flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c);
-	const nameH = header ? STEREO_ROW : NAME_ROW;
+	const nameH = (header ? STEREO_ROW : NAME_ROW) + (namespace ? NAMESPACE_ROW : 0);
 	out.push(
 		`<g class="node" data-name="${esc(c.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" fill="${paint.fill}" stroke="${paint.line}"/>`
 	);
@@ -143,6 +155,10 @@ function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], paint: Pain
 	out.push(
 		`<text x="${n(cx)}" y="${n(r.y + (header ? 29 : 14))}" text-anchor="middle" font-size="13" font-weight="600"${c.isAbstract ? ' font-style="italic"' : ''}>${esc(c.name)}</text>`
 	);
+	if (namespace)
+		out.push(
+			`<text x="${n(cx)}" y="${n(r.y + (header ? 45 : 30))}" text-anchor="middle" font-size="12">(from ${esc(namespace)})</text>`
+		);
 	let y = r.y + nameH;
 	const kinds: MemberKind[] = compartmentsFor(c).filter(
 		(k) =>
@@ -172,6 +188,15 @@ function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], paint: Pain
 		y += PAD_Y;
 	}
 	out.push('</g>');
+}
+
+/** A package: the name in a tab over the frame (PackageNode's shape). */
+function packageSvg(p: Package, r: Rect, paint: Paint, out: string[]) {
+	const tw = Math.max(80, r.w * 0.4);
+	out.push(
+		`<g class="package" data-name="${esc(p.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(tw)}" height="${TAB_H}" fill="${paint.fill}" stroke="${paint.line}"/><rect x="${n(r.x)}" y="${n(r.y + TAB_H)}" width="${n(r.w)}" height="${n(r.h - TAB_H)}" fill="${paint.fill}" stroke="${paint.line}"/>`,
+		`<text x="${n(r.x + 8)}" y="${n(r.y + 16)}" font-size="13" font-weight="600">${esc(p.name)}</text></g>`
+	);
 }
 
 const slotText = (s: Instance['slots'][number]) => (s.value ? `${s.name} = ${s.value}` : s.name);
@@ -310,8 +335,25 @@ export function diagramToSvg(
 	const shown = new Map(nodes.map(([c, r]) => [c.id, r]));
 	const body: string[] = [];
 	const bounds: Rect[] = [...shown.values()];
-	for (const [c, r] of nodes)
-		nodeSvg(c, r, flagsOf(diagram, c.id), paintOf(diagram.layout.get(c.id)), body);
+	// Package frames first, outer before inner, so they sit behind what they hold (M3.1).
+	const packages: [Package, Rect][] = [];
+	for (const id of diagram.elementIds) {
+		if (opts.only && !opts.only.has(id)) continue;
+		const el = project.elements.get(id);
+		const l = diagram.layout.get(id);
+		if (el?.kind !== 'package' || l?.kind !== 'node') continue;
+		packages.push([el, rects.get(id) ?? { x: l.x, y: l.y, w: l.w, h: l.h }]);
+	}
+	const depth = (p: Package) => namespaceOf(project, p)?.split('::').length ?? 0;
+	for (const [p, r] of packages.sort(([a], [b]) => depth(a) - depth(b))) {
+		packageSvg(p, r, paintOf(diagram.layout.get(p.id)), body);
+		bounds.push(r);
+	}
+	for (const [c, r] of nodes) {
+		const f = flagsOf(diagram, c.id);
+		const ns = f.showNamespace ? namespaceOf(project, c) : undefined;
+		nodeSvg(c, r, f, paintOf(diagram.layout.get(c.id)), body, ns);
+	}
 	// Notes and text, and the dashed links from notes to what they annotate.
 	const notes: [Note | TextElement, Rect][] = [];
 	for (const id of diagram.elementIds) {

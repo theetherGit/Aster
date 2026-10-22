@@ -138,7 +138,7 @@
 	const empty = $derived.by(() => {
 		void projectStore.version;
 		return ![...projectStore.project.elements.values()].some(
-			(e) => e.kind === 'classifier' || e.kind === 'package'
+			(e) => e.kind === 'classifier' || e.kind === 'package' || e.kind === 'instance'
 		);
 	});
 

@@ -1,6 +1,6 @@
 import { t, type MessageKey } from '#lib/i18n/index.ts';
 import { isRaw, parseMember, type MemberKind, type RawReason } from '#lib/mdj/expression.ts';
-import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
+import { descendantsOf, elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type { Diagram, Id, Project, Relationship } from '#lib/model/types.ts';
 
 /**
@@ -87,6 +87,10 @@ export function elementSummary(
 		});
 	if (el.kind === 'note') return t('summary.note', { text: el.text });
 	if (el.kind === 'text') return t('summary.text', { text: el.text });
+	if (el.kind === 'package') {
+		const count = descendantsOf(project, el.id).length;
+		return t(count === 1 ? 'summary.package.one' : 'summary.package', { name: el.name, count });
+	}
 	if (el.kind === 'instance')
 		return [
 			t('summary.instance', { name: elementName(el) }),

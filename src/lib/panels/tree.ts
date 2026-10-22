@@ -1,7 +1,7 @@
 /** Pure helpers for the Explorer tree: rows from the model, and ARIA tree keyboard moves. */
 import { t } from '#lib/i18n/index.ts';
 import { renderMember, type MemberKind } from '#lib/mdj/expression.ts';
-import { instanceLabel } from '#lib/model/project.ts';
+import { instanceLabel, ownerOf } from '#lib/model/project.ts';
 import type {
 	Classifier,
 	Id,
@@ -188,38 +188,44 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 				}))
 		};
 	};
-	const packageRow = (p: Package, level: number, members: Classifier[], diagramId?: Id): Draft => {
+	const packageRow = (p: Package, level: number, pool: Set<Id>, diagramId?: Id): Draft => {
 		const id = diagramId ? `${diagramRowId(diagramId)}/package:${p.id}` : `package:${p.id}`;
+		const inside = scope(pool, level + 1, diagramId, p.id);
 		return {
 			id,
 			type: 'package',
 			label: p.name,
 			hint: t('explorer.hint.package'),
 			level,
-			hasChildren: members.length > 0,
+			hasChildren: inside.length > 0,
 			expanded: expanded.has(id),
 			elementId: p.id,
 			diagramId,
-			children: () => members.map((c) => classifierRow(c, level + 1, diagramId))
+			children: () => inside
 		};
 	};
-	/** Packages then classifiers from `pool`, nesting a classifier under its package when both are in the pool. */
-	const scope = (pool: Set<Id>, level: number, diagramId?: Id): Draft[] => {
-		const pkgs = packages.filter((p) => pool.has(p.id));
-		const inPackage = (c: Classifier) => !!c.packageId && pool.has(c.packageId);
+	/**
+	 * What `pool` holds directly under `parent` (the top when undefined): packages, classifiers,
+	 * then objects. An element sits under the nearest package that holds it and is in the pool
+	 * too, so nesting shows to any depth (M3.1).
+	 */
+	const scope = (pool: Set<Id>, level: number, diagramId?: Id, parent?: Id): Draft[] => {
+		const shownParent = (el: Package | Classifier | Instance) => {
+			const seen = new Set<Id>();
+			for (let o = ownerOf(el); o && !seen.has(o);) {
+				if (pool.has(o)) return o;
+				seen.add(o);
+				const up = project.elements.get(o);
+				o = up && ownerOf(up);
+			}
+			return undefined;
+		};
+		const here = <T extends Package | Classifier | Instance>(list: T[]) =>
+			list.filter((e) => pool.has(e.id) && shownParent(e) === parent);
 		return [
-			...pkgs.map((p) =>
-				packageRow(
-					p,
-					level,
-					classifiers.filter((c) => c.packageId === p.id && pool.has(c.id)),
-					diagramId
-				)
-			),
-			...classifiers
-				.filter((c) => pool.has(c.id) && !inPackage(c))
-				.map((c) => classifierRow(c, level, diagramId)),
-			...instances.filter((o) => pool.has(o.id)).map((o) => instanceRow(o, level, diagramId))
+			...here(packages).map((p) => packageRow(p, level, pool, diagramId)),
+			...here(classifiers).map((c) => classifierRow(c, level, diagramId)),
+			...here(instances).map((o) => instanceRow(o, level, diagramId))
 		];
 	};
 	const diagramRow = (d: Project['diagrams'][number]): Draft => {

@@ -61,3 +61,4 @@ export {
 export { addNote, addText, linkNote, setElementText, unlinkNote } from './notes.ts';
 export { importFragment, removeFragment } from './fragment.ts';
 export { addInstance, addLink } from './objects.ts';
+export { PACKAGE_MIN, addPackage, moveToPackage } from './packages.ts';

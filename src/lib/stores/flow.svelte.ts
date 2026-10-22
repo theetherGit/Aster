@@ -11,6 +11,7 @@ import type {
 	EdgeLayout,
 	Instance,
 	Note,
+	Package,
 	Relationship,
 	TextElement
 } from '#lib/model/types.ts';
@@ -63,7 +64,32 @@ export interface InstanceNodeData extends Record<string, unknown> {
 	line?: string;
 }
 export type InstanceFlowNode = Node<InstanceNodeData, 'instance'>;
-export type FlowNode = ClassifierFlowNode | NoteFlowNode | InstanceFlowNode;
+
+/** A package frame (M3.1): drawn behind everything, a nested one above the one that holds it. */
+export interface PackageNodeData extends Record<string, unknown> {
+	pkg: Package;
+	width: number;
+	height: number;
+	editing: boolean;
+	hovered: boolean;
+	focus: FocusPart | null;
+	fill?: string;
+	line?: string;
+}
+export type PackageFlowNode = Node<PackageNodeData, 'package'>;
+export type FlowNode = ClassifierFlowNode | NoteFlowNode | InstanceFlowNode | PackageFlowNode;
+
+/** How many packages hold this one. */
+function depthOf(project: { elements: Map<string, unknown> }, pkg: Package): number {
+	let n = 0;
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local scratch set, never observed
+	const seen = new Set<string>();
+	for (let id = pkg.parentId; id && !seen.has(id); n++) {
+		seen.add(id);
+		id = (project.elements.get(id) as Package | undefined)?.parentId;
+	}
+	return n;
+}
 
 export interface RelationshipEdgeData extends Record<string, unknown> {
 	relationship: Relationship;
@@ -169,6 +195,25 @@ class Flow {
 						height: l.h,
 						editing: false,
 						link: null,
+						hovered: false,
+						focus: null,
+						fill: fillOf(l),
+						line: lineOf(l)
+					},
+					focusable: false
+				});
+			} else if (el.kind === 'package') {
+				out.push({
+					id,
+					type: 'package',
+					position: { x: l.x, y: l.y },
+					// Under every other node, even when selected (Svelte Flow lifts a selected node by 1000).
+					zIndex: -2000 + depthOf(project, el),
+					data: {
+						pkg: structuredClone(el),
+						width: Math.max(240, l.w),
+						height: Math.max(160, l.h),
+						editing: false,
 						hovered: false,
 						focus: null,
 						fill: fillOf(l),
@@ -296,6 +341,19 @@ class Flow {
 				link: linkRole(n.id),
 				focus: f?.id === n.id ? f.part : null
 			};
+			if (n.type === 'package') {
+				const node = n as PackageFlowNode;
+				return {
+					...node,
+					selected: common.selected,
+					data: {
+						...node.data,
+						hovered: common.hovered,
+						focus: common.focus,
+						editing: selection.editing?.id === n.id
+					}
+				};
+			}
 			if (n.type === 'instance') {
 				const node = n as InstanceFlowNode;
 				return {

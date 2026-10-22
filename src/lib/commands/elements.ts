@@ -1,5 +1,13 @@
 import { t } from '#lib/i18n/index.ts';
-import { elementName, getClassifier, getDiagram, getElement } from '#lib/model/project.ts';
+import {
+	descendantsOf,
+	elementName,
+	getClassifier,
+	getDiagram,
+	getElement,
+	ownerOf,
+	setOwner
+} from '#lib/model/project.ts';
 import type {
 	Classifier,
 	Element,
@@ -44,7 +52,14 @@ export const restoreElements: Factory<{ items: RestoreItem[] }> = define<{ items
 		}),
 		touches: items.map((i) => i.element.id),
 		apply(p): Command {
-			for (const { element } of items) p.elements.set(element.id, structuredClone(element));
+			for (const { element } of items) {
+				const el = structuredClone(element);
+				p.elements.set(el.id, el);
+				// Back in the package that held it (memberIds follows packageId / parentId).
+				const owner = ownerOf(el);
+				const pkg = owner ? p.elements.get(owner) : undefined;
+				if (pkg?.kind === 'package' && !pkg.memberIds.includes(el.id)) pkg.memberIds.push(el.id);
+			}
 			// Lowest index first across every item, so each lands where it was before any went.
 			const views = items.flatMap(({ element, views }) =>
 				views.map((v) => ({ id: element.id, v }))
@@ -66,7 +81,11 @@ export const deleteFromModel: Factory<{ ids: Id[] }> = define<{ ids: Id[] }>(
 		label: t('cmd.deleteFromModel', { name: namesOf(project, ids) }),
 		touches: ids,
 		apply(p): Command {
+			// A package goes with everything in it (as in StarUML), then the lines that touch any of it.
 			const doomed = new Set(ids);
+			for (const id of ids)
+				if (p.elements.get(id)?.kind === 'package')
+					for (const x of descendantsOf(p, id)) doomed.add(x);
 			for (const el of p.elements.values()) {
 				if (
 					(el.kind === 'relationship' || el.kind === 'link') &&
@@ -94,6 +113,10 @@ export const deleteFromModel: Factory<{ ids: Id[] }> = define<{ ids: Id[] }>(
 					if (index >= 0) d.elementIds.splice(index, 1);
 					d.layout.delete(id);
 				}
+				const el = p.elements.get(id);
+				const owner = el && ownerOf(el);
+				const pkg = owner ? p.elements.get(owner) : undefined;
+				if (pkg?.kind === 'package') pkg.memberIds = pkg.memberIds.filter((x) => x !== id);
 				p.elements.delete(id);
 			}
 			return restoreElements(p, { items });
@@ -113,7 +136,9 @@ export const addClassifier: Factory<{ diagramId: Id; classifier: Classifier; at:
 	touches: [classifier.id],
 	apply(p): Command {
 		const d = getDiagram(p, diagramId);
-		p.elements.set(classifier.id, structuredClone(classifier));
+		const el = structuredClone(classifier);
+		p.elements.set(el.id, el);
+		if (el.packageId) setOwner(p, el, el.packageId);
 		d.elementIds.push(classifier.id);
 		d.layout.set(classifier.id, { kind: 'node', x: at.x, y: at.y, w: 160, h: 80 });
 		return deleteFromModel(p, { ids: [classifier.id] });

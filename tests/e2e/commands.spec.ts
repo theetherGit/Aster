@@ -204,7 +204,7 @@ test('the top bar opens the palette; the toolbox links the one selected node', a
 		.getByRole('toolbar', { name: 'Toolbox' })
 		.getByRole('button', { name: 'Link (L)' });
 	await expect(link).toBeDisabled(); // nothing selected
-	await expect(page.getByRole('radio', { name: /Package/ })).toHaveCount(0); // M2, no placeholder
+	await expect(page.getByRole('radio', { name: 'Package (P)' })).toBeVisible(); // M3.1
 	await node(page, 'Account').click();
 	await expect(link).toBeEnabled();
 	await link.click();

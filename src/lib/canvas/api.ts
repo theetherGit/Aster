@@ -7,6 +7,8 @@ export interface CanvasApi {
 	createNote: () => void;
 	/** An object on an object diagram (M3.2), at a paper point or the cursor. */
 	createObject: (at?: Point) => void;
+	/** A package (M3.1, key P), at a paper point or the cursor. */
+	createPackage: (at?: Point) => void;
 	createText: () => void;
 	startLink: () => boolean;
 	zoomBy: (factor: number) => void;
@@ -24,6 +26,7 @@ export const canvasApi: CanvasApi = {
 	create: noop,
 	createNote: noop,
 	createObject: noop,
+	createPackage: noop,
 	createText: noop,
 	startLink: () => false,
 	zoomBy: noop,

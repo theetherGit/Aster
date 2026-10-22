@@ -9,7 +9,7 @@
  */
 import { clipToRect } from '#lib/canvas/edges/geometry.ts';
 import { newId } from '#lib/model/ids.ts';
-import { instanceLabel, isAssociationKind } from '#lib/model/project.ts';
+import { instanceLabel, isAssociationKind, ownerOf } from '#lib/model/project.ts';
 import {
 	DEFAULT_DISPLAY_FLAGS,
 	type Attribute,
@@ -366,10 +366,29 @@ class Serializer {
 		this.swappedCache.set(r.id, result);
 		return result;
 	}
+	/**
+	 * The package an element was read under (its record's nearest package ancestor), or the model.
+	 * A class nested in a class was read under the outer class's package.
+	 */
+	readOwner(id: Id): Id {
+		const seen = new Set<Id>();
+		let p = refOf(this.records.get(id)?._parent);
+		while (p && !seen.has(p) && p !== this.modelId) {
+			if (this.project.elements.get(p)?.kind === 'package') return p;
+			seen.add(p);
+			p = refOf(this.records.get(p)?._parent);
+		}
+		return this.modelId;
+	}
+	/** An element that holds its place in a package has moved since it was read (M3.1). */
+	moved(el: Element): boolean {
+		if (el.kind !== 'classifier' && el.kind !== 'package' && el.kind !== 'instance') return false;
+		return this.records.has(el.id) && this.readOwner(el.id) !== (ownerOf(el) ?? this.modelId);
+	}
 	/** Where an element is written: its original parent while that exists, else the spec's rule. */
 	parentOf(el: Element | Diagram): Id {
 		const p = refOf(this.records.get(el.id)?._parent);
-		if (this.alive(p)) return p;
+		if (this.alive(p) && !('kind' in el && this.moved(el))) return p;
 		if (!('kind' in el)) return this.modelId; // a diagram
 		switch (el.kind) {
 			case 'classifier':
@@ -832,8 +851,51 @@ class Serializer {
 				});
 			}
 		}
+		this.contain(d, children);
 		this.setArray(o, d.id, 'ownedViews', children);
 		this.spliceRest(o, d.id, [...WALKED]);
+	}
+
+	/**
+	 * M3.1: a view drawn in its package's view says so, as StarUML writes it: `containerView` on the
+	 * member's view, the member in the package view's `containedViews`. Set only for a new view, a
+	 * new package view, or an element that changed package; a view read from a file keeps what it
+	 * had, so a file with views placed apart from their model (an import warning) saves unchanged.
+	 */
+	contain(d: Diagram, children: Child[]) {
+		const byView = new Map(children.map((c) => [c.json._id as string, c.json]));
+		const viewOf = (id: Id) => {
+			const l = d.layout.get(id);
+			return l?.kind === 'node' ? byView.get(this.viewIdOf(d, id)) : undefined;
+		};
+		for (const id of d.elementIds) {
+			const el = this.project.elements.get(id);
+			const v = el && viewOf(id);
+			if (
+				!el ||
+				!v ||
+				(el.kind !== 'classifier' && el.kind !== 'package' && el.kind !== 'instance')
+			)
+				continue;
+			const owner = ownerOf(el);
+			const box = owner ? viewOf(owner) : undefined;
+			const fresh =
+				!this.viewRecords.has(`${d.id}/${id}`) ||
+				this.moved(el) ||
+				(!!box && !!owner && !this.viewRecords.has(`${d.id}/${owner}`));
+			if (!fresh) continue;
+			const was = refOf(v.containerView);
+			const want = box?._id as string | undefined;
+			if (was === want) continue;
+			const old = was ? byView.get(was) : undefined;
+			if (old) old.containedViews = arr(old.containedViews).filter((r) => refOf(r) !== v._id);
+			if (want && box) {
+				v.containerView = ref(want);
+				const list = arr(box.containedViews);
+				if (!list.some((r) => refOf(r) === v._id))
+					box.containedViews = [...list, ref(v._id as string)];
+			} else delete v.containerView;
+		}
 	}
 
 	/** Rect fields and the colour / display flags shared by every node view. */

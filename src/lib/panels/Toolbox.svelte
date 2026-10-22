@@ -11,7 +11,7 @@
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import Tip from '#lib/ui/atoms/Tooltip.svelte';
 
-	// The placing tools; Package joins when packages land (M2, DECISIONS.md). Link is not a mode
+	// The placing tools (ui.md: Select, Class, Interface, Enum, Package, then Link). Link is not a mode
 	// but an action on the one selected node, the same as the L key. An object diagram places
 	// objects instead (M3.2; keyboard.md gives Object no key).
 	// The tool glyphs live in Icon.svelte (board 01), drawn at 15 px.
@@ -20,7 +20,8 @@
 		{ id: 'select', key: null },
 		{ id: 'class', key: 'C' },
 		{ id: 'interface', key: 'I' },
-		{ id: 'enum', key: 'E' }
+		{ id: 'enum', key: 'E' },
+		{ id: 'package', key: 'P' }
 	];
 	const OBJECT_TOOLS: ToolDef[] = [
 		{ id: 'select', key: null },
