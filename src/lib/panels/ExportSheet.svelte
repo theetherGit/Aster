@@ -235,15 +235,23 @@
 			{/if}
 			<fieldset class="mt-4 flex flex-col gap-2">
 				<legend class="sr-only">{t('export.background')}</legend>
-				<label class="flex items-center gap-2"
-					><input type="radio" name="bg" value="white" bind:group={options.background} />{t(
-						'export.white'
-					)}</label
+				<label class="flex min-h-(--control-min) items-center gap-2"
+					><input
+						type="radio"
+						name="bg"
+						value="white"
+						class="m-0 size-3.5 accent-accent"
+						bind:group={options.background}
+					/>{t('export.white')}</label
 				>
-				<label class="flex items-center gap-2"
-					><input type="radio" name="bg" value="transparent" bind:group={options.background} />{t(
-						'export.transparent'
-					)}</label
+				<label class="flex min-h-(--control-min) items-center gap-2"
+					><input
+						type="radio"
+						name="bg"
+						value="transparent"
+						class="m-0 size-3.5 accent-accent"
+						bind:group={options.background}
+					/>{t('export.transparent')}</label
 				>
 				{@render selectionOnly()}
 			</fieldset>

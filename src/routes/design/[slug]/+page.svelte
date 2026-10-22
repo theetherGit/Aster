@@ -329,7 +329,7 @@
 							<Banner
 								tone="info"
 								label={t('welcome.sampleLabel')}
-								text={t('welcome.sampleStrip')}
+								text={t('welcome.sampleStrip', { key: format(byId('file.new')!.keys[0]) })}
 								dismissLabel={t('welcome.sampleDismiss')}
 								ondismiss={() => (ui.sampleStrip = false)}
 							>

@@ -745,7 +745,7 @@
 	/* Chrome over the paper: the same layer, shadow and radius as the toolbox. */
 	.link-hint {
 		position: absolute;
-		bottom: var(--space-3);
+		bottom: var(--space-12);
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: var(--z-toolbox);

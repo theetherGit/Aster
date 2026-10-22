@@ -73,6 +73,11 @@ body {
 	outline: 2px dashed var(--accent);
 	outline-offset: 2px;
 }
+/* Segments and tab strips clip what lies outside their items: the ring goes inside (lab audit). */
+[data-toggle-group-item]:focus-visible,
+[data-tabs-trigger]:focus-visible {
+	outline-offset: -4px;
+}
 /* Text fields take a solid ring flush with their edge; the dashed ring marks keyboard focus elsewhere. */
 input:not([type='checkbox']):not([type='radio']):focus-visible,
 textarea:focus-visible,

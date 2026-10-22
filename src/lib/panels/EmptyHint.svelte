@@ -21,7 +21,7 @@
 <div class="hint">
 	<div
 		class="mb-3 w-[200px]"
-		use:hairline={{ figure: drawer, label: t('empty.figure'), intensity: 0.4, play: true }}
+		use:hairline={{ figure: drawer, label: t('empty.figure'), intensity: 0.4, play: false }}
 	></div>
 	<p class="text-(length:--text-title) font-semibold">{t('empty.title')}</p>
 	<p class="mt-1 text-(length:--text-body)">{t('empty.body')}</p>
@@ -51,7 +51,7 @@
 		text-align: center;
 		pointer-events: none;
 	}
-	.hint p:first-child {
+	.hint p:first-of-type {
 		color: var(--paper-ink);
 	}
 	.keys {

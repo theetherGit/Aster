@@ -2,6 +2,7 @@
 	import { Select } from 'bits-ui';
 	import { cn } from 'cn';
 	import { field, menu, menuItem } from '../styles.ts';
+	import Icon from './Icon.svelte';
 
 	interface Props {
 		id?: string;
@@ -32,7 +33,19 @@
 	<Select.Trigger
 		{id}
 		aria-labelledby={ariaLabel ? `${id}-label ${id}` : undefined}
-		class={cn(field, 'truncate text-start whitespace-nowrap', className)}>{current}</Select.Trigger
+		class={cn(
+			field,
+			'group flex items-center justify-between gap-1 text-start whitespace-nowrap',
+			className
+		)}
+		><span class="truncate">{current}</span>
+		<!-- The caret says "menu", not "text field" (boards 01, 08, 13; lab audit). -->
+		<Icon
+			name="chevron-down"
+			size={10}
+			stroke={3}
+			class="shrink-0 text-chrome-muted group-hover:text-chrome-text"
+		/></Select.Trigger
 	>
 	<Select.Portal>
 		<Select.Content class={menu} sideOffset={4}>

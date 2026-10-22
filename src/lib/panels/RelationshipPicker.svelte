@@ -105,7 +105,7 @@
 			<DropdownMenu.Group>
 				<!-- Board 05: which way the relationship goes, above the kinds. -->
 				<DropdownMenu.GroupHeading
-					class="px-2 pt-1 pb-1.5 text-(length:--text-caption) font-semibold tracking-wide text-chrome-muted uppercase"
+					class="px-2 pt-1 pb-1.5 text-(length:--text-caption) font-semibold text-chrome-muted"
 				>
 					{t('picker.heading', {
 						source: nameOf(ui.picker?.sourceId),

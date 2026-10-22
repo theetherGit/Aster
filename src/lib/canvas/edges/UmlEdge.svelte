@@ -427,7 +427,6 @@
 		fill: none;
 		stroke: var(--paper-accent);
 		stroke-dasharray: 6 4;
-		opacity: 0.45;
 		pointer-events: none;
 	}
 	.edge-hit {

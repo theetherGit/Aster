@@ -170,20 +170,26 @@
 			<!-- Board 03: Classic's "Editors" title shares the tab row but is not part of the tablist,
 			     nor a heading of its own (the aside is already named by it): a span in the title dress. -->
 			<!-- The tab row stays put while the panel scrolls (owner's request). -->
-			<div class="sticky top-0 z-2 flex border-b border-chrome-border bg-chrome-surface px-2">
+			<div
+				class="sticky top-0 z-2 flex border-b border-chrome-border bg-chrome-surface {classic
+					? 'px-1'
+					: 'px-2'}"
+			>
 				{#if classic}
 					<span class="editors-title">{t('classic.editors')}</span>
 				{/if}
 				<Tabs.List
-					class="flex {classic ? 'editors-tabs' : ''}"
+					class="flex {classic
+						? 'editors-tabs min-w-0 [scrollbar-width:none] overflow-x-auto'
+						: ''}"
 					aria-label={classic ? t('classic.editors') : t('inspector.title')}
 				>
 					{#if classic}
-						<Tab value="diagram" class="px-2">{t('classic.tab.style')}</Tab>
-						<Tab value="properties" class="px-2">{t('classic.tab.property')}</Tab>
-						<Tab value="documentation" class="px-2">{t('classic.tab.documentation')}</Tab>
+						<Tab value="diagram" class="shrink-0 px-1">{t('classic.tab.style')}</Tab>
+						<Tab value="properties" class="shrink-0 px-1">{t('classic.tab.property')}</Tab>
+						<Tab value="documentation" class="shrink-0 px-1">{t('classic.tab.documentation')}</Tab>
 						<!-- No feature is exclusive to a layout (overview.md): Classic's Editors carry Text too. -->
-						<Tab value="text" class="px-2">{t('text.tab')}</Tab>
+						<Tab value="text" class="shrink-0 px-1">{t('text.tab')}</Tab>
 					{:else}
 						<!-- Board 09: Properties, Text, Diagram. -->
 						<Tab value="properties">{t('inspector.tab.properties')}</Tab>
@@ -418,6 +424,7 @@
 	:global(.kind-trigger),
 	:global(.display-trigger) {
 		display: flex;
+		min-height: var(--control-min);
 		gap: var(--space-1);
 		align-items: center;
 		font-size: var(--text-caption);

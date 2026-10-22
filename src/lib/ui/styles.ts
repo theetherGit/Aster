@@ -7,7 +7,7 @@ export const field =
 	'box-border h-(--control-icon) rounded-control border border-control-border bg-chrome-bg px-2 text-(length:--text-body) text-chrome-text placeholder:text-chrome-muted focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent disabled:opacity-50';
 
 export const menu =
-	'z-(--z-dialog) min-w-35 rounded-control border border-chrome-border bg-chrome-surface p-1 text-chrome-text shadow-menu';
+	'z-(--z-dialog) min-w-35 rounded-menu border border-chrome-border bg-chrome-surface p-1 text-chrome-text shadow-menu';
 
 export const menuItem =
 	'flex h-(--control-icon) cursor-default items-center gap-2 rounded px-2 text-(length:--text-body) data-[highlighted]:bg-selection data-[disabled]:opacity-50 forced-colors:data-[highlighted]:bg-[Highlight] forced-colors:data-[highlighted]:text-[HighlightText]';

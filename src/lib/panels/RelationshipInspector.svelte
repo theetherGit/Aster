@@ -16,6 +16,8 @@
 		type EndPatch
 	} from '#lib/commands/index.ts';
 	import { serialise } from '#lib/commands/registry.ts';
+	import { byId } from '#lib/app/commands.svelte.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { elementName, isAssociationKind } from '#lib/model/project.ts';
 	import type {
@@ -68,7 +70,10 @@
 		curve: 'M1 12C9 12 13 2 21 2'
 	};
 	const styleTitle = (style: LineStyle) =>
-		t('lineStyle.titled', { style: t(`lineStyle.${style}`), keys: t(`lineStyle.key.${style}`) });
+		t('lineStyle.titled', {
+			style: t(`lineStyle.${style}`),
+			keys: format(byId(`format.${style}`)!.keys[0])
+		});
 	const endField = (field: string, end: 'source' | 'target') =>
 		t('inspector.endField', {
 			field,
@@ -277,7 +282,7 @@
 			v &&
 			v !== layout?.lineStyle &&
 			run(setLineStyle, { diagramId, id: rel.id, lineStyle: v as LineStyle })}
-		class="grid grid-cols-4 overflow-hidden rounded-control border border-chrome-border"
+		class="grid grid-cols-4 overflow-hidden rounded-control border border-control-border"
 		aria-label={t('inspector.lineStyle')}
 	>
 		{#each STYLES as style (style)}
@@ -285,7 +290,7 @@
 				value={style}
 				aria-label={t(`lineStyle.${style}`)}
 				title={styleTitle(style)}
-				class="flex h-14 flex-col items-center justify-center gap-1 border-e border-chrome-border text-(length:--text-caption) text-chrome-muted last:border-e-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
+				class="flex h-14 flex-col items-center justify-center gap-1 border-e border-control-border text-(length:--text-caption) text-chrome-muted last:border-e-0 hover:bg-chrome-bg data-[state=on]:bg-accent/10 data-[state=on]:font-semibold data-[state=on]:text-chrome-text"
 			>
 				<svg
 					width="22"
@@ -416,7 +421,7 @@
 		font-size: var(--text-caption);
 		color: var(--chrome-muted);
 		background: var(--chrome-bg);
-		border: 1px solid var(--chrome-border);
+		border: 1px solid var(--control-border);
 		border-radius: var(--radius-pill);
 	}
 	:global(.chip:hover) {
