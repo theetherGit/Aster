@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { firstElement, nearestInDirection } from '#lib/canvas/link.ts';
-import { elementSummary } from '#lib/canvas/summary.ts';
+import { elementSummary, relationshipsByEnd } from '#lib/canvas/summary.ts';
 import type { Rect } from '#lib/canvas/edges/geometry.ts';
 import { sampleProject } from '#lib/model/fixtures.ts';
 import {
@@ -119,6 +119,31 @@ describe('canvas focus: element summary (board 10)', () => {
 		expect(say('LoanStatus')).toBe('LoanStatus, enumeration. 3 literals. Loan uses it.');
 		expect(say('Customer')).toBe('Customer, class. 2 attributes, 2 operations.');
 		expect(say('a')).toBe('Loan to Book, association');
+	});
+
+	// Performance (M3): a 10 MB file has thousands of nodes, each with a summary; scanning the
+	// diagram per node is quadratic, so the nodes share one index of relationships by end.
+	it('reads the same with the shared relationship index, a self-association included', () => {
+		const { project, diagram } = library();
+		project.elements.set(
+			'self',
+			createRelationship({
+				id: 'self',
+				relationshipKind: 'association',
+				sourceId: 'Loan',
+				targetId: 'Loan'
+			})
+		);
+		diagram.elementIds.push('self');
+		diagram.layout.set('self', defaultEdgeLayout());
+		const index = relationshipsByEnd(project, diagram);
+		for (const id of diagram.elementIds)
+			expect(elementSummary(project, diagram, id, { index })).toBe(
+				elementSummary(project, diagram, id)
+			);
+		expect(elementSummary(project, diagram, 'Loan', { index })).toBe(
+			'Loan, class. 0 attributes, 0 operations. Refers to Book; uses LoanStatus; refers to Loan.'
+		);
 	});
 
 	it('adds the key hint when asked, for the first element focused on entering the diagram', () => {

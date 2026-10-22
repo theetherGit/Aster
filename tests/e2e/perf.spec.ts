@@ -3,8 +3,9 @@ import { largeMdj } from '../../fixtures/perf/generate.ts';
 import { canvasOf } from './helpers';
 
 /**
- * features.md, Performance (M1 slice): a 200-class / 300-edge diagram pans at frame rate, and
- * first paint stays under budget on a throttled CPU. CI runners vary: the thresholds there are
+ * features.md, Performance: a 200-class / 300-edge diagram (M1) and a 500 / 800 one (M3) pan at
+ * frame rate, a 10 MB file opens in under 2 s (M3), and first paint stays under budget on a
+ * throttled CPU. CI runners vary: the thresholds there are
  * documented baselines, the strict numbers apply on a developer machine.
  */
 const CI = !!process.env.CI;
@@ -22,23 +23,22 @@ async function drop(page: Page, name: string, text: string) {
 	await page.dispatchEvent('body', 'drop', { dataTransfer: dt });
 }
 
-test('200 classes and 300 edges: opens, draws, and pans for 3 s under the frame budget', async ({
-	page
-}) => {
+/** Drops a generated file, waits until it is open, and returns how long that took. */
+async function open(page: Page, classes: number, edges: number) {
 	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();
+	const text = JSON.stringify(largeMdj(classes, edges));
 	const t0 = Date.now();
-	await drop(page, 'large.mdj', JSON.stringify(largeMdj()));
-	await expect(page.getByTestId('import-notice')).toContainText('Opened large.mdj');
-	await expect(page.locator('footer')).toContainText('200 classifiers');
-	const openMs = Date.now() - t0;
+	await drop(page, 'large.mdj', text);
+	await expect(page.getByTestId('import-notice')).toContainText('Opened large.mdj', {
+		timeout: 20_000
+	});
+	await expect(page.locator('footer')).toContainText(`${classes} classifiers`);
+	return { ms: Date.now() - t0, mb: text.length / 1e6 };
+}
 
-	// Only what is on screen is rendered (Svelte Flow's onlyRenderVisibleElements above 100 nodes).
-	const rendered = await page.locator('.classifier-node').count();
-	expect(rendered).toBeGreaterThan(0);
-	expect(rendered).toBeLessThan(200);
-
-	// Pan with the middle button for 3 s while a rAF loop records frame times.
+/** Pans with the middle button for 3 s while a rAF loop records frame times. */
+async function pan(page: Page) {
 	await page.mouse.move(640, 400);
 	await page.evaluate(() => {
 		const w = window as unknown as { __frames: number[]; __stop: boolean };
@@ -66,14 +66,55 @@ test('200 classes and 300 edges: opens, draws, and pans for 3 s under the frame 
 	});
 	const mean = frames.reduce((a, b) => a + b, 0) / frames.length;
 	const sorted = [...frames].sort((a, b) => a - b);
-	const p95 = sorted[Math.floor(sorted.length * 0.95)];
+	return { frames: frames.length, mean, p95: sorted[Math.floor(sorted.length * 0.95)] };
+}
+
+for (const [classes, edges, slice] of [
+	[200, 300, 'M1'],
+	[500, 800, 'M3']
+] as const)
+	test(`${classes} classes and ${edges} edges (${slice}): opens, draws, and pans for 3 s under the frame budget`, async ({
+		page
+	}) => {
+		const opened = await open(page, classes, edges);
+		// Only what is on screen is rendered (Svelte Flow's onlyRenderVisibleElements above 100 nodes).
+		const rendered = await page.locator('.classifier-node').count();
+		expect(rendered).toBeGreaterThan(0);
+		expect(rendered).toBeLessThan(classes);
+		const { frames, mean, p95 } = await pan(page);
+		console.log(
+			`perf ${classes}/${edges}: open ${opened.ms} ms, ${frames} frames, mean ${mean.toFixed(1)} ms, p95 ${p95.toFixed(1)} ms, ${rendered} nodes rendered`
+		);
+		// A smooth 60 Hz pan averages one frame (16.7 ms); the budget is no dropped frames, so the
+		// mean stays near a frame and the 95th percentile under two.
+		expect(mean).toBeLessThan(CI ? 40 : 20);
+		expect(p95).toBeLessThan(CI ? 80 : 34);
+	});
+
+// features.md M3, Performance: "10 MB .mdj opens in under 2 s". 4,800 classes and 7,600 lines
+// in one diagram; the Outline renders only the rows in view.
+test('a 10 MB .mdj opens in under 2 s, and the Outline draws only the rows in view', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	const opened = await open(page, 4800, 7600);
+	expect(opened.mb).toBeGreaterThan(10);
+	const tree = page.getByRole('tree', { name: 'Model tree' });
+	await tree.getByRole('treeitem', { name: /^Large/ }).focus();
+	await page.keyboard.press('ArrowRight');
+	await expect(tree.getByRole('treeitem', { name: /^Class0\b/ })).toBeVisible();
+	const rows = await tree.getByRole('treeitem').count();
 	console.log(
-		`perf: open ${openMs} ms, ${frames.length} frames, mean ${mean.toFixed(1)} ms, p95 ${p95.toFixed(1)} ms, ${rendered} nodes rendered`
+		`perf 10 MB: ${opened.mb.toFixed(1)} MB open in ${opened.ms} ms, ${rows} Outline rows in the DOM`
 	);
-	// A smooth 60 Hz pan averages one frame (16.7 ms); the budget is no dropped frames, so the
-	// mean stays near a frame and the 95th percentile under two.
-	expect(mean).toBeLessThan(CI ? 40 : 20);
-	expect(p95).toBeLessThan(CI ? 80 : 34);
+	expect(opened.ms).toBeLessThan(CI ? 6000 : 2000);
+	expect(rows).toBeLessThan(200);
+	// The keyboard still reaches every row: End lands on the last class, Home on the project.
+	await page.keyboard.press('End');
+	await expect(tree.getByRole('treeitem', { name: /^Class4799\b/ })).toBeFocused();
+	await page.keyboard.press('Home');
+	await expect(tree.getByRole('treeitem').first()).toBeFocused();
+	expect(await tree.getByRole('treeitem').count()).toBeLessThan(200);
 });
 
 test('first paint under 1 s on a 4× throttled CPU', async ({ page, browserName }) => {

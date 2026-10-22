@@ -60,6 +60,61 @@
 	const clearBuffer = useDebounce(() => (buffer = ''), 500);
 
 	const rows = $derived(buildRows(projectStore.project, expanded));
+
+	// Performance (M3): a large tree draws only the rows in view, each placed at its slot (rows are
+	// one height, h-7). The focused row, the row being edited and the menu's row always stay in the
+	// DOM, so Tab, type-ahead and the menus keep working; focusing a row scrolls it into view, and
+	// the scroll moves the window. aria-setsize / aria-posinset carry each row's place in the whole.
+	const ROW = 28;
+	const VIRTUAL_ABOVE = 200;
+	const OVERSCAN = 12;
+	const virtual = $derived(rows.length > VIRTUAL_ABOVE);
+	/** The tree's visible band, in its own coordinates. */
+	let band = $state({ from: 0, to: 800 });
+	let scroller: HTMLElement | null = null;
+	function measureBand() {
+		if (!scroller || !treeEl) return;
+		const s = scroller.getBoundingClientRect();
+		const r = treeEl.getBoundingClientRect();
+		band = { from: s.top - r.top, to: s.top - r.top + s.height };
+	}
+	$effect(() => {
+		let el: HTMLElement | null = treeEl?.parentElement ?? null;
+		while (el && !/(auto|scroll)/.test(getComputedStyle(el).overflowY)) el = el.parentElement;
+		scroller = el;
+		if (!el) return;
+		measureBand();
+		el.addEventListener('scroll', measureBand, { passive: true });
+		const resize = new ResizeObserver(measureBand);
+		resize.observe(el);
+		return () => {
+			el.removeEventListener('scroll', measureBand);
+			resize.disconnect();
+		};
+	});
+	/** A member being written from the tree takes one slot after its row. */
+	const newAfter = $derived.by(() => {
+		const ed = editing;
+		return ed?.kind === 'new' ? rows.findIndex((r) => r.id === ed.afterRowId) : -1;
+	});
+	const slot = (i: number) => i + (newAfter >= 0 && i > newAfter ? 1 : 0);
+	const slots = $derived(rows.length + (newAfter >= 0 ? 1 : 0));
+	const shown = $derived.by(() => {
+		if (!virtual) return rows.map((_, i) => i);
+		const first = Math.max(0, Math.floor(band.from / ROW) - OVERSCAN);
+		const last = Math.min(slots, Math.ceil(band.to / ROW) + OVERSCAN);
+		const keep: number[] = [];
+		for (let i = first; i < last && i < rows.length; i++) keep.push(i);
+		const editRow =
+			editing?.kind === 'new'
+				? newAfter
+				: editing
+					? rows.findIndex((r) => r.id === (editing as { rowId: string }).rowId)
+					: -1;
+		for (const i of [focusedIndex, editRow, menuRow])
+			if (i >= 0 && i < rows.length && !keep.includes(i)) keep.push(i);
+		return keep.sort((x, y) => x - y);
+	});
 	// The selected element's row in the open diagram (or under the project when unplaced).
 	const selectedId = $derived(selection.size === 1 ? selection.list[0] : null);
 	const isSelectedRow = (row: TreeRow) =>
@@ -539,6 +594,8 @@
 					aria-label={t('explorer.tree')}
 					bind:this={treeEl}
 					class="pb-3"
+					class:relative={virtual}
+					style:height={virtual ? `${slots * ROW}px` : undefined}
 					{onkeydown}
 					onfocusin={(e) => {
 						// Focus can arrive from outside the tree's own keys (a click, a script, assistive tech).
@@ -548,7 +605,8 @@
 					oncontextmenu={(e) =>
 						oncontextmenu(e, props.oncontextmenu as ((e: MouseEvent) => void) | undefined)}
 				>
-					{#each rows as row, i (row.id)}
+					{#each shown as i (rows[i].id)}
+						{@const row = rows[i]}
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<li
 							role="treeitem"
@@ -561,6 +619,8 @@
 							tabindex={i === focusedIndex ? 0 : -1}
 							class="row flex h-7 items-center gap-1 pe-3 text-chrome-text aria-selected:bg-accent/10 aria-selected:shadow-[inset_3px_0_0_var(--accent)] rtl:aria-selected:shadow-[inset_-3px_0_0_var(--accent)]"
 							style:padding-inline-start="{(row.level - 1) * 12 + 4}px"
+							class:virtual-row={virtual}
+							style:top={virtual ? `${slot(i) * ROW}px` : undefined}
 							onclick={(e) => {
 								if (!(e.target as Element).closest('input')) onclick(i);
 							}}
@@ -673,6 +733,8 @@
 								aria-selected="false"
 								class="row flex h-7 items-center gap-1 pe-3"
 								style:padding-inline-start="{(ed.level - 1) * 12 + 4}px"
+								class:virtual-row={virtual}
+								style:top={virtual ? `${(slot(i) + 1) * ROW}px` : undefined}
 							>
 								<span class="w-6 shrink-0"></span>
 								<InlineName
@@ -737,6 +799,11 @@
 {/if}
 
 <style>
+	/* A large tree's rows sit at their slots (the window above); the list keeps the full height. */
+	.virtual-row {
+		position: absolute;
+		inset-inline: 0;
+	}
 	/* While a member is dragged, the rows it may land on show where. */
 	.row.drop-target:hover {
 		box-shadow: inset 0 -2px 0 var(--accent);

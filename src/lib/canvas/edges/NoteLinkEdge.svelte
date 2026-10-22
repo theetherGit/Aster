@@ -10,8 +10,9 @@
 	// svelte-ignore state_referenced_locally
 	const targetNode = useInternalNode(target);
 	const rectOf = (n: InternalNode | undefined): Rect | null => {
-		const w = n?.measured.width;
-		const h = n?.measured.height;
+		// A node not yet in view has no measured size; on a large diagram it declares one (flow.svelte.ts).
+		const w = n?.measured.width ?? n?.initialWidth;
+		const h = n?.measured.height ?? n?.initialHeight;
 		return n && w && h
 			? { x: n.internals.positionAbsolute.x, y: n.internals.positionAbsolute.y, w, h }
 			: null;

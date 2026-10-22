@@ -2,7 +2,7 @@
 	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
 	import { t } from '#lib/i18n/index.ts';
 	import { membersOf } from '#lib/commands/index.ts';
-	import type { ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
+	import { flow, type ClassifierFlowNode } from '#lib/stores/flow.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Compartment from './Compartment.svelte';
 	import LineEditor from './LineEditor.svelte';
@@ -40,7 +40,9 @@
 		const m = data.focus && /^(\w+):(\d+)$/.exec(data.focus);
 		return m && m[1] === kind ? Number(m[2]) : null;
 	};
-	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
+	const summary = $derived(
+		elementSummary(projectStore.project, projectStore.diagram, id, { index: flow.relIndex })
+	);
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->

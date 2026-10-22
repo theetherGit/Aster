@@ -1,7 +1,7 @@
 import { t, type MessageKey } from '#lib/i18n/index.ts';
 import { isRaw, parseMember, type MemberKind, type RawReason } from '#lib/mdj/expression.ts';
 import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
-import type { Diagram, Id, Project } from '#lib/model/types.ts';
+import type { Diagram, Id, Project, Relationship } from '#lib/model/types.ts';
 
 /**
  * Board 04: the chip under a node while a line is open. Short segments joined with " · "
@@ -44,11 +44,34 @@ const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
  * it." With `hint`, the keys follow, for the first element focused on entering the diagram.
  * Without it, also the node's accessible name.
  */
+/** A diagram's relationships by the class at either end, in diagram order. */
+export type RelIndex = Map<Id, Relationship[]>;
+
+/**
+ * Built once per diagram change and shared by every node's summary (flow.relIndex): without it each
+ * summary scans the whole diagram, which is quadratic, and a 10 MB file has thousands of nodes.
+ */
+export function relationshipsByEnd(project: Project, diagram: Diagram): RelIndex {
+	const index: RelIndex = new Map();
+	const add = (id: Id, r: Relationship) => {
+		const list = index.get(id);
+		if (list) list.push(r);
+		else index.set(id, [r]);
+	};
+	for (const id of diagram.elementIds) {
+		const r = project.elements.get(id);
+		if (r?.kind !== 'relationship') continue;
+		add(r.sourceId, r);
+		if (r.targetId !== r.sourceId) add(r.targetId, r);
+	}
+	return index;
+}
+
 export function elementSummary(
 	project: Project,
 	diagram: Diagram,
 	id: Id,
-	opts: { hint?: boolean } = {}
+	opts: { hint?: boolean; index?: RelIndex } = {}
 ): string {
 	const el = project.elements.get(id);
 	if (!el) return '';
@@ -67,8 +90,10 @@ export function elementSummary(
 	if (el.kind !== 'classifier') return elementName(el); // packages: M3
 	const kind = t(`kind.${el.classifierKind}`);
 	const rels: string[] = [];
-	for (const other of diagram.elementIds) {
-		const r = project.elements.get(other);
+	const mine = opts.index
+		? (opts.index.get(id) ?? [])
+		: diagram.elementIds.map((x) => project.elements.get(x));
+	for (const r of mine) {
 		if (r?.kind !== 'relationship') continue;
 		// Aggregation and composition read the same: the source is the part, the target the whole.
 		const k = r.relationshipKind === 'aggregation' ? 'composition' : r.relationshipKind;

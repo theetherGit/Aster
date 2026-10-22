@@ -140,12 +140,21 @@ export function validate(project: Project): Finding[] {
 
 	// UML010 Duplicated role names of associated classifiers: the roles a class sees at the far
 	// end of its associations.
-	const assoc = rels.filter((r) => r.sourceEnd || r.targetEnd);
+	// One pass over the associations, not one per class: a 10 MB file has thousands of each.
+	const farRoles = new Map<Id, (string | undefined)[]>();
+	const see = (id: Id, role: string | undefined) => {
+		const list = farRoles.get(id);
+		if (list) list.push(role);
+		else farRoles.set(id, [role]);
+	};
+	for (const r of rels) {
+		if (!r.sourceEnd && !r.targetEnd) continue;
+		// A self-association gives its class both roles, as before.
+		see(r.sourceId, r.targetEnd?.role);
+		see(r.targetId, r.sourceEnd?.role);
+	}
 	for (const c of classifiers) {
-		const roles = assoc.flatMap((r) => [
-			...(r.sourceId === c.id ? [r.targetEnd?.role] : []),
-			...(r.targetId === c.id ? [r.sourceEnd?.role] : [])
-		]);
+		const roles = farRoles.get(c.id) ?? [];
 		for (const g of duplicates(roles, (role) => role?.trim() || null)) add('UML010', c.id, g[0]!);
 	}
 

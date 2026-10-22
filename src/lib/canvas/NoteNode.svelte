@@ -2,7 +2,7 @@
 	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
 	import { setElementText } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
-	import type { NoteFlowNode } from '#lib/stores/flow.svelte.ts';
+	import { flow, type NoteFlowNode } from '#lib/stores/flow.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { canvasFocus } from './focus.ts';
@@ -16,7 +16,9 @@
 	const el = $derived(data.element);
 	const isNote = $derived(el.kind === 'note');
 	let draft = $state('');
-	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
+	const summary = $derived(
+		elementSummary(projectStore.project, projectStore.diagram, id, { index: flow.relIndex })
+	);
 
 	function commit(refocus: boolean) {
 		if (draft !== el.text) projectStore.run(setElementText, { id, text: draft });

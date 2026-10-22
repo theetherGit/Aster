@@ -14,7 +14,7 @@
 	import { lineOf } from '../paint.ts';
 	import { elementSummary } from '../summary.ts';
 	import type { LabelOffset, LabelKey } from '#lib/model/types.ts';
-	import type { RelationshipFlowEdge } from '#lib/stores/flow.svelte.ts';
+	import { flow, type RelationshipFlowEdge } from '#lib/stores/flow.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { elementName } from '#lib/model/project.ts';
@@ -45,8 +45,9 @@
 	const targetNode = useInternalNode(target);
 
 	const rectOf = (n: InternalNode | undefined): Rect | null => {
-		const w = n?.measured.width;
-		const h = n?.measured.height;
+		// A node not yet in view has no measured size; on a large diagram it declares one (flow.svelte.ts).
+		const w = n?.measured.width ?? n?.initialWidth;
+		const h = n?.measured.height ?? n?.initialHeight;
 		return n && w && h
 			? { x: n.internals.positionAbsolute.x, y: n.internals.positionAbsolute.y, w, h }
 			: null;
@@ -268,7 +269,9 @@
 					];
 				})
 	);
-	const summary = $derived(elementSummary(projectStore.project, projectStore.diagram, id));
+	const summary = $derived(
+		elementSummary(projectStore.project, projectStore.diagram, id, { index: flow.relIndex })
+	);
 </script>
 
 <!--

@@ -1,6 +1,7 @@
-import type { Edge, Node } from '@xyflow/svelte';
+import { Position, type Edge, type Node } from '@xyflow/svelte';
 import { t } from '#lib/i18n/index.ts';
 import { fillOf, lineOf } from '#lib/canvas/paint.ts';
+import { relationshipsByEnd, type RelIndex } from '#lib/canvas/summary.ts';
 import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type {
 	Classifier,
@@ -72,7 +73,43 @@ const linkRole = (id: string): 'source' | 'target' | 'both' | null =>
 					? 'target'
 					: null;
 
+/** Above this many nodes Svelte Flow draws only those in view (Canvas.svelte). */
+export const LARGE_DIAGRAM = 100;
+
+/**
+ * Performance (M3): Svelte Flow renders every node it has not yet measured once, to find its
+ * handles, so a 4,800-class file would build all 4,800 before culling to the few in view. On a
+ * large diagram each node therefore declares its size and its four 24 px handles (as the node's
+ * CSS places them, just outside each side) from the stored layout: Svelte Flow can then cull
+ * from the first frame, and a node is measured when it first comes into view.
+ */
+function seeded(w: number, h: number) {
+	const handle = (id: string, position: Position, x: number, y: number) => ({
+		id,
+		type: 'source' as const,
+		position,
+		x,
+		y,
+		width: 24,
+		height: 24
+	});
+	return {
+		initialWidth: w,
+		initialHeight: h,
+		handles: [
+			handle('t', Position.Top, w / 2 - 12, -24),
+			handle('r', Position.Right, w, h / 2 - 12),
+			handle('b', Position.Bottom, w / 2 - 12, h),
+			handle('l', Position.Left, -24, h / 2 - 12)
+		]
+	};
+}
+
 class Flow {
+	/** The diagram's relationships by end, shared by every node's summary (canvas/summary.ts). */
+	relIndex: RelIndex = $derived.by(() =>
+		relationshipsByEnd(projectStore.project, projectStore.diagram)
+	);
 	/** Svelte Flow nodes, derived from project + layout only. Never mutated. */
 	nodes: FlowNode[] = $derived.by(() => {
 		const project = projectStore.project;
@@ -125,6 +162,11 @@ class Flow {
 				});
 			}
 		}
+		if (out.length > LARGE_DIAGRAM)
+			for (const n of out) {
+				const l = diagram.layout.get(n.id);
+				if (l?.kind === 'node') Object.assign(n, seeded(Math.max(160, l.w), l.h));
+			}
 		return out;
 	});
 

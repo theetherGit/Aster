@@ -29,7 +29,7 @@
 	import { linkNote, moveNode } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { ClassifierKind, Id, Point } from '#lib/model/types.ts';
-	import { flow, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
+	import { flow, LARGE_DIAGRAM, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
 	import { lineOf } from './paint.ts';
 	import { layout } from '#lib/stores/layout.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -538,7 +538,7 @@
 					edgesFocusable={false}
 					disableKeyboardA11y
 					role={undefined}
-					onlyRenderVisibleElements={flow.nodes.length > 100}
+					onlyRenderVisibleElements={flow.nodes.length > LARGE_DIAGRAM}
 					proOptions={{ hideAttribution: true }}
 					connectionMode={ConnectionMode.Loose}
 					connectionLineType={ConnectionLineType.Straight}
