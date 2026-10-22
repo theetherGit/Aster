@@ -47,16 +47,8 @@ describe('keys in copy come from the platform formatter', () => {
 		expect(format(parse('⌘N'), true)).toBe('⌘N');
 	});
 
-	it('the welcome, project menu, top bar, export sheet and Classic chrome embed no ⌘', () => {
-		// `file.openShortcut` and `welcome.sampleStrip` belong to the empty hint and the sample strip.
-		const prefixes = ['welcome.', 'ui.', 'export.', 'classic.'];
-		const exact = ['file.new', 'file.open', 'file.save', 'file.saveAs'];
-		const offenders = (Object.keys(en) as (keyof typeof en)[]).filter(
-			(k) =>
-				(prefixes.some((p) => k.startsWith(p)) || exact.includes(k)) &&
-				k !== 'welcome.sampleStrip' &&
-				en[k].includes('⌘')
-		);
+	it('no message embeds a modifier glyph: keys come from format(), per OS (⌘ on macOS, Ctrl elsewhere)', () => {
+		const offenders = (Object.keys(en) as (keyof typeof en)[]).filter((k) => /[⌘⌥⇧]/.test(en[k]));
 		expect(offenders).toEqual([]);
 	});
 });

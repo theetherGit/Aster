@@ -594,7 +594,7 @@
 	"sheet.filter": "Filter shortcuts",
 	"sheet.filterPlaceholder": "Filter",
 	"sheet.close": "Close",
-	"sheet.legend": "StarUML's own key, so what you already know still works. ⌘ is Ctrl on Windows and Linux.",
+	"sheet.legend": "StarUML's own key, so what you already know still works.",
 	"sheet.starumlKey": "StarUML key",
 	"sheet.list": "Shortcut list",
 	"inspector.show": "Show inspector",
