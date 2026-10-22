@@ -73,6 +73,19 @@ describe('routing', () => {
 		expect(points[1].y).toBe(200);
 	});
 
+	it('rectilinear: a first or last bend straight above, below or beside a node is where the line meets it', () => {
+		// ELK's ports and StarUML's own attachments sit off the centre; the line drops straight from them.
+		const below: Rect = { x: 0, y: 300, w: 100, h: 60 };
+		const { points } = route(A, below, [{ x: 80, y: 150 }], 'rectilinear', false);
+		expect(points[0]).toEqual({ x: 80, y: 60 });
+		expect(points.at(-1)).toEqual({ x: 80, y: 300 });
+		expect(points).toHaveLength(3);
+		const beside: Rect = { x: 300, y: 0, w: 100, h: 60 };
+		const side = route(A, beside, [{ x: 200, y: 15 }], 'rectilinear', false).points;
+		expect(side[0]).toEqual({ x: 100, y: 15 });
+		expect(side.at(-1)).toEqual({ x: 300, y: 15 });
+	});
+
 	it('passes through user waypoints in every style', () => {
 		const wp = { x: 220, y: -40 };
 		for (const style of STYLES) {

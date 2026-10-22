@@ -63,6 +63,37 @@ export async function layout(
 		(a, b) => rank.get(a.source)! - rank.get(b.source)! || rank.get(a.target)! - rank.get(b.target)!
 	);
 	const labelled = edges.some((e) => e.labelled);
+	// Rows follow the hierarchy alone (lab audit, 2026-10-22: the Observer exercise became one
+	// tall column). Generalisations and realisations go to ELK parent first; every other line goes
+	// down the hierarchy too, so it never adds a row of its own. `flipped` maps back.
+	const depth = hierarchyDepth(nodes, edges);
+	const flipped = new Set(
+		edges
+			.filter((e) => e.upward || (depth.get(e.source) ?? 0) > (depth.get(e.target) ?? 0))
+			.map((e) => e.id)
+	);
+	// ELK merges edges without ports per side, which brings a parent's subclasses in at one
+	// triangle. Every other line gets ports of its own when routing is orthogonal, so it never
+	// shares a run with a line of another kind.
+	const ported = new Set(
+		algorithm === 'orthogonal' ? edges.filter((e) => !e.upward).map((e) => e.id) : []
+	);
+	const ports = new Map<Id, { id: string; width: number; height: number }[]>();
+	const port = (node: Id, id: string) => {
+		const list = ports.get(node) ?? [];
+		list.push({ id, width: 0, height: 0 });
+		ports.set(node, list);
+		return id;
+	};
+	/** Each edge's ends as ELK sees them (flipped or not), for pinning straight lines below. */
+	const elkEnds = new Map<Id, [Id, Id]>();
+	const elkEdges = edges.map((e): ElkExtendedEdge => {
+		const [from, to] = flipped.has(e.id) ? [e.target, e.source] : [e.source, e.target];
+		elkEnds.set(e.id, [from, to]);
+		return ported.has(e.id)
+			? { id: e.id, sources: [port(from, `${e.id}\u0000s`)], targets: [port(to, `${e.id}\u0000t`)] }
+			: { id: e.id, sources: [from], targets: [to] };
+	});
 
 	const positions = new Map<Id, Point>();
 	const waypoints = new Map<Id, Point[]>();
@@ -91,12 +122,15 @@ export async function layout(
 				'elk.layered.spacing.edgeNodeBetweenLayers': String(GRID),
 				'elk.spacing.componentComponent': String(GRID * 4)
 			},
-			children: graphed.map((n) => ({ id: n.id, width: n.w, height: n.h })),
-			edges: edges.map((e): ElkExtendedEdge => ({
-				id: e.id,
-				sources: [e.upward ? e.target : e.source],
-				targets: [e.upward ? e.source : e.target]
-			}))
+			children: graphed.map((n) => ({
+				id: n.id,
+				width: n.w,
+				height: n.h,
+				...(ports.has(n.id)
+					? { ports: ports.get(n.id), layoutOptions: { 'elk.portConstraints': 'FREE' } }
+					: {})
+			})),
+			edges: elkEdges
 		};
 		const out = await elk.layout(graph);
 		const placed = out.children ?? [];
@@ -111,10 +145,28 @@ export async function layout(
 				bottom: Math.max(main.bottom, at.y + (n.height ?? 0))
 			};
 		}
-		const upward = new Set(edges.filter((e) => e.upward).map((e) => e.id));
+		const centre = new Map(
+			placed.map((n) => [
+				n.id,
+				{ x: (n.x ?? 0) + (n.width ?? 0) / 2, y: (n.y ?? 0) + (n.height ?? 0) / 2 }
+			])
+		);
 		for (const e of out.edges ?? []) {
-			const points = (e.sections?.[0]?.bendPoints ?? []).map(shift);
-			waypoints.set(e.id, upward.has(e.id) ? points.reverse() : points);
+			const section = e.sections?.[0];
+			let points = (section?.bendPoints ?? []).map(shift);
+			// A straight line between ports off the centre keeps its place with one pin.
+			if (!points.length && section && ported.has(e.id)) {
+				const [s, t] = [section.startPoint, section.endPoint];
+				const [from, to] = elkEnds.get(e.id)!.map((id) => centre.get(id)!);
+				const off =
+					s.x === t.x
+						? s.x !== from.x || t.x !== to.x
+						: s.y === t.y
+							? s.y !== from.y || t.y !== to.y
+							: true;
+				if (off) points = [shift({ x: (s.x + t.x) / 2, y: (s.y + t.y) / 2 })];
+			}
+			waypoints.set(e.id, flipped.has(e.id) ? points.reverse() : points);
 		}
 	}
 
@@ -163,4 +215,23 @@ export async function layout(
 	for (const [id, p] of positions) positions.set(id, place(p));
 	for (const [id, points] of waypoints) waypoints.set(id, points.map(place));
 	return { positions, waypoints };
+}
+
+/** Each node's depth in the generalisation / realisation hierarchy: 0 at the top, a parent's + 1 below. */
+function hierarchyDepth(nodes: LayoutInput['nodes'], edges: LayoutInput['edges']): Map<Id, number> {
+	const depth = new Map(nodes.map((n) => [n.id, 0]));
+	const up = edges.filter((e) => e.upward);
+	// ponytail: relaxation bounded by the node count, so a cycle in the hierarchy cannot loop
+	for (let i = 0; i < nodes.length; i++) {
+		let changed = false;
+		for (const e of up) {
+			const d = (depth.get(e.target) ?? 0) + 1;
+			if (d > (depth.get(e.source) ?? 0)) {
+				depth.set(e.source, d);
+				changed = true;
+			}
+		}
+		if (!changed) break;
+	}
+	return depth;
 }

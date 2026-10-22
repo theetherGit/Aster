@@ -84,7 +84,11 @@ function orthogonal(src: Rect, tgt: Rect, waypoints: Pt[]): Pt[] {
 		const my = (a.y + b.y) / 2;
 		return [a, pt(a.x, my), pt(b.x, my), b];
 	}
-	const seq = [center(src), ...waypoints, center(tgt)];
+	// A bend straight above, below or beside a node is where the line meets it: ELK's ports and
+	// StarUML's own attachments sit off the centre, and the line drops straight from them.
+	const start = facing(src, waypoints[0]);
+	const end = facing(tgt, waypoints[waypoints.length - 1]);
+	const seq = [start ?? center(src), ...waypoints, end ?? center(tgt)];
 	const out: Pt[] = [seq[0]];
 	for (let i = 1; i < seq.length; i++) {
 		const a = out[out.length - 1];
@@ -105,9 +109,22 @@ function orthogonal(src: Rect, tgt: Rect, waypoints: Pt[]): Pt[] {
 		}
 		out.push(b);
 	}
-	out[0] = clipToRect(src, out[1]);
-	out[out.length - 1] = clipToRect(tgt, out[out.length - 2]);
+	if (!start) out[0] = clipToRect(src, out[1]);
+	if (!end) out[out.length - 1] = clipToRect(tgt, out[out.length - 2]);
 	return out.filter((p, i) => i === 0 || !same(p, out[i - 1]));
+}
+
+/** The point on `r`'s border straight across from `w`, when `w` lies within its span and outside it. */
+function facing(r: Rect, w: Pt): Pt | null {
+	if (w.x > r.x && w.x < r.x + r.w) {
+		if (w.y < r.y) return pt(w.x, r.y);
+		if (w.y > r.y + r.h) return pt(w.x, r.y + r.h);
+	}
+	if (w.y > r.y && w.y < r.y + r.h) {
+		if (w.x < r.x) return pt(r.x, w.y);
+		if (w.x > r.x + r.w) return pt(r.x + r.w, w.y);
+	}
+	return null;
 }
 
 /** Route an edge. Waypoints are interior points; endpoints are recomputed from the node borders. */

@@ -1,6 +1,7 @@
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { describe, expect, it } from 'vitest';
 import { layout, type LayoutInput } from '#lib/canvas/autolayout.ts';
+import { route } from '#lib/canvas/edges/geometry.ts';
 
 /**
  * features.md M3, "Auto-layout and tidy": "100-class imported diagram with no layout lays out
@@ -155,5 +156,58 @@ describe('auto-layout quality (owner review, 2026-10-21)', () => {
 		};
 		const second = await layout(elk, again, opts, { x: 40, y: 40 });
 		expect([...second.positions]).toEqual([...first.positions]);
+	});
+
+	/** Lab exercise 5 (Observer): two interfaces, the classes that realise them, an association and an aggregation. */
+	const observer = (): LayoutInput => ({
+		nodes: ['Observer', 'Subject', 'Store', 'Customer'].map((id) => box(id, 0, 0, 200, 90)),
+		edges: [
+			{ id: 'r1', source: 'Store', target: 'Subject', upward: true },
+			{ id: 'r2', source: 'Customer', target: 'Observer', upward: true },
+			{ id: 'as', source: 'Customer', target: 'Subject' },
+			{ id: 'ag', source: 'Observer', target: 'Store' }
+		]
+	});
+
+	it('keeps a pattern in two rows: associations follow the hierarchy instead of adding rows (lab audit)', async () => {
+		const out = await layout(elk, observer(), opts, { x: 0, y: 0 });
+		const y = (id: string) => out.positions.get(id)!.y;
+		expect(y('Observer')).toBe(y('Subject'));
+		expect(y('Store')).toBe(y('Customer'));
+		expect(y('Observer')).toBeLessThan(y('Store'));
+	});
+
+	it('orthogonal: unrelated lines never share where they meet a box; subclasses still do', async () => {
+		const out = await layout(elk, observer(), opts, { x: 0, y: 0 });
+		const rect = (id: string) => ({ ...out.positions.get(id)!, w: 200, h: 90 });
+		const ends = (id: string, source: string, target: string) => {
+			const { points } = route(
+				rect(source),
+				rect(target),
+				out.waypoints.get(id) ?? [],
+				'rectilinear',
+				false
+			);
+			return { source: points[0], target: points.at(-1)! };
+		};
+		// Store: the realisation leaves it and the aggregation arrives at it, at different points.
+		expect(ends('r1', 'Store', 'Subject').source).not.toEqual(
+			ends('ag', 'Observer', 'Store').target
+		);
+		// Subject: the realisation and the association arrive at different points.
+		expect(ends('r1', 'Store', 'Subject').target).not.toEqual(
+			ends('as', 'Customer', 'Subject').target
+		);
+		// Every route stays orthogonal.
+		for (const [id, s, t] of [
+			['r1', 'Store', 'Subject'],
+			['r2', 'Customer', 'Observer'],
+			['as', 'Customer', 'Subject'],
+			['ag', 'Observer', 'Store']
+		]) {
+			const { points } = route(rect(s), rect(t), out.waypoints.get(id) ?? [], 'rectilinear', false);
+			for (let k = 1; k < points.length; k++)
+				expect(points[k].x === points[k - 1].x || points[k].y === points[k - 1].y).toBe(true);
+		}
 	});
 });
