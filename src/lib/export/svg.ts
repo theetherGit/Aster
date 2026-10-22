@@ -94,6 +94,12 @@ export function contentRect(
 	return { x: l.x, y: l.y, w: Math.max(160, l.w, Math.ceil(w + PAD_X * 2)), h };
 }
 
+/** A node's display flags: its own over the diagram's, as the canvas reads them (flow.svelte.ts). */
+const flagsOf = (diagram: Diagram, id: Id): Diagram['defaults'] => {
+	const l = diagram.layout.get(id);
+	return { ...diagram.defaults, ...(l?.kind === 'node' ? l.flags : undefined) };
+};
+
 /** Every classifier's content rectangle in a diagram, keyed by id. */
 export function contentRects(project: Project, diagram: Diagram): Map<Id, Rect> {
 	const out = new Map<Id, Rect>();
@@ -101,7 +107,7 @@ export function contentRects(project: Project, diagram: Diagram): Map<Id, Rect> 
 		const el = project.elements.get(id);
 		const l = diagram.layout.get(id);
 		if (el?.kind === 'classifier' && l?.kind === 'node')
-			out.set(id, contentRect(el, diagram.defaults, l));
+			out.set(id, contentRect(el, flagsOf(diagram, id), l));
 	}
 	return out;
 }
@@ -261,7 +267,7 @@ export function diagramToSvg(
 	const body: string[] = [];
 	const bounds: Rect[] = [...shown.values()];
 	for (const [c, r] of nodes)
-		nodeSvg(c, r, diagram.defaults, paintOf(diagram.layout.get(c.id)), body);
+		nodeSvg(c, r, flagsOf(diagram, c.id), paintOf(diagram.layout.get(c.id)), body);
 	// Notes and text, and the dashed links from notes to what they annotate.
 	const notes: [Note | TextElement, Rect][] = [];
 	for (const id of diagram.elementIds) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { diagramToSvg, slug } from '#lib/export/svg.ts';
+import { contentRects, diagramToSvg, slug } from '#lib/export/svg.ts';
 import { notationProject } from '#lib/model/fixtures.ts';
 import { createClassifier, createDiagram, createProject } from '#lib/model/project.ts';
 
@@ -68,5 +68,20 @@ describe('diagram → SVG', () => {
 		// An empty diagram still makes a small, valid file.
 		const empty = diagramToSvg(p, createDiagram({ id: 'e' }), new Map(), { background: 'white' });
 		expect([empty.width, empty.height]).toEqual([40, 40]);
+	});
+
+	it("honours each class's own display flags, as the canvas does (OOADP Type Hierarchy views)", () => {
+		const p = notationProject();
+		const d = p.diagrams[0];
+		const loan = d.layout.get('Loan');
+		if (loan?.kind === 'node') loan.flags = { suppressAttributes: true, suppressOperations: true };
+		const { svg } = diagramToSvg(p, d, new Map(), { background: 'white' });
+		const group = svg.match(/<g class="node" data-name="Loan">.*?<\/g>/)![0];
+		expect(group).not.toContain('dueDate');
+		expect(group).not.toContain('isOverdue');
+		// Its height is the name row's alone.
+		expect(contentRects(p, d).get('Loan')!.h).toBe(28);
+		// The other classes still show theirs.
+		expect(svg).toContain('memberId');
 	});
 });
