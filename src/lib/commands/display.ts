@@ -1,6 +1,12 @@
 /** Display toggles (features.md): per-diagram defaults and per-node overrides; diagram rename. */
 import { t } from '#lib/i18n/index.ts';
-import { createDiagram, getDiagram, getNodeLayout } from '#lib/model/project.ts';
+import {
+	createDiagram,
+	elementName,
+	getDiagram,
+	getElement,
+	getNodeLayout
+} from '#lib/model/project.ts';
 import type { Diagram, DisplayFlags, Id, Layout } from '#lib/model/types.ts';
 import { define, type Factory } from './registry.ts';
 import type { Command } from './types.ts';
@@ -64,6 +70,33 @@ export const setNodeFlags: Factory<{
 		if (Object.keys(flags).length) l.flags = flags as Partial<DisplayFlags>;
 		else delete l.flags;
 		return setNodeFlags(p, { diagramId, id, patch: previous as never });
+	}
+}));
+
+/**
+ * features.md M3, "Fill and line colour": one view's fill or line, a `#rrggbb` written to the
+ * .mdj's `fillColor` / `lineColor`; null removes it, so StarUML and the paper use their default.
+ * Edges have a line only.
+ */
+export const setColour: Factory<{
+	diagramId: Id;
+	id: Id;
+	key: 'fill' | 'line';
+	colour: string | null;
+}> = define('setColour', (project, { diagramId, id, key, colour }) => ({
+	label: t(colour ? 'cmd.setColour' : 'cmd.resetColour', {
+		what: t(key === 'fill' ? 'style.fill' : 'style.line').toLowerCase(),
+		name: elementName(getElement(project, id))
+	}),
+	touches: [id],
+	apply(p): Command {
+		const l = getDiagram(p, diagramId).layout.get(id) as
+			(Layout & { fill?: string; line?: string }) | undefined;
+		if (!l || (key === 'fill' && l.kind !== 'node')) throw new Error(`No ${key} on ${id}`);
+		const previous = l[key] ?? null;
+		if (colour === null) delete l[key];
+		else l[key] = colour;
+		return setColour(p, { diagramId, id, key, colour: previous });
 	}
 }));
 

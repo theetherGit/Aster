@@ -166,7 +166,7 @@
 		margin: 0;
 		padding: 6px 10px;
 		list-style: none;
-		border-top: var(--uml-stroke) solid var(--paper-ink);
+		border-top: var(--uml-stroke) solid var(--line, var(--paper-ink));
 	}
 	.compartment.empty {
 		height: 8px;

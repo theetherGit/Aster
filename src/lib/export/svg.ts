@@ -29,6 +29,7 @@ import type {
 	TextElement
 } from '#lib/model/types.ts';
 import { clipToRect } from '#lib/canvas/edges/geometry.ts';
+import { INK, PAPER, fillOf, lineOf } from '#lib/canvas/paint.ts';
 
 export interface SvgOptions {
 	/** Only these elements (and the edges between them); null for the whole diagram. */
@@ -44,8 +45,6 @@ export interface SvgResult {
 	height: number;
 }
 
-const INK = '#1b1b1b';
-const PAPER = '#ffffff';
 const FONT = "'Source Sans 3', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 const NAME_ROW = 28;
 const STEREO_ROW = 40;
@@ -107,11 +106,21 @@ export function contentRects(project: Project, diagram: Diagram): Map<Id, Rect> 
 	return out;
 }
 
-function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], out: string[]) {
+/** A view's own fill and line (paint.ts), or the paper's. */
+interface Paint {
+	fill: string;
+	line: string;
+}
+const paintOf = (l: { fill?: string; line?: string } | undefined): Paint => ({
+	fill: fillOf(l) ?? PAPER,
+	line: lineOf(l) ?? INK
+});
+
+function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], paint: Paint, out: string[]) {
 	const header = flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c);
 	const nameH = header ? STEREO_ROW : NAME_ROW;
 	out.push(
-		`<g class="node" data-name="${esc(c.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" fill="${PAPER}" stroke="${INK}"/>`
+		`<g class="node" data-name="${esc(c.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" fill="${paint.fill}" stroke="${paint.line}"/>`
 	);
 	const cx = r.x + r.w / 2;
 	if (header)
@@ -131,7 +140,7 @@ function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], out: string
 	for (const kind of kinds) {
 		const members = membersOf(c, kind);
 		out.push(
-			`<line x1="${n(r.x)}" y1="${n(y)}" x2="${n(r.x + r.w)}" y2="${n(y)}" stroke="${INK}"/>`
+			`<line x1="${n(r.x)}" y1="${n(y)}" x2="${n(r.x + r.w)}" y2="${n(y)}" stroke="${paint.line}"/>`
 		);
 		if (!members.length) {
 			y += EMPTY;
@@ -163,22 +172,22 @@ function edgeSvg(
 	bounds: Rect[]
 ) {
 	const style = layout.lineStyle;
+	const ink = lineOf(layout);
+	const stroke = ink ?? INK;
 	const points = route(src, tgt, layout.waypoints, style, rel.sourceId === rel.targetId).points;
 	if (points.length < 2) return;
 	const line = samplePath(points, style);
 	const notation = markersFor(rel);
-	const marker = (m: string | null) =>
-		m ? ` marker-${m === notation.start ? 'start' : 'end'}="url(#aster-m-${m})"` : '';
+	const url = (m: string) => `url(#${markerId(m, ink)})`;
 	out.push(
-		`<g class="edge" data-rel-id="${esc(rel.id)}"><path d="${pathD(points, style)}" fill="none" stroke="${INK}"${notation.dashed ? ' stroke-dasharray="6 4"' : ''}${notation.start ? ` marker-start="url(#aster-m-${notation.start})"` : ''}${notation.end ? ` marker-end="url(#aster-m-${notation.end})"` : ''}/>`
+		`<g class="edge" data-rel-id="${esc(rel.id)}"><path d="${pathD(points, style)}" fill="none" stroke="${stroke}"${notation.dashed ? ' stroke-dasharray="6 4"' : ''}${notation.start ? ` marker-start="${url(notation.start)}"` : ''}${notation.end ? ` marker-end="${url(notation.end)}"` : ''}/>`
 	);
-	void marker;
 	for (const end of notation.dots) {
 		const f = endFrame(line, end);
 		const m = end === 'source' ? notation.start : notation.end;
 		const k = (m ? MARKER_LENGTH[m] : 0) + 4;
 		out.push(
-			`<circle cx="${n(f.anchor.x + Math.cos(f.theta) * k)}" cy="${n(f.anchor.y + Math.sin(f.theta) * k)}" r="3.5" fill="${INK}"/>`
+			`<circle cx="${n(f.anchor.x + Math.cos(f.theta) * k)}" cy="${n(f.anchor.y + Math.sin(f.theta) * k)}" r="3.5" fill="${stroke}"/>`
 		);
 	}
 	// Labels as the canvas places them: clear of their line, their end node and each other.
@@ -207,12 +216,12 @@ function edgeSvg(
 	for (const p of points) bounds.push({ x: p.x, y: p.y, w: 0, h: 0 });
 }
 
-function noteSvg(el: Note | TextElement, r: Rect, out: string[]) {
+function noteSvg(el: Note | TextElement, r: Rect, paint: Paint, out: string[]) {
 	const lines = el.text.split(/\r?\n/);
 	if (el.kind === 'note') {
 		const f = 12; // folded corner (ui.md)
 		out.push(
-			`<g class="note"><path d="M${n(r.x)},${n(r.y)} H${n(r.x + r.w - f)} L${n(r.x + r.w)},${n(r.y + f)} V${n(r.y + r.h)} H${n(r.x)} Z" fill="${PAPER}" stroke="${INK}"/><path d="M${n(r.x + r.w - f)},${n(r.y)} V${n(r.y + f)} H${n(r.x + r.w)}" fill="none" stroke="${INK}"/>`
+			`<g class="note"><path d="M${n(r.x)},${n(r.y)} H${n(r.x + r.w - f)} L${n(r.x + r.w)},${n(r.y + f)} V${n(r.y + r.h)} H${n(r.x)} Z" fill="${paint.fill}" stroke="${paint.line}"/><path d="M${n(r.x + r.w - f)},${n(r.y)} V${n(r.y + f)} H${n(r.x + r.w)}" fill="none" stroke="${paint.line}"/>`
 		);
 	} else out.push('<g class="text">');
 	lines.forEach((line, i) =>
@@ -223,7 +232,14 @@ function noteSvg(el: Note | TextElement, r: Rect, out: string[]) {
 	out.push('</g>');
 }
 
-const MARKERS = `<marker id="aster-m-triangle" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="7" orient="auto-start-reverse" overflow="visible"><path d="M0,0 L14,7 L0,14 Z" fill="${PAPER}" stroke="${INK}"/></marker><marker id="aster-m-diamond-hollow" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="10" refX="14" refY="4" orient="auto-start-reverse" overflow="visible"><path d="M0,4 L7,0 L14,4 L7,8 Z" fill="${PAPER}" stroke="${INK}"/></marker><marker id="aster-m-diamond-filled" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="10" refX="14" refY="4" orient="auto-start-reverse" overflow="visible"><path d="M0,4 L7,0 L14,4 L7,8 Z" fill="${INK}" stroke="${INK}"/></marker><marker id="aster-m-arrow" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="12" refY="5" orient="auto-start-reverse" overflow="visible"><path d="M0,0 L12,5 L0,10" fill="none" stroke="${INK}"/></marker>`;
+/** A marker set's id: the shared ink set, or one per line colour in use (`aster-m-arrow-b91c1c`). */
+const markerId = (m: string, colour?: string) =>
+	`aster-m-${m}${colour ? `-${colour.slice(1)}` : ''}`;
+const markers = (colour?: string) => {
+	const ink = colour ?? INK;
+	const id = (m: string) => markerId(m, colour);
+	return `<marker id="${id('triangle')}" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="7" orient="auto-start-reverse" overflow="visible"><path d="M0,0 L14,7 L0,14 Z" fill="${PAPER}" stroke="${ink}"/></marker><marker id="${id('diamond-hollow')}" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="10" refX="14" refY="4" orient="auto-start-reverse" overflow="visible"><path d="M0,4 L7,0 L14,4 L7,8 Z" fill="${PAPER}" stroke="${ink}"/></marker><marker id="${id('diamond-filled')}" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="10" refX="14" refY="4" orient="auto-start-reverse" overflow="visible"><path d="M0,4 L7,0 L14,4 L7,8 Z" fill="${ink}" stroke="${ink}"/></marker><marker id="${id('arrow')}" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="12" refY="5" orient="auto-start-reverse" overflow="visible"><path d="M0,0 L12,5 L0,10" fill="none" stroke="${ink}"/></marker>`;
+};
 
 /** The diagram (or the elements in `only`) as SVG text, cropped to its content plus padding. */
 export function diagramToSvg(
@@ -244,7 +260,8 @@ export function diagramToSvg(
 	const shown = new Map(nodes.map(([c, r]) => [c.id, r]));
 	const body: string[] = [];
 	const bounds: Rect[] = [...shown.values()];
-	for (const [c, r] of nodes) nodeSvg(c, r, diagram.defaults, body);
+	for (const [c, r] of nodes)
+		nodeSvg(c, r, diagram.defaults, paintOf(diagram.layout.get(c.id)), body);
 	// Notes and text, and the dashed links from notes to what they annotate.
 	const notes: [Note | TextElement, Rect][] = [];
 	for (const id of diagram.elementIds) {
@@ -258,7 +275,7 @@ export function diagramToSvg(
 		bounds.push(r);
 	}
 	for (const [el, r] of notes) {
-		noteSvg(el, r, body);
+		noteSvg(el, r, paintOf(diagram.layout.get(el.id)), body);
 		if (el.kind !== 'note') continue;
 		for (const targetId of el.linkedIds) {
 			const t = shown.get(targetId);
@@ -270,6 +287,7 @@ export function diagramToSvg(
 			);
 		}
 	}
+	const colours = new Set<string>();
 	for (const id of diagram.elementIds) {
 		const el = project.elements.get(id);
 		const l = diagram.layout.get(id);
@@ -278,6 +296,8 @@ export function diagramToSvg(
 		const tgt = shown.get(el.targetId);
 		if (!src || !tgt) continue;
 		edgeSvg(el, l, src, tgt, diagram.defaults, opts.background, body, bounds);
+		const ink = lineOf(l);
+		if (ink) colours.add(ink);
 	}
 	const minX = Math.min(...bounds.map((b) => b.x), 0) - padding;
 	const minY = Math.min(...bounds.map((b) => b.y), 0) - padding;
@@ -287,7 +307,7 @@ export function diagramToSvg(
 	const height = Math.ceil(maxY - minY);
 	const svg =
 		`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${n(minX)} ${n(minY)} ${width} ${height}" font-family="${FONT}" fill="${INK}" stroke-width="1" stroke-linejoin="miter">` +
-		`<title>${esc(diagram.name)}</title><defs>${opts.fontCss ? `<style>${opts.fontCss}</style>` : ''}${MARKERS}</defs>` +
+		`<title>${esc(diagram.name)}</title><defs>${opts.fontCss ? `<style>${opts.fontCss}</style>` : ''}${markers()}${[...colours].map(markers).join('')}</defs>` +
 		(opts.background === 'white'
 			? `<rect x="${n(minX)}" y="${n(minY)}" width="${width}" height="${height}" fill="${PAPER}"/>`
 			: '') +

@@ -11,6 +11,7 @@
 		removeWaypoint,
 		setLabelOffset
 	} from '#lib/commands/index.ts';
+	import { lineOf } from '../paint.ts';
 	import { elementSummary } from '../summary.ts';
 	import type { LabelOffset, LabelKey } from '#lib/model/types.ts';
 	import type { RelationshipFlowEdge } from '#lib/stores/flow.svelte.ts';
@@ -54,6 +55,8 @@
 	const rel = $derived(data!.relationship);
 	const layout = $derived(data!.layout);
 	const style = $derived(layout.lineStyle);
+	/** The view's own line colour (paint.ts); its markers come from the set Markers draws for it. */
+	const ink = $derived(lineOf(layout));
 	const src = $derived(rectOf(sourceNode.current));
 	const tgt = $derived(rectOf(targetNode.current));
 
@@ -218,7 +221,8 @@
 		);
 	}
 
-	const marker = (m: string | null) => (m ? `url(#aster-m-${m})` : undefined);
+	const marker = (m: string | null) =>
+		m ? `url(#aster-m-${m}${ink ? `-${ink.slice(1)}` : ''})` : undefined;
 	// Owner's ruling #30: each marker explains itself on hover (one shared tooltip, see Canvas).
 	const nameOfEnd = (endId: string) => {
 		const el = projectStore.project.elements.get(endId);
@@ -277,8 +281,9 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<g
-		class="uml-edge"
+		class="uml-edge uml-paint"
 		class:selected
+		style:--line={ink}
 		class:focused={data!.focused}
 		class:hovered={ui.hoveredEdge === id}
 		role="group"
@@ -399,7 +404,7 @@
 <style>
 	.edge-line {
 		fill: none;
-		stroke: var(--paper-ink);
+		stroke: var(--line, var(--paper-ink));
 		stroke-width: var(--uml-stroke);
 	}
 	/* Board 12/13: the selected line itself turns accent, 2 px. */
@@ -436,7 +441,7 @@
 		pointer-events: all;
 	}
 	.edge-dot {
-		fill: var(--paper-ink);
+		fill: var(--line, var(--paper-ink));
 	}
 	.edge-label {
 		pointer-events: all;

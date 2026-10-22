@@ -31,6 +31,7 @@
 	import NoteInspector from './NoteInspector.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
 	import RelationshipList from './RelationshipList.svelte';
+	import StyleSection from './StyleSection.svelte';
 	import { menu, menuItem } from '#lib/ui/styles.ts';
 
 	// Modern: the 300 px inspector with its rail. Classic: StarUML's Editors, tabs Style /
@@ -289,6 +290,7 @@
 						<MemberList classifier={c} {kind} />
 					{/each}
 					<RelationshipList classifier={c} />
+					<StyleSection id={c.id} keys={['fill', 'line']} />
 					<Collapsible.Root bind:open={displayOpen} class="mt-6">
 						<div class="flex h-7 items-center gap-2">
 							<!-- The trigger is the heading: Collapsible owns the element, so the section

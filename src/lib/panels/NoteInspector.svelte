@@ -9,6 +9,7 @@
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 	import FieldSelect from '#lib/ui/atoms/Select.svelte';
+	import StyleSection from './StyleSection.svelte';
 
 	// Board 14: the note's text, what it is linked to, and its size as the non-drag path.
 	let { element }: { element: Note | TextElement } = $props();
@@ -139,6 +140,9 @@
 	<p class="mt-1 text-(length:--text-small) text-chrome-muted">
 		{t('note.sizeHint', { w: MIN.w, h: MIN.h })}
 	</p>
+{/if}
+{#if isNote}
+	<StyleSection id={element.id} keys={['fill', 'line']} />
 {/if}
 
 <style>

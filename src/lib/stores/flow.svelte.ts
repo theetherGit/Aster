@@ -1,5 +1,6 @@
 import type { Edge, Node } from '@xyflow/svelte';
 import { t } from '#lib/i18n/index.ts';
+import { fillOf, lineOf } from '#lib/canvas/paint.ts';
 import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type {
 	Classifier,
@@ -27,6 +28,9 @@ export interface ClassifierNodeData extends Record<string, unknown> {
 	hovered: boolean;
 	/** Which part of this node owns roving focus, or null. */
 	focus: FocusPart | null;
+	/** The view's own colours (paint.ts); undefined draws the paper's. */
+	fill?: string;
+	line?: string;
 }
 export type ClassifierFlowNode = Node<ClassifierNodeData, ClassifierKind>;
 
@@ -39,6 +43,8 @@ export interface NoteNodeData extends Record<string, unknown> {
 	link: 'source' | 'target' | 'both' | null;
 	hovered: boolean;
 	focus: FocusPart | null;
+	fill?: string;
+	line?: string;
 }
 export type NoteFlowNode = Node<NoteNodeData, 'note' | 'text'>;
 export type FlowNode = ClassifierFlowNode | NoteFlowNode;
@@ -93,7 +99,9 @@ class Flow {
 						editing: null,
 						link: null,
 						hovered: false,
-						focus: null
+						focus: null,
+						fill: fillOf(l),
+						line: lineOf(l)
 					},
 					focusable: false
 				});
@@ -109,7 +117,9 @@ class Flow {
 						editing: false,
 						link: null,
 						hovered: false,
-						focus: null
+						focus: null,
+						fill: fillOf(l),
+						line: lineOf(l)
 					},
 					focusable: false
 				});

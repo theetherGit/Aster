@@ -45,7 +45,7 @@
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
-	class="classifier-node"
+	class="classifier-node uml-paint"
 	role="group"
 	aria-label={summary}
 	tabindex={data.focus === 'self' ? 0 : -1}
@@ -56,6 +56,8 @@
 	class:edge-hover={data.hovered}
 	style:min-width="{data.minWidth}px"
 	style:min-height={data.minHeight ? `${data.minHeight}px` : undefined}
+	style:--fill={data.fill}
+	style:--line={data.line}
 	data-name={c.name}
 	data-kind={c.classifierKind}
 >
@@ -115,9 +117,10 @@
 		box-sizing: border-box;
 		min-width: 160px;
 		width: max-content;
-		background: var(--paper-fill);
+		/* The view's own colours (paint.ts) over the paper's; layout.css drops them in high contrast. */
+		background: var(--fill, var(--paper-fill));
 		color: var(--paper-ink);
-		border: var(--uml-stroke) solid var(--paper-ink);
+		border: var(--uml-stroke) solid var(--line, var(--paper-ink));
 		font-family: var(--font-paper);
 		font-size: 12px;
 		line-height: 20px;

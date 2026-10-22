@@ -807,5 +807,16 @@
 	"text.cm.diagnostics": "Errors",
 	"text.cm.noDiagnostics": "No errors",
 	"text.cm.controlCharacter": "Control character",
-	"cmd.findInText": "Find in the text view"
+	"cmd.findInText": "Find in the text view",
+	"cmd.setColour": "change the {what} colour of {name}",
+	"cmd.resetColour": "reset the {what} colour of {name}",
+	"style.heading": "Style",
+	"style.fill": "Fill",
+	"style.line": "Line",
+	"style.default": "Default",
+	"style.reset": "Reset",
+	"style.resetLabel": "Reset the {what} colour",
+	"style.lowFill": "Text on this fill reads at {ratio}:1; text needs 4.5:1.",
+	"style.lowLine": "This line reads at {ratio}:1 on white; lines need 3:1.",
+	"style.hcHidden": "High contrast draws the paper in black and white. The colours stay in the file and in exports."
 }

@@ -22,6 +22,19 @@
 	}
 }
 
+/* Element colours (features.md M3, owner's ruling 2026-10-22): high contrast and forced colours
+   keep the paper black on white; the colours stay in the model and in every export. */
+:root[data-theme='high-contrast'] .uml-paint {
+	--fill: initial !important;
+	--line: initial !important;
+}
+@media (forced-colors: active) {
+	.uml-paint {
+		--fill: initial !important;
+		--line: initial !important;
+	}
+}
+
 /* Reduced motion: nothing moves on its own; state changes still show, at once. */
 @media (prefers-reduced-motion: reduce) {
 	*,

@@ -35,6 +35,7 @@
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 	import FieldSelect from '#lib/ui/atoms/Select.svelte';
 	import Documentation from './Documentation.svelte';
+	import StyleSection from './StyleSection.svelte';
 
 	let { rel }: { rel: Relationship } = $props();
 
@@ -299,6 +300,7 @@
 			</ToggleGroup.Item>
 		{/each}
 	</ToggleGroup.Root>
+	<StyleSection id={rel.id} keys={['line']} />
 
 	<!-- Non-drag path for waypoints (accessibility.md: every drag has an equivalent). -->
 	<div class="head mt-4">

@@ -4,6 +4,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { contrast } from '#lib/canvas/paint.ts';
 
 const css = readFileSync(new URL('../../src/lib/ui/tokens.css', import.meta.url), 'utf8');
 
@@ -20,16 +21,6 @@ const highContrast = { ...light, ...tokens(":root[data-theme='high-contrast']") 
 const classic = { ...light, ...tokens(":root[data-layout='classic']") };
 /** `--paper-accent` is `var(--accent)` unless a theme sets it (high contrast does). */
 for (const t of [light, dark, highContrast, classic]) t['paper-accent'] ??= t['accent'];
-
-const lum = (hex: string) => {
-	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
-	const f = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-	return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
-};
-export const contrast = (a: string, b: string) => {
-	const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
-	return (hi + 0.05) / (lo + 0.05);
-};
 
 /** Text colour on a background, as the chrome uses them. */
 const TEXT_PAIRS: [string, string][] = [

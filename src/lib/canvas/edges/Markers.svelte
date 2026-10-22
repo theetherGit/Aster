@@ -2,11 +2,18 @@
 	UML 2.5 marker definitions, rendered once per diagram and referenced by id from every edge.
 	userSpaceOnUse: markers keep their size when the stroke changes and scale with zoom like the paper.
 	Sizes from docs/spec/ui.md: arrowheads 12, diamonds 14 × 8, triangles 14.
+	A marker draws in its definition's colours, not its edge's, so each line colour in use gets its
+	own set (`aster-m-arrow-b91c1c`); layout.css turns them back to ink in high contrast.
 -->
-<svg class="aster-markers" width="0" height="0" aria-hidden="true" focusable="false">
-	<defs>
+<script lang="ts">
+	let { colours = [] }: { colours?: string[] } = $props();
+</script>
+
+{#snippet set(colour?: string)}
+	{@const id = (m: string) => `aster-m-${m}${colour ? `-${colour.slice(1)}` : ''}`}
+	<g class="uml-paint" style:--line={colour}>
 		<marker
-			id="aster-m-triangle"
+			id={id('triangle')}
 			markerUnits="userSpaceOnUse"
 			markerWidth="16"
 			markerHeight="16"
@@ -18,7 +25,7 @@
 			<path class="hollow" d="M0,0 L14,7 L0,14 Z" />
 		</marker>
 		<marker
-			id="aster-m-diamond-hollow"
+			id={id('diamond-hollow')}
 			markerUnits="userSpaceOnUse"
 			markerWidth="16"
 			markerHeight="10"
@@ -30,7 +37,7 @@
 			<path class="hollow" d="M0,4 L7,0 L14,4 L7,8 Z" />
 		</marker>
 		<marker
-			id="aster-m-diamond-filled"
+			id={id('diamond-filled')}
 			markerUnits="userSpaceOnUse"
 			markerWidth="16"
 			markerHeight="10"
@@ -42,7 +49,7 @@
 			<path class="filled" d="M0,4 L7,0 L14,4 L7,8 Z" />
 		</marker>
 		<marker
-			id="aster-m-arrow"
+			id={id('arrow')}
 			markerUnits="userSpaceOnUse"
 			markerWidth="14"
 			markerHeight="12"
@@ -53,6 +60,13 @@
 		>
 			<path class="open" d="M0,0 L12,5 L0,10" />
 		</marker>
+	</g>
+{/snippet}
+
+<svg class="aster-markers" width="0" height="0" aria-hidden="true" focusable="false">
+	<defs>
+		{@render set()}
+		{#each colours as colour (colour)}{@render set(colour)}{/each}
 	</defs>
 </svg>
 
@@ -64,7 +78,7 @@
 		overflow: hidden;
 	}
 	path {
-		stroke: var(--paper-ink);
+		stroke: var(--line, var(--paper-ink));
 		stroke-width: var(--uml-stroke);
 		stroke-dasharray: none;
 		stroke-linejoin: miter;
@@ -73,7 +87,7 @@
 		fill: var(--paper-fill);
 	}
 	.filled {
-		fill: var(--paper-ink);
+		fill: var(--line, var(--paper-ink));
 	}
 	.open {
 		fill: none;

@@ -29,6 +29,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import type { ClassifierKind, Id, Point } from '#lib/model/types.ts';
 	import { flow, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
+	import { lineOf } from './paint.ts';
 	import { layout } from '#lib/stores/layout.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
@@ -90,6 +91,11 @@
 			return m?.width && m.height ? { ...n, measured: { width: m.width, height: m.height } } : n;
 		})
 	);
+
+	/** Line colours in use, each with its own marker set (Markers.svelte). */
+	const lineColours = $derived([
+		...new Set(flow.edges.flatMap((e) => (e.type === 'uml' && lineOf(e.data!.layout)) || []))
+	]);
 
 	/** Zoom and fit animate unless the reader asked for less motion. */
 	const dur = (ms: number) => (prefersReducedMotion.current ? 0 : ms);
@@ -509,7 +515,7 @@
 				oncontextmenu={(e) =>
 					oncontextmenu(e, props.oncontextmenu as ((e: MouseEvent) => void) | undefined)}
 			>
-				<Markers />
+				<Markers colours={lineColours} />
 				<SvelteFlow
 					{nodes}
 					edges={flow.canvasEdges}

@@ -54,6 +54,7 @@ export {
 	renameDiagram,
 	renameProject,
 	restoreDiagram,
+	setColour,
 	setDiagramDefaults,
 	setNodeFlags
 } from './display.ts';

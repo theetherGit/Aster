@@ -63,7 +63,7 @@
      corner handles draw whole; the sheet inside carries the fill, the border and the folded corner. -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
-	class="note-node"
+	class="note-node uml-paint"
 	role="group"
 	aria-label={summary}
 	tabindex={data.focus === 'self' ? 0 : -1}
@@ -73,6 +73,8 @@
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
 	class:edge-hover={data.hovered}
+	style:--fill={isNote ? data.fill : undefined}
+	style:--line={isNote ? data.line : undefined}
 	data-kind={el.kind}
 	ondblclick={(e) => {
 		e.stopPropagation();
@@ -123,8 +125,8 @@
 		box-sizing: border-box;
 		max-width: 420px;
 		padding: 6px 10px;
-		background: var(--paper-fill);
-		border: var(--uml-stroke) solid var(--paper-ink);
+		background: var(--fill, var(--paper-fill));
+		border: var(--uml-stroke) solid var(--line, var(--paper-ink));
 		/* The folded corner: the top-right 12 px are cut away and drawn back as a triangle. */
 		clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
 	}
@@ -142,9 +144,9 @@
 		background: linear-gradient(
 			225deg,
 			transparent 50%,
-			var(--paper-ink) 50%,
-			var(--paper-ink) calc(50% + var(--uml-stroke)),
-			var(--paper-fill) calc(50% + var(--uml-stroke))
+			var(--line, var(--paper-ink)) 50%,
+			var(--line, var(--paper-ink)) calc(50% + var(--uml-stroke)),
+			var(--fill, var(--paper-fill)) calc(50% + var(--uml-stroke))
 		);
 	}
 	.note-node:hover:not(.selected),
