@@ -1,3 +1,7 @@
+/* Hallmark · macrostructure: Workbench (home) + Nimbus docs layout · tone: utilitarian · anchor hue: brand violet
+ * theme: Aster's chrome greys (src/lib/ui/tokens.css) with the brand's violet petal and amber centre
+ * (docs/brand/README.md) · display: Sora 600 · body: system sans
+ * Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 */
 @import "tailwindcss";
 
 /* ============================================================
@@ -19,10 +23,10 @@
  * ============================================================ */
 
 /* ---- Light mode (default) ---- */
-/* Aster's chrome, from the app's src/lib/ui/tokens.css (design.md is the locked system): a white
-   reading surface, the chrome grey under code and cards, one cool blue accent, amber and red for
-   cautions. A value tagged with a token name must equal that token in the app; the root's
-   tests/unit/docs-theme.test.ts fails when they drift. */
+/* The docs wear Aster's brand over the app's chrome (owner's choice, 2026-10-22): the neutrals are
+   the app's (src/lib/ui/tokens.css), the accent is the mark's violet petal and the highlight its
+   amber centre (docs/brand/README.md). The app itself keeps its blue. A value tagged with a token
+   or a brand colour must equal it; the root's tests/unit/docs-theme.test.ts fails when they drift. */
 :root {
 	color-scheme: light;
 
@@ -35,26 +39,33 @@
 	--nb-muted: #f6f6f8; /* --chrome-bg */
 	--nb-muted-foreground: #6b6b78; /* --chrome-muted */
 
-	/* Hover and the current page: the app's selection tint, the accent at 8 %. */
-	--nb-accent: color-mix(in srgb, #2f6fe4 8%, transparent); /* --accent */
+	/* Hover and the current page: the accent at 8 %, as the app tints a selection. */
+	--nb-accent: color-mix(in srgb, #5a4bd6 8%, transparent); /* brand petal */
 	--nb-accent-foreground: var(--nb-foreground);
 
-	/* Fills (buttons, the tab underline) and text (links, the chosen tab) are two blues, as in
-	   the app: the fill under white text, the text 4.5:1 on the page. */
-	--nb-primary: #2f6fe4; /* --accent-fill */
+	/* The violet petal fills buttons (6.2:1 under white) and draws links and the chosen tab
+	   (6.2:1 on the page). Hover deepens it towards the brand ink. */
+	--nb-primary: #5a4bd6; /* brand petal */
 	--nb-primary-foreground: #ffffff; /* --on-accent */
-	--nb-primary-hover: #2a63cc; /* --accent-text */
-	--nb-link: #2a63cc; /* --accent-text */
+	--nb-primary-hover: color-mix(in srgb, #5a4bd6 80%, #1b1a24); /* brand ink */
+	--nb-link: #5a4bd6; /* brand petal */
+	/* The amber centre: marks and badges only, always under the brand ink (9:1), never as text. */
+	--nb-highlight: #f2b233; /* brand centre */
+	--nb-highlight-foreground: #1b1a24; /* brand ink */
 
 	--nb-border: #dcdce3; /* --chrome-border */
 	--nb-border-strong: #7d7d89; /* --control-border */
 	--nb-selected: var(--nb-accent);
-	--nb-ring: #2f6fe4; /* --accent */
+	--nb-ring: #5a4bd6; /* brand petal */
 	--nb-kbd-fill: color-mix(in srgb, var(--nb-foreground) 8%, transparent);
 	--nb-radius-control: 6px; /* --control-radius */
+	--nb-radius-card: 12px; /* --radius-card */
+	/* The paper's dot grid, behind playgrounds and screenshots. */
+	--nb-dot: #e0e0e6; /* --paper-grid */
+	--nb-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* --ease-out */
 
 	/* Status: the colour draws the aside's icon and edge (3:1); its text stays the foreground. */
-	--nb-info: #2a63cc; /* --accent-text */
+	--nb-info: #5a4bd6; /* brand petal */
 	--nb-info-foreground: var(--nb-info);
 	--nb-info-muted: color-mix(in srgb, var(--nb-info) 8%, transparent);
 
@@ -97,7 +108,8 @@
 	/* Used only by the API reference (registry: api-layout); harmless elsewhere. */
 	--nb-code-rail-width: 34rem;
 
-	/* Typography: the app's system faces, nothing downloaded. Titles take one weight step (600). */
+	/* Typography: headings in Sora 600, the wordmark's face; body and code in the app's system faces. */
+	--nb-font-display: 'Sora', system-ui, sans-serif;
 	--nb-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; /* --font-chrome */
 	--nb-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /* --font-mono */
 	--nb-h1-size: 1.75rem;
@@ -139,24 +151,26 @@
 	--nb-muted: #222229; /* dark --chrome-surface */
 	--nb-muted-foreground: #9b9ba8; /* dark --chrome-muted */
 
-	--nb-accent: color-mix(in srgb, #4f8cff 8%, transparent); /* dark --accent */
+	--nb-accent: color-mix(in srgb, #8b7ff5 10%, transparent); /* dark brand petal */
 	--nb-accent-foreground: var(--nb-foreground);
 
-	--nb-primary: #2f6fe4; /* dark --accent-fill */
+	/* The light petal stays the fill under white text; the dark petal draws text (5.3:1). */
+	--nb-primary: #5a4bd6; /* brand petal */
 	--nb-primary-foreground: #ffffff; /* dark --on-accent */
-	--nb-primary-hover: #2a63cc; /* --accent-text */
-	--nb-link: #4f8cff; /* dark --accent-text */
+	--nb-primary-hover: color-mix(in srgb, #5a4bd6 80%, #8b7ff5); /* dark brand petal */
+	--nb-link: #8b7ff5; /* dark brand petal */
 
 	--nb-border: #2f2f38; /* dark --chrome-border */
 	--nb-border-strong: #74747f; /* dark --control-border */
 	--nb-selected: var(--nb-accent);
-	--nb-ring: #4f8cff; /* dark --accent */
+	--nb-ring: #8b7ff5; /* dark brand petal */
 
-	--nb-info: #4f8cff; /* dark --accent-text */
+	--nb-info: #8b7ff5; /* dark brand petal */
 	--nb-success: #1e8a5f; /* dark --ok */
 	--nb-warning: #e0a33a; /* dark --warning */
 	--nb-danger: #f0705c; /* dark --danger */
 	--nb-danger-foreground: var(--nb-danger);
+	--nb-dot: #2f2f38; /* dark --chrome-border */
 
 	/* API method palette — dark lines; text and tint follow the status tokens. */
 	--nb-m-get-line: oklch(0.765 0.177 163.223 / 0.25);
@@ -186,6 +200,8 @@
 	--color-primary-foreground: var(--nb-primary-foreground);
 	--color-primary-hover: var(--nb-primary-hover);
 	--color-link: var(--nb-link);
+	--color-highlight: var(--nb-highlight);
+	--color-highlight-foreground: var(--nb-highlight-foreground);
 
 	--color-border: var(--nb-border);
 	--color-border-strong: var(--nb-border-strong);
@@ -209,6 +225,7 @@
 	--color-danger-muted: var(--nb-danger-muted);
 
 	--font-sans: var(--nb-font-sans);
+	--font-display: var(--nb-font-display);
 	--font-mono: var(--nb-font-mono);
 
 	--shadow-sm: var(--nb-shadow-sm);
@@ -220,6 +237,22 @@
 /* ---- Minimal overrides the plugin doesn't cover ---- */
 html {
 	font-family: var(--nb-font-sans);
+}
+
+/* Titles and section heads in the wordmark's face; deeper heads stay in the body face. A long
+   word breaks rather than pushing the page wide. */
+h1,
+h2,
+h3 {
+	min-width: 0;
+	font-family: var(--nb-font-display);
+	overflow-wrap: anywhere;
+}
+
+/* Nothing scrolls sideways; clip, unlike hidden, keeps the sticky header sticky. */
+html,
+body {
+	overflow-x: clip;
 }
 
 body {
@@ -654,3 +687,4 @@ body:not(:has([data-mobile-sidebar])) [data-menu-btn] {
 		animation: none;
 	}
 }
+

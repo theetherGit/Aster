@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@cloudflare/nimbus-docs": "^0.18.1",
+    "@fontsource/sora": "^5.3.0",
     "@iconify-json/ph": "^1.2.0",
     "astro": "7.4.2",
     "astro-og-canvas": "^0.13.0",

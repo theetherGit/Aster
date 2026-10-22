@@ -11,6 +11,8 @@ This tour draws an account, a savings account and a customer, links them, and sa
 
 Open [asteruml.app](https://asteruml.app/). There is nothing to install and no account. Choose **New diagram** (<Key k="⌘N" />). To work on a StarUML file instead, choose **Open file** (<Key k="⌘O" />) or drop the `.mdj` on the window.
 
+<Shot name="welcome" alt="Aster's welcome page: New diagram and Open file on the left, the sample project and the Recent list on the right." />
+
 <Aside type="tip" title="StarUML's layout">
   <Key k="⌘⇧L" /> switches to the Classic layout: StarUML's menus, Model Explorer, toolbox and editors in the places you know. Press it again to come back.
 </Aside>
@@ -23,6 +25,8 @@ Point at an empty spot and press <Key k="C" />. A class appears with its name se
 2. Type `- balance: float = 0` and press <Key k="↩" /> for the next line, or <Key k="Tab" /> to move to the operations.
 3. Type `+ deposit(amount: float): void`.
 4. Press <Key k="Esc" /> when you are done.
+
+<Shot name="chip" alt="A class named Account with the line - balance: float = 0 open for editing. The chip under it reads private · float · default 0, then the keys for the next line, the operations, and done." />
 
 Lines are StarUML's member syntax. While you type, a chip under the class says how Aster reads the line. A line it cannot read is kept as you typed it, with an amber wavy underline, so nothing you write is lost.
 
@@ -42,6 +46,8 @@ Select `SavingsAccount`, then press <Key k="L" />. Move to `Account` with the ar
 | <Key k="4" /> | Generalization |
 | <Key k="5" /> | Realization |
 | <Key k="6" /> | Dependency |
+
+<Shot name="picker" alt="Linking Customer to Account: the relationship kind picker lists Association, Aggregation, Composition, Generalization, Realization and Dependency, with the keys 1 to 6." />
 
 Press <Key k="4" />: a savings account is an account. The line runs from the class you selected to the one you picked, so the triangle points at `Account`. For an aggregation or composition, start from the part: the diamond goes on the whole.
 
@@ -79,6 +85,8 @@ Press <Key k="⌘S" />. A new project is saved in the browser, and the notice of
 - **PDF**: one page, A4, A3 or Letter.
 - **Text**: Mermaid or PlantUML.
 - **Project**: `.mdj` or Aster's own `.aster`.
+
+<Shot name="export" alt="The export sheet on its Image tab: PNG or SVG, 1× or 2×, white or transparent background, selection only, the file name and size, Copy to clipboard and Download." />
 
 <Key k="⌘⇧C" /> copies the diagram as a PNG, ready to paste into a report. More in [Export and share](/guides/export/).
 

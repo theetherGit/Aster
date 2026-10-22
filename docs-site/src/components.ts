@@ -6,6 +6,8 @@
 
 import { Aside } from "./components/ui/aside";
 import Key from "./components/Key.astro";
+import MemberPlayground from "./components/MemberPlayground.astro";
+import Shot from "./components/Shot.astro";
 import Render from "./components/Render.astro";
 import { Card } from "./components/ui/card";
 import { CardGrid } from "./components/ui/card-grid";
@@ -17,6 +19,8 @@ export const components = {
   Aside,
   Card,
   Key,
+  MemberPlayground,
+  Shot,
   CardGrid,
   PackageManagers,
   Render,

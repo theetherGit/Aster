@@ -1,6 +1,7 @@
 ---
 import type { SidebarSection } from "@cloudflare/nimbus-docs/types";
 import Icon from "@cloudflare/nimbus-docs/components/Icon.astro";
+import AsterMark from "./AsterMark.astro";
 import { Button } from "./ui/button";
 import { LinkButton } from "./ui/link-button";
 import { ThemeToggle } from "./ui/theme-toggle";
@@ -41,10 +42,11 @@ const resolveSectionHref = (href: string): string =>
   <div class="mx-auto flex items-center justify-between gap-3 h-14 px-4 lg:px-6">
     <div class="flex items-center gap-3 min-w-0">
       <slot name="brand">
-        <a href={homeHref} class="group shrink-0">
-          <span class="font-semibold text-sm text-foreground group-hover:text-link transition-colors">
-            {config.title}
-          </span>
+        <!-- The lockup (docs/brand): the mark, then "aster" lowercase in Sora 600 at -0.04em. -->
+        <a href={homeHref} class="group flex shrink-0 items-center gap-2 no-underline" aria-label={`${config.title} docs, home`}>
+          <AsterMark class="size-6" />
+          <span class="font-display text-[1.125rem] font-semibold leading-none tracking-[-0.04em] text-foreground">aster</span>
+          <span class="text-sm text-muted-foreground transition-colors group-hover:text-link">docs</span>
         </a>
       </slot>
 

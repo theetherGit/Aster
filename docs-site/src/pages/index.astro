@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import { LinkButton } from "../components/ui/link-button";
+import Shot from "../components/Shot.astro";
 import { config } from "virtual:nimbus/config";
 import { getIndexedEntries, withBase } from "@cloudflare/nimbus-docs/runtime";
 
@@ -63,7 +64,8 @@ const groups = [
 <BaseLayout title={config.title} description={config.description}>
   <div class="flex min-h-screen flex-col">
     <Header />
-    <main id="main-content" tabindex="-1" class="mx-auto w-full max-w-2xl flex-1 px-6 py-16 sm:py-24">
+    <main id="main-content" tabindex="-1" class="w-full flex-1 pb-16 sm:pb-24">
+      <div class="mx-auto w-full max-w-2xl px-6 pt-16 sm:pt-24">
       <h1
         class="min-w-0 leading-tight text-foreground [overflow-wrap:anywhere]"
         style="font-size: var(--nb-h1-size); font-weight: var(--nb-h1-weight); letter-spacing: var(--nb-h1-tracking);"
@@ -79,9 +81,23 @@ const groups = [
         <LinkButton href="https://asteruml.app/" variant="primary">Open Aster</LinkButton>
         {tour && <LinkButton href={tour.href} variant="secondary">Take the tour</LinkButton>}
       </div>
+      </div>
+
+      <!-- Workbench: the real app, wider than the reading column, on the paper's dot grid. -->
+      <div class="home-bench mt-12">
+        <div class="mx-auto w-full max-w-5xl px-6">
+          <Shot
+            name="editor"
+            eager
+            alt="The Aster editor: a library model of seven classes, interfaces and an enumeration with their relationships, the Outline on the left, and the Loan class selected with its attributes, operations and relationships in the inspector."
+          />
+        </div>
+      </div>
+
+      <div class="mx-auto w-full max-w-2xl px-6">
 
       <h2
-        class="mt-16 text-foreground"
+        class="mt-14 text-foreground"
         style="font-size: var(--nb-h2-size); font-weight: var(--nb-h2-weight); letter-spacing: var(--nb-h2-tracking);"
       >
         Coming from StarUML
@@ -128,6 +144,7 @@ const groups = [
           ))
         }
       </div>
+      </div>
     </main>
     <footer class="border-t border-border">
       <p class="mx-auto w-full max-w-2xl px-6 py-6 text-sm text-muted-foreground">
@@ -144,3 +161,17 @@ const groups = [
     </footer>
   </div>
 </BaseLayout>
+
+<style>
+  .home-bench {
+    padding-block: 0.5rem;
+    background: radial-gradient(var(--nb-dot) 1px, transparent 1px) 0 0 / 16px 16px;
+    border-block: 1px solid var(--nb-border);
+  }
+  .home-bench :global(.shot) {
+    margin-inline: auto;
+  }
+  .home-bench :global(.shot img) {
+    box-shadow: var(--nb-shadow-xl);
+  }
+</style>

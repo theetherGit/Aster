@@ -1,0 +1,13 @@
+[
+  {
+    "date": "2026-10-22",
+    "macrostructure": "Workbench",
+    "theme": "custom",
+    "theme_axes": "light (dark mode too) / geometric-sans display (Sora 600) / cool-violet accent",
+    "vibe": "Aster brand: violet petal, amber centre, app chrome",
+    "enrichment": "real app screenshots (Playwright, light and dark) + member line playground",
+    "nav": "Nimbus header with the brand lockup and inline search (N13-like)",
+    "footer": "Ft5 statement line (home)",
+    "brief": "Aster docs: brand-led colours, real screenshots, interactive member syntax playground"
+  }
+]

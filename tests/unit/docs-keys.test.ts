@@ -61,7 +61,7 @@ function page() {
 		'',
 		'Press <kbd>?</kbd> in the app for this list, with a filter. Actions without a key, such as auto-layout and align, are in the command palette, <kbd>⌘K</kbd>. Keys follow your platform: <kbd>⌘</kbd> on macOS is <kbd>Ctrl</kbd> on Windows and Linux, and on macOS either one works.',
 		'',
-		'Where StarUML has a key for the same action, Aster uses it, so what you already know still works. Those rows say **Same** in the StarUML column.',
+		'Where StarUML has a key for the same action, Aster uses it, so what you already know still works. Those rows say <span class="same">Same</span> in the StarUML column.',
 		''
 	];
 	for (const group of GROUPS) {
@@ -71,7 +71,7 @@ function page() {
 		lines.push('| Action | macOS | Windows and Linux | StarUML |', '| --- | --- | --- | --- |');
 		for (const r of items)
 			lines.push(
-				`| ${escape(r.label)} | ${caps(r.keys, true)} | ${caps(r.keys, false)} | ${r.staruml ? 'Same' : ''} |`
+				`| ${escape(r.label)} | ${caps(r.keys, true)} | ${caps(r.keys, false)} | ${r.staruml ? '<span class="same">Same</span>' : ''} |`
 			);
 		lines.push('');
 	}

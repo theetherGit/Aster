@@ -1,0 +1,366 @@
+---
+/**
+ * Member line playground: type a line and Aster's own parser reads it, with the words the app's
+ * chip uses (src/lib/explain.ts). Native radios and a labelled input; the result is announced only
+ * when the line flips between read and kept as text, as the app's chip is.
+ *
+ * Hallmark · component: playground · theme: Aster docs (brand violet over the app's chrome)
+ * states: default · hover · focus · active · disabled · error (kept as text) · success (read)
+ */
+const EXAMPLES: [kind: string, line: string][] = [
+  ["attribute", "-copies: Copy[1..*]"],
+  ["attribute", "+{static} MAX_LOANS: int = 5"],
+  ["operation", "+deposit(amount: double = 0): void"],
+  ["operation", "+{abstract} area(): double"],
+  ["literal", "<<default>> ON_LOAN"],
+  ["attribute", "+name: String[0..1"],
+];
+const KINDS = [
+  ["attribute", "Attribute"],
+  ["operation", "Operation"],
+  ["literal", "Literal"],
+];
+---
+
+<section class="playground not-prose" aria-label="Member line playground" data-playground>
+  <fieldset class="pg-kinds">
+    <legend class="pg-label">Kind of line</legend>
+    <div class="pg-segment">
+      {
+        KINDS.map(([value, label], i) => (
+          <label class="pg-seg">
+            <input type="radio" name="pg-kind" value={value} checked={i === 0} />
+            <span>{label}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <label class="pg-label" for="pg-line">Line</label>
+  <input
+    id="pg-line"
+    class="pg-input"
+    type="text"
+    value={EXAMPLES[0][1]}
+    spellcheck="false"
+    autocomplete="off"
+    autocapitalize="off"
+    aria-describedby="pg-chip"
+  />
+
+  <div id="pg-chip" class="pg-chip" data-ok="true">
+    <span class="pg-dot" aria-hidden="true"></span>
+    <span class="pg-parts"></span>
+    <button type="button" class="pg-fix" hidden></button>
+  </div>
+  <span class="sr-only" role="status" data-pg-status></span>
+
+  <dl class="pg-fields"></dl>
+  <p class="pg-reads" hidden>Aster writes it back as <code></code></p>
+
+  <div class="pg-examples">
+    <span class="pg-label">Try</span>
+    <ul>
+      {
+        EXAMPLES.map(([kind, line]) => (
+          <li>
+            <button type="button" class="pg-example" data-kind={kind} data-line={line}>
+              <code>{line}</code>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  import type { MemberKind } from "../../../src/lib/mdj/expression.ts";
+  import { explain } from "../lib/explain";
+
+  function wire(root: HTMLElement) {
+    if (root.dataset.wired) return;
+    root.dataset.wired = "1";
+    const input = root.querySelector<HTMLInputElement>(".pg-input")!;
+    const chip = root.querySelector<HTMLElement>(".pg-chip")!;
+    const parts = root.querySelector<HTMLElement>(".pg-parts")!;
+    const fix = root.querySelector<HTMLButtonElement>(".pg-fix")!;
+    const fields = root.querySelector<HTMLElement>(".pg-fields")!;
+    const reads = root.querySelector<HTMLElement>(".pg-reads")!;
+    const status = root.querySelector<HTMLElement>("[data-pg-status]")!;
+    const kind = () =>
+      (root.querySelector<HTMLInputElement>('input[name="pg-kind"]:checked')?.value ?? "attribute") as MemberKind;
+    let said = "";
+
+    function render() {
+      const r = explain(kind(), input.value);
+      chip.dataset.ok = String(r.ok);
+      parts.textContent = r.parts.join(" · ");
+      fix.hidden = !r.fix;
+      if (r.fix) {
+        fix.textContent = r.fix.label;
+        fix.dataset.text = r.fix.text;
+      }
+      fields.replaceChildren(
+        ...r.fields.map(([label, value]) => {
+          const row = document.createElement("div");
+          const dt = document.createElement("dt");
+          const dd = document.createElement("dd");
+          dt.textContent = label;
+          dd.textContent = value;
+          row.append(dt, dd);
+          return row;
+        }),
+      );
+      reads.hidden = !r.reads;
+      reads.querySelector("code")!.textContent = r.reads ?? "";
+      input.setAttribute("aria-invalid", String(!r.ok));
+      // Speak only when the verdict changes, not on every key.
+      const verdict = r.ok ? "Aster reads this line." : `${r.parts.join(": ")}.`;
+      if (verdict !== said) status.textContent = said = verdict;
+    }
+
+    input.addEventListener("input", render);
+    root.addEventListener("change", (e) => {
+      if ((e.target as HTMLInputElement).name === "pg-kind") render();
+    });
+    fix.addEventListener("click", () => {
+      input.value = fix.dataset.text ?? input.value;
+      render();
+      input.focus();
+    });
+    for (const b of root.querySelectorAll<HTMLButtonElement>(".pg-example"))
+      b.addEventListener("click", () => {
+        const radio = root.querySelector<HTMLInputElement>(`input[name="pg-kind"][value="${b.dataset.kind}"]`);
+        if (radio) radio.checked = true;
+        input.value = b.dataset.line ?? "";
+        render();
+        input.focus();
+      });
+    said = "Aster reads this line."; // the first line reads; nothing to announce on load
+    render();
+  }
+
+  const init = () => document.querySelectorAll<HTMLElement>("[data-playground]").forEach(wire);
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style>
+  .playground {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+    padding: 1.25rem;
+    border: 1px solid var(--nb-border);
+    border-radius: 12px;
+    background:
+      radial-gradient(var(--nb-dot) 1px, transparent 1px) 0 0 / 16px 16px,
+      var(--nb-background);
+  }
+  .pg-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--nb-muted-foreground);
+  }
+  .pg-kinds {
+    display: grid;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .pg-segment {
+    display: inline-flex;
+    width: max-content;
+    max-width: 100%;
+    border: 1px solid var(--nb-border-strong);
+    border-radius: var(--nb-radius-control);
+    overflow: hidden;
+    background: var(--nb-background);
+  }
+  .pg-seg {
+    position: relative;
+    display: inline-flex;
+  }
+  .pg-seg input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .pg-seg span {
+    min-height: 2rem;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--nb-foreground);
+    transition: background-color 120ms var(--nb-ease-out);
+  }
+  .pg-seg + .pg-seg span {
+    border-inline-start: 1px solid var(--nb-border);
+  }
+  .pg-seg input:hover + span {
+    background: var(--nb-accent);
+  }
+  .pg-seg input:checked + span {
+    background: color-mix(in srgb, var(--nb-primary) 14%, transparent);
+    box-shadow: inset 0 -2px 0 var(--nb-primary);
+    font-weight: 600;
+  }
+  .pg-seg input:focus-visible + span {
+    outline: 2px dashed var(--nb-ring);
+    outline-offset: -4px;
+  }
+  .pg-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--nb-font-mono);
+    font-size: 0.9375rem;
+    color: var(--nb-foreground);
+    background: var(--nb-background);
+    border: 1px solid var(--nb-border-strong);
+    border-radius: var(--nb-radius-control);
+  }
+  .pg-input:hover {
+    border-color: var(--nb-primary);
+  }
+  .pg-input[aria-invalid="true"] {
+    text-decoration: underline wavy var(--nb-warning);
+    text-decoration-skip-ink: none;
+    text-underline-offset: 4px;
+  }
+  /* The app's chip under an open line (board 04): a dot, the reading in mono, the fix. */
+  .pg-chip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: max-content;
+    max-width: 100%;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--nb-font-mono);
+    font-size: 0.8125rem;
+    color: var(--nb-foreground);
+    background: var(--nb-card);
+    border: 1px solid var(--nb-border);
+    border-radius: var(--nb-radius-control);
+    box-shadow: var(--nb-shadow-lg);
+  }
+  .pg-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--nb-success);
+  }
+  .pg-chip[data-ok="false"] .pg-dot {
+    background: var(--nb-warning);
+  }
+  .pg-parts {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .pg-fix,
+  .pg-example {
+    min-height: 1.75rem;
+    padding: 0.125rem 0.5rem;
+    font: inherit;
+    text-align: start;
+    color: var(--nb-link);
+    background: transparent;
+    border: 0;
+    border-radius: var(--nb-radius-control);
+    cursor: pointer;
+    transition: background-color 120ms var(--nb-ease-out);
+  }
+  /* An example is one line, never two (it is a button). */
+  .pg-example {
+    white-space: nowrap;
+    background: var(--nb-background);
+    border: 1px solid var(--nb-border);
+  }
+  .pg-example:hover {
+    border-color: var(--nb-primary);
+  }
+  .pg-fix {
+    font-family: var(--nb-font-sans);
+    font-weight: 600;
+  }
+  .pg-fix:hover,
+  .pg-example:hover {
+    background: var(--nb-accent);
+  }
+  .pg-fix:active,
+  .pg-example:active {
+    transform: translateY(1px);
+  }
+  .pg-fields {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.25rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .pg-fields:empty {
+    display: none;
+  }
+  /* The rows are written by the script, so they are reached through :global. */
+  .pg-fields :global(div) {
+    display: contents;
+  }
+  .pg-fields :global(dt) {
+    margin: 0;
+    font-weight: 400;
+    color: var(--nb-muted-foreground);
+  }
+  .pg-fields :global(dd) {
+    margin: 0;
+    padding: 0;
+    font-family: var(--nb-font-mono);
+    color: var(--nb-foreground);
+    overflow-wrap: anywhere;
+  }
+  .pg-reads {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--nb-muted-foreground);
+  }
+  .pg-reads code {
+    font-family: var(--nb-font-mono);
+    color: var(--nb-foreground);
+  }
+  .pg-examples {
+    display: grid;
+    gap: 0.375rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--nb-border);
+  }
+  .pg-examples ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pg-example code {
+    padding: 0;
+    font-family: var(--nb-font-mono);
+    font-size: 0.8125rem;
+    color: inherit;
+    background: none;
+    border: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pg-fix:active,
+    .pg-example:active {
+      transform: none;
+    }
+  }
+</style>

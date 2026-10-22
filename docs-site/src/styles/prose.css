@@ -340,3 +340,15 @@
   margin-left: 1rem;
   color: var(--nb-muted-foreground);
 }
+
+/* "Same as StarUML" in the keyboard reference: the brand's amber centre under its ink (9:1). */
+.docs-content .same {
+  display: inline-block;
+  padding: 0.0625rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--nb-highlight-foreground);
+  background: var(--nb-highlight);
+  border-radius: 999px;
+}
