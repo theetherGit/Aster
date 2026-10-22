@@ -18,7 +18,8 @@ import { MdjError, type ParseReport } from '#lib/mdj/parse.ts';
 import { serializeMdjText } from '#lib/mdj/serialize.ts';
 import { parseInWorker } from '#lib/mdj/worker.ts';
 import { createDiagram, createProject } from '#lib/model/project.ts';
-import { batch, Stack } from '#lib/commands/index.ts';
+import { batch, importFragment, Stack } from '#lib/commands/index.ts';
+import { readFragment } from '#lib/mdj/fragment.ts';
 import { parsePuml } from '#lib/puml/parse.ts';
 import { printDiagram } from '#lib/puml/print.ts';
 import { planSync } from '#lib/puml/sync.ts';
@@ -502,6 +503,52 @@ export function exportPuml() {
 
 /** Ask for a `.puml` file only. */
 const pickPuml = () => pickFile(PUML_TYPES, '.puml,text/plain');
+/** StarUML writes fragments as `.mfj`; a whole `.mdj` comes in as its contents. */
+const FRAGMENT_TYPES = [
+	{ description: 'StarUML model fragment', accept: { 'application/json': ['.mfj', '.mdj'] } }
+];
+
+/**
+ * features.md M3, fragment import (StarUML's File › Import › Fragment): a `.mfj` into the model
+ * under the selected package, else the top of the model; one undo step, said in a toast with Undo.
+ * Nothing is placed on the open diagram; diagrams inside come as tabs (owner's ruling, 2026-10-22).
+ */
+export async function importFragmentFile() {
+	const f = await pickFile(FRAGMENT_TYPES, '.mfj,.mdj,application/json').catch(() => null);
+	if (!f) return;
+	try {
+		const text = new TextDecoder('utf-8').decode(f.data).replace(/^\uFEFF/, '');
+		const sel =
+			selection.size === 1 ? projectStore.project.elements.get(selection.list[0]) : undefined;
+		const { payload, report } = readFragment(
+			JSON.parse(text),
+			projectStore.project,
+			sel?.kind === 'package' ? sel.id : undefined
+		);
+		projectStore.run(importFragment, payload);
+		const count = (key: 'classes' | 'diagrams', n: number) =>
+			n ? [t(`toast.fragment.${key}.${n === 1 ? 'one' : 'other'}`, { count: n })] : [];
+		const what = [
+			...count('classes', report.model.classifiers),
+			...count('diagrams', report.diagrams.length)
+		];
+		ui.toast = {
+			text: t('toast.fragment', {
+				name: payload.name,
+				what: what.join(', ') || t('toast.fragment.nothing')
+			}),
+			undo: true,
+			at: Date.now()
+		};
+	} catch (e) {
+		files.notice = {
+			kind: 'failed',
+			file: f.name,
+			message: e instanceof Error ? e.message : String(e),
+			invalid: e instanceof MdjError || e instanceof SyntaxError
+		};
+	}
+}
 
 /** The Text view's import: a `.puml` file's text for this diagram, or null when cancelled. */
 export async function pickPumlText(): Promise<string | null> {

@@ -31,6 +31,15 @@ describe('the Classic menu bar is the registry', () => {
 		expect(format.length).toBeLessThan(menuItems(MENUS[2]).length - 15);
 	});
 
+	it("gathers File's imports into StarUML's Import submenu", () => {
+		const file = entries(menuItems(MENUS[0]));
+		const imports = file.find((e) => e.kind === 'sub' && e.sub === 'import');
+		expect(imports?.kind === 'sub' && imports.commands.map((c) => c.id)).toEqual([
+			'file.importPuml',
+			'file.importFragment'
+		]);
+	});
+
 	it('puts the shortcut sheet and the palette under Help, not View', () => {
 		const help = menuItems(MENUS[5]).map((c) => c.id);
 		const view = menuItems(MENUS[4]).map((c) => c.id);

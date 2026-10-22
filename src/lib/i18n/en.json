@@ -478,6 +478,7 @@
 	"tidy.width": "Width",
 	"tidy.height": "Height",
 	"tidy.both": "Width and height",
+	"menu.sub.import": "Import",
 	"menu.sub.layout": "Layout",
 	"menu.sub.align": "Align",
 	"menu.sub.distribute": "Distribute",
@@ -798,6 +799,8 @@
 	"inspector.nothingSelected": "Nothing selected. Pick an element on the diagram or in the Outline.",
 	"inspector.resize": "Resize the inspector",
 	"cmd.importPuml": "Import PlantUML as a new project…",
+	"cmd.importPumlShort": "PlantUML as a new project…",
+	"cmd.importFragmentShort": "Fragment…",
 	"text.import": "Import .puml into this diagram",
 	"text.export": "Export .puml",
 	"text.cm.find": "Find",
@@ -831,5 +834,13 @@
 	"style.resetLabel": "Reset the {what} colour",
 	"style.lowFill": "Text on this fill reads at {ratio}:1; text needs 4.5:1.",
 	"style.lowLine": "This line reads at {ratio}:1 on white; lines need 3:1.",
-	"style.hcHidden": "High contrast draws the paper in black and white. The colours stay in the file and in exports."
+	"style.hcHidden": "High contrast draws the paper in black and white. The colours stay in the file and in exports.",
+	"cmd.importFragment": "import {name}",
+	"cmd.importFragmentMenu": "Import fragment…",
+	"toast.fragment": "Imported {name}: {what}.",
+	"toast.fragment.classes.one": "1 class",
+	"toast.fragment.classes.other": "{count} classes",
+	"toast.fragment.diagrams.one": "1 diagram",
+	"toast.fragment.diagrams.other": "{count} diagrams",
+	"toast.fragment.nothing": "nothing Aster shows yet, kept for saving"
 }

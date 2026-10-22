@@ -59,3 +59,4 @@ export {
 	setNodeFlags
 } from './display.ts';
 export { addNote, addText, linkNote, setElementText, unlinkNote } from './notes.ts';
+export { importFragment, removeFragment } from './fragment.ts';

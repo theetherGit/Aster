@@ -27,6 +27,7 @@
 		'file.save',
 		'file.saveAs',
 		'file.importPuml',
+		'file.importFragment',
 		'file.exportPuml'
 	].flatMap((id) => {
 		const c = byId(id);
@@ -39,6 +40,7 @@
 		'file.save': 'save',
 		'file.saveAs': 'save-all',
 		'file.importPuml': 'folder-open',
+		'file.importFragment': 'folder-open',
 		'file.exportPuml': 'save'
 	};
 	async function renamed() {

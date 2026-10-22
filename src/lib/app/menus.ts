@@ -36,6 +36,7 @@ export function menuItems(menu: Menu, commands: readonly AppCommand[] = COMMANDS
 
 /** The submenus commands with a `sub` gather into, and their titles. */
 const SUBS: Record<Sub, MessageKey> = {
+	import: 'menu.sub.import',
 	layout: 'menu.sub.layout',
 	align: 'menu.sub.align',
 	distribute: 'menu.sub.distribute',
@@ -69,7 +70,7 @@ export function entries(commands: readonly AppCommand[]): Entry[] {
 
 /** A rule between groups in a context menu. */
 const SEPARATOR = '|';
-const arrange = () => COMMANDS.filter((c) => c.sub).map((c) => c.id);
+const arrange = () => COMMANDS.filter((c) => c.sub && c.group === 'format').map((c) => c.id);
 const layouts = () => COMMANDS.filter((c) => c.sub === 'layout').map((c) => c.id);
 
 /**

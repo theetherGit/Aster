@@ -158,6 +158,7 @@ test('recent files reopen from the project menu; a file that is not StarUML repo
 		/\bSave (⌘S|Ctrl\+S)$/,
 		/Save as…/,
 		/Import PlantUML as a new project…/,
+		/Import fragment…/,
 		/Export the diagram as PlantUML/,
 		'public-vrview.mdj'
 	]);

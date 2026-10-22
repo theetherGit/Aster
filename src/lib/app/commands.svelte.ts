@@ -44,6 +44,7 @@ import {
 	quickSave,
 	saveFile,
 	exportPuml,
+	importFragmentFile,
 	importPumlProject
 } from '#lib/persist/files.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -54,7 +55,7 @@ import { ui, cycleTheme } from '#lib/stores/ui.svelte.ts';
 import { parse, type Shortcut } from './shortcuts.ts';
 
 export type Group = 'create' | 'edit' | 'select' | 'file' | 'view' | 'format' | 'display';
-export type Sub = 'layout' | 'align' | 'distribute' | 'size' | 'order';
+export type Sub = 'import' | 'layout' | 'align' | 'distribute' | 'size' | 'order';
 export type Context = 'global' | 'canvas';
 
 export interface AppCommand {
@@ -578,9 +579,23 @@ export const COMMANDS: AppCommand[] = [
 		id: 'file.importPuml',
 		group: 'file',
 		label: () => t('cmd.importPuml'),
+		// StarUML's File › Import submenu.
+		sub: 'import',
+		short: () => t('cmd.importPumlShort'),
 		keys: [],
 		context: 'global',
 		run: () => void importPumlProject()
+	},
+	{
+		// features.md M3, fragment import: StarUML's File › Import › Fragment (no key in keyboard.md).
+		id: 'file.importFragment',
+		group: 'file',
+		label: () => t('cmd.importFragmentMenu'),
+		sub: 'import',
+		short: () => t('cmd.importFragmentShort'),
+		keys: [],
+		context: 'global',
+		run: () => void importFragmentFile()
 	},
 	{
 		// features.md M2, Text view: ".puml import and export" (no key in keyboard.md).

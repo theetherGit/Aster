@@ -95,6 +95,9 @@ class ProjectStore {
 	#afterHistory(label: string | null, verb: 'undone' | 'redone' = 'undone') {
 		if (label === null) return null;
 		announce(t(`live.${verb}`, { label }));
+		// The step may have taken away the open diagram (a new diagram or a fragment undone).
+		if (!this.#project.diagrams.some((d) => d.id === this.activeDiagramId))
+			this.activeDiagramId = this.#project.diagrams[0]?.id ?? '';
 		this.version++;
 		selection.editing = null;
 		const onDiagram = new Set(this.diagram.elementIds);
