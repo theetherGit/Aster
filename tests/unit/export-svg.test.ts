@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { diagramToSvg, slug } from '#lib/export/svg.ts';
 import { notationProject } from '#lib/model/fixtures.ts';
+import { createClassifier, createDiagram, createProject } from '#lib/model/project.ts';
 
 describe('diagram → SVG', () => {
 	const project = notationProject();
@@ -52,5 +53,20 @@ describe('diagram → SVG', () => {
 		expect(slug('Class diagram')).toBe('class-diagram');
 		expect(slug('  ')).toBe('diagram');
 		expect(slug('Überblick: Domain / v2')).toBe('uberblick-domain-v2');
+	});
+
+	it('crops to the drawing, wherever on the paper it sits (lab audit, 2026-10-22)', () => {
+		const p = createProject({ id: 'p' });
+		const d = createDiagram({ id: 'd' });
+		p.diagrams.push(d);
+		p.elements.set('A', createClassifier({ id: 'A', name: 'A' }));
+		d.elementIds.push('A');
+		d.layout.set('A', { kind: 'node', x: 600, y: 400, w: 160, h: 60 });
+		const r = diagramToSvg(p, d, new Map(), { background: 'white' });
+		expect([r.width, r.height]).toEqual([200, 100]);
+		expect(r.svg).toContain('viewBox="580 380 200 100"');
+		// An empty diagram still makes a small, valid file.
+		const empty = diagramToSvg(p, createDiagram({ id: 'e' }), new Map(), { background: 'white' });
+		expect([empty.width, empty.height]).toEqual([40, 40]);
 	});
 });

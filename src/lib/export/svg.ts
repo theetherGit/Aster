@@ -299,10 +299,12 @@ export function diagramToSvg(
 		const ink = lineOf(l);
 		if (ink) colours.add(ink);
 	}
-	const minX = Math.min(...bounds.map((b) => b.x), 0) - padding;
-	const minY = Math.min(...bounds.map((b) => b.y), 0) - padding;
-	const maxX = Math.max(...bounds.map((b) => b.x + b.w), 0) + padding;
-	const maxY = Math.max(...bounds.map((b) => b.y + b.h), 0) + padding;
+	// Cropped to what is drawn, wherever it sits; the origin only stands in for an empty diagram.
+	const drawn = bounds.length ? bounds : [{ x: 0, y: 0, w: 0, h: 0 }];
+	const minX = Math.min(...drawn.map((b) => b.x)) - padding;
+	const minY = Math.min(...drawn.map((b) => b.y)) - padding;
+	const maxX = Math.max(...drawn.map((b) => b.x + b.w)) + padding;
+	const maxY = Math.max(...drawn.map((b) => b.y + b.h)) + padding;
 	const width = Math.ceil(maxX - minX);
 	const height = Math.ceil(maxY - minY);
 	const svg =
