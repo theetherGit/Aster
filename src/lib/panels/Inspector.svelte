@@ -29,6 +29,7 @@
 	import Documentation from './Documentation.svelte';
 	import MemberList from './MemberList.svelte';
 	import NoteInspector from './NoteInspector.svelte';
+	import InstanceInspector from './InstanceInspector.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
 	import RelationshipList from './RelationshipList.svelte';
 	import StyleSection from './StyleSection.svelte';
@@ -330,6 +331,8 @@
 					<RelationshipInspector rel={single} />
 				{:else if single && (single.kind === 'note' || single.kind === 'text')}
 					<NoteInspector element={single} />
+				{:else if single && (single.kind === 'instance' || single.kind === 'link')}
+					<InstanceInspector element={single} />
 				{:else if single && single.kind !== 'classifier'}
 					<p class="text-chrome-muted">{t(`ui.kind.${single.kind}`)}</p>
 					<h2 class="mt-1 text-(length:--text-lead) font-semibold">{elementName(single)}</h2>

@@ -68,7 +68,10 @@ export const deleteFromModel: Factory<{ ids: Id[] }> = define<{ ids: Id[] }>(
 		apply(p): Command {
 			const doomed = new Set(ids);
 			for (const el of p.elements.values()) {
-				if (el.kind === 'relationship' && (doomed.has(el.sourceId) || doomed.has(el.targetId)))
+				if (
+					(el.kind === 'relationship' || el.kind === 'link') &&
+					(doomed.has(el.sourceId) || doomed.has(el.targetId))
+				)
 					doomed.add(el.id);
 			}
 			// Every index is read before anything is removed: restore puts them back in that order.
@@ -157,23 +160,34 @@ function setTypeRef(p: Project, r: TypeRef, name: string) {
 }
 
 /**
- * Renames a classifier and rewrites the parsed types that named it. The inverse carries the exact
- * slots it changed, so undo never touches a type that already said the new name.
+ * Renames a classifier and rewrites the parsed types that named it, and the objects of it (M3.2).
+ * The inverse carries the exact slots and objects it changed, so undo never touches one that
+ * already said the new name.
  */
-export const renameClassifier: Factory<{ id: Id; name: string; refs?: TypeRef[] }> = define<{
+export const renameClassifier: Factory<{
 	id: Id;
 	name: string;
 	refs?: TypeRef[];
-}>('renameClassifier', (project, { id, name, refs }) => ({
+	instances?: Id[];
+}> = define('renameClassifier', (project, { id, name, refs, instances }) => ({
 	label: t('cmd.renameClassifier', { from: nameOf(project, id), to: name }),
-	touches: [id, ...new Set((refs ?? []).map((r) => r.classifierId))],
+	touches: [id, ...new Set((refs ?? []).map((r) => r.classifierId)), ...(instances ?? [])],
 	apply(p): Command {
 		const c = getClassifier(p, id);
 		const previous = c.name;
 		const changed = refs ?? typeRefs(p, previous);
+		const objects =
+			instances ??
+			[...p.elements.values()].flatMap((e) =>
+				e.kind === 'instance' && previous.trim() && e.classifier === previous ? [e.id] : []
+			);
 		c.name = name;
 		for (const r of changed) setTypeRef(p, r, name);
-		return renameClassifier(p, { id, name: previous, refs: changed });
+		for (const o of objects) {
+			const e = p.elements.get(o);
+			if (e?.kind === 'instance') e.classifier = name;
+		}
+		return renameClassifier(p, { id, name: previous, refs: changed, instances: objects });
 	}
 }));
 
@@ -262,7 +276,10 @@ export const deleteFromDiagram: Factory<{ diagramId: Id; ids: Id[] }> = define<{
 		const gone = new Set(ids);
 		for (const id of d.elementIds) {
 			const el = p.elements.get(id);
-			if (el?.kind === 'relationship' && (gone.has(el.sourceId) || gone.has(el.targetId)))
+			if (
+				(el?.kind === 'relationship' || el?.kind === 'link') &&
+				(gone.has(el.sourceId) || gone.has(el.targetId))
+			)
 				gone.add(id);
 		}
 		const entries: Entry[] = [];

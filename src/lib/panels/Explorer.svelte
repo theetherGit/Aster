@@ -12,18 +12,30 @@
 	import { freePosition, rightOf } from '#lib/canvas/place.ts';
 	import {
 		addClassifier,
+		addInstance,
 		addMember,
 		deleteMember,
 		membersOf,
 		renameDiagram,
 		renameProject,
 		reorderMember,
+		replaceElement,
 		setRelationshipName
 	} from '#lib/commands/index.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import { memberFromText, renderMember, type MemberKind } from '#lib/mdj/expression.ts';
 	import { newId } from '#lib/model/ids.ts';
-	import { createClassifier, getClassifier, nextClassName } from '#lib/model/project.ts';
+	import {
+		createClassifier,
+		createInstance,
+		getClassifier,
+		getElement,
+		instanceFromText,
+		instanceLabel,
+		instanceText,
+		nextClassName,
+		nextInstanceName
+	} from '#lib/model/project.ts';
 	import type { Classifier, Id } from '#lib/model/types.ts';
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import InlineName from '#lib/ui/molecules/InlineName.svelte';
@@ -179,9 +191,13 @@
 			];
 			return m ? renderMember(row.memberKind!, m) : '';
 		}
-		if (row.type === 'relationship') {
+		if (row.type === 'relationship' || row.type === 'link') {
 			const r = projectStore.project.elements.get(row.elementId!);
-			return r?.kind === 'relationship' ? (r.name ?? '') : '';
+			return r?.kind === 'relationship' || r?.kind === 'link' ? (r.name ?? '') : '';
+		}
+		if (row.type === 'instance') {
+			const o = projectStore.project.elements.get(row.elementId!);
+			return o?.kind === 'instance' ? instanceLabel(o) : '';
 		}
 		return row.label;
 	}
@@ -193,6 +209,20 @@
 		else if (row.type === 'relationship')
 			projectStore.run(setRelationshipName, { id: row.elementId!, name: text });
 		else if (row.type === 'member') commitLine(row.owner!, row.memberKind!, row.memberIndex!, text);
+		else if (row.type === 'instance' || row.type === 'link') renameObject(row.elementId!, text);
+	}
+	/** An object's "name: Class" (its slots stay), or a link's name; one replaceElement (M3.2). */
+	function renameObject(id: Id, text: string) {
+		const el = getElement(projectStore.project, id);
+		let next = structuredClone(el);
+		if (el.kind === 'instance')
+			next = instanceFromText(el, [text, ...instanceText(el).split('\n').slice(1)].join('\n'));
+		else if (el.kind === 'link' && next.kind === 'link') {
+			if (text.trim()) next.name = text.trim();
+			else delete next.name;
+		}
+		if (JSON.stringify(next) !== JSON.stringify(el))
+			projectStore.run(replaceElement, { element: next });
 	}
 	async function endEdit(focusId: string) {
 		editing = null;
@@ -247,6 +277,21 @@
 		expanded.add(ROOT);
 		expanded.add(diagramRowId(diagramId));
 		const id = rowIdFor(classifier.id, diagramId);
+		await focusRow(id);
+		editing = { kind: 'rename', rowId: id };
+	}
+	const isObjectDiagram = (id: Id) =>
+		projectStore.project.diagrams.find((d) => d.id === id)?.diagramKind === 'object';
+	/** An object on an object diagram (M3.2), placed as newClass places a class, its label open here. */
+	async function newObject(diagramId: Id) {
+		projectStore.activeDiagramId = diagramId;
+		const at = freePosition({ x: 40, y: 40 }, canvasApi.rects().values());
+		const instance = createInstance({ name: nextInstanceName(projectStore.project) });
+		projectStore.run(addInstance, { diagramId, instance, at });
+		selection.set([instance.id]);
+		expanded.add(ROOT);
+		expanded.add(diagramRowId(diagramId));
+		const id = rowIdFor(instance.id, diagramId);
 		await focusRow(id);
 		editing = { kind: 'rename', rowId: id };
 	}
@@ -347,11 +392,17 @@
 			case 'diagram':
 				return [
 					renameIt,
-					{
-						label: t('outline.addClass'),
-						keys: keys('⌘⇧↩'),
-						run: () => newClass(row.diagramId!)
-					},
+					isObjectDiagram(row.diagramId!)
+						? {
+								label: t('outline.addObject'),
+								keys: keys('⌘⇧↩'),
+								run: () => newObject(row.diagramId!)
+							}
+						: {
+								label: t('outline.addClass'),
+								keys: keys('⌘⇧↩'),
+								run: () => newClass(row.diagramId!)
+							},
 					{ label: t('outline.addDiagram'), keys: keys('⌘↩'), run: newDiagram },
 					{
 						label: t('ui.deleteDiagram'),
@@ -414,6 +465,8 @@
 					}
 				];
 			case 'relationship':
+			case 'instance':
+			case 'link':
 				return [renameIt, del(false), del(true)];
 			default:
 				return [];

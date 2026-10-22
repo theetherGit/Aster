@@ -44,6 +44,7 @@
 		});
 	});
 
+	const objectDiagram = $derived(projectStore.diagram.diagramKind === 'object');
 	function oninput(text: string) {
 		value = text;
 		pending = true;
@@ -53,6 +54,8 @@
 	/** Text → model: one parse, one command; with errors, nothing changes until they are fixed. */
 	function apply() {
 		pending = false;
+		// The PlantUML dialect is the class diagram's (M2): an object diagram is never rewritten from it.
+		if (objectDiagram) return;
 		const doc = parsePuml(value);
 		const had = errors.length;
 		errors = doc.errors;
@@ -157,6 +160,11 @@
 		<Button variant="ghost" size="sm" onclick={importHere}>{t('text.import')}</Button>
 		<Button variant="ghost" size="sm" onclick={() => exportPuml()}>{t('text.export')}</Button>
 	</div>
+	{#if objectDiagram}
+		<p class="px-4 pb-2 text-(length:--text-small) text-chrome-muted" data-testid="text-class-only">
+			{t('text.classOnly')}
+		</p>
+	{/if}
 	<!-- The editor fills this box; until CodeMirror has loaded it is empty. -->
 	<div
 		bind:this={host}

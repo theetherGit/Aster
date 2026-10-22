@@ -201,6 +201,41 @@ export function instanceLabel(i: Pick<Instance, 'name' | 'classifier'>): string 
 	return i.name ? `${i.name}: ${i.classifier}` : `: ${i.classifier}`;
 }
 
+/**
+ * An object as the canvas editor shows it: its label on the first line, then one `name = value`
+ * line per slot (StarUML's slot text without the leading "+").
+ */
+export const instanceText = (i: Instance) =>
+	[instanceLabel(i), ...i.slots.map((s) => (s.value ? `${s.name} = ${s.value}` : s.name))].join(
+		'\n'
+	);
+
+/**
+ * The object `text` describes, from `i`: `name: Class` (or `: Class`, or `name`) on the first
+ * line, slots after it. A slot keeps its id when a slot of that name was there before; blank
+ * lines are dropped. Values stay as written, quotes included.
+ */
+export function instanceFromText(i: Instance, text: string): Instance {
+	const [head = '', ...rest] = text.split(/\r?\n/);
+	const colon = head.indexOf(':');
+	const name = (colon < 0 ? head : head.slice(0, colon)).trim();
+	const classifier = colon < 0 ? undefined : head.slice(colon + 1).trim() || undefined;
+	const unused = [...i.slots];
+	const slots = rest.flatMap((line) => {
+		if (!line.trim()) return [];
+		const eq = line.indexOf('=');
+		const n = (eq < 0 ? line : line.slice(0, eq)).trim().replace(/^\+/, '');
+		const value = eq < 0 ? '' : line.slice(eq + 1).trim();
+		const k = unused.findIndex((s) => s.name === n);
+		const id = k < 0 ? newId() : unused.splice(k, 1)[0].id;
+		return [createSlot(n, value, id)];
+	});
+	const out: Instance = { ...structuredClone(i), name, slots };
+	if (classifier === undefined) delete out.classifier;
+	else out.classifier = classifier;
+	return out;
+}
+
 /** First unused "Object1", "Object2", … among the project's objects. */
 export function nextInstanceName(project: Project): string {
 	const taken = new Set<string>();

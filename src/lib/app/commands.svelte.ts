@@ -253,6 +253,18 @@ const sheetRow = (
 	run: () => {}
 });
 
+/** A new diagram of a kind, named after the default and numbered past the last; it opens. */
+function newDiagramOf(diagramKind: 'class' | 'object') {
+	const base = t(diagramKind === 'object' ? 'model.newObjectDiagramName' : 'model.newDiagramName');
+	const names = projectStore.project.diagrams.map((d) => d.name);
+	let n = projectStore.project.diagrams.length + 1;
+	while (names.includes(`${base} ${n}`)) n++;
+	const diagramId = newId();
+	projectStore.run(addDiagram, { diagramId, name: `${base} ${n}`, diagramKind });
+	projectStore.activeDiagramId = diagramId;
+	canvasFocus.focus();
+}
+
 function switchDiagram(delta: number) {
 	const ds = projectStore.project.diagrams;
 	const i = ds.findIndex((d) => d.id === projectStore.activeDiagramId);
@@ -273,6 +285,16 @@ export const COMMANDS: AppCommand[] = [
 		keys: k('N'),
 		context: 'canvas',
 		run: () => canvasApi.createNote()
+	},
+	{
+		// features.md M3.2: on an object diagram; keyboard.md gives Object no key.
+		id: 'create.object',
+		group: 'create',
+		label: () => t('cmd.create.object'),
+		keys: [],
+		context: 'global',
+		when: () => projectStore.diagram.diagramKind === 'object',
+		run: () => canvasApi.createObject()
 	},
 	{
 		id: 'create.text',
@@ -769,16 +791,17 @@ export const COMMANDS: AppCommand[] = [
 		keys: [],
 		context: 'global',
 		inText: true,
-		run: () => {
-			const base = t('model.newDiagramName');
-			const names = projectStore.project.diagrams.map((d) => d.name);
-			let n = projectStore.project.diagrams.length + 1;
-			while (names.includes(`${base} ${n}`)) n++;
-			const diagramId = newId();
-			projectStore.run(addDiagram, { diagramId, name: `${base} ${n}` });
-			projectStore.activeDiagramId = diagramId;
-			canvasFocus.focus();
-		}
+		run: () => newDiagramOf('class')
+	},
+	{
+		// features.md M3.2: object diagrams; keyboard.md has no key for it.
+		id: 'diagram.addObject',
+		group: 'view',
+		label: () => t('ui.addObjectDiagram'),
+		keys: [],
+		context: 'global',
+		inText: true,
+		run: () => newDiagramOf('object')
 	},
 	{
 		id: 'diagram.rename',

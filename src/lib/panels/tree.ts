@@ -1,7 +1,16 @@
 /** Pure helpers for the Explorer tree: rows from the model, and ARIA tree keyboard moves. */
 import { t } from '#lib/i18n/index.ts';
 import { renderMember, type MemberKind } from '#lib/mdj/expression.ts';
-import type { Classifier, Id, Package, Project, Relationship } from '#lib/model/types.ts';
+import { instanceLabel } from '#lib/model/project.ts';
+import type {
+	Classifier,
+	Id,
+	Instance,
+	Link,
+	Package,
+	Project,
+	Relationship
+} from '#lib/model/types.ts';
 
 export interface TreeRow {
 	/**
@@ -28,7 +37,15 @@ export interface TreeRow {
 	/** Diagram whose subtree holds this row (or the diagram itself), when any. */
 	diagramId?: Id;
 	/** What the row stands for, so the Outline knows how to rename, add, reorder and delete (M2). */
-	type: 'project' | 'diagram' | 'package' | 'classifier' | 'member' | 'relationship';
+	type:
+		| 'project'
+		| 'diagram'
+		| 'package'
+		| 'classifier'
+		| 'member'
+		| 'relationship'
+		| 'instance'
+		| 'link';
 	/** Member rows: the classifier, the compartment, the place in it, the member's id. */
 	owner?: Id;
 	memberKind?: MemberKind;
@@ -60,12 +77,18 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 		(e): e is Classifier => e.kind === 'classifier'
 	);
 	const packages = [...project.elements.values()].filter((e): e is Package => e.kind === 'package');
+	const instances = [...project.elements.values()].filter(
+		(e): e is Instance => e.kind === 'instance'
+	);
 	const outgoing = new Map<Id, Relationship[]>();
+	const links = new Map<Id, Link[]>();
 	for (const el of project.elements.values())
 		if (el.kind === 'relationship')
 			outgoing.set(el.sourceId, [...(outgoing.get(el.sourceId) ?? []), el]);
+		else if (el.kind === 'link') links.set(el.sourceId, [...(links.get(el.sourceId) ?? []), el]);
 	const nameOf = (id: Id) => {
 		const el = project.elements.get(id);
+		if (el?.kind === 'instance') return instanceLabel(el) || id;
 		return el && 'name' in el && el.name ? el.name : id;
 	};
 	const placed = new Set(project.diagrams.flatMap((d) => d.elementIds));
@@ -134,6 +157,37 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			]
 		};
 	};
+	/** An object (M3.2) and, under it, the links it owns (it is their source, as in StarUML). */
+	const instanceRow = (o: Instance, level: number, diagramId?: Id): Draft => {
+		const id = rowIdFor(o.id, diagramId);
+		const own = links.get(o.id) ?? [];
+		return {
+			id,
+			type: 'instance',
+			label: instanceLabel(o) || t('object.anonymous'),
+			name: o.name,
+			hint: t('explorer.hint.object'),
+			level,
+			hasChildren: own.length > 0,
+			expanded: expanded.has(id),
+			elementId: o.id,
+			diagramId,
+			children: () =>
+				own.map((l) => ({
+					id: rowIdFor(l.id, diagramId),
+					type: 'link' as const,
+					label: l.name
+						? t('explorer.linkNamed', { name: l.name, target: nameOf(l.targetId) })
+						: t('explorer.link', { target: nameOf(l.targetId) }),
+					hint: t('explorer.hint.link'),
+					level: level + 1,
+					hasChildren: false,
+					expanded: false,
+					elementId: l.id,
+					diagramId
+				}))
+		};
+	};
 	const packageRow = (p: Package, level: number, members: Classifier[], diagramId?: Id): Draft => {
 		const id = diagramId ? `${diagramRowId(diagramId)}/package:${p.id}` : `package:${p.id}`;
 		return {
@@ -164,7 +218,8 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			),
 			...classifiers
 				.filter((c) => pool.has(c.id) && !inPackage(c))
-				.map((c) => classifierRow(c, level, diagramId))
+				.map((c) => classifierRow(c, level, diagramId)),
+			...instances.filter((o) => pool.has(o.id)).map((o) => instanceRow(o, level, diagramId))
 		];
 	};
 	const diagramRow = (d: Project['diagrams'][number]): Draft => {
@@ -178,14 +233,14 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			level: 2,
 			hasChildren: [...pool].some((x) => {
 				const k = project.elements.get(x)?.kind;
-				return k === 'classifier' || k === 'package';
+				return k === 'classifier' || k === 'package' || k === 'instance';
 			}),
 			expanded: expanded.has(id),
 			children: () => scope(pool, 3, d.id)
 		};
 	};
 	const unplaced = new Set(
-		[...classifiers, ...packages].filter((e) => !placed.has(e.id)).map((e) => e.id)
+		[...classifiers, ...packages, ...instances].filter((e) => !placed.has(e.id)).map((e) => e.id)
 	);
 	const root: Draft = {
 		id: ROOT,

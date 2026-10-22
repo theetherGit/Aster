@@ -2,12 +2,14 @@ import { Position, type Edge, type Node } from '@xyflow/svelte';
 import { t } from '#lib/i18n/index.ts';
 import { fillOf, lineOf } from '#lib/canvas/paint.ts';
 import { relationshipsByEnd, type RelIndex } from '#lib/canvas/summary.ts';
+import { linkAsRelationship } from '#lib/canvas/edges/notation.ts';
 import { elementName, PRIMITIVE_TYPES } from '#lib/model/project.ts';
 import type {
 	Classifier,
 	ClassifierKind,
 	DisplayFlags,
 	EdgeLayout,
+	Instance,
 	Note,
 	Relationship,
 	TextElement
@@ -48,7 +50,20 @@ export interface NoteNodeData extends Record<string, unknown> {
 	line?: string;
 }
 export type NoteFlowNode = Node<NoteNodeData, 'note' | 'text'>;
-export type FlowNode = ClassifierFlowNode | NoteFlowNode;
+
+/** An object (M3.2): its label and slots; edited as text, as a note is. */
+export interface InstanceNodeData extends Record<string, unknown> {
+	instance: Instance;
+	width: number;
+	editing: boolean;
+	link: 'source' | 'target' | 'both' | null;
+	hovered: boolean;
+	focus: FocusPart | null;
+	fill?: string;
+	line?: string;
+}
+export type InstanceFlowNode = Node<InstanceNodeData, 'instance'>;
+export type FlowNode = ClassifierFlowNode | NoteFlowNode | InstanceFlowNode;
 
 export interface RelationshipEdgeData extends Record<string, unknown> {
 	relationship: Relationship;
@@ -60,6 +75,7 @@ export interface RelationshipEdgeData extends Record<string, unknown> {
 export type RelationshipFlowEdge = Edge<RelationshipEdgeData, 'uml'>;
 /** A note link: dashed, no arrowhead, derived from `Note.linkedIds`. */
 export type NoteLinkFlowEdge = Edge<{ noteId: string; targetId: string }, 'noteLink'>;
+
 export type FlowEdge = RelationshipFlowEdge | NoteLinkFlowEdge;
 
 const linkRole = (id: string): 'source' | 'target' | 'both' | null =>
@@ -160,6 +176,23 @@ class Flow {
 					},
 					focusable: false
 				});
+			} else if (el.kind === 'instance') {
+				out.push({
+					id,
+					type: 'instance',
+					position: { x: l.x, y: l.y },
+					data: {
+						instance: structuredClone(el),
+						width: l.w,
+						editing: false,
+						link: null,
+						hovered: false,
+						focus: null,
+						fill: fillOf(l),
+						line: lineOf(l)
+					},
+					focusable: false
+				});
 			}
 		}
 		if (out.length > LARGE_DIAGRAM)
@@ -179,7 +212,7 @@ class Flow {
 			const k = project.elements.get(nodeId)?.kind;
 			return (
 				diagram.layout.get(nodeId)?.kind === 'node' &&
-				(k === 'classifier' || k === 'note' || k === 'text')
+				(k === 'classifier' || k === 'note' || k === 'text' || k === 'instance')
 			);
 		};
 		const name = (nodeId: string) => {
@@ -190,10 +223,12 @@ class Flow {
 			const el = project.elements.get(id);
 			const l = diagram.layout.get(id);
 			if (!el || !l) continue;
-			if (el.kind === 'relationship' && l.kind === 'edge') {
-				// Drawn only between drawn classifiers (package frames come later).
-				const cls = (x: string) => project.elements.get(x)?.kind === 'classifier' && drawn(x);
-				if (!cls(el.sourceId) || !cls(el.targetId)) continue;
+			if ((el.kind === 'relationship' || el.kind === 'link') && l.kind === 'edge') {
+				// Drawn only between drawn classifiers, or objects for a link (package frames come later).
+				const end = el.kind === 'link' ? 'instance' : 'classifier';
+				const ok = (x: string) => project.elements.get(x)?.kind === end && drawn(x);
+				if (!ok(el.sourceId) || !ok(el.targetId)) continue;
+				const rel = el.kind === 'link' ? linkAsRelationship(el) : structuredClone(el);
 				out.push({
 					id,
 					type: 'uml',
@@ -203,7 +238,7 @@ class Flow {
 					sourceHandle: 'r',
 					targetHandle: 'l',
 					data: {
-						relationship: structuredClone(el),
+						relationship: rel,
 						layout: structuredClone(l),
 						flags: { ...diagram.defaults },
 						focused: false
@@ -211,7 +246,7 @@ class Flow {
 					ariaLabel: t('edge.label', {
 						source: name(el.sourceId),
 						target: name(el.targetId),
-						kind: t(`rel.${el.relationshipKind}`)
+						kind: t(el.kind === 'link' ? 'rel.link' : `rel.${el.relationshipKind}`)
 					}),
 					focusable: false,
 					interactionWidth: 0
@@ -251,7 +286,8 @@ class Flow {
 	/** The nodes as the canvas shows them: selection, inline editing and link state folded in. */
 	canvasNodes: FlowNode[] = $derived.by(() => {
 		const h = ui.hoveredEdge ? projectStore.project.elements.get(ui.hoveredEdge) : undefined;
-		const hoveredEnds = h?.kind === 'relationship' ? [h.sourceId, h.targetId] : [];
+		const hoveredEnds =
+			h?.kind === 'relationship' || h?.kind === 'link' ? [h.sourceId, h.targetId] : [];
 		return this.nodes.map((n): FlowNode => {
 			const f = selection.focus;
 			const common = {
@@ -260,6 +296,20 @@ class Flow {
 				link: linkRole(n.id),
 				focus: f?.id === n.id ? f.part : null
 			};
+			if (n.type === 'instance') {
+				const node = n as InstanceFlowNode;
+				return {
+					...node,
+					selected: common.selected,
+					data: {
+						...node.data,
+						hovered: common.hovered,
+						link: common.link,
+						focus: common.focus,
+						editing: selection.editing?.id === n.id
+					}
+				};
+			}
 			if (n.type === 'note' || n.type === 'text') {
 				const node = n as NoteFlowNode;
 				return {

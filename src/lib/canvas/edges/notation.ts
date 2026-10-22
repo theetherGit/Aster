@@ -1,5 +1,12 @@
 /** UML 2.5 notation rules for an edge: which markers, which dash, which labels. */
-import type { DisplayFlags, End, LabelKey, Relationship, Visibility } from '#lib/model/types.ts';
+import type {
+	DisplayFlags,
+	End,
+	LabelKey,
+	Link,
+	Relationship,
+	Visibility
+} from '#lib/model/types.ts';
 
 export type MarkerId = 'triangle' | 'arrow' | 'diamond-hollow' | 'diamond-filled';
 export interface Notation {
@@ -18,6 +25,20 @@ export const MARKER_LENGTH: Record<MarkerId, number> = {
 	'diamond-hollow': 14,
 	'diamond-filled': 14
 };
+
+/**
+ * A link between objects draws as the plain line of an association with no ends (UML 2.5): the
+ * relationship edge and the exporter are given this stand-in. Commands go to the link itself.
+ */
+export const linkAsRelationship = (l: Link): Relationship => ({
+	kind: 'relationship',
+	id: l.id,
+	relationshipKind: 'association',
+	sourceId: l.sourceId,
+	targetId: l.targetId,
+	documentation: l.documentation,
+	...(l.name !== undefined && { name: l.name })
+});
 
 const navigable = (e: End | undefined) => e?.navigable === 'navigable';
 

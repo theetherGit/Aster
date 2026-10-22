@@ -279,7 +279,9 @@
 		<Tabs.Content value="text">
 			<div class="mt-4">{@render formats('text')}</div>
 			<p class="mt-2 text-(length:--text-small) text-chrome-muted">
-				{t(`export.hint.${options.format === 'puml' ? 'puml' : 'mermaid'}`)}
+				{projectStore.diagram.diagramKind === 'object'
+					? t('export.hint.classOnly')
+					: t(`export.hint.${options.format === 'puml' ? 'puml' : 'mermaid'}`)}
 			</p>
 			<!-- A scrolling region is in the Tab order so a keyboard can scroll it (axe: scrollable-region-focusable). -->
 			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->

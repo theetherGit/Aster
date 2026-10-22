@@ -125,7 +125,13 @@
 		const d = projectStore.diagram;
 		const kind = (k: string) =>
 			d.elementIds.filter((id) => projectStore.project.elements.get(id)?.kind === k).length;
-		return { classifiers: kind('classifier'), relationships: kind('relationship') };
+		return {
+			objects: d.diagramKind === 'object',
+			classifiers: kind('classifier'),
+			relationships: kind('relationship'),
+			instances: kind('instance'),
+			links: kind('link')
+		};
 	});
 
 	// Relative times tick once a minute.
@@ -138,15 +144,24 @@
 		})
 	);
 	const countsText = $derived(
-		t('footer.counts', {
-			classifiers: t(counts.classifiers === 1 ? 'footer.classifierOne' : 'footer.classifiers', {
-				n: counts.classifiers
-			}),
-			relationships: t(
-				counts.relationships === 1 ? 'footer.relationshipOne' : 'footer.relationships',
-				{ n: counts.relationships }
-			)
-		})
+		counts.objects
+			? t('footer.counts', {
+					classifiers: t(counts.instances === 1 ? 'footer.objectOne' : 'footer.objects', {
+						n: counts.instances
+					}),
+					relationships: t(counts.links === 1 ? 'footer.linkOne' : 'footer.links', {
+						n: counts.links
+					})
+				})
+			: t('footer.counts', {
+					classifiers: t(counts.classifiers === 1 ? 'footer.classifierOne' : 'footer.classifiers', {
+						n: counts.classifiers
+					}),
+					relationships: t(
+						counts.relationships === 1 ? 'footer.relationshipOne' : 'footer.relationships',
+						{ n: counts.relationships }
+					)
+				})
 	);
 
 	// Switching layout unmounts the bar that held focus; the canvas takes it (focus is never lost).

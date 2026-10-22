@@ -12,8 +12,11 @@ import { newId } from '#lib/model/ids.ts';
 import {
 	createAttribute,
 	createClassifier,
+	createInstance,
+	createLink,
 	createOperation,
 	createRelationship,
+	createSlot,
 	elementName,
 	getDiagram
 } from '#lib/model/project.ts';
@@ -26,8 +29,10 @@ import {
 	type Element,
 	type End,
 	type Id,
+	type Instance,
 	type LabelKey,
 	type Layout,
+	type Link,
 	type Literal,
 	type NodeLayout,
 	type Note,
@@ -55,7 +60,10 @@ export interface ClipboardPayload {
 
 type Copyable = Exclude<Element, { kind: 'package' }>;
 const isNode = (e: Element | undefined) =>
-	e?.kind === 'classifier' || e?.kind === 'note' || e?.kind === 'text';
+	e?.kind === 'classifier' || e?.kind === 'note' || e?.kind === 'text' || e?.kind === 'instance';
+/** Relationships between classes and links between objects (M3.2): the edges a payload carries. */
+const isEdge = (e: Element | undefined): e is Relationship | Link =>
+	e?.kind === 'relationship' || e?.kind === 'link';
 
 /** The selected nodes and edges on a diagram, plus every relationship between two selected nodes. */
 export function copyPayload(
@@ -73,7 +81,7 @@ export function copyPayload(
 	const rels = d.elementIds.filter((id) => {
 		const r = el(id);
 		return (
-			r?.kind === 'relationship' &&
+			isEdge(r) &&
 			d.layout.get(id)?.kind === 'edge' &&
 			(picked.has(id) || (copied.has(r.sourceId) && copied.has(r.targetId)))
 		);
@@ -114,8 +122,8 @@ export function planPaste(
 	const on = new Set(d.elementIds);
 	const same = payload.projectId === project.id;
 	const exists = (e: Element) => same && project.elements.get(e.id)?.kind === e.kind;
-	const nodes = payload.elements.filter((e) => e.kind !== 'relationship');
-	const rels = payload.elements.filter((e): e is Relationship => e.kind === 'relationship');
+	const nodes = payload.elements.filter((e) => !isEdge(e));
+	const rels = payload.elements.filter(isEdge);
 	const duplicate = nodes.length > 0 && nodes.every((e) => exists(e) && on.has(e.id));
 	const off = duplicate ? DUPLICATE_OFFSET : 0;
 
@@ -136,11 +144,11 @@ export function planPaste(
 		} else map.set(e.id, mint());
 		kindAfter.set(map.get(e.id)!, e.kind);
 	}
-	/** Where a relationship end lands: a pasted node, or a classifier already on this diagram. */
-	const end = (id: Id): Id | null => {
+	/** Where an edge end lands: a pasted node, or a classifier (an object, for a link) already here. */
+	const end = (id: Id, want: 'classifier' | 'instance'): Id | null => {
 		const to = map.get(id) ?? (same && on.has(id) ? id : null);
 		const kind = to && (kindAfter.get(to) ?? project.elements.get(to)?.kind);
-		return kind === 'classifier' ? to : null;
+		return kind === want ? to : null;
 	};
 	for (const e of nodes) {
 		const to = map.get(e.id)!;
@@ -154,8 +162,9 @@ export function planPaste(
 		ids.push(to);
 	}
 	for (const r of rels) {
-		const s = end(r.sourceId);
-		const tg = end(r.targetId);
+		const want = r.kind === 'link' ? 'instance' : 'classifier';
+		const s = end(r.sourceId, want);
+		const tg = end(r.targetId, want);
 		if (!s || !tg) continue;
 		if (!duplicate && s === r.sourceId && tg === r.targetId && exists(r)) {
 			if (!on.has(r.id)) {
@@ -212,6 +221,10 @@ function cloneNode(e: Copyable, id: Id, mint: () => Id): Copyable {
 		c.attributes = c.attributes.map((a) => ({ ...a, id: mint() }));
 		c.operations = c.operations.map((o) => ({ ...o, id: mint() }));
 		c.literals = c.literals.map((l) => ({ ...l, id: mint() }));
+		delete c.packageId;
+	}
+	if (c.kind === 'instance') {
+		c.slots = c.slots.map((s) => ({ ...s, id: mint() }));
 		delete c.packageId;
 	}
 	return c;
@@ -414,6 +427,31 @@ function readElement(v: unknown): Copyable | null {
 			return isStr(v.text)
 				? ({ kind: 'text', id: v.id, text: v.text } satisfies TextElement)
 				: null;
+		case 'instance': {
+			const spec = { name: isStr, classifier: isStr, stereotype: isStr, documentation: isStr };
+			if (!fields(v, spec, ['name'])) return null;
+			const slots = arrayOf(v.slots ?? [], (s) =>
+				isObj(s) && isId(s.id) && isStr(s.name) && isStr(s.value)
+					? createSlot(s.name, s.value, s.id)
+					: null
+			);
+			return (
+				slots &&
+				createInstance({ ...pick<Partial<Instance>>(v, ['id', ...Object.keys(spec)]), slots })
+			);
+		}
+		case 'link': {
+			const spec = {
+				sourceId: isId,
+				targetId: isId,
+				name: isStr,
+				associationId: isId,
+				documentation: isStr
+			};
+			return fields(v, spec, ['sourceId', 'targetId'])
+				? createLink(pick<Link>(v, ['id', ...Object.keys(spec)]))
+				: null;
+		}
 		default:
 			return null;
 	}
@@ -473,7 +511,7 @@ export function parsePayload(text: string): ClipboardPayload | null {
 	const layouts: Record<Id, Layout> = {};
 	for (const e of elements) {
 		const l = readLayout(v.layouts[e.id]);
-		if (!l || (l.kind === 'edge') !== (e.kind === 'relationship')) return null;
+		if (!l || (l.kind === 'edge') !== isEdge(e)) return null;
 		layouts[e.id] = l;
 	}
 	if (Object.keys(v.layouts).length !== elements.length) return null;

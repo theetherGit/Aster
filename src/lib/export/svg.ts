@@ -16,13 +16,20 @@ import {
 	type Rect
 } from '#lib/canvas/edges/geometry.ts';
 import { textWidth } from '#lib/canvas/edges/measure.ts';
-import { MARKER_LENGTH, labelsFor, markersFor } from '#lib/canvas/edges/notation.ts';
+import {
+	MARKER_LENGTH,
+	labelsFor,
+	linkAsRelationship,
+	markersFor
+} from '#lib/canvas/edges/notation.ts';
 import { membersOf } from '#lib/commands/index.ts';
 import { renderMember, type MemberKind } from '#lib/mdj/expression.ts';
+import { instanceLabel } from '#lib/model/project.ts';
 import type {
 	Classifier,
 	Diagram,
 	Id,
+	Instance,
 	Note,
 	Project,
 	Relationship,
@@ -167,6 +174,43 @@ function nodeSvg(c: Classifier, r: Rect, flags: Diagram['defaults'], paint: Pain
 	out.push('</g>');
 }
 
+const slotText = (s: Instance['slots'][number]) => (s.value ? `${s.name} = ${s.value}` : s.name);
+
+/** An object's rectangle from its content (InstanceNode's metrics), when the canvas has none. */
+function instanceRect(o: Instance, l: { x: number; y: number; w: number }): Rect {
+	const h =
+		(o.stereotype ? STEREO_ROW : NAME_ROW) +
+		(o.slots.length ? PAD_Y * 2 + o.slots.length * MEMBER_ROW : EMPTY);
+	const w = Math.max(
+		textWidth(instanceLabel(o), 13) * 1.06,
+		...o.slots.map((s) => textWidth(slotText(s), 12))
+	);
+	return { x: l.x, y: l.y, w: Math.max(120, l.w, Math.ceil(w + PAD_X * 2)), h };
+}
+
+/** An object (M3.2): the underlined "name: Class" over its slots. */
+function instanceSvg(o: Instance, r: Rect, paint: Paint, out: string[]) {
+	const nameH = o.stereotype ? STEREO_ROW : NAME_ROW;
+	const cx = r.x + r.w / 2;
+	out.push(
+		`<g class="object" data-name="${esc(o.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" fill="${paint.fill}" stroke="${paint.line}"/>`
+	);
+	if (o.stereotype)
+		out.push(
+			`<text x="${n(cx)}" y="${n(r.y + 11)}" text-anchor="middle" font-size="12">«${esc(o.stereotype)}»</text>`
+		);
+	out.push(
+		`<text x="${n(cx)}" y="${n(r.y + (o.stereotype ? 29 : 14))}" text-anchor="middle" font-size="13" font-weight="600" text-decoration="underline">${esc(instanceLabel(o))}</text>`,
+		`<line x1="${n(r.x)}" y1="${n(r.y + nameH)}" x2="${n(r.x + r.w)}" y2="${n(r.y + nameH)}" stroke="${paint.line}"/>`
+	);
+	o.slots.forEach((s, i) =>
+		out.push(
+			`<text x="${n(r.x + PAD_X)}" y="${n(r.y + nameH + PAD_Y + i * MEMBER_ROW + 14)}" font-size="12">${esc(slotText(s))}</text>`
+		)
+	);
+	out.push('</g>');
+}
+
 function edgeSvg(
 	rel: Relationship,
 	layout: Extract<Diagram['layout'] extends Map<Id, infer L> ? L : never, { kind: 'edge' }>,
@@ -293,15 +337,27 @@ export function diagramToSvg(
 			);
 		}
 	}
+	// Objects (M3.2), and below the links between them.
+	for (const id of diagram.elementIds) {
+		if (opts.only && !opts.only.has(id)) continue;
+		const el = project.elements.get(id);
+		const l = diagram.layout.get(id);
+		if (el?.kind !== 'instance' || l?.kind !== 'node') continue;
+		const r = rects.get(id) ?? instanceRect(el, l);
+		instanceSvg(el, r, paintOf(l), body);
+		shown.set(id, r);
+		bounds.push(r);
+	}
 	const colours = new Set<string>();
 	for (const id of diagram.elementIds) {
 		const el = project.elements.get(id);
 		const l = diagram.layout.get(id);
-		if (el?.kind !== 'relationship' || l?.kind !== 'edge') continue;
+		if ((el?.kind !== 'relationship' && el?.kind !== 'link') || l?.kind !== 'edge') continue;
 		const src = shown.get(el.sourceId);
 		const tgt = shown.get(el.targetId);
 		if (!src || !tgt) continue;
-		edgeSvg(el, l, src, tgt, diagram.defaults, opts.background, body, bounds);
+		const rel = el.kind === 'link' ? linkAsRelationship(el) : el;
+		edgeSvg(rel, l, src, tgt, diagram.defaults, opts.background, body, bounds);
 		const ink = lineOf(l);
 		if (ink) colours.add(ink);
 	}

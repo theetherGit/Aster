@@ -81,7 +81,12 @@
 		],
 		'tool-link': ['M5 19L19 5', 'M12 5h7v7'],
 		'tool-pin': ['M12 17v5', 'M9 3h6l-1 7 3 3H7l3-3z'],
-		'tool-package': ['M3 6h7l2 2h9v11H3z', 'M3 10h18']
+		'tool-package': ['M3 6h7l2 2h9v11H3z', 'M3 10h18'],
+		/* An object: the box with its underlined name (M3.2). */
+		'tool-object': [
+			'M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z',
+			'M8 9h8M4 13h16'
+		]
 	} as const;
 	export type IconName = keyof typeof PATHS;
 </script>

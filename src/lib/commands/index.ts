@@ -60,3 +60,4 @@ export {
 } from './display.ts';
 export { addNote, addText, linkNote, setElementText, unlinkNote } from './notes.ts';
 export { importFragment, removeFragment } from './fragment.ts';
+export { addInstance, addLink } from './objects.ts';

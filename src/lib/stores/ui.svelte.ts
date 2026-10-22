@@ -2,7 +2,7 @@ import { PersistedState } from 'runed';
 import type { Algorithm, Direction } from '#lib/canvas/autolayout.ts';
 import type { ClassifierKind, Id, RelationshipKind } from '#lib/model/types.ts';
 
-export type Tool = 'select' | 'class' | 'interface' | 'enum' | 'package' | 'link';
+export type Tool = 'select' | 'class' | 'interface' | 'enum' | 'package' | 'link' | 'object';
 export type Theme = 'system' | 'light' | 'dark' | 'high-contrast';
 export type LayoutPreset = 'modern' | 'classic';
 

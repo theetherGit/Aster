@@ -712,7 +712,11 @@ class Serializer {
 			this.changed.add(`${link.id}:name`);
 		}
 		this.setStr(o, rec, 'documentation', link.documentation);
-		if (link.associationId)
+		// An association deleted since leaves the link plain rather than pointing at nothing.
+		if (
+			link.associationId &&
+			this.project.elements.get(link.associationId)?.kind === 'relationship'
+		)
 			changed = this.setRef(o, rec, 'association', link.associationId) || changed;
 		else if (rec?.association !== undefined) delete o.association;
 		for (const [key, id] of [

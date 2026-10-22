@@ -26,7 +26,8 @@
 	import MenuItem from '#lib/ui/atoms/MenuItem.svelte';
 	import { menu, menuItem, tooltip } from '#lib/ui/styles.ts';
 	import { prefersReducedMotion } from 'svelte/motion';
-	import { linkNote, moveNode } from '#lib/commands/index.ts';
+	import { addLink, linkNote, moveNode } from '#lib/commands/index.ts';
+	import { newId } from '#lib/model/ids.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import type { ClassifierKind, Id, Point } from '#lib/model/types.ts';
 	import { flow, LARGE_DIAGRAM, type FlowEdge, type FlowNode } from '#lib/stores/flow.svelte.ts';
@@ -38,11 +39,13 @@
 	import { GRID } from './place.ts';
 	import ClassifierNode from './ClassifierNode.svelte';
 	import NoteNode from './NoteNode.svelte';
+	import InstanceNode from './InstanceNode.svelte';
 	import NoteLinkEdge from './edges/NoteLinkEdge.svelte';
 	import {
 		clipboardFromMenu,
 		copySelection,
 		createClassifierAt,
+		createInstanceAt,
 		createNoteAt,
 		createTextAt,
 		cutSelection,
@@ -66,7 +69,8 @@
 		dataType: ClassifierNode,
 		primitiveType: ClassifierNode,
 		note: NoteNode,
-		text: NoteNode
+		text: NoteNode,
+		instance: InstanceNode
 	};
 	const edgeTypes = { uml: UmlEdge, noteLink: NoteLinkEdge };
 	const {
@@ -111,6 +115,7 @@
 			create: (kind: ClassifierKind, at?: Point) =>
 				createClassifierAt(kind, at ?? cursorPosition(), rects().values()),
 			createNote: () => createNoteAt(cursorPosition(), rects().values()),
+			createObject: (at?: Point) => createInstanceAt(at ?? cursorPosition(), rects().values()),
 			createText: () => createTextAt(cursorPosition(), rects().values()),
 			startLink: () => startLink(rects()),
 			zoomBy: (f: number) =>
@@ -392,7 +397,7 @@
 	}
 	/** Open the relationship picker over the target node's centre; a note at either end links instead. */
 	function openPicker(sourceId: Id, targetId: Id) {
-		if (linkIfNote(sourceId, targetId)) return;
+		if (linkIfNote(sourceId, targetId) || linkIfObjects(sourceId, targetId)) return;
 		const r = rects().get(targetId);
 		if (!r) return;
 		const p = flowToScreenPosition(center(r));
@@ -409,6 +414,28 @@
 			projectStore.run(linkNote, { noteId, targetId });
 			selection.set([noteId]);
 		} else ui.link = null;
+		canvasFocus.focus();
+		return true;
+	}
+
+	/**
+	 * Objects have one kind of line (M3.2): between two objects the link is made on the spot; an
+	 * object and anything else do not connect.
+	 */
+	function linkIfObjects(a: Id, b: Id): boolean {
+		const kind = (id: Id) => projectStore.project.elements.get(id)?.kind;
+		if (kind(a) !== 'instance' && kind(b) !== 'instance') return false;
+		ui.link = null;
+		if (kind(a) === 'instance' && kind(b) === 'instance') {
+			const id = newId();
+			projectStore.run(addLink, {
+				diagramId: projectStore.activeDiagramId,
+				id,
+				sourceId: a,
+				targetId: b
+			});
+			selection.set([id]);
+		}
 		canvasFocus.focus();
 		return true;
 	}
@@ -455,7 +482,7 @@
 		if (!from || !p) return;
 		const hit = document.elementFromPoint(p.clientX, p.clientY)?.closest('.svelte-flow__node');
 		const to = hit?.getAttribute('data-id');
-		if (to && !linkIfNote(from, to))
+		if (to && !linkIfNote(from, to) && !linkIfObjects(from, to))
 			ui.picker = { sourceId: from, targetId: to, x: p.clientX, y: p.clientY };
 	};
 
@@ -467,7 +494,9 @@
 			!('clientX' in event)
 		)
 			return;
-		createClassifierAt(ui.tool, toPaper({ x: event.clientX, y: event.clientY }), rects().values());
+		const at = toPaper({ x: event.clientX, y: event.clientY });
+		if (ui.tool === 'object') createInstanceAt(at, rects().values());
+		else createClassifierAt(ui.tool, at, rects().values());
 		if (ui.pinned !== ui.tool) ui.tool = 'select'; // a pinned tool keeps placing (features.md)
 	}
 

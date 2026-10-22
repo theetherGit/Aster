@@ -7,7 +7,7 @@ import {
 	getElement,
 	getNodeLayout
 } from '#lib/model/project.ts';
-import type { Diagram, DisplayFlags, Id, Layout } from '#lib/model/types.ts';
+import type { Diagram, DiagramKind, DisplayFlags, Id, Layout } from '#lib/model/types.ts';
 import { define, type Factory } from './registry.ts';
 import type { Command } from './types.ts';
 
@@ -114,19 +114,21 @@ export const renameDiagram: Factory<{ diagramId: Id; name: string }> = define(
 	})
 );
 
-/** A new, empty class diagram at the end of the list (board 01's "+" tab). */
-export const addDiagram: Factory<{ diagramId: Id; name: string; index?: number }> = define(
-	'addDiagram',
-	(project, { diagramId, name, index }) => ({
-		label: t('cmd.addDiagram', { name }),
-		touches: [],
-		apply(p): Command {
-			const at = index ?? p.diagrams.length;
-			p.diagrams.splice(at, 0, createDiagram({ id: diagramId, name }));
-			return removeDiagram(p, { diagramId });
-		}
-	})
-);
+/** A new, empty class (or object) diagram at the end of the list (board 01's "+" tab). */
+export const addDiagram: Factory<{
+	diagramId: Id;
+	name: string;
+	index?: number;
+	diagramKind?: DiagramKind;
+}> = define('addDiagram', (project, { diagramId, name, index, diagramKind }) => ({
+	label: t('cmd.addDiagram', { name }),
+	touches: [],
+	apply(p): Command {
+		const at = index ?? p.diagrams.length;
+		p.diagrams.splice(at, 0, createDiagram({ id: diagramId, name, diagramKind }));
+		return removeDiagram(p, { diagramId });
+	}
+}));
 
 /**
  * The inverse of addDiagram. It is not offered as a user action: it keeps only the name and
@@ -141,7 +143,7 @@ export const removeDiagram: Factory<{ diagramId: Id }> = define(
 		apply(p): Command {
 			const index = p.diagrams.findIndex((d) => d.id === diagramId);
 			const [d] = p.diagrams.splice(index, 1);
-			return addDiagram(p, { diagramId, name: d.name, index });
+			return addDiagram(p, { diagramId, name: d.name, index, diagramKind: d.diagramKind });
 		}
 	})
 );

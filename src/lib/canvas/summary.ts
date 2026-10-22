@@ -87,6 +87,17 @@ export function elementSummary(
 		});
 	if (el.kind === 'note') return t('summary.note', { text: el.text });
 	if (el.kind === 'text') return t('summary.text', { text: el.text });
+	if (el.kind === 'instance')
+		return [
+			t('summary.instance', { name: elementName(el) }),
+			...(el.slots.length
+				? [
+						el.slots
+							.map((s) => (s.value ? `${s.name} = ${s.value}` : s.name))
+							.join(t('summary.join')) + '.'
+					]
+				: [])
+		].join(' ');
 	if (el.kind !== 'classifier') return elementName(el); // packages: M3
 	const kind = t(`kind.${el.classifierKind}`);
 	const rels: string[] = [];

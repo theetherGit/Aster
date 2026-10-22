@@ -12,15 +12,31 @@
 	import Tip from '#lib/ui/atoms/Tooltip.svelte';
 
 	// The placing tools; Package joins when packages land (M2, DECISIONS.md). Link is not a mode
-	// but an action on the one selected node, the same as the L key.
+	// but an action on the one selected node, the same as the L key. An object diagram places
+	// objects instead (M3.2; keyboard.md gives Object no key).
 	// The tool glyphs live in Icon.svelte (board 01), drawn at 15 px.
-	const TOOLS: { id: Tool; key: string | null }[] = [
+	type ToolDef = { id: Tool; key: string | null };
+	const CLASS_TOOLS: ToolDef[] = [
 		{ id: 'select', key: null },
 		{ id: 'class', key: 'C' },
 		{ id: 'interface', key: 'I' },
 		{ id: 'enum', key: 'E' }
 	];
-	const label = (tool: (typeof TOOLS)[number]) => {
+	const OBJECT_TOOLS: ToolDef[] = [
+		{ id: 'select', key: null },
+		{ id: 'object', key: null }
+	];
+	const TOOLS = $derived(
+		projectStore.diagram.diagramKind === 'object' ? OBJECT_TOOLS : CLASS_TOOLS
+	);
+	// A tool the diagram does not offer (switched from a class diagram) goes back to Select.
+	$effect(() => {
+		if (!TOOLS.some((x) => x.id === ui.tool)) {
+			ui.tool = 'select';
+			ui.pinned = null;
+		}
+	});
+	const label = (tool: ToolDef) => {
 		const name = t(`ui.tool.${tool.id}`);
 		return tool.key ? t('ui.toolKey', { tool: name, key: tool.key }) : name;
 	};

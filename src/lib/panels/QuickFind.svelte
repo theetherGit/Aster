@@ -5,6 +5,7 @@
 	import { canvasApi } from '#lib/canvas/api.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { t } from '#lib/i18n/index.ts';
+	import { instanceLabel } from '#lib/model/project.ts';
 	import type { Id } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -36,6 +37,8 @@
 			if (el.kind === 'classifier') [name, kind] = [el.name, t(`kind.${el.classifierKind}`)];
 			else if (el.kind === 'relationship')
 				[name, kind] = [el.name ?? '', t(`rel.${el.relationshipKind}`)];
+			else if (el.kind === 'instance') [name, kind] = [instanceLabel(el), t('ui.kind.instance')];
+			else if (el.kind === 'link') [name, kind] = [el.name ?? '', t('ui.kind.link')];
 			if (!name) continue;
 			const on = where(el.id);
 			out.push({

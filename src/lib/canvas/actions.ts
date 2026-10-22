@@ -1,5 +1,6 @@
 import {
 	addClassifier,
+	addInstance,
 	addNote,
 	addText,
 	batch,
@@ -15,7 +16,13 @@ import {
 import { serialise } from '#lib/commands/registry.ts';
 import { t } from '#lib/i18n/index.ts';
 import { newId } from '#lib/model/ids.ts';
-import { createClassifier, elementName, nextClassName } from '#lib/model/project.ts';
+import {
+	createClassifier,
+	createInstance,
+	elementName,
+	nextClassName,
+	nextInstanceName
+} from '#lib/model/project.ts';
 import type { ClassifierKind, Id, LineStyle, NodeLayout, Point } from '#lib/model/types.ts';
 import type { MemberKind } from '#lib/mdj/expression.ts';
 import { flow } from '#lib/stores/flow.svelte.ts';
@@ -39,6 +46,7 @@ import { canvasFocus, explorerFocus, focusElement } from './focus.ts';
 import { align, distribute, sameSize, type Axis, type Dimension, type Side } from './tidy.ts';
 import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
+import { linkAsRelationship } from './edges/notation.ts';
 import { freePosition } from './place.ts';
 
 /**
@@ -56,6 +64,17 @@ export function createClassifierAt(kind: ClassifierKind, at: Point, taken: Itera
 		at: freePosition(at, taken)
 	});
 	edit(classifier.id, { part: 'name' });
+}
+
+/** An object near a paper position, selected, its text open with the name ready for typing (M3.2). */
+export function createInstanceAt(at: Point, taken: Iterable<Rect>) {
+	const instance = createInstance({ name: nextInstanceName(projectStore.project) });
+	projectStore.run(addInstance, {
+		diagramId: projectStore.activeDiagramId,
+		instance,
+		at: freePosition(at, taken)
+	});
+	edit(instance.id, { part: 'text' });
 }
 
 const selectedWith = (kind: 'node' | 'edge') =>
@@ -113,7 +132,7 @@ export function startEditing() {
 	if (kind === 'classifier' && line)
 		edit(id, { part: line[1] as MemberKind, index: Number(line[2]) });
 	else if (kind === 'classifier') edit(id, { part: 'name' });
-	else if (kind === 'note' || kind === 'text') edit(id, { part: 'text' });
+	else if (kind === 'note' || kind === 'text' || kind === 'instance') edit(id, { part: 'text' });
 }
 
 /** L: start a keyboard link from the one selected node. */
@@ -233,7 +252,9 @@ export async function autoLayout(algorithm: Algorithm, direction: Direction) {
 	const laidOut: Id[] = [];
 	const leaving: Id[] = [];
 	for (const id of d.elementIds) {
-		const el = projectStore.project.elements.get(id);
+		const found = projectStore.project.elements.get(id);
+		// A link lays out as the plain association it draws as (M3.2).
+		const el = found?.kind === 'link' ? linkAsRelationship(found) : found;
 		if (el?.kind === 'note')
 			for (const target of el.linkedIds)
 				if (inScope.has(id) && inScope.has(target))

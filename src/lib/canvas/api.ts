@@ -5,6 +5,8 @@ export interface CanvasApi {
 	/** At a paper point, or at the cursor (the viewport centre when the pointer is elsewhere). */
 	create: (kind: ClassifierKind, at?: Point) => void;
 	createNote: () => void;
+	/** An object on an object diagram (M3.2), at a paper point or the cursor. */
+	createObject: (at?: Point) => void;
 	createText: () => void;
 	startLink: () => boolean;
 	zoomBy: (factor: number) => void;
@@ -21,6 +23,7 @@ const noop = () => {};
 export const canvasApi: CanvasApi = {
 	create: noop,
 	createNote: noop,
+	createObject: noop,
 	createText: noop,
 	startLink: () => false,
 	zoomBy: noop,
