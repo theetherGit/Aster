@@ -664,6 +664,7 @@
 						<li
 							role="treeitem"
 							data-row-id={row.id}
+							aria-describedby={row.doc ? `outline-doc-${i}` : undefined}
 							aria-level={row.level}
 							aria-setsize={row.setsize}
 							aria-posinset={row.posinset}
@@ -774,6 +775,13 @@
 								{#if row.hint}<span
 										class="ms-2 shrink-0 text-(length:--text-small) text-chrome-muted"
 										>{row.hint}</span
+									>{/if}
+								<!-- The documentation's first line; read as the row's description, not its name. -->
+								{#if row.doc}<span
+										class="ms-2 min-w-0 truncate text-(length:--text-small) text-chrome-muted"
+										id="outline-doc-{i}"
+										aria-hidden="true"
+										title={row.doc}>{row.doc}</span
 									>{/if}
 							{/if}
 						</li>

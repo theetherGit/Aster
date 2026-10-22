@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.ts';
+import { COMMANDS, type Group } from '#lib/app/commands.svelte.ts';
+import { sheetRows } from '#lib/app/sheet.ts';
 import { format, spoken, type Shortcut } from '#lib/app/shortcuts.ts';
 import { t, type MessageKey } from '#lib/i18n/index.ts';
 
@@ -9,32 +10,7 @@ import { t, type MessageKey } from '#lib/i18n/index.ts';
 
 const GROUPS: Group[] = ['create', 'edit', 'select', 'file', 'view', 'format', 'display'];
 
-// ponytail: the sheet's row merge (ShortcutSheet.svelte), copied while the app is frozen for the
-// 2026-10-24 lab; move both into one module after it.
-const ARROWS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-const mods = (k: Shortcut) => `${!!k.mod}/${!!k.shift}/${!!k.alt}`;
-const bare = (k: Shortcut) => !k.mod && !k.shift && !k.alt;
-function collapse(keys: Shortcut[]): Shortcut[] {
-	const codes = new Set(keys.map((k) => k.code));
-	const same = new Set(keys.map(mods)).size === 1;
-	if (same && codes.size === 4 && ARROWS.every((c) => codes.has(c)))
-		return [{ ...keys[0], code: 'Arrows' }];
-	const digits = keys.map((k) => /^Digit(\d)$/.exec(k.code)?.[1]);
-	if (keys.length === 2 && keys.every(bare) && digits.every(Boolean))
-		return [{ code: `${digits[0]}–${digits[1]}` }];
-	return keys;
-}
-function rows(group: Group) {
-	const out: { label: string; staruml: boolean; keys: Shortcut[] }[] = [];
-	for (const c of COMMANDS.filter((c: AppCommand) => c.group === group && c.keys.length)) {
-		const label = c.label();
-		const row = out.find((r) => r.label === label);
-		if (row) row.keys.push(...c.keys);
-		else out.push({ label, staruml: !!c.staruml, keys: [...c.keys] });
-	}
-	for (const r of out) r.keys = collapse(r.keys);
-	return out;
-}
+const rows = (group: Group) => sheetRows(COMMANDS.filter((c) => c.group === group));
 
 /** Text that MDX and a Markdown table would read as syntax, as character references. */
 const escape = (s: string) => s.replace(/[\\|{}<>[\]*_`]/g, (ch) => `&#${ch.charCodeAt(0)};`);

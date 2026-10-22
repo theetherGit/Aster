@@ -53,7 +53,7 @@
 			: t(pinned ? 'ui.unpin' : 'ui.pin', { tool: t(`ui.tool.${ui.tool}`) })
 	);
 	const BTN =
-		'flex size-(--control-bar) items-center justify-center rounded-control text-chrome-text hover:bg-chrome-surface disabled:opacity-40 disabled:hover:bg-transparent';
+		'flex size-(--control-bar) items-center justify-center rounded-control text-chrome-text hover:bg-chrome-surface aria-disabled:opacity-40 aria-disabled:hover:bg-transparent';
 </script>
 
 <!-- Tooltips (Tip, Bits): on hover after a delay, at once on focus, so the keys are discoverable
@@ -98,8 +98,10 @@
 			<Toolbar.Button
 				{...props}
 				aria-label={linkLabel}
-				disabled={!canLink}
+				aria-disabled={!canLink}
 				onclick={() => {
+					// aria-disabled, not disabled: it stays in the arrow walk, its tip saying why.
+					if (!canLink) return;
 					// Focus moves to the canvas so the arrows, ↩ and Esc of the link work at once.
 					if (canvasApi.startLink()) canvasFocus.focus();
 				}}
@@ -113,7 +115,7 @@
 	<Toolbar.Group
 		type="multiple"
 		value={pinned ? ['pin'] : []}
-		onValueChange={() => runCommand('tool.pin')}
+		onValueChange={() => ui.tool !== 'select' && runCommand('tool.pin')}
 	>
 		<Tip text={pinLabel}>
 			{#snippet children({ props })}
@@ -121,7 +123,7 @@
 					{...props}
 					value="pin"
 					aria-label={pinLabel}
-					disabled={ui.tool === 'select'}
+					aria-disabled={ui.tool === 'select'}
 					class="{BTN} data-[state=on]:bg-accent/15 data-[state=on]:text-accent-text"
 				>
 					<Icon name="tool-pin" size={15} />

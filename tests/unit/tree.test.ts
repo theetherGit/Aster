@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { sampleProject } from '#lib/model/fixtures.ts';
 import { createClassifier, createRelationship } from '#lib/model/project.ts';
 import {
+	docLine,
 	ROOT,
 	buildRows,
 	diagramRowId,
@@ -183,5 +184,15 @@ describe('explorer tree rows', () => {
 			memberId: 'Customer-a1',
 			diagramId: 'd1'
 		});
+	});
+});
+
+describe('documentation in the Outline (parity.md)', () => {
+	it("is the documentation's first line, without Markdown marks", () => {
+		expect(docLine('')).toBeUndefined();
+		expect(docLine('\n\n## The **account** a `Member` holds\nMore.')).toBe(
+			'The account a Member holds'
+		);
+		expect(docLine('See [the spec](https://x.y) first')).toBe('See the spec first');
 	});
 });

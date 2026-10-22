@@ -34,6 +34,10 @@ describe('shortcuts as data', () => {
 		expect(spoken(parse('⌥↩'), false)).toBe('Alt Enter');
 		expect(spoken(parse('↑'), true)).toBe('Up arrow');
 		expect(spoken(parse('Tab'), false)).toBe('Tab');
+		// Glyph caps say their names: ⌘\ (inspector), ⌘⇧[ / ⌘⇧] (diagrams).
+		expect(spoken(parse('⌘\\'), true)).toBe('Command Backslash');
+		expect(spoken(parse('⌘⇧['), false)).toBe('Control Shift Left bracket');
+		expect(spoken(parse('⌘⇧]'), true)).toBe('Command Shift Right bracket');
 	});
 
 	it('spells shortcuts for aria-keyshortcuts', () => {

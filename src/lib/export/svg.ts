@@ -134,6 +134,34 @@ const paintOf = (l: { fill?: string; line?: string } | undefined): Paint => ({
 	line: lineOf(l) ?? INK
 });
 
+/**
+ * Word wrap (StarUML's wordWrap) as the canvas does it: words to the width, and a word longer than
+ * a line broken inside. Widths are the export's own text metrics, so lines break where they would.
+ */
+export function wrapLines(text: string, size: number, width: number): string[] {
+	const out: string[] = [];
+	let line = '';
+	const fits = (t: string) => textWidth(t, size) <= width;
+	for (const word of text.split(' ')) {
+		const next = line ? `${line} ${word}` : word;
+		if (fits(next)) {
+			line = next;
+			continue;
+		}
+		if (line) out.push(line);
+		line = '';
+		for (const ch of word) {
+			if (line && !fits(line + ch)) {
+				out.push(line);
+				line = '';
+			}
+			line += ch;
+		}
+	}
+	out.push(line);
+	return out;
+}
+
 function nodeSvg(
 	c: Classifier,
 	r: Rect,
@@ -143,7 +171,10 @@ function nodeSvg(
 	namespace?: string
 ) {
 	const header = flags.stereotypeDisplay === 'none' ? undefined : headerLabel(c);
-	const nameH = (header ? STEREO_ROW : NAME_ROW) + (namespace ? NAMESPACE_ROW : 0);
+	const inner = r.w - PAD_X * 2;
+	const names = flags.wordWrap ? wrapLines(c.name, 13, inner) : [c.name];
+	const nameH =
+		(header ? STEREO_ROW : NAME_ROW) + (namespace ? NAMESPACE_ROW : 0) + (names.length - 1) * 18;
 	out.push(
 		`<g class="node" data-name="${esc(c.name)}"><rect x="${n(r.x)}" y="${n(r.y)}" width="${n(r.w)}" height="${n(r.h)}" fill="${paint.fill}" stroke="${paint.line}"/>`
 	);
@@ -152,12 +183,15 @@ function nodeSvg(
 		out.push(
 			`<text x="${n(cx)}" y="${n(r.y + 11)}" text-anchor="middle" font-size="12">«${esc(header)}»</text>`
 		);
-	out.push(
-		`<text x="${n(cx)}" y="${n(r.y + (header ? 29 : 14))}" text-anchor="middle" font-size="13" font-weight="600"${c.isAbstract ? ' font-style="italic"' : ''}>${esc(c.name)}</text>`
+	names.forEach((line, i) =>
+		out.push(
+			`<text x="${n(cx)}" y="${n(r.y + (header ? 29 : 14) + i * 18)}" text-anchor="middle" font-size="13" font-weight="600"${c.isAbstract ? ' font-style="italic"' : ''}>${esc(line)}</text>`
+		)
 	);
+	const extra = (names.length - 1) * 18;
 	if (namespace)
 		out.push(
-			`<text x="${n(cx)}" y="${n(r.y + (header ? 45 : 30))}" text-anchor="middle" font-size="12">(from ${esc(namespace)})</text>`
+			`<text x="${n(cx)}" y="${n(r.y + (header ? 45 : 30) + extra)}" text-anchor="middle" font-size="12">(from ${esc(namespace)})</text>`
 		);
 	let y = r.y + nameH;
 	const kinds: MemberKind[] = compartmentsFor(c).filter(
@@ -180,10 +214,12 @@ function nodeSvg(
 			const text = renderMember(kind, m, { ...flags, guillemets: true, keywords: false });
 			const isStatic = 'isStatic' in m && m.isStatic;
 			const isAbstract = 'isAbstract' in m && m.isAbstract;
-			out.push(
-				`<text x="${n(r.x + PAD_X)}" y="${n(y + 14)}" font-size="12"${isStatic ? ' text-decoration="underline"' : ''}${isAbstract ? ' font-style="italic"' : ''}>${esc(text)}</text>`
-			);
-			y += MEMBER_ROW;
+			for (const line of flags.wordWrap ? wrapLines(text, 12, inner) : [text]) {
+				out.push(
+					`<text x="${n(r.x + PAD_X)}" y="${n(y + 14)}" font-size="12"${isStatic ? ' text-decoration="underline"' : ''}${isAbstract ? ' font-style="italic"' : ''}>${esc(line)}</text>`
+				);
+				y += MEMBER_ROW;
+			}
 		}
 		y += PAD_Y;
 	}

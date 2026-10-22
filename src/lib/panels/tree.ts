@@ -25,6 +25,8 @@ export interface TreeRow {
 	name?: string;
 	/** Secondary text (kind), not used for type-ahead. Board 01: only when it says something. */
 	hint?: string;
+	/** The element's documentation, first line, as plain text (parity.md: "shown in Outline"). */
+	doc?: string;
 	/** Abstract classifiers read in italics, as on paper. */
 	italic?: boolean;
 	level: number;
@@ -66,6 +68,15 @@ const HINT: Partial<Record<Classifier['classifierKind'], string>> = {
 	dataType: 'explorer.hint.dataType',
 	primitiveType: 'explorer.hint.primitiveType'
 };
+/** A documentation's first non-empty line, without Markdown's marks; undefined when there is none. */
+export function docLine(documentation: string | undefined): string | undefined {
+	const line = documentation
+		?.split(/\r?\n/)
+		.map((l) => l.replace(/[#>*_`]|\[|\]\([^)]*\)/g, '').trim())
+		.find(Boolean);
+	return line || undefined;
+}
+
 const hintFor = (c: Classifier) => {
 	const key = HINT[c.classifierKind] ?? (c.isAbstract ? 'explorer.hint.abstract' : undefined);
 	return key ? t(key as Parameters<typeof t>[0]) : undefined;
@@ -103,6 +114,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 					label: renderMember(kind, m, { guillemets: true }),
 					name: m.name,
 					hint: t(`member.${kind}`),
+					doc: docLine(m.documentation),
 					level,
 					hasChildren: false,
 					expanded: false,
@@ -126,6 +138,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 					? t('explorer.relationshipNamed', { name: r.name, kind, target })
 					: t('explorer.relationship', { kind, target }),
 				hint: t('explorer.hint.relationship'),
+				doc: docLine(r.documentation),
 				level,
 				hasChildren: false,
 				expanded: false,
@@ -140,6 +153,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			type: 'classifier',
 			label: c.name,
 			hint: hintFor(c),
+			doc: docLine(c.documentation),
 			italic: c.isAbstract,
 			level,
 			hasChildren:
@@ -167,6 +181,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			label: instanceLabel(o) || t('object.anonymous'),
 			name: o.name,
 			hint: t('explorer.hint.object'),
+			doc: docLine(o.documentation),
 			level,
 			hasChildren: own.length > 0,
 			expanded: expanded.has(id),
@@ -196,6 +211,7 @@ export function buildRows(project: Project, expanded: ReadonlySet<string>): Tree
 			type: 'package',
 			label: p.name,
 			hint: t('explorer.hint.package'),
+			doc: docLine(p.documentation),
 			level,
 			hasChildren: inside.length > 0,
 			expanded: expanded.has(id),

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { sieve } from '@lucasmarkes/hairline';
 	import EmptyState from '#lib/ui/molecules/EmptyState.svelte';
-	import { COMMANDS, type AppCommand, type Group } from '#lib/app/commands.svelte.ts';
-	import { format, type Shortcut } from '#lib/app/shortcuts.ts';
+	import { COMMANDS, type Group } from '#lib/app/commands.svelte.ts';
+	import { sheetRows } from '#lib/app/sheet.ts';
+	import { format } from '#lib/app/shortcuts.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -31,38 +32,11 @@
 		canvasFocus.focus();
 	}
 
-	// The registry has one command per arrow (each nudges its own way); the sheet shows them as one
-	// row with the arrows as one key, and in general merges rows that share a label.
-	const ARROWS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-	const mods = (k: Shortcut) => `${!!k.mod}/${!!k.shift}/${!!k.alt}`;
-	const bare = (k: Shortcut) => !k.mod && !k.shift && !k.alt;
-	function collapse(keys: Shortcut[]): Shortcut[] {
-		const codes = new Set(keys.map((k) => k.code));
-		const same = new Set(keys.map(mods)).size === 1;
-		if (same && codes.size === 4 && ARROWS.every((c) => codes.has(c)))
-			return [{ ...keys[0], code: 'Arrows' }];
-		// Two bare digits are the ends of a range (the picker's 1–6): one key, not two.
-		const digits = keys.map((k) => /^Digit(\d)$/.exec(k.code)?.[1]);
-		if (keys.length === 2 && keys.every(bare) && digits.every(Boolean))
-			return [{ code: `${digits[0]}–${digits[1]}` }];
-		return keys;
-	}
-	function merged(items: AppCommand[]) {
-		const out: { id: string; label: string; staruml: boolean; keys: Shortcut[] }[] = [];
-		for (const c of items) {
-			const label = c.label();
-			const row = out.find((r) => r.label === label);
-			if (row) row.keys.push(...c.keys);
-			else out.push({ id: c.id, label, staruml: !!c.staruml, keys: [...c.keys] });
-		}
-		for (const r of out) r.keys = collapse(r.keys);
-		return out;
-	}
 	// Each column's groups with their rows, empty groups dropped, so the first heading is known.
 	const columns = $derived(
 		COLUMNS.map((column) =>
 			column
-				.map((group) => ({ group, items: merged(rows.filter((c) => c.group === group)) }))
+				.map((group) => ({ group, items: sheetRows(rows.filter((c) => c.group === group)) }))
 				.filter((g) => g.items.length)
 		)
 	);

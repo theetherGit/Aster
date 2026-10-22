@@ -52,7 +52,10 @@ const SPOKEN: Record<string, string> = {
 	Arrows: 'Arrow keys',
 	Minus: 'Minus',
 	Equal: 'Equals',
-	Slash: 'Slash'
+	Slash: 'Slash',
+	Backslash: 'Backslash',
+	BracketLeft: 'Left bracket',
+	BracketRight: 'Right bracket'
 };
 /** A shortcut in words, for a screen reader where the cap is a glyph: "Command Shift E", "Enter". */
 export function spoken(s: Shortcut, mac = isMac()): string {

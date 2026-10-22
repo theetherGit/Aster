@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contentRects, diagramToSvg, slug } from '#lib/export/svg.ts';
+import { wrapLines, contentRects, diagramToSvg, slug } from '#lib/export/svg.ts';
 import { notationProject } from '#lib/model/fixtures.ts';
 import { createClassifier, createDiagram, createProject } from '#lib/model/project.ts';
 
@@ -83,5 +83,17 @@ describe('diagram → SVG', () => {
 		expect(contentRects(p, d).get('Loan')!.h).toBe(28);
 		// The other classes still show theirs.
 		expect(svg).toContain('memberId');
+	});
+});
+
+describe('word wrap in the export (StarUML wordWrap)', () => {
+	it('breaks at words to the width, and inside a word too long for a line', () => {
+		expect(wrapLines('short', 12, 200)).toEqual(['short']);
+		const lines = wrapLines('a rather long class name that will not fit', 12, 80);
+		expect(lines.length).toBeGreaterThan(1);
+		expect(lines.join(' ')).toBe('a rather long class name that will not fit');
+		const word = wrapLines('Supercalifragilisticexpialidocious', 12, 60);
+		expect(word.length).toBeGreaterThan(1);
+		expect(word.join('')).toBe('Supercalifragilisticexpialidocious');
 	});
 });

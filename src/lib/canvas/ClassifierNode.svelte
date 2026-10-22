@@ -61,7 +61,9 @@
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
 	class:edge-hover={data.hovered}
+	class:wrap={flags.wordWrap}
 	style:min-width="{data.minWidth}px"
+	style:width={flags.wordWrap ? `${data.minWidth}px` : undefined}
 	style:min-height={data.minHeight ? `${data.minHeight}px` : undefined}
 	style:--fill={data.fill}
 	style:--line={data.line}
@@ -222,6 +224,21 @@
 	}
 	.name-row.with-stereotype.with-namespace {
 		height: 56px;
+	}
+	/* Word wrap (StarUML's wordWrap): the stored width holds, text wraps, rows grow (M3 sweep). */
+	.classifier-node.wrap {
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+	.classifier-node.wrap .name-row {
+		height: auto;
+		min-height: 28px;
+		padding-block: 5px;
+		text-align: center;
+	}
+	.classifier-node.wrap :global(.member) {
+		height: auto;
+		min-height: 20px;
 	}
 	.namespace {
 		font-size: 12px;

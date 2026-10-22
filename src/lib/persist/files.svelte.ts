@@ -483,6 +483,8 @@ async function openPuml(f: OpenedFile) {
 	files.savedVersion = projectStore.version;
 	files.lastSavedAt = null;
 	files.notice = { kind: 'imported', file: f.name };
+	// Named after its file, so it has a route as an opened .mdj does (the welcome goes there).
+	mintSlug();
 	canvasFocus.focus();
 }
 

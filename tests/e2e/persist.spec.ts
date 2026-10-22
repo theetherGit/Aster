@@ -311,6 +311,22 @@ test.describe('the welcome at /', () => {
 		await expect(page.getByRole('button', { name: /^Aster/ })).toBeVisible();
 	});
 
+	test('a .puml dropped on the welcome opens in the editor, named after its file', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const dt = await page.evaluateHandle(() => {
+			const dt = new DataTransfer();
+			const text = '@startuml\nclass Book\nclass Shelf\nShelf o-- Book\n@enduml\n';
+			dt.items.add(new File([text], 'shelf.puml', { type: 'text/plain' }));
+			return dt;
+		});
+		await page.dispatchEvent('body', 'dragover', { dataTransfer: dt });
+		await page.dispatchEvent('body', 'drop', { dataTransfer: dt });
+		await expect(page).toHaveURL(/\/design\/shelf$/);
+		await expect(node(page, 'Book')).toBeVisible();
+	});
+
 	test('/design/new starts empty and stays the draft until named', async ({ page }) => {
 		await page.goto('/');
 		await page.getByRole('button', { name: /New diagram/ }).click();

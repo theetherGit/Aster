@@ -16,10 +16,12 @@
 		persist,
 		thumbnailOf
 	} from '#lib/persist/autosave.svelte.ts';
-	import { files, loadFixture, openFromPicker } from '#lib/persist/files.svelte.ts';
+	import { loadFixture, openFromPicker } from '#lib/persist/files.svelte.ts';
+	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { ago } from './time.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
+	import DialogFrame from '#lib/ui/atoms/DialogFrame.svelte';
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import Kbd from '#lib/ui/atoms/Kbd.svelte';
 	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
@@ -32,10 +34,14 @@
 		ui.sampleStrip = true;
 		return design();
 	}
+	// A .puml opens as a project with no file behind it: what changed is the open project.
 	async function open() {
+		const before = projectStore.project;
 		await openFromPicker();
-		if (files.current) await design();
+		if (projectStore.project !== before) await design();
 	}
+	// Clearing Recent deletes what this browser keeps of each project: asked first, and said so.
+	let confirmClear = $state(false);
 	async function recent(id: string) {
 		if (await openSaved(id)) await design();
 	}
@@ -159,9 +165,28 @@
 					</h2>
 					<span class="flex-1"></span>
 					{#if persist.recent.length}
-						<Button variant="ghost" size="sm" onclick={() => clearRecent()}
+						<Button variant="ghost" size="sm" onclick={() => (confirmClear = true)}
 							>{t('welcome.clear')}</Button
 						>
+						<DialogFrame
+							bind:open={confirmClear}
+							alert
+							title={t('welcome.clearTitle')}
+							description={t('welcome.clearBody')}
+						>
+							{#snippet actions()}
+								<Button variant="ghost" onclick={() => (confirmClear = false)}
+									>{t('confirm.cancel')}</Button
+								>
+								<Button
+									variant="danger"
+									onclick={() => {
+										confirmClear = false;
+										clearRecent();
+									}}>{t('welcome.clearConfirm')}</Button
+								>
+							{/snippet}
+						</DialogFrame>
 					{/if}
 				</div>
 				{#if persist.recent.length}

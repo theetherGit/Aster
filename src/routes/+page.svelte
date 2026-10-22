@@ -7,11 +7,14 @@
 	import Welcome from '#lib/panels/Welcome.svelte';
 	import { persist } from '#lib/persist/autosave.svelte.ts';
 	import { files, openDropped } from '#lib/persist/files.svelte.ts';
+	import { projectStore } from '#lib/stores/project.svelte.ts';
 
 	// Boards 07 and 23: the welcome stands alone at `/`. Every action ends in the editor.
+	// A .puml opens as a project with no file behind it: what changed is the open project.
 	async function drop(list: FileList) {
+		const before = projectStore.project;
 		await openDropped(list);
-		if (files.current && persist.route)
+		if (projectStore.project !== before && persist.route)
 			await goto(resolve('/design/[slug]', { slug: persist.route }));
 	}
 </script>
