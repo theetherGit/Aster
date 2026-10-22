@@ -285,7 +285,7 @@ test.describe('the welcome at /', () => {
 		await welcome.getByRole('button', { name: 'Open sample' }).click();
 		await expect(page).toHaveURL(/\/design\/sample$/);
 		await expect(welcome).toHaveCount(0);
-		await expect(page.getByText('Sample. Press ⌘N for your own.')).toBeVisible();
+		await expect(page.getByText(/^Sample\. Press (⌘N|Ctrl\+N) for your own\.$/)).toBeVisible();
 		await expect(node(page, 'Account')).toBeVisible();
 		// The first edit names it: the URL follows, and a reload finds it by slug.
 		await page.mouse.move(600, 400);
