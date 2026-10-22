@@ -251,8 +251,11 @@ export async function openDropped(list: FileList | null | undefined) {
 	await guardUnsaved(f.name, () => openFile({ name: f.name, data }));
 }
 
-/** ⌘N: an untitled project with one empty class diagram (board 18). */
-export function newProject(): Promise<void> {
+/**
+ * ⌘N: an untitled project with one empty class diagram (board 18). `refocus` is off when the
+ * editor boots into it: the canvas took focus as it mounted, and a reader may already be elsewhere.
+ */
+export function newProject(refocus = true): Promise<void> {
 	return guardUnsaved(null, async () => {
 		const project = createProject({ name: t('model.untitled') });
 		project.diagrams.push(createDiagram({ name: t('model.newDiagramName') }));
@@ -265,7 +268,7 @@ export function newProject(): Promise<void> {
 		files.bannerDismissed = false;
 		persist.route = 'new';
 		// After the menu that triggered this closes and puts focus back on its trigger.
-		requestAnimationFrame(() => canvasFocus.focus());
+		if (refocus) requestAnimationFrame(() => canvasFocus.focus());
 	});
 }
 

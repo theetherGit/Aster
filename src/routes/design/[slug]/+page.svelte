@@ -71,7 +71,7 @@
 			await loadRecent();
 			if (persist.route !== slug) {
 				if (slug === 'new') {
-					if (!(await openDraft())) await newProject();
+					if (!(await openDraft())) await newProject(false);
 				} else if (slug === 'sample' || slug === 'demo') {
 					loadFixture(slug === 'demo' ? demoProject() : sampleProject(), slug);
 					ui.sampleStrip = true;
