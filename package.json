@@ -59,7 +59,8 @@
 		"elkjs": "^0.12.0",
 		"idb-keyval": "^6.3.0",
 		"nanoid": "^6.0.2",
-		"runed": "0.35.1"
+		"runed": "0.35.1",
+		"takumi-pdf": "^0.18.1"
 	},
 	"packageManager": "pnpm@12.14.0",
 	"engines": {

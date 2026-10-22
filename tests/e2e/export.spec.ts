@@ -5,6 +5,11 @@ import { canvasOf } from './helpers';
  * M3.4 prompt: Mermaid export, in the one export sheet with tabs rather than separate dialogs.
  * The Text tab shows what it will write, copies it and downloads it.
  */
+async function downloadBytes(d: Download) {
+	const chunks: Buffer[] = [];
+	for await (const c of await d.createReadStream()) chunks.push(c as Buffer);
+	return Buffer.concat(chunks);
+}
 async function downloadText(d: Download) {
 	const chunks: Buffer[] = [];
 	for await (const c of await d.createReadStream()) chunks.push(c as Buffer);
@@ -59,4 +64,32 @@ test('the Text tab previews, copies and downloads Mermaid and PlantUML', async (
 		'aria-checked',
 		'true'
 	);
+});
+
+test('the PDF tab downloads one vector page of the size and orientation chosen', async ({
+	page
+}) => {
+	await page.goto('/design/notation');
+	await expect(canvasOf(page)).toBeFocused();
+	await page.keyboard.press('ControlOrMeta+Shift+e');
+	const sheet = page.getByRole('dialog', { name: 'Export diagram' });
+	await sheet.getByRole('tab', { name: 'PDF' }).click();
+	await expect(sheet.getByTestId('export-name')).toHaveText('library.pdf');
+	// Auto turns the page to the diagram, which is wider than tall.
+	await expect(sheet.getByTestId('export-page')).toHaveText(/^A4 landscape · \d+%$/);
+	await sheet.getByRole('radio', { name: 'A3' }).click();
+	await sheet.getByRole('radio', { name: 'Portrait' }).click();
+	await expect(sheet.getByTestId('export-page')).toHaveText(/^A3 portrait · \d+%$/);
+	// Image-only controls are not on this tab.
+	await expect(sheet.getByRole('button', { name: 'Copy to clipboard' })).toHaveCount(0);
+
+	const download = page.waitForEvent('download');
+	await sheet.getByRole('button', { name: 'Download' }).click();
+	const d = await download;
+	expect(d.suggestedFilename()).toBe('library.pdf');
+	const pdf = (await downloadBytes(d)).toString('latin1');
+	expect(pdf.startsWith('%PDF-')).toBe(true);
+	// A3 portrait in points, and no raster image anywhere: vector.
+	expect(pdf).toMatch(/\/MediaBox\s*\[0 0 841\.8\d* 1190\.5\d*\]/);
+	expect(pdf).not.toMatch(/\/Subtype\s*\/Image/);
 });

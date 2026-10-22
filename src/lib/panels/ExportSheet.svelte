@@ -16,7 +16,9 @@
 		type ExportOptions,
 		type ExportTab
 	} from '#lib/export/actions.ts';
+	import { fit } from '#lib/export/pdf.ts';
 	import { t } from '#lib/i18n/index.ts';
+	import { announceAssertive } from '#lib/stores/live.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
@@ -31,10 +33,17 @@
 	let options: ExportOptions = $state({ ...DEFAULT_EXPORT });
 	const tab = $derived(tabOf(options.format));
 	/** The format each tab had last, so switching tabs and back keeps the choice. */
-	const last: Record<ExportTab, ExportFormat> = { image: 'png', text: 'mermaid', project: 'mdj' };
+	const last: Record<ExportTab, ExportFormat> = {
+		image: 'png',
+		pdf: 'pdf',
+		text: 'mermaid',
+		project: 'mdj'
+	};
 	// The copy result, shown inline (the live region announces it too); never a native alert.
 	let copyStatus: 'copied' | 'failed' | null = $state(null);
 	let busy = $state(false);
+	/** A PDF that could not be made, said beside the buttons. */
+	let failed = $state(false);
 	// Focus goes back to whatever opened the sheet (the Export button, the palette's opener).
 	let restore: HTMLElement | null = null;
 	$effect(() => {
@@ -52,7 +61,7 @@
 		void projectStore.version;
 		const o = $state.snapshot(options);
 		let live = true;
-		if (!isImage(o.format)) {
+		if (!isImage(o.format) && o.format !== 'pdf') {
 			preview = null;
 			return;
 		}
@@ -61,7 +70,8 @@
 			const px = r.width * r.height * o.scale * o.scale;
 			// ponytail: ~0.17 B/px for a PNG of line art, measured on the boards; exact on download
 			const bytes = o.format === 'svg' ? r.svg.length : Math.round(px * 0.17);
-			preview = { width: r.width * o.scale, height: r.height * o.scale, bytes };
+			const scale = o.format === 'png' ? o.scale : 1;
+			preview = { width: r.width * scale, height: r.height * scale, bytes };
 		});
 		return () => {
 			live = false;
@@ -79,7 +89,7 @@
 	const fmt = (n: number) => n.toLocaleString();
 	// SVG has no scale: say so where the disabled control is.
 	const reason = $derived(options.format === 'svg' ? t('export.scalePngOnly') : null);
-	const FORMATS: Record<ExportTab, { value: string; label: string }[]> = {
+	const FORMATS: Record<Exclude<ExportTab, 'pdf'>, { value: string; label: string }[]> = {
 		image: [
 			{ value: 'png', label: t('export.fmt.png') },
 			{ value: 'svg', label: t('export.fmt.svg') }
@@ -93,16 +103,35 @@
 			{ value: 'aster', label: t('export.fmt.aster') }
 		]
 	};
+	/** The PDF row: page, which way it turned, and how much the diagram was shrunk to fit. */
+	const page = $derived.by(() => {
+		if (options.format !== 'pdf' || !preview) return null;
+		const f = fit(preview, options);
+		return t('export.pdfPage', {
+			page: t(`export.page.${options.page}`),
+			orientation: t(`export.orient.${f.landscape ? 'landscape' : 'portrait'}`).toLowerCase(),
+			percent: Math.round(f.scale * 100)
+		});
+	});
+	const PAGES = (['a4', 'a3', 'letter'] as const).map((v) => ({
+		value: v,
+		label: t(`export.page.${v}`)
+	}));
+	const ORIENTATIONS = (['auto', 'landscape', 'portrait'] as const).map((v) => ({
+		value: v,
+		label: t(`export.orient.${v}`)
+	}));
 	const SCALES = [
 		{ value: '1', label: '1×' },
 		{ value: '2', label: '2×' }
 	];
-	const TABS: ExportTab[] = ['image', 'text', 'project'];
+	const TABS: ExportTab[] = ['image', 'pdf', 'text', 'project'];
 
 	function choose(f: ExportFormat) {
 		options.format = f;
 		last[tabOf(f)] = f;
 		copyStatus = null;
+		failed = false;
 	}
 	function close() {
 		ui.exportOpen = false;
@@ -117,6 +146,19 @@
 		} finally {
 			busy = false;
 		}
+	}
+	/** Download; a PDF that fails says so here and in the live region (the others cannot fail). */
+	function download() {
+		failed = false;
+		return run(async (o) => {
+			try {
+				await downloadExport(o);
+			} catch (e) {
+				if (o.format !== 'pdf') throw e;
+				failed = true;
+				announceAssertive(t('export.pdfFailed'));
+			}
+		});
 	}
 	async function copy() {
 		const o = $state.snapshot(options);
@@ -136,7 +178,19 @@
 	}
 </script>
 
-{#snippet formats(of: ExportTab)}
+{#snippet selectionOnly()}
+	<Checkbox
+		label={t('export.selectionOnly')}
+		bind:checked={options.selectionOnly}
+		disabled={selected === 0}
+	>
+		{#snippet trailing()}
+			<span class="text-chrome-muted">{t('export.selectionCount', { count: selected })}</span>
+		{/snippet}
+	</Checkbox>
+{/snippet}
+
+{#snippet formats(of: Exclude<ExportTab, 'pdf'>)}
 	<Segment
 		items={FORMATS[of]}
 		label={t('export.format')}
@@ -191,16 +245,27 @@
 						'export.transparent'
 					)}</label
 				>
-				<Checkbox
-					label={t('export.selectionOnly')}
-					bind:checked={options.selectionOnly}
-					disabled={selected === 0}
-				>
-					{#snippet trailing()}
-						<span class="text-chrome-muted">{t('export.selectionCount', { count: selected })}</span>
-					{/snippet}
-				</Checkbox>
+				{@render selectionOnly()}
 			</fieldset>
+		</Tabs.Content>
+
+		<Tabs.Content value="pdf">
+			<div class="mt-4 flex flex-wrap items-start gap-3">
+				<Segment
+					items={PAGES}
+					label={t('export.page')}
+					value={options.page}
+					onchange={(v) => (options.page = v as ExportOptions['page'])}
+				/>
+				<Segment
+					items={ORIENTATIONS}
+					label={t('export.orientation')}
+					value={options.orientation}
+					onchange={(v) => (options.orientation = v as ExportOptions['orientation'])}
+				/>
+			</div>
+			<p class="mt-2 text-(length:--text-small) text-chrome-muted">{t('export.hint.pdf')}</p>
+			<div class="mt-4">{@render selectionOnly()}</div>
 		</Tabs.Content>
 
 		<Tabs.Content value="text">
@@ -239,6 +304,8 @@
 					size: size(preview.bytes)
 				})}</span
 			>
+		{:else if page}
+			<span class="shrink-0 text-chrome-muted" data-testid="export-page">{page}</span>
 		{:else if text}
 			<span class="shrink-0 text-chrome-muted"
 				>{t('export.textSize', {
@@ -250,7 +317,7 @@
 	</div>
 
 	{#snippet actions()}
-		{#if tab !== 'project'}
+		{#if tab === 'image' || tab === 'text'}
 			<Button disabled={busy} onclick={() => run(copy)}
 				>{tab === 'text' ? t('export.copyText') : t('export.copy')}</Button
 			>
@@ -268,10 +335,15 @@
 						: t('export.copyFailed')}</span
 			>
 		{/if}
+		{#if failed}
+			<span class="text-(length:--text-small) text-danger" data-testid="export-failed"
+				>{t('export.pdfFailed')}</span
+			>
+		{/if}
 		<span class="flex-1"></span>
 		<Button variant="ghost" onclick={close}>{t('export.cancel')}</Button>
-		<Button variant="primary" disabled={busy} onclick={() => run(downloadExport)}
-			>{t('export.download')}</Button
+		<Button variant="primary" disabled={busy} onclick={download}
+			>{busy && tab === 'pdf' ? t('export.makingPdf') : t('export.download')}</Button
 		>
 	{/snippet}
 </DialogFrame>

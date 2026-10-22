@@ -6,18 +6,20 @@ import { announce } from '#lib/stores/live.svelte.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
 import { selection } from '#lib/stores/selection.svelte.ts';
 import { baseName, files, fileText } from '#lib/persist/files.svelte.ts';
-import { copyPng, download, embeddedFontCss, svgBlob, svgToPng } from './image.ts';
+import { copyPng, download, embeddedFontCss, paperFonts, svgBlob, svgToPng } from './image.ts';
 import { diagramToMermaid } from './mermaid.ts';
+import type { Orientation, PageSize } from './pdf.ts';
 import { diagramToSvg, slug } from './svg.ts';
 
 /**
- * M3.4 prompt: one sheet with tabs rather than separate dialogs. Image and Text cover this
+ * M3.4 prompt: one sheet with tabs rather than separate dialogs. Image, PDF and Text cover this
  * diagram; Project the whole project as a file.
  */
-export type ExportTab = 'image' | 'text' | 'project';
-export type ExportFormat = 'png' | 'svg' | 'mermaid' | 'puml' | 'mdj' | 'aster';
+export type ExportTab = 'image' | 'pdf' | 'text' | 'project';
+export type ExportFormat = 'png' | 'svg' | 'pdf' | 'mermaid' | 'puml' | 'mdj' | 'aster';
 export const TAB_FORMATS: Record<ExportTab, ExportFormat[]> = {
 	image: ['png', 'svg'],
+	pdf: ['pdf'],
 	text: ['mermaid', 'puml'],
 	project: ['mdj', 'aster']
 };
@@ -29,12 +31,16 @@ export interface ExportOptions {
 	scale: 1 | 2;
 	background: 'white' | 'transparent';
 	selectionOnly: boolean;
+	page: PageSize;
+	orientation: Orientation;
 }
 export const DEFAULT_EXPORT: ExportOptions = {
 	format: 'png',
 	scale: 2,
 	background: 'white',
-	selectionOnly: false
+	selectionOnly: false,
+	page: 'a4',
+	orientation: 'auto'
 };
 
 export const isImage = (f: ExportFormat) => tabOf(f) === 'image';
@@ -48,15 +54,44 @@ export function fileName(o: ExportOptions) {
 	return `${slug(projectStore.diagram.name)}${scale}.${EXTENSION[o.format] ?? o.format}`;
 }
 
-/** The diagram as SVG for `o`, with the paper font embedded. */
+/** The diagram as SVG for `o`, with the paper font embedded (the PDF registers it instead). */
 export async function render(o: ExportOptions) {
 	const only = o.selectionOnly && selection.size ? new Set(selection.list) : null;
-	const fontCss = await embeddedFontCss();
+	const pdf = o.format === 'pdf';
 	return diagramToSvg(projectStore.project, projectStore.diagram, canvasRects.get(), {
 		only,
-		background: o.background,
-		fontCss
+		background: pdf ? 'white' : o.background,
+		fontCss: pdf ? undefined : await embeddedFontCss()
 	});
+}
+
+/** The PDF tab's file; takumi-pdf and its fonts load on the first one. */
+async function pdfBlob(o: ExportOptions): Promise<Blob> {
+	const [{ svgToPdf }, svg, fonts] = await Promise.all([
+		import('./pdf.ts'),
+		render(o),
+		paperFonts()
+	]);
+	const d = projectStore.diagram;
+	const counts = { nodes: 0, edges: 0 };
+	for (const id of d.elementIds) {
+		const k = projectStore.project.elements.get(id)?.kind;
+		if (k === 'classifier') counts.nodes++;
+		else if (k === 'relationship') counts.edges++;
+	}
+	const bytes = await svgToPdf(
+		svg,
+		{
+			page: o.page,
+			orientation: o.orientation,
+			title: d.name,
+			alt: t('export.pdfAlt', { name: d.name, ...counts }),
+			// ponytail: English is the one shipped locale; take it from i18n when a second ships
+			lang: 'en'
+		},
+		fonts
+	);
+	return new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' });
 }
 
 /** The Text tab's formats: the whole diagram as Mermaid or PlantUML. */
@@ -70,6 +105,7 @@ export async function exportBlob(o: ExportOptions): Promise<Blob> {
 	if (tabOf(o.format) === 'project')
 		return new Blob([fileText(o.format as 'mdj' | 'aster')], { type: 'application/json' });
 	if (isText(o.format)) return new Blob([exportText(o.format)], { type: 'text/plain' });
+	if (o.format === 'pdf') return pdfBlob(o);
 	const r = await render(o);
 	return o.format === 'svg' ? svgBlob(r.svg) : svgToPng(r.svg, r.width, r.height, o.scale);
 }

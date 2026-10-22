@@ -1,23 +1,39 @@
-/** Browser side of export: the paper font as data URIs, SVG → PNG, download and clipboard. */
+/** Browser side of export: the paper font's bytes and data URIs, SVG → PNG, download and clipboard. */
 import italic from '#lib/assets/fonts/source-sans-3/source-sans-3-latin-wght-italic.woff2?url';
 import normal from '#lib/assets/fonts/source-sans-3/source-sans-3-latin-wght-normal.woff2?url';
+import type { PaperFont } from './pdf.ts';
 
+let faces: Promise<PaperFont[]> | undefined;
 let fontCss: Promise<string> | undefined;
 
-/** `@font-face` rules with the Latin faces inlined, fetched once. */
+/** The paper font's Latin faces as bytes, fetched once: the PDF registers them, SVG inlines them. */
+export function paperFonts(): Promise<PaperFont[]> {
+	faces ??= Promise.all(
+		(
+			[
+				[normal, 'normal'],
+				[italic, 'italic']
+			] as const
+		).map(async ([url, style]) => ({
+			style,
+			data: new Uint8Array(await (await fetch(url)).arrayBuffer())
+		}))
+	);
+	return faces;
+}
+
+/** `@font-face` rules with the Latin faces inlined. */
 export function embeddedFontCss(): Promise<string> {
-	fontCss ??= Promise.all(
-		[
-			[normal, 'normal'],
-			[italic, 'italic']
-		].map(async ([url, style]) => {
-			const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
-			let bin = '';
-			for (let i = 0; i < bytes.length; i += 0x8000)
-				bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-			return `@font-face{font-family:'Source Sans 3';font-style:${style};font-weight:200 900;src:url(data:font/woff2;base64,${btoa(bin)}) format('woff2')}`;
-		})
-	).then((rules) => rules.join(''));
+	fontCss ??= paperFonts().then((fonts) =>
+		fonts
+			.map(({ style, data }) => {
+				let bin = '';
+				for (let i = 0; i < data.length; i += 0x8000)
+					bin += String.fromCharCode(...data.subarray(i, i + 0x8000));
+				return `@font-face{font-family:'Source Sans 3';font-style:${style};font-weight:200 900;src:url(data:font/woff2;base64,${btoa(bin)}) format('woff2')}`;
+			})
+			.join('')
+	);
 	return fontCss;
 }
 
