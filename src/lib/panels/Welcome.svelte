@@ -8,7 +8,7 @@
 	import { contentRects } from '#lib/export/svg.ts';
 	import { aster } from '#lib/figures/aster.ts';
 	import { t } from '#lib/i18n/index.ts';
-	import { sampleProject } from '#lib/model/fixtures.ts';
+	import { demoProject } from '#lib/model/demo.ts';
 	import {
 		clearRecent,
 		loadRecent,
@@ -25,10 +25,10 @@
 	import KeyHint from '#lib/ui/molecules/KeyHint.svelte';
 
 	// Boards 07 (first visit) and 23 (returning): two columns, the mark and the two actions on the
-	// left, the sample card and Recent on the right. Every action ends in `/design/<route>`.
+	// left, the demo card and Recent on the right. Every action ends in `/design/<route>`.
 	const design = () => goto(resolve('/design/[slug]', { slug: persist.route ?? 'new' }));
 	function explore() {
-		loadFixture(sampleProject(), 'sample');
+		loadFixture(demoProject(), 'demo');
 		ui.sampleStrip = true;
 		return design();
 	}
@@ -40,7 +40,7 @@
 		if (await openSaved(id)) await design();
 	}
 
-	// The sample card's picture: the bundled sample through the Recent list's renderer, with node
+	// The demo card's picture: Aster's own model through the Recent list's renderer, with node
 	// sizes from the same metrics the canvas uses, since no canvas is on this page.
 	let sampleThumb = $state<string>();
 	// The Button atom takes no ref; the first action is found under the section when it mounts.
@@ -56,7 +56,7 @@
 		section.querySelector<HTMLElement>('.action.primary')?.focus();
 		loadRecent();
 		const timer = setInterval(() => (now = Date.now()), 30_000);
-		const sample = sampleProject();
+		const sample = demoProject();
 		const diagram = sample.diagrams[0];
 		thumbnailOf(sample, diagram.id, contentRects(sample, diagram), 560).then(
 			(png) => (sampleThumb = png)

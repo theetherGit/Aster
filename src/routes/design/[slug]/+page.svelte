@@ -47,6 +47,7 @@
 	} from '#lib/persist/files.svelte.ts';
 	import { downloadMdj } from '#lib/export/actions.ts';
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
+	import { demoProject } from '#lib/model/demo.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { announce, live } from '#lib/stores/live.svelte.ts';
@@ -60,7 +61,7 @@
 	import Banner from '#lib/ui/molecules/Banner.svelte';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
-	// the bundled sample with its strip, `notation` the UML notation fixture (visual regression and
+	// the bundled sample with its strip, `demo` Aster's own design with the same strip, `notation` the UML notation fixture (visual regression and
 	// manual review), anything else a project in this browser by its slug. The welcome may have
 	// loaded the project already, in which case `persist.route` is this slug and nothing reloads.
 	onMount(() => {
@@ -71,8 +72,8 @@
 			if (persist.route !== slug) {
 				if (slug === 'new') {
 					if (!(await openDraft())) await newProject();
-				} else if (slug === 'sample') {
-					loadFixture(sampleProject(), 'sample');
+				} else if (slug === 'sample' || slug === 'demo') {
+					loadFixture(slug === 'demo' ? demoProject() : sampleProject(), slug);
 					ui.sampleStrip = true;
 				} else if (slug === 'notation') loadFixture(notationProject(), 'notation');
 				else if (!(await openBySlug(slug))) {

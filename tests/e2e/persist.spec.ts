@@ -269,7 +269,7 @@ test('⌘N starts an untitled project with an empty class diagram (board 18)', a
 });
 
 test.describe('the welcome at /', () => {
-	test('boards 07 and 23, then the sample with its strip', async ({ page }) => {
+	test('boards 07 and 23, then the demo with its strip', async ({ page }) => {
 		await page.goto('/');
 		const welcome = page.getByRole('region', { name: 'Aster' });
 		await expect(welcome).toBeVisible();
@@ -279,31 +279,36 @@ test.describe('the welcome at /', () => {
 		// Keys come from the registry's platform formatter, never typed into copy.
 		await expect(welcome.getByRole('button', { name: /New diagram/ })).toHaveText(/⌘N|Ctrl\+N/);
 		await expect(welcome).toContainText('Files you open or save appear here');
-		await expect(welcome.getByRole('img', { name: 'Sample diagram' })).toBeVisible();
+		await expect(welcome.getByRole('img', { name: "The demo's Model diagram" })).toBeVisible();
 		// Hairline figure at rest, exposed as an image with a meaningful name.
 		await expect(welcome.getByRole('img', { name: /nothing open yet/ })).toBeVisible();
-		await welcome.getByRole('button', { name: 'Open sample' }).click();
-		await expect(page).toHaveURL(/\/design\/sample$/);
+		await welcome.getByRole('button', { name: 'Open the demo' }).click();
+		await expect(page).toHaveURL(/\/design\/demo$/);
 		await expect(welcome).toHaveCount(0);
 		await expect(page.getByText(/^Sample\. Press (⌘N|Ctrl\+N) for your own\.$/)).toBeVisible();
-		await expect(node(page, 'Account')).toBeVisible();
-		// The first edit names it: the URL follows, and a reload finds it by slug.
+		await expect(node(page, 'Project')).toBeVisible();
+		// The first edit names it: the URL follows, and a reload finds it by slug. One command (a
+		// new class keeps its default name), so the save waited for is the one that holds it.
+		const saved = await page.getByTestId('footer-save').getAttribute('data-saved');
 		await page.mouse.move(600, 400);
-		await create(page, 'c', 'Book');
+		await page.keyboard.press('c');
+		await expect(canvasOf(page).getByRole('textbox', { name: 'Name' })).toBeFocused();
 		await page.keyboard.press('Escape');
-		await awaitAutosave(page);
-		await expect(page).toHaveURL(/\/design\/library$/);
+		await expect
+			.poll(() => page.getByTestId('footer-save').getAttribute('data-saved'), { timeout: 10_000 })
+			.not.toBe(saved);
+		await expect(page).toHaveURL(/\/design\/aster$/);
 		await page.reload();
-		await expect(node(page, 'Book')).toBeVisible();
+		await expect(node(page, 'Class1')).toBeVisible();
 		// `new` is never the named project, even when it is the only record.
 		await page.goto('/design/new');
 		await expect(page.getByText('An empty class diagram')).toBeVisible();
-		await page.goto('/design/library');
-		await expect(node(page, 'Book')).toBeVisible();
+		await page.goto('/design/aster');
+		await expect(node(page, 'Class1')).toBeVisible();
 		// Home again: the mark links to the welcome, which lists the project.
 		await page.getByRole('link', { name: 'Aster: start page' }).click();
 		await expect(page).toHaveURL(/\/$/);
-		await expect(page.getByRole('button', { name: /Library/ })).toBeVisible();
+		await expect(page.getByRole('button', { name: /^Aster/ })).toBeVisible();
 	});
 
 	test('/design/new starts empty and stays the draft until named', async ({ page }) => {

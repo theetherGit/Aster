@@ -7,7 +7,7 @@
 import { slug as stem } from '#lib/export/svg.ts';
 
 /** Route words under `/design/` that are not projects. */
-export const RESERVED = new Set(['new', 'sample', 'notation']);
+export const RESERVED = new Set(['new', 'sample', 'demo', 'notation']);
 
 const EXT = /\.(aster\.json|aster|mdj)$/i;
 

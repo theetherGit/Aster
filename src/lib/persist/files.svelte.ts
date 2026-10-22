@@ -160,8 +160,8 @@ function startFresh() {
 	persist.slug = null;
 }
 
-/** A bundled project (the sample, the notation fixture) under its reserved route, unnamed until edited. */
-export function loadFixture(project: Project, route: 'sample' | 'notation') {
+/** A bundled project (the sample, the demo, the notation fixture) under its reserved route, unnamed until edited. */
+export function loadFixture(project: Project, route: 'sample' | 'demo' | 'notation') {
 	startFresh();
 	projectStore.load(project);
 	files.current = null;
