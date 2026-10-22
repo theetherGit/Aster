@@ -3,13 +3,19 @@
  * debounced 300 ms, writes the project, its layout and the undo history under the project id;
  * the last 10 projects make the Recent list, each with a thumbnail drawn at save time.
  */
-import { del, get, set } from 'idb-keyval';
+import { del, get, keys, set } from 'idb-keyval';
 import { useDebounce, watch } from 'runed';
-import { parseAster, serializeAster, type AsterFile } from '#lib/aster/index.ts';
+import {
+	parseAster,
+	serializeAster,
+	serializeAsterText,
+	type AsterFile
+} from '#lib/aster/index.ts';
 import { canvasRects } from '#lib/canvas/focus.ts';
 import type { CommandStackSnapshot } from '#lib/commands/types.ts';
 import { blobToDataUrl, svgToPng } from '#lib/export/image.ts';
 import { diagramToSvg } from '#lib/export/svg.ts';
+import { serializeMdjText } from '#lib/mdj/serialize.ts';
 import { t } from '#lib/i18n/index.ts';
 import type { Id, Project } from '#lib/model/types.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
@@ -56,7 +62,8 @@ export interface RecentEntry {
 	slug?: string | null;
 }
 
-const KEY = (key: string) => `aster:project:${key}`;
+const PREFIX = 'aster:project:';
+const KEY = (key: string) => `${PREFIX}${key}`;
 /**
  * Record key: the project id plus the file name. StarUML files made from its template share one
  * project id, so two opened files must not overwrite each other.
@@ -280,10 +287,58 @@ export async function openSaved(id: string): Promise<boolean> {
 	return true;
 }
 
-/** `/design/<slug>`: the project with that slug, when this browser has it. */
+/** `/design/<slug>`: the project with that slug, when this browser has it (in Recent or not). */
 export async function openBySlug(slug: string): Promise<boolean> {
-	const entry = persist.recent.find((r) => r.slug === slug);
+	const entry =
+		persist.recent.find((r) => r.slug === slug) ??
+		(await allProjects()).find((r) => r.slug === slug);
 	return entry ? openSaved(entry.id) : false;
+}
+
+/**
+ * Every project this browser keeps, newest first (owner's request): Recent shows the last 10,
+ * and a project that falls off it is still here, to open, download or delete.
+ */
+export async function allProjects(): Promise<RecentEntry[]> {
+	const out: RecentEntry[] = [];
+	for (const key of await keys()) {
+		if (typeof key !== 'string' || !key.startsWith(PREFIX)) continue;
+		const r = await get<Saved | SavedV1>(key);
+		if (!r) continue;
+		const id = key.slice(PREFIX.length);
+		out.push({
+			id,
+			name: r.version === 2 ? r.file.project.name : r.project.name,
+			fileName: r.fileName,
+			at: r.at,
+			thumbnail: r.thumbnail,
+			slug: r.slug ?? persist.recent.find((x) => x.id === id)?.slug ?? null
+		});
+	}
+	return out.sort((a, b) => b.at - a.at);
+}
+
+/**
+ * A kept project as a file, in the format it was opened as or saved to (`.aster` for a project
+ * born here), named as ⌘S would name it. Null when the record cannot be read.
+ */
+export async function storedFile(id: string): Promise<{ name: string; text: string } | null> {
+	const r = await get<Saved | SavedV1>(KEY(id));
+	if (!r) return null;
+	try {
+		const parsed = r.version === 2 ? parseAster(r.file) : { project: r.project, origin: undefined };
+		const mdj = r.version === 2 ? r.fileFormat === 'mdj' : !!r.fileName;
+		const stem = (
+			r.fileName?.replace(/\.(aster(\.json)?|mdj)$/i, '') ||
+			parsed.project.name ||
+			'project'
+		).trim();
+		return mdj
+			? { name: `${stem}.mdj`, text: serializeMdjText(parsed.project) }
+			: { name: `${stem}.aster`, text: serializeAsterText(parsed.project, parsed.origin) };
+	} catch {
+		return null;
+	}
 }
 
 /** `/design/new` on a reload: the newest unnamed draft, when there is one. */
@@ -296,11 +351,20 @@ export async function forget(id: string) {
 	await del(KEY(id));
 	persist.recent = persist.recent.filter((r) => r.id !== id);
 	await set(RECENT, $state.snapshot(persist.recent));
+	if (id === currentKey()) letGo();
 }
 
-/** Board 23 "Clear": every record and the Recent list go; the open project is saved again on its next change. */
-export async function clearRecent() {
-	await Promise.all(persist.recent.map((r) => del(KEY(r.id))));
+/** The project still in memory was deleted: the editor reloads its route rather than save it again. */
+function letGo() {
+	persist.route = null;
+	persist.slug = null;
+}
+
+/** Deletes every project this browser keeps, in Recent or not (Recent's Clear, the projects page). */
+export async function deleteAllProjects() {
+	for (const key of await keys())
+		if (typeof key === 'string' && key.startsWith(PREFIX)) await del(key);
 	persist.recent = [];
 	await del(RECENT);
+	letGo();
 }

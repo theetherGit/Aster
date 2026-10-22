@@ -10,7 +10,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { demoProject } from '#lib/model/demo.ts';
 	import {
-		clearRecent,
+		deleteAllProjects,
 		loadRecent,
 		openSaved,
 		persist,
@@ -164,6 +164,10 @@
 						{t('welcome.recent')}
 					</h2>
 					<span class="flex-1"></span>
+					<!-- Owner's request: every project kept here, past Recent's ten. -->
+					<a class="link me-2 text-(length:--text-small)" href={resolve('/projects')}
+						>{t('welcome.allProjects')}</a
+					>
 					{#if persist.recent.length}
 						<Button variant="ghost" size="sm" onclick={() => (confirmClear = true)}
 							>{t('welcome.clear')}</Button
@@ -182,7 +186,7 @@
 									variant="danger"
 									onclick={() => {
 										confirmClear = false;
-										clearRecent();
+										deleteAllProjects();
 									}}>{t('welcome.clearConfirm')}</Button
 								>
 							{/snippet}
