@@ -15,6 +15,7 @@ import {
 	deleteSelection,
 	distributeSelection,
 	drawnNodes,
+	focusedNode,
 	restackSelection,
 	sameSizeSelection,
 	selectedNodes,
@@ -339,7 +340,7 @@ export const COMMANDS: AppCommand[] = [
 		label: () => t('cmd.link'),
 		keys: k('L'),
 		context: 'canvas',
-		when: () => selection.size === 1,
+		when: () => selection.size === 1 || focusedNode() !== null,
 		run: () => canvasApi.startLink()
 	},
 	sheetRow('link.kind', 'create', 'cmd.linkKind', ['1', '6']),

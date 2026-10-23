@@ -132,6 +132,22 @@ test('keyboard only: L, arrows, Enter and 1–6 create all six kinds with their 
 	await expect(edgeKind(page, 'realization')).toHaveCount(1);
 });
 
+/** UX audit 2026-10-23: after Esc clears the selection the focus ring stays, and L must follow it. */
+test('L links from the focused class when Esc has cleared the selection', async ({ page }) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await classAt(page, 'Solo', 600, 420);
+	await page.keyboard.press('Escape'); // clears the selection; the focus ring stays on Solo
+	await expect(node(page, 'Solo')).not.toHaveClass(/selected/);
+	await expect(node(page, 'Solo')).toBeFocused();
+	await page.keyboard.press('l');
+	await expect(linkHint(page)).toBeVisible();
+	await page.keyboard.press('Enter');
+	await expect(picker(page)).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(node(page, 'Solo')).toHaveCount(1); // the picker's Esc renamed nothing
+});
+
 test('Esc cancels the keyboard link at every step', async ({ page }) => {
 	await page.goto('/design/sample');
 	await expect(canvasOf(page)).toBeFocused();

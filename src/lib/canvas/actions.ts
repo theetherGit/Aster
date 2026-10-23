@@ -229,8 +229,10 @@ export function startEditing() {
 	else if (kind === 'package') edit(id, { part: 'name' });
 }
 
-/** L: start a keyboard link from the one selected node. */
+/** L: start a keyboard link from the one selected node, or from the focused one (focusedNode). */
 export function startLink(rects: Map<Id, Rect>) {
+	const focused = focusedNode();
+	if (focused) selection.set([focused]);
 	const nodes = selectedWith('node');
 	if (nodes.length !== 1 || selection.size !== 1) return false;
 	ui.link = { sourceId: nodes[0], targetId: firstTarget(rects, nodes[0]) };
@@ -252,6 +254,15 @@ export function setLineStyleForSelection(lineStyle: LineStyle): boolean {
 		});
 	}
 	return true;
+}
+
+/**
+ * Esc clears the selection but leaves the focus ring on its element, which ↩ still edits; with
+ * nothing selected, that element is the one L links from (UX audit 2026-10-23).
+ */
+export function focusedNode(): Id | null {
+	const f = selection.focus;
+	return !selection.size && f && !f.part.startsWith('edge:') ? f.id : null;
 }
 
 export { endEditing as stopEditing };
