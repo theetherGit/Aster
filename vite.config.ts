@@ -21,6 +21,9 @@ export default defineConfig({
 		projects: [
 			{
 				extends: './vite.config.ts',
+				// The docs' playground logic is tested from here, and docs-site/tsconfig.json extends
+				// Astro's, which CI does not install: every file compiles with the app's tsconfig.
+				tsconfig: './tsconfig.json',
 				test: {
 					name: 'unit',
 					environment: 'node',
