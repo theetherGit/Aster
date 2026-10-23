@@ -58,7 +58,12 @@ export interface TemplateDiagram {
 	 * flow whose lines would cross a frame at every step.
 	 */
 	showPackages?: boolean;
-	packages: { id: string; name: string; parent: string | null }[];
+	/** The branch the diagram was read from, when not the default one. */
+	ref?: string;
+	/** `frame: false`: a package that only groups (a version), never drawn as a frame. */
+	packages: { id: string; name: string; parent: string | null; frame?: boolean }[];
+	/** Notes on the diagram, each linked to the classes it speaks of. */
+	notes?: { id: string; text: string; linkedIds: string[] }[];
 	classes: TemplateClass[];
 	relationships: TemplateRelationship[];
 }
@@ -95,7 +100,19 @@ function packagesOf(d: TemplateDiagram): string[] {
 }
 /** The packages a diagram draws as frames. */
 export const framesOf = (d: TemplateDiagram): string[] =>
-	d.showPackages === false ? [] : packagesOf(d);
+	d.showPackages === false
+		? []
+		: packagesOf(d).filter((id) => d.packages.find((p) => p.id === id)?.frame !== false);
+/** A note's element id: unique across the template's diagrams. */
+export const noteId = (diagram: number, id: string) => `d${diagram}-${id}`;
+/**
+ * A note's box before it is drawn: NoteNode wraps at 420 px, 12 px text on 16 px lines (about
+ * 64 characters a line) with 6 px padding above and below.
+ */
+export const noteSize = (text: string) => ({
+	w: 420,
+	h: Math.max(60, Math.ceil(text.length / 60) * 16 + 12)
+});
 
 /**
  * A new project from a template: its own id, named after the template. Without a layout (only
@@ -136,7 +153,9 @@ export function templateProject(spec: TemplateSpec, layout?: TemplateLayout): Pr
 						name: c.name,
 						classifierKind: c.kind,
 						isAbstract: c.isAbstract,
-						documentation: c.source ? `From \`${c.source}\` in ${spec.repo}.` : '',
+						documentation: c.source
+							? `From \`${c.source}\` in ${spec.repo}${d.ref ? ` (the \`${d.ref}\` branch)` : ''}.`
+							: '',
 						attributes: c.attributes.map(
 							(text, j) => memberFromText('attribute', text, `${c.id}-a${j}`) as Attribute
 						),
@@ -152,6 +171,13 @@ export function templateProject(spec: TemplateSpec, layout?: TemplateLayout): Pr
 				);
 			diagram.elementIds.push(c.id);
 			diagram.layout.set(c.id, box(c.id, k, 160, 80));
+		}
+		for (const [k, n] of (d.notes ?? []).entries()) {
+			const id = noteId(i, n.id);
+			project.elements.set(id, { kind: 'note', id, text: n.text, linkedIds: [...n.linkedIds] });
+			diagram.elementIds.push(id);
+			const size = noteSize(n.text);
+			diagram.layout.set(id, box(id, d.classes.length + k, size.w, size.h));
 		}
 		for (const r of d.relationships) {
 			const id = relationshipId(i, r.id);

@@ -11,15 +11,8 @@ test('the gallery lists the templates, and one opens as a project of your own', 
 	await page.goto('/');
 	await page.getByRole('button', { name: /Start from a template/ }).click();
 	const gallery = page.getByRole('dialog', { name: 'Start from a template' });
-	await expect(gallery.getByRole('listitem')).toHaveCount(6);
-	for (const name of [
-		'Doota',
-		'LMRS Shop',
-		'SvelteKit OG 4',
-		'SvelteKit OG 5 (next)',
-		'SvelteKit Redis Session',
-		'un-jinja'
-	])
+	await expect(gallery.getByRole('listitem')).toHaveCount(5);
+	for (const name of ['Doota', 'LMRS Shop', 'SvelteKit OG', 'SvelteKit Redis Session', 'un-jinja'])
 		await expect(gallery.getByRole('button', { name: `Use the ${name} template` })).toBeVisible();
 	// Each card says where it comes from, and its picture is named.
 	await expect(gallery.getByRole('link', { name: /ethercorps\/doota/ })).toHaveAttribute(
@@ -58,4 +51,24 @@ test('the palette opens the gallery from the editor', async ({ page }) => {
 	await expect(gallery).toHaveCount(0);
 	await expect(node(page, 'engine')).toBeAttached();
 	await expect(page).toHaveURL(/\/design\/un-jinja$/);
+});
+
+// Owner's request: SvelteKit OG 4 and 5 in one project, to explore what changed.
+test('SvelteKit OG holds v4 and v5 side by side, in packages of their own', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('button', { name: /Start from a template/ }).click();
+	await page.getByRole('button', { name: 'Use the SvelteKit OG template' }).click();
+	await expect(page).toHaveURL(/\/design\/sveltekit-og$/);
+	for (const tab of [
+		'v4 · Public API',
+		'v4 · Rendering pipeline',
+		'v5 · Public API',
+		'v5 · Render pipeline'
+	])
+		await expect(page.getByRole('tab', { name: tab })).toBeVisible();
+	await page.getByRole('tab', { name: 'v5 · Public API' }).click();
+	await expect(page.locator('.note-node')).toContainText('What changed from v4');
+	const tree = page.getByRole('tree', { name: 'Model tree' });
+	await expect(tree.getByRole('treeitem', { name: /^v4\s*package/ })).toBeVisible();
+	await expect(tree.getByRole('treeitem', { name: /^v5\s*package/ })).toBeVisible();
 });

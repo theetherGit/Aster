@@ -14,6 +14,8 @@ import { parseMdjText } from '#lib/mdj/parse.ts';
 import { serializeMdjText } from '#lib/mdj/serialize.ts';
 import {
 	framesOf,
+	noteId,
+	noteSize,
 	relationshipId,
 	templateProject,
 	type TemplateLayout,
@@ -42,6 +44,12 @@ async function laidOut(spec: TemplateSpec): Promise<TemplateLayout> {
 			const r = rects.get(c.id)!;
 			const parent = c.package && frames.has(c.package) ? c.package : undefined;
 			input.nodes.push({ id: c.id, w: r.w, h: r.h, parent });
+		}
+		for (const n of d.notes ?? []) {
+			const id = noteId(i, n.id);
+			input.nodes.push({ id, ...noteSize(n.text) });
+			for (const target of n.linkedIds)
+				input.edges.push({ id: `${id}\u0000${target}`, source: id, target });
 		}
 		for (const r of d.relationships)
 			if (r.source !== r.target)
@@ -94,6 +102,8 @@ describe.each(specs.map((s) => [s.id, s] as const))('template %s', (id, spec) =>
 						d.packages.some((x) => x.id === c.package),
 						c.id
 					).toBe(true);
+			for (const n of d.notes ?? [])
+				for (const target of n.linkedIds) expect(ids.has(target), `${n.id} → ${target}`).toBe(true);
 			expect(d.classes.length).toBeLessThanOrEqual(16);
 		}
 	});
