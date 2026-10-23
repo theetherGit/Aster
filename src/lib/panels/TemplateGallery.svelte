@@ -72,7 +72,7 @@
 			{t('templates.loading')}
 		</p>
 	{:else}
-		<ul class="mt-4 grid max-h-[min(70dvh,640px)] gap-3 overflow-auto sm:grid-cols-2">
+		<ul class="relative mt-4 grid max-h-[min(70dvh,640px)] gap-3 overflow-auto sm:grid-cols-2">
 			{#each cards as c (c.id)}
 				<li class="card">
 					<div class="preview">

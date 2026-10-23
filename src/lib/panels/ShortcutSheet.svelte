@@ -45,7 +45,7 @@
 <DialogFrame
 	title={t('sheet.title')}
 	width={920}
-	class="shortcuts"
+	class="flex max-h-[85vh] flex-col overflow-hidden"
 	bind:open={() => ui.shortcutsOpen, (open) => !open && close()}
 >
 	<!-- The filter and the close sit on the title's line (the frame draws the title first). -->
@@ -108,12 +108,6 @@
 </DialogFrame>
 
 <style>
-	/* Layout the frame does not know: a column that caps at the viewport so the list scrolls. */
-	:global(.sheet.shortcuts) {
-		display: flex;
-		flex-direction: column;
-		max-height: 85vh;
-	}
 	.tools {
 		display: flex;
 		gap: var(--space-3);

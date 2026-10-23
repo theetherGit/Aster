@@ -34,7 +34,7 @@
 		<D.Overlay class="fixed inset-0 z-(--z-dialog) bg-black/45" />
 		<D.Content
 			class={cn(
-				'fixed top-1/2 left-1/2 z-(--z-dialog) max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 rounded-card border border-chrome-border bg-chrome-surface p-6 text-chrome-text shadow-dialog',
+				'fixed top-1/2 left-1/2 z-(--z-dialog) max-h-[calc(100dvh-32px)] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-card border border-chrome-border bg-chrome-surface p-6 text-chrome-text shadow-dialog',
 				cls
 			)}
 			style="width: {width}px"

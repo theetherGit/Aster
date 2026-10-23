@@ -63,6 +63,10 @@ test('shortcut sheet (board 17) opens on ?, is generated from the registry and f
 	await page.keyboard.press('Shift+/');
 	const sheet = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
 	await expect(sheet).toBeVisible();
+	// It fits the window and its list scrolls, so the title and first rows are always reachable.
+	const box = (await sheet.boundingBox())!;
+	expect(box.y).toBeGreaterThanOrEqual(0);
+	expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize()!.height);
 	await expect(sheet).toContainText('Create and connect');
 	await expect(sheet).toContainText('Move member to top / bottom');
 	// Commands with no key in keyboard.md stay in the palette, not on the sheet.
