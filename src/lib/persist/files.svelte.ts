@@ -256,6 +256,29 @@ export async function openDropped(list: FileList | null | undefined) {
 }
 
 /**
+ * "New from template" (features.md M3): a project of its own, named after the template, saved at
+ * once so it is in Recent and has its address. Resolves true when it opened.
+ */
+export async function openTemplate(id: string): Promise<boolean> {
+	const { loadTemplate, templateProject } = await import('#lib/templates/index.ts');
+	const { spec, layout } = await loadTemplate(id);
+	let opened = false;
+	await guardUnsaved(spec.name, async () => {
+		startFresh();
+		projectStore.load(templateProject(spec, layout));
+		files.current = null;
+		files.origin = null;
+		files.savedVersion = projectStore.version;
+		files.lastSavedAt = null;
+		files.bannerDismissed = false;
+		persist.route = 'new';
+		await flush();
+		opened = true;
+	});
+	return opened;
+}
+
+/**
  * ⌘N: an untitled project with one empty class diagram (board 18). `refocus` is off when the
  * editor boots into it: the canvas took focus as it mounted, and a reader may already be elsewhere.
  */

@@ -1,0 +1,609 @@
+{
+	"id": "lmrs-shop",
+	"name": "LMRS Shop",
+	"repo": "theetherGit/lmrs-shop",
+	"url": "https://github.com/theetherGit/lmrs-shop",
+	"summary": "A SvelteKit app on Cloudflare D1 (Drizzle) for a small snack shop to manage, analyse and predict its daily sales and production.",
+	"description": "The shop's database schema (serving menu, stock log, one revenue row per day, forecasts, learned factor weights and the login tables), then the form handlers that record stock and the analyzers that reconcile production against UPI and cash takings.",
+	"notes": "Only five real foreign keys exist (factorWeight, weightAuditLog x2, session, account); inventory, operatingRevenue, forecast, holiday and datesheet relate only by date strings, so they are drawn unconnected. There are no customer or order tables: sales are one aggregate operatingRevenue row per day. No code yet writes operatingRevenue, forecast, factorWeight or weightAuditLog, and RatioWastageAnalyzer is not imported anywhere, so prediction exists only as schema. scripts/* are standalone experiments with their own Serving interface (adds name). stockTypes is the zod const name; the other inline column enums (dayOfWeek, holiday type, shift, subject) have no code name and are shown as string.",
+	"diagrams": [
+		{
+			"name": "Shop domain model",
+			"packages": [],
+			"classes": [
+				{
+					"id": "c-servingOption",
+					"name": "servingOption",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ name: string",
+						"+ pieces: number",
+						"+ price: number",
+						"+ isActive: boolean = true",
+						"+ createdAt: Date"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-inventory",
+					"name": "inventory",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ stockType: stockTypes[0..1]",
+						"+ stock: number",
+						"+ rate: number = 0",
+						"+ amount: number"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-stockTypes",
+					"name": "stockTypes",
+					"kind": "enum",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": ["fresh", "closing", "opening"],
+					"source": "src/lib/models/zod-schema/shop.zod.schema.ts"
+				},
+				{
+					"id": "c-operatingRevenue",
+					"name": "operatingRevenue",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ freshProduced: number",
+						"+ estimatedSold: number",
+						"+ actualRevenue: number",
+						"+ appliedWeights: Record<string, number>"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-forecast",
+					"name": "forecast",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ revenue: number",
+						"+ stock: string",
+						"+ baselineRevenue: number",
+						"+ weights: Record<string, number>"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-factorType",
+					"name": "factorType",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ category: string",
+						"+ subCategory: string",
+						"+ factorSlug: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-factorWeight",
+					"name": "factorWeight",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ factorSlug: string",
+						"+ weightValue: number = 1.0",
+						"+ learningRate: number = 0.3",
+						"+ minLimit: number = 0.5",
+						"+ maxLimit: number = 5"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-weightAuditLog",
+					"name": "weightAuditLog",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ factorSlug: string",
+						"+ relatedSaleId: string[0..1]",
+						"+ adjustmentDelta: number",
+						"+ oldWeight: number",
+						"+ newWeight: number"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-appSettings",
+					"name": "appSettings",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ estimatedCostPrice: number = 9.0",
+						"+ makerRate: number = 5.0",
+						"+ safetyBuffer: number = 1.1",
+						"+ growthRate: number = 1.0"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-holiday",
+					"name": "holiday",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ type: string",
+						"+ reason: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-datesheet",
+					"name": "datesheet",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ shift: string[0..1]",
+						"+ degree: string",
+						"+ subject: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-user",
+					"name": "user",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ name: string",
+						"+ email: string",
+						"+ emailVerified: boolean = false",
+						"+ role: string[0..1]",
+						"+ createdAt: Date"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/auth.schema.ts"
+				},
+				{
+					"id": "c-session",
+					"name": "session",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ token: string",
+						"+ expiresAt: Date",
+						"+ ipAddress: string[0..1]",
+						"+ userAgent: string[0..1]",
+						"+ userId: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/auth.schema.ts"
+				},
+				{
+					"id": "c-account",
+					"name": "account",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ accountId: string",
+						"+ providerId: string",
+						"+ userId: string",
+						"+ password: string[0..1]",
+						"+ accessToken: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/auth.schema.ts"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-1",
+					"kind": "association",
+					"source": "c-factorWeight",
+					"target": "c-factorType",
+					"name": "factorSlug",
+					"stereotype": null,
+					"sourceMultiplicity": "0..1",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-2",
+					"kind": "association",
+					"source": "c-weightAuditLog",
+					"target": "c-factorType",
+					"name": "factorSlug",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-3",
+					"kind": "association",
+					"source": "c-weightAuditLog",
+					"target": "c-operatingRevenue",
+					"name": "relatedSaleId",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "0..1"
+				},
+				{
+					"id": "r-4",
+					"kind": "composition",
+					"source": "c-session",
+					"target": "c-user",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-5",
+					"kind": "composition",
+					"source": "c-account",
+					"target": "c-user",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				}
+			]
+		},
+		{
+			"name": "Recording and analysis",
+			"packages": [
+				{ "id": "pkg-remote-functions", "name": "remote-functions", "parent": null },
+				{ "id": "pkg-logic", "name": "logic", "parent": null },
+				{ "id": "pkg-scripts", "name": "scripts", "parent": null }
+			],
+			"classes": [
+				{
+					"id": "c-inventory-remote",
+					"name": "inventory.remote",
+					"kind": "class",
+					"package": "pkg-remote-functions",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ addInventoryRemoteFunction(data: createInventory)",
+						"+ updateInventoryRemoteFunction(data: updateInventory)",
+						"+ deleteInventoryRemoteFunction(id: string)"
+					],
+					"literals": [],
+					"source": "src/lib/remote-functions/inventory.remote.ts"
+				},
+				{
+					"id": "c-menu-remote",
+					"name": "menu.remote",
+					"kind": "class",
+					"package": "pkg-remote-functions",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ createShopMenuRemoteFunction(data: createShopFoodMenu)",
+						"+ updateShopMenuRemoteFunction(data: updateShopFoodMenu)"
+					],
+					"literals": [],
+					"source": "src/lib/remote-functions/menu.remote.ts"
+				},
+				{
+					"id": "c-factor-type-remote",
+					"name": "factor-type.remote",
+					"kind": "class",
+					"package": "pkg-remote-functions",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ createFactorTypeRemoteFunction(data: createFactorType)",
+						"+ updateFactorTypeRemoteFunction(data: updateFactorType)"
+					],
+					"literals": [],
+					"source": "src/lib/remote-functions/factor-type.remote.ts"
+				},
+				{
+					"id": "c-inventory",
+					"name": "inventory",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ date: string",
+						"+ stockType: stockTypes[0..1]",
+						"+ stock: number",
+						"+ rate: number = 0",
+						"+ amount: number"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-servingOption",
+					"name": "servingOption",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ name: string",
+						"+ pieces: number",
+						"+ price: number",
+						"+ isActive: boolean = true",
+						"+ createdAt: Date"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-factorType",
+					"name": "factorType",
+					"kind": "class",
+					"package": null,
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ category: string",
+						"+ subCategory: string",
+						"+ factorSlug: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/models/db-schema/shop.schema.ts"
+				},
+				{
+					"id": "c-RatioWastageAnalyzer",
+					"name": "RatioWastageAnalyzer",
+					"kind": "class",
+					"package": "pkg-logic",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["- sortedMenu: Serving[*]"],
+					"operations": [
+						"- decomposeAmount(amount: number): Record<string, number>",
+						"+ calculate(produced: number, totalRevenue: number, upiAmounts: number[*], forceZeroWastage: boolean = false): Report"
+					],
+					"literals": [],
+					"source": "src/lib/helpers/logic/sales-calculator.ts"
+				},
+				{
+					"id": "c-Serving",
+					"name": "Serving",
+					"kind": "interface",
+					"package": "pkg-logic",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ id: string", "+ pieces: number", "+ price: number"],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/helpers/logic/sales-calculator.ts"
+				},
+				{
+					"id": "c-Report",
+					"name": "Report",
+					"kind": "interface",
+					"package": "pkg-logic",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ produced: number",
+						"+ sold: number",
+						"+ wastage: number",
+						"+ ratioUsed: number",
+						"+ breakdown: Breakdown"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/helpers/logic/sales-calculator.ts"
+				},
+				{
+					"id": "c-KachoriAnalyzer",
+					"name": "KachoriAnalyzer",
+					"kind": "class",
+					"package": "pkg-scripts",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["- menu: Serving[*]"],
+					"operations": [
+						"- solveTransaction(amount: number)",
+						"+ calculateWastage(produced: number, cashRevenue: number, upiAmounts: number[*]): ReportResults"
+					],
+					"literals": [],
+					"source": "scripts/wastage-calculator.ts"
+				},
+				{
+					"id": "c-ReportResults",
+					"name": "ReportResults",
+					"kind": "interface",
+					"package": "pkg-scripts",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ totalProduced: number",
+						"+ totalSold: number",
+						"+ wastage: number",
+						"+ upiPieces: number",
+						"+ cashPieces: number",
+						"+ servingBreakdown: Record<string, ServingStats>"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "scripts/wastage-calculator.ts"
+				},
+				{
+					"id": "c-ServingStats",
+					"name": "ServingStats",
+					"kind": "interface",
+					"package": "pkg-scripts",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ upiPlates: number", "+ cashPlates: number", "+ totalPlates: number"],
+					"operations": [],
+					"literals": [],
+					"source": "scripts/wastage-calculator.ts"
+				},
+				{
+					"id": "c-watage-serving-calculator",
+					"name": "watage-serving-calculator",
+					"kind": "class",
+					"package": "pkg-scripts",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": ["+ solveLMRS(production, revenue, menu, isPerfectClosure = false)"],
+					"literals": [],
+					"source": "scripts/watage-serving-calculator.js"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-6",
+					"kind": "dependency",
+					"source": "c-inventory-remote",
+					"target": "c-inventory",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-7",
+					"kind": "dependency",
+					"source": "c-menu-remote",
+					"target": "c-servingOption",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-8",
+					"kind": "dependency",
+					"source": "c-factor-type-remote",
+					"target": "c-factorType",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-9",
+					"kind": "association",
+					"source": "c-RatioWastageAnalyzer",
+					"target": "c-Serving",
+					"name": "sortedMenu",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": "*"
+				},
+				{
+					"id": "r-10",
+					"kind": "dependency",
+					"source": "c-RatioWastageAnalyzer",
+					"target": "c-Report",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-11",
+					"kind": "dependency",
+					"source": "c-KachoriAnalyzer",
+					"target": "c-ReportResults",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-12",
+					"kind": "composition",
+					"source": "c-ServingStats",
+					"target": "c-ReportResults",
+					"name": "servingBreakdown",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				}
+			]
+		}
+	]
+}

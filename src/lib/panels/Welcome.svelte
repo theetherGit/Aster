@@ -101,6 +101,14 @@
 					<span>{t('welcome.new')}</span>
 					<Kbd>{key('file.new')}</Kbd>
 				</Button>
+				<Button class="action" onclick={() => (ui.templatesOpen = true)}>
+					<span class="inline-flex items-baseline gap-1.5">
+						<span>{t('welcome.template')}</span>
+						<span class="text-(length:--text-small) text-chrome-muted"
+							>{t('welcome.templateHint')}</span
+						>
+					</span>
+				</Button>
 				<Button class="action" onclick={open}>
 					<span class="inline-flex items-baseline gap-1.5">
 						<span>{t('welcome.open')}</span>

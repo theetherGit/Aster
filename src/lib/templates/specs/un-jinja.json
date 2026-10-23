@@ -1,0 +1,270 @@
+{
+	"id": "un-jinja",
+	"name": "un-jinja",
+	"repo": "theetherGit/un-jinja",
+	"url": "https://github.com/theetherGit/un-jinja",
+	"summary": "A runtime-agnostic, zero-dependency Jinja2-like template engine for JavaScript.",
+	"description": "The render pipeline: the tokenizer splits a template into Tokens, the engine evaluates them against a Context with built-in and custom filters, and the resolver does path lookup and HTML escaping.",
+	"notes": "No classes in the source: tokenizer, resolver, engine and index are modules of functions; TokenType is a string-literal union modelled as an enum; Context, FilterFunction and FilterRegistry are type aliases modelled as member-less data types. There is no parser or AST: engine walks the flat token list directly, and the if-branch and loop.* shapes are unnamed inline objects, so they are left out. The '= {}' defaults on render's context and filters are omitted.",
+	"diagrams": [
+		{
+			"name": "Template pipeline",
+			"packages": [],
+			"classes": [
+				{
+					"id": "index",
+					"name": "index",
+					"kind": "class",
+					"package": null,
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ render(templateStr: string, context: Context, filters: FilterRegistry): string"
+					],
+					"literals": [],
+					"source": "src/index.ts"
+				},
+				{
+					"id": "engine",
+					"name": "engine",
+					"kind": "class",
+					"package": null,
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": ["- BUILT_IN_FILTERS: FilterRegistry"],
+					"operations": [
+						"+ render(templateStr: string, context: Context, filters: FilterRegistry): string",
+						"- evaluateTokens(tokens: Token[*], context: Context, customFilters: FilterRegistry, index: number = 0): string",
+						"- evaluateVariableExpression(expressionStr: string, context: Context, customFilters: FilterRegistry): any",
+						"- parseAndComputeMath(mathExpr: string, context: Context): number",
+						"- makeSafe(str: string): SafeString"
+					],
+					"literals": [],
+					"source": "src/engine.ts"
+				},
+				{
+					"id": "tokenizer",
+					"name": "tokenizer",
+					"kind": "class",
+					"package": null,
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": ["+ tokenize(templateStr: string): Token[*]"],
+					"literals": [],
+					"source": "src/tokenizer.ts"
+				},
+				{
+					"id": "resolver",
+					"name": "resolver",
+					"kind": "class",
+					"package": null,
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": ["- ESCAPE_MAP: Record<string, string>"],
+					"operations": [
+						"+ resolvePath(pathStr: string, context: Context): any",
+						"+ escapeHTML(str: unknown): string"
+					],
+					"literals": [],
+					"source": "src/resolver.ts"
+				},
+				{
+					"id": "Token",
+					"name": "Token",
+					"kind": "interface",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ type: TokenType", "+ value: string"],
+					"operations": [],
+					"literals": [],
+					"source": "src/tokenizer.ts"
+				},
+				{
+					"id": "TokenType",
+					"name": "TokenType",
+					"kind": "enum",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": ["TEXT", "VARIABLE", "EXPRESSION"],
+					"source": "src/tokenizer.ts"
+				},
+				{
+					"id": "SafeString",
+					"name": "SafeString",
+					"kind": "interface",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ __isSafe: boolean", "+ value: string"],
+					"operations": [],
+					"literals": [],
+					"source": "src/engine.ts"
+				},
+				{
+					"id": "Context",
+					"name": "Context",
+					"kind": "dataType",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "src/resolver.ts"
+				},
+				{
+					"id": "FilterRegistry",
+					"name": "FilterRegistry",
+					"kind": "dataType",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "src/resolver.ts"
+				},
+				{
+					"id": "FilterFunction",
+					"name": "FilterFunction",
+					"kind": "dataType",
+					"package": null,
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "src/resolver.ts"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-1",
+					"kind": "association",
+					"source": "Token",
+					"target": "TokenType",
+					"name": "type",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-2",
+					"kind": "aggregation",
+					"source": "FilterFunction",
+					"target": "FilterRegistry",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-3",
+					"kind": "dependency",
+					"source": "tokenizer",
+					"target": "Token",
+					"name": null,
+					"stereotype": "create",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-4",
+					"kind": "dependency",
+					"source": "engine",
+					"target": "tokenizer",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-5",
+					"kind": "dependency",
+					"source": "engine",
+					"target": "resolver",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-6",
+					"kind": "dependency",
+					"source": "engine",
+					"target": "Token",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-7",
+					"kind": "dependency",
+					"source": "engine",
+					"target": "SafeString",
+					"name": null,
+					"stereotype": "create",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-8",
+					"kind": "dependency",
+					"source": "engine",
+					"target": "FilterRegistry",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-9",
+					"kind": "dependency",
+					"source": "engine",
+					"target": "Context",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-10",
+					"kind": "dependency",
+					"source": "resolver",
+					"target": "Context",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-11",
+					"kind": "dependency",
+					"source": "index",
+					"target": "engine",
+					"name": "re-exports render",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-12",
+					"kind": "dependency",
+					"source": "index",
+					"target": "resolver",
+					"name": "re-exports types",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				}
+			]
+		}
+	]
+}

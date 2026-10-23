@@ -1,0 +1,911 @@
+{
+	"id": "doota",
+	"name": "Doota",
+	"repo": "ethercorps/doota",
+	"url": "https://github.com/ethercorps/doota",
+	"summary": "Doota is a self-hosted email app that runs on your own Cloudflare account: Email Routing delivers mail to Workers, which thread it into chat-style conversations stored encrypted in D1 and R2.",
+	"description": "The D1 mail schema (mailboxes, aliases, threads, shared messages, per-mailbox deliveries and triage, attachments, labels, outbound submissions) and how an inbound email moves from the Email Routing Worker through the queue consumer into those tables.",
+	"notes": "Tenant org_id FKs on message/delivery/thread_state/label/submission and secondary FKs (submission.fromAliasId/createdByUserId/apiKeyId, thread_label.mailboxId, delivery role 'from') are omitted to keep the diagram readable. Nullable-returning functions show the non-null type; union params use the first member; materializeDelivery's inline-object param is left untyped. The Worker class is the anonymous default export of apps/mail-in/src/index.ts, named after its wrangler name.",
+	"diagrams": [
+		{
+			"name": "Mail data model",
+			"packages": [
+				{
+					"id": "pkg-db",
+					"name": "db",
+					"parent": null
+				}
+			],
+			"classes": [
+				{
+					"id": "organization",
+					"name": "organization",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ name: string",
+						"+ slug: string",
+						"+ domain: string",
+						"+ zoneId: string[0..1]",
+						"+ status: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/auth.schema.ts"
+				},
+				{
+					"id": "user",
+					"name": "user",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ name: string",
+						"+ email: string",
+						"+ emailVerified: boolean",
+						"+ role: string[0..1]",
+						"+ twoFactorEnabled: boolean[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/auth.schema.ts"
+				},
+				{
+					"id": "mailbox",
+					"name": "mailbox",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ address: string",
+						"+ displayName: string[0..1]",
+						"+ isActive: boolean",
+						"+ isService: boolean",
+						"+ searchIndexed: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "mailbox_access",
+					"name": "mailbox_access",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ userId: string",
+						"+ mailboxId: string",
+						"+ canManage: boolean",
+						"+ canSend: boolean",
+						"+ assignedOnly: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "alias",
+					"name": "alias",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ mailboxId: string",
+						"+ address: string",
+						"+ label: string[0..1]",
+						"+ isEnabled: boolean",
+						"+ lastUsedAt: Date[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "thread",
+					"name": "thread",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ orgId: string",
+						"+ subjectNormalized: string[0..1]",
+						"+ lastMessageAt: Date[0..1]",
+						"+ createdAt: Date"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "message",
+					"name": "message",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ threadId: string",
+						"+ messageIdHeader: string",
+						"+ fromAddr: string[0..1]",
+						"+ subjectEnc: string[0..1]",
+						"+ r2RawKey: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "delivery",
+					"name": "delivery",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ messageId: string",
+						"+ mailboxId: string",
+						"+ role: string",
+						"+ viaAliasId: string[0..1]",
+						"+ isRead: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "thread_state",
+					"name": "thread_state",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ threadId: string",
+						"+ mailboxId: string",
+						"+ placement: string",
+						"+ isStarred: boolean",
+						"+ snoozedUntil: Date[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "attachment",
+					"name": "attachment",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ messageId: string",
+						"+ filename: string[0..1]",
+						"+ contentType: string[0..1]",
+						"+ size: number[0..1]",
+						"+ inline: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "label",
+					"name": "label",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ mailboxId: string[0..1]",
+						"+ name: string",
+						"+ color: string[0..1]",
+						"+ parentId: string[0..1]",
+						"+ notifyNewMail: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "thread_label",
+					"name": "thread_label",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ threadId: string",
+						"+ mailboxId: string",
+						"+ labelId: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "submission",
+					"name": "submission",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ messageId: string",
+						"+ mailboxId: string",
+						"+ status: string",
+						"+ undoUntil: Date[0..1]",
+						"+ idempotencyKey: string"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "submission_recipient",
+					"name": "submission_recipient",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ submissionId: string",
+						"+ address: string",
+						"+ role: string",
+						"+ status: string",
+						"+ bounceType: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-1",
+					"kind": "composition",
+					"source": "mailbox",
+					"target": "organization",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-2",
+					"kind": "composition",
+					"source": "thread",
+					"target": "organization",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-3",
+					"kind": "association",
+					"source": "mailbox_access",
+					"target": "user",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-4",
+					"kind": "association",
+					"source": "mailbox_access",
+					"target": "mailbox",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-5",
+					"kind": "composition",
+					"source": "alias",
+					"target": "mailbox",
+					"name": "forwards to",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-6",
+					"kind": "composition",
+					"source": "message",
+					"target": "thread",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-7",
+					"kind": "composition",
+					"source": "attachment",
+					"target": "message",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-8",
+					"kind": "association",
+					"source": "delivery",
+					"target": "message",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-9",
+					"kind": "association",
+					"source": "delivery",
+					"target": "mailbox",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-10",
+					"kind": "association",
+					"source": "delivery",
+					"target": "alias",
+					"name": "via",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "0..1"
+				},
+				{
+					"id": "r-11",
+					"kind": "association",
+					"source": "thread_state",
+					"target": "thread",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-12",
+					"kind": "association",
+					"source": "thread_state",
+					"target": "mailbox",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-13",
+					"kind": "association",
+					"source": "thread_state",
+					"target": "user",
+					"name": "assignee",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "0..1"
+				},
+				{
+					"id": "r-14",
+					"kind": "association",
+					"source": "label",
+					"target": "mailbox",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "0..1"
+				},
+				{
+					"id": "r-15",
+					"kind": "association",
+					"source": "thread_label",
+					"target": "thread",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-16",
+					"kind": "association",
+					"source": "thread_label",
+					"target": "label",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-17",
+					"kind": "association",
+					"source": "submission",
+					"target": "message",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-18",
+					"kind": "association",
+					"source": "submission",
+					"target": "mailbox",
+					"name": "sends as",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-19",
+					"kind": "composition",
+					"source": "submission_recipient",
+					"target": "submission",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				}
+			]
+		},
+		{
+			"name": "Inbound mail flow",
+			"packages": [
+				{
+					"id": "pkg-mail-in",
+					"name": "mail-in",
+					"parent": null
+				},
+				{
+					"id": "pkg-mail-core",
+					"name": "mail-core",
+					"parent": null
+				},
+				{
+					"id": "pkg-db",
+					"name": "db",
+					"parent": null
+				}
+			],
+			"classes": [
+				{
+					"id": "doota-mail-inbound",
+					"name": "doota-mail-inbound",
+					"kind": "class",
+					"package": "pkg-mail-in",
+					"stereotype": "worker",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ email(message: ForwardableEmailMessage, env: MailEnv)",
+						"+ queue(batch: MessageBatch<InboundJob>, env: MailEnv)"
+					],
+					"literals": [],
+					"source": "apps/mail-in/src/index.ts"
+				},
+				{
+					"id": "inbound-worker",
+					"name": "inbound-worker",
+					"kind": "class",
+					"package": "pkg-mail-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ handleEmail(message: EmailMessage, env: MailEnv)",
+						"+ isDmarcPass(authResults: string): boolean",
+						"- safeKey(id: string): string",
+						"- sha256Hex(buf: ArrayBuffer): string"
+					],
+					"literals": [],
+					"source": "packages/mail-core/src/inbound-worker.ts"
+				},
+				{
+					"id": "MailEnv",
+					"name": "MailEnv",
+					"kind": "dataType",
+					"package": "pkg-mail-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ DB: D1Database",
+						"+ MAIL_RAW: R2Bucket",
+						"+ MAIL_QUEUE: Queue<InboundJob>",
+						"+ MAIL_DEK: string",
+						"+ MAIL_SEARCH_KEY: string",
+						"+ MAIL_EVENTS: EventHubNamespace[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/mail-core/src/inbound-worker.ts"
+				},
+				{
+					"id": "InboundJob",
+					"name": "InboundJob",
+					"kind": "dataType",
+					"package": "pkg-mail-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ r2RawKey: string",
+						"+ orgId: string",
+						"+ resolvedMailboxId: string",
+						"+ viaAliasId: string[0..1]",
+						"+ envelopeFrom: string",
+						"+ dmarcPass: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/mail-core/src/inbound-worker.ts"
+				},
+				{
+					"id": "resolver",
+					"name": "resolver",
+					"kind": "class",
+					"package": "pkg-mail-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ resolveRecipient(db: Db, recipient: string): ResolvedRecipient",
+						"+ resolveSender(db: Db, userId: string, mailboxId: string, fromAliasId: string)",
+						"- splitAddress(address: string)"
+					],
+					"literals": [],
+					"source": "packages/mail-core/src/resolver.ts"
+				},
+				{
+					"id": "ResolvedRecipient",
+					"name": "ResolvedRecipient",
+					"kind": "dataType",
+					"package": "pkg-mail-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ orgId: string",
+						"+ mailboxId: string",
+						"+ viaAliasId: string[0..1]",
+						"+ subaddressTag: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/mail-core/src/resolver.ts"
+				},
+				{
+					"id": "crypto",
+					"name": "crypto",
+					"kind": "class",
+					"package": "pkg-mail-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ importKey(base64Key: string, keyId: string = \"0\"): ContentKey",
+						"+ encryptContent(ck: ContentKey, plaintext: string): string",
+						"+ decryptContent(ck: ContentKey, envelope: string): string",
+						"+ putEncryptedBlob(bucket: R2Like, key: string, ck: ContentKey, data: Uint8Array)",
+						"+ getDecryptedBlob(bucket: R2Like, key: string, ck: ContentKey): Uint8Array"
+					],
+					"literals": [],
+					"source": "packages/mail-core/src/crypto.ts"
+				},
+				{
+					"id": "queue-consumer",
+					"name": "queue-consumer",
+					"kind": "class",
+					"package": "pkg-mail-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ handleQueue(batch: QueueBatch, env: MailEnv)",
+						"- metadataStage(ctx: InboundStageCtx)",
+						"- rulesEvalStage(ctx: InboundStageCtx)",
+						"- placementStage(ctx: InboundStageCtx)",
+						"- notifyStage(ctx: InboundStageCtx)"
+					],
+					"literals": [],
+					"source": "packages/mail-core/src/queue-consumer.ts"
+				},
+				{
+					"id": "materialize",
+					"name": "materialize",
+					"kind": "class",
+					"package": "pkg-mail-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ materializeMessage(db: Db, orgId: string, parsed: ParsedMessage, deps: MaterializeDeps, searchIndexed: boolean = true)",
+						"+ materializeDelivery(db: Db, input)",
+						"- resolveThreadId(db: Db, orgId: string, parsed: ParsedMessage): string",
+						"- findMessageByHeaderId(db: Db, orgId: string, headerId: string)",
+						"- ensureThreadState(db: Db, orgId: string, threadId: string, mailboxId: string, policy: PlacementPolicy, role: string)"
+					],
+					"literals": [],
+					"source": "packages/mail-core/src/materialize.ts"
+				},
+				{
+					"id": "ParsedMessage",
+					"name": "ParsedMessage",
+					"kind": "dataType",
+					"package": "pkg-mail-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ messageIdHeader: string",
+						"+ inReplyTo: string[0..1]",
+						"+ references: string[0..1]",
+						"+ from: string[0..1]",
+						"+ subject: string[0..1]",
+						"+ r2RawKey: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/mail-core/src/materialize.ts"
+				},
+				{
+					"id": "SearchIndex",
+					"name": "SearchIndex",
+					"kind": "interface",
+					"package": "pkg-mail-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ index(input: IndexInput)",
+						"+ remove(messageId: string)",
+						"+ search(query: string, scope: SearchScope): SearchHit[*]"
+					],
+					"literals": [],
+					"source": "packages/mail-core/src/search-index.ts"
+				},
+				{
+					"id": "message",
+					"name": "message",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ threadId: string",
+						"+ messageIdHeader: string",
+						"+ fromAddr: string[0..1]",
+						"+ subjectEnc: string[0..1]",
+						"+ r2RawKey: string[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "delivery",
+					"name": "delivery",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ messageId: string",
+						"+ mailboxId: string",
+						"+ role: string",
+						"+ viaAliasId: string[0..1]",
+						"+ isRead: boolean"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				},
+				{
+					"id": "thread_state",
+					"name": "thread_state",
+					"kind": "class",
+					"package": "pkg-db",
+					"stereotype": "table",
+					"isAbstract": false,
+					"attributes": [
+						"+ id: string {id}",
+						"+ threadId: string",
+						"+ mailboxId: string",
+						"+ placement: string",
+						"+ isStarred: boolean",
+						"+ snoozedUntil: Date[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/db/src/mail.schema.ts"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-20",
+					"kind": "dependency",
+					"source": "doota-mail-inbound",
+					"target": "inbound-worker",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-21",
+					"kind": "dependency",
+					"source": "doota-mail-inbound",
+					"target": "queue-consumer",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-22",
+					"kind": "dependency",
+					"source": "inbound-worker",
+					"target": "MailEnv",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-23",
+					"kind": "dependency",
+					"source": "inbound-worker",
+					"target": "resolver",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-24",
+					"kind": "dependency",
+					"source": "resolver",
+					"target": "ResolvedRecipient",
+					"name": "returns",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-25",
+					"kind": "dependency",
+					"source": "inbound-worker",
+					"target": "crypto",
+					"name": "putEncryptedBlob",
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-26",
+					"kind": "dependency",
+					"source": "inbound-worker",
+					"target": "InboundJob",
+					"name": "enqueues",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-27",
+					"kind": "dependency",
+					"source": "queue-consumer",
+					"target": "InboundJob",
+					"name": "consumes",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-28",
+					"kind": "dependency",
+					"source": "queue-consumer",
+					"target": "crypto",
+					"name": "getDecryptedBlob",
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-29",
+					"kind": "dependency",
+					"source": "queue-consumer",
+					"target": "ParsedMessage",
+					"name": "builds",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-30",
+					"kind": "dependency",
+					"source": "queue-consumer",
+					"target": "materialize",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-31",
+					"kind": "dependency",
+					"source": "materialize",
+					"target": "ParsedMessage",
+					"name": null,
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-32",
+					"kind": "dependency",
+					"source": "materialize",
+					"target": "SearchIndex",
+					"name": "index",
+					"stereotype": "uses",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-33",
+					"kind": "dependency",
+					"source": "materialize",
+					"target": "message",
+					"name": "upserts",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-34",
+					"kind": "dependency",
+					"source": "materialize",
+					"target": "delivery",
+					"name": "inserts",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-35",
+					"kind": "dependency",
+					"source": "materialize",
+					"target": "thread_state",
+					"name": "upserts",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				}
+			]
+		}
+	]
+}

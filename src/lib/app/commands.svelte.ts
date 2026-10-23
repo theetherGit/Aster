@@ -530,6 +530,15 @@ export const COMMANDS: AppCommand[] = [
 		run: () => void newProject()
 	},
 	{
+		// features.md M3, template gallery: no key in keyboard.md; the palette and File menu offer it.
+		id: 'file.newFromTemplate',
+		group: 'file',
+		label: () => t('templates.command'),
+		keys: [],
+		context: 'global',
+		run: () => (ui.templatesOpen = true)
+	},
+	{
 		id: 'file.open',
 		group: 'file',
 		label: () => t('file.open'),

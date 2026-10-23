@@ -163,6 +163,8 @@ class Ui {
 	/** features.md M2: ⌘P quick find. */
 	quickFindOpen = $state(false);
 	shortcutsOpen = $state(false);
+	/** The template gallery (features.md M3). */
+	templatesOpen = $state(false);
 	/** Board 19: the last removal, undoable from a toast. */
 	/** `save`: the ⌘S notice for a browser-only project, with Download .mdj and More formats…. */
 	toast: { text: string; undo: boolean; at: number; save?: boolean } | null = $state(null);

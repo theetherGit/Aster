@@ -8,6 +8,7 @@
 	import { OG_IMAGE } from '#lib/seo.ts';
 	import { ui } from '#lib/stores/ui.svelte.ts';
 	import UpdatePrompt from '#lib/panels/UpdatePrompt.svelte';
+	import TemplateGallery from '#lib/panels/TemplateGallery.svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Tooltip } from 'bits-ui';
 	import type { LayoutProps } from './$types';
@@ -60,6 +61,8 @@
 <Tooltip.Provider delayDuration={600} skipDelayDuration={300}>
 	{@render children()}
 	<UpdatePrompt />
+	<!-- The template gallery opens from the welcome, the palette and Classic's File menu. -->
+	<TemplateGallery />
 </Tooltip.Provider>
 
 <!-- accessibility.md, Announcements: one polite and one assertive region, mounted once. -->

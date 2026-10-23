@@ -1,0 +1,404 @@
+{
+	"id": "sk-redis-session",
+	"name": "SvelteKit Redis Session",
+	"repo": "ethercorps/SK-Redis-SessionManager",
+	"url": "https://github.com/ethercorps/SK-Redis-SessionManager",
+	"summary": "A SvelteKit library that stores user sessions in Redis behind signed cookies, with one session store per Redis client: ioredis, node-redis and Upstash.",
+	"description": "Shows the three session stores, the option interfaces they're built from, the shared cookie and signing helpers, and how an example app wires a store into its hooks.server handle.",
+	"notes": "There's no shared base class or interface: the three stores are copy-paste siblings that share only redisSessionOptions and the shared.ts helpers. Store methods return an anonymous { data, error, message } literal, written here as Promise<object>. The @upstash/redis Redis class uses the shared.ts alias upstashRedisClient so it doesn't clash with ioredis Redis.",
+	"diagrams": [
+		{
+			"name": "Session stores",
+			"packages": [
+				{ "id": "pkg-lib", "name": "lib", "parent": null },
+				{ "id": "pkg-providers", "name": "providers", "parent": "pkg-lib" },
+				{ "id": "pkg-examples", "name": "examples", "parent": null }
+			],
+			"classes": [
+				{
+					"id": "c-ioredis-store",
+					"name": "IoRedisSessionStore",
+					"kind": "class",
+					"package": "pkg-providers",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"- redisClient: Redis {readOnly}",
+						"- secret: string {readOnly}",
+						"- cookieName: string {readOnly}",
+						"- sessionPrefix: string {readOnly}",
+						"- serializer: Serializer {readOnly}",
+						"- cookieOptions: CookieSerializeOptions {readOnly}"
+					],
+					"operations": [
+						"+ createSession(cookies: Cookies, sessionData: any, userId: string): Promise<object>",
+						"+ getSession(cookies: Cookies): Promise<object>",
+						"+ updateSession(cookies: Cookies, sessionData: object): Promise<object>",
+						"+ deleteSession(cookies: Cookies, userId: string): Promise<object>",
+						"+ deleteCookie(cookies: Cookies): Promise<void>"
+					],
+					"literals": [],
+					"source": "src/lib/providers/ioredis.ts"
+				},
+				{
+					"id": "c-redis-store",
+					"name": "RedisSessionStore",
+					"kind": "class",
+					"package": "pkg-providers",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"- redisClient: RedisClientType {readOnly}",
+						"- secret: string {readOnly}",
+						"- cookieName: string {readOnly}",
+						"- sessionPrefix: string {readOnly}",
+						"- serializer: Serializer {readOnly}",
+						"- cookieOptions: CookieSerializeOptions {readOnly}"
+					],
+					"operations": [
+						"+ createSession(cookies: Cookies, sessionData: any, userId: string): Promise<object>",
+						"+ getSession(cookies: Cookies): Promise<object>",
+						"+ updateSession(cookies: Cookies, sessionData: object): Promise<object>",
+						"+ deleteSession(cookies: Cookies, userId: string): Promise<object>",
+						"+ deleteCookie(cookies: Cookies): Promise<void>"
+					],
+					"literals": [],
+					"source": "src/lib/providers/redis.ts"
+				},
+				{
+					"id": "c-upstash-store",
+					"name": "upstashSessionStore",
+					"kind": "class",
+					"package": "pkg-providers",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"- redisClient: upstashRedisClient {readOnly}",
+						"- secret: string {readOnly}",
+						"- cookieName: string {readOnly}",
+						"- sessionPrefix: string {readOnly}",
+						"- serializer: Serializer {readOnly}",
+						"- cookieOptions: CookieSerializeOptions {readOnly}"
+					],
+					"operations": [
+						"+ createSession(cookies: Cookies, sessionData: any, userId: string): Promise<object>",
+						"+ getSession(cookies: Cookies): Promise<object>",
+						"+ updateSession(cookies: Cookies, sessionData: object): Promise<object>",
+						"+ deleteSession(cookies: Cookies, userId: string): Promise<object>",
+						"+ deleteCookie(cookies: Cookies): Promise<void>"
+					],
+					"literals": [],
+					"source": "src/lib/providers/upstash.ts"
+				},
+				{
+					"id": "c-base-options",
+					"name": "redisSessionOptions",
+					"kind": "interface",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ secret: string",
+						"+ cookieName: string[0..1]",
+						"+ signed: boolean[0..1]",
+						"+ useTTL: boolean[0..1]",
+						"+ serializer: Serializer[0..1]",
+						"+ cookiesOptions: CookieSerializeOptions[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-ioredis-options",
+					"name": "ioRedisSessionOptions",
+					"kind": "interface",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ redisClient: Redis"],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-node-options",
+					"name": "nodeRedisSessionOptions",
+					"kind": "interface",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ redisClient: RedisClientType"],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-upstash-options",
+					"name": "upstashRedisSessionOptions",
+					"kind": "interface",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ redisClient: upstashRedisClient"],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-cookie-options",
+					"name": "CookieSerializeOptions",
+					"kind": "interface",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ domain: string[0..1]",
+						"+ expires: Date[0..1]",
+						"+ httpOnly: boolean[0..1]",
+						"+ maxAge: number[0..1]",
+						"+ path: string[0..1]",
+						"+ secure: boolean[0..1]"
+					],
+					"operations": ["+ encode(value: string): string"],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-serializer",
+					"name": "Serializer",
+					"kind": "dataType",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ stringify: Function", "+ parse: Function"],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-shared",
+					"name": "shared",
+					"kind": "class",
+					"package": "pkg-lib",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [
+						"+ defaultExpireSeconds: number = 86400 {readOnly}",
+						"+ defaultRenewBeforeSeconds: number = 1800 {readOnly}",
+						"+ defaultCookiesOption: CookieSerializeOptions {readOnly}"
+					],
+					"operations": [
+						"+ generateRandomString(size: number, alphabet: string): string",
+						"+ getSessionKey(sessionPrefix: string, sessionId: string): string",
+						"+ signSessionKey(key: string, secret: string): Promise<string>",
+						"+ verifySignature(signedCookie: string, secret: string): Promise<string>",
+						"+ validateCookie(cookies: Cookies, cookieName: string, secret: string, signedCookies: boolean): Promise<object>"
+					],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-lib-ioredis",
+					"name": "Redis",
+					"kind": "class",
+					"package": null,
+					"stereotype": "library",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-lib-node-redis",
+					"name": "RedisClientType",
+					"kind": "class",
+					"package": null,
+					"stereotype": "library",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-lib-upstash",
+					"name": "upstashRedisClient",
+					"kind": "class",
+					"package": null,
+					"stereotype": "library",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "src/lib/shared.ts"
+				},
+				{
+					"id": "c-hooks",
+					"name": "hooks.server",
+					"kind": "class",
+					"package": "pkg-examples",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": ["+ handle: Handle"],
+					"operations": [],
+					"literals": [],
+					"source": "examples/ioredis/src/hooks.server.ts"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-1",
+					"kind": "generalization",
+					"source": "c-ioredis-options",
+					"target": "c-base-options",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-2",
+					"kind": "generalization",
+					"source": "c-node-options",
+					"target": "c-base-options",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-3",
+					"kind": "generalization",
+					"source": "c-upstash-options",
+					"target": "c-base-options",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-4",
+					"kind": "association",
+					"source": "c-base-options",
+					"target": "c-cookie-options",
+					"name": "cookiesOptions",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": "0..1"
+				},
+				{
+					"id": "r-5",
+					"kind": "association",
+					"source": "c-base-options",
+					"target": "c-serializer",
+					"name": "serializer",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": "0..1"
+				},
+				{
+					"id": "r-6",
+					"kind": "dependency",
+					"source": "c-ioredis-store",
+					"target": "c-ioredis-options",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-7",
+					"kind": "dependency",
+					"source": "c-redis-store",
+					"target": "c-node-options",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-8",
+					"kind": "dependency",
+					"source": "c-upstash-store",
+					"target": "c-upstash-options",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-9",
+					"kind": "association",
+					"source": "c-ioredis-store",
+					"target": "c-lib-ioredis",
+					"name": "redisClient",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-10",
+					"kind": "association",
+					"source": "c-redis-store",
+					"target": "c-lib-node-redis",
+					"name": "redisClient",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-11",
+					"kind": "association",
+					"source": "c-upstash-store",
+					"target": "c-lib-upstash",
+					"name": "redisClient",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": "1"
+				},
+				{
+					"id": "r-12",
+					"kind": "dependency",
+					"source": "c-ioredis-store",
+					"target": "c-shared",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-13",
+					"kind": "dependency",
+					"source": "c-redis-store",
+					"target": "c-shared",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-14",
+					"kind": "dependency",
+					"source": "c-upstash-store",
+					"target": "c-shared",
+					"name": null,
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-15",
+					"kind": "dependency",
+					"source": "c-hooks",
+					"target": "c-ioredis-store",
+					"name": "sessionManager",
+					"stereotype": "use",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				}
+			]
+		}
+	]
+}
