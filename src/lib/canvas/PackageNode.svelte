@@ -32,10 +32,7 @@
 	function onkeydown(e: KeyboardEvent) {
 		const mod = e.metaKey || e.ctrlKey;
 		if (!mod && !e.altKey) e.stopPropagation();
-		if (e.key === 'Escape') {
-			selection.editing = null;
-			canvasFocus.focus();
-		} else if (e.key === 'Enter') commit(true);
+		if (e.key === 'Escape' || e.key === 'Enter') commit(true);
 		else return;
 		e.preventDefault();
 		e.stopPropagation();

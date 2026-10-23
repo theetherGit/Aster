@@ -12,7 +12,7 @@
 
 	// An object (M3.2), as StarUML draws one: the underlined "name: Class" over its slots. One
 	// multi-line editor, as a note has: the label on the first line, a slot per line after it.
-	// ⌘↩ or leaving the field commits; Esc puts the text back.
+	// ⌘↩, Esc or leaving the field commits; ⌘Z takes it back.
 	let { id, data, selected }: NodeProps<InstanceFlowNode> = $props();
 	const o = $derived(data.instance);
 	let draft = $state('');
@@ -28,16 +28,11 @@
 		if (selection.editing?.id === id) selection.editing = null;
 		if (refocus) canvasFocus.focus();
 	}
-	function cancel() {
-		selection.editing = null;
-		canvasFocus.focus();
-	}
 	// Esc and ⌘↩ are the editor's; every other chord goes on to the window handler (⌘S, ⌘Z …).
 	function onkeydown(e: KeyboardEvent) {
 		const mod = e.metaKey || e.ctrlKey;
 		if (!mod && !e.altKey) e.stopPropagation();
-		if (e.key === 'Escape') cancel();
-		else if (e.key === 'Enter' && mod) commit(true);
+		if (e.key === 'Escape' || (e.key === 'Enter' && mod)) commit(true);
 		else return;
 		e.preventDefault();
 		e.stopPropagation();

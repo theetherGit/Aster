@@ -10,7 +10,7 @@
 	import { elementSummary } from './summary.ts';
 
 	// A note (folded corner, ui.md: 12 px, min 120×60) or a free text element; the same
-	// multi-line editor for both. ⌘↩ or leaving the field commits; Esc puts the text back.
+	// multi-line editor for both. ⌘↩, Esc or leaving the field commits; ⌘Z takes it back.
 	// Only the keys that end editing return focus to the canvas: a blur went somewhere on purpose.
 	let { id, data, selected }: NodeProps<NoteFlowNode> = $props();
 	const el = $derived(data.element);
@@ -25,17 +25,11 @@
 		if (selection.editing?.id === id) selection.editing = null;
 		if (refocus) canvasFocus.focus();
 	}
-	function cancel() {
-		draft = el.text;
-		selection.editing = null;
-		canvasFocus.focus();
-	}
 	// Esc and ⌘↩ are the editor's; every other chord goes on to the window handler (⌘S, ⌘Z …).
 	function onkeydown(e: KeyboardEvent) {
 		const mod = e.metaKey || e.ctrlKey;
 		if (!mod && !e.altKey) e.stopPropagation();
-		if (e.key === 'Escape') cancel();
-		else if (e.key === 'Enter' && mod) commit(true);
+		if (e.key === 'Escape' || (e.key === 'Enter' && mod)) commit(true);
 		else return;
 		e.preventDefault();
 		e.stopPropagation();

@@ -117,8 +117,8 @@
 		if (!mod && !e.altKey) e.stopPropagation();
 		if (e.key === 'Escape') {
 			if (open) return; // Bits closes the list; the next Esc ends editing
-			// Back to the text as it was; committing it removes a blank line ⌘↩ inserted.
-			draft = initial;
+			// Keeps what was typed, as leaving does (⌘Z takes it back); a blank line ⌘↩
+			// inserted is still removed by the empty commit.
 			commit();
 			endEditing();
 		} else if (e.key === 'Enter' && e.altKey && !mod) {

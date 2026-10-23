@@ -66,7 +66,6 @@ test('keyboard-only: one Tab stop, arrows between Account and Customer, Tab thro
 	await page.keyboard.press('Enter');
 	const nameBox = canvas.getByRole('textbox', { name: 'Name' });
 	await expect(nameBox).toBeFocused();
-	await page.keyboard.type('Wallet');
 	await page.keyboard.press('Escape');
 	await expect(nameBox).toHaveCount(0);
 	await expect(account).toBeVisible();

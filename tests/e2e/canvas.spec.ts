@@ -85,12 +85,14 @@ test('keyboard only: create, name, nudge, delete from diagram and model, undo, r
 	await page.keyboard.press('ControlOrMeta+z');
 	await expect(book).toBeVisible();
 
-	// Esc while editing keeps the old name; Enter from the canvas reopens the editor.
+	// Enter from the canvas reopens the editor; Esc keeps what was typed and ⌘Z takes it back.
 	await page.keyboard.press('Enter');
 	await expect(input).toBeFocused();
 	await page.keyboard.type('Nope');
 	await page.keyboard.press('Escape');
-	await expect(node(page, 'Book')).toBeVisible();
+	await expect(node(page, 'Nope')).toBeVisible();
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(book).toBeVisible();
 	await expect(book).toBeFocused();
 
 	await page.keyboard.press('ControlOrMeta+Backspace');

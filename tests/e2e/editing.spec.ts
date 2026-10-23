@@ -103,6 +103,35 @@ test('inline UML text editing, keyboard only', async ({ page }) => {
 	await expect(lines(page, 'Book', 'attribute')).toHaveCount(3);
 });
 
+/** Esc on the canvas ends editing and keeps what was typed; ⌘Z takes it back (DECISIONS 2026-10-23). */
+test('Esc keeps a typed name, member line and note, and ⌘Z takes each back', async ({ page }) => {
+	const canvas = canvasOf(page);
+	const nameBox = canvas.getByRole('textbox', { name: 'Name' });
+	const attr = canvas.getByRole('combobox', { name: 'Attribute line' });
+
+	await page.keyboard.press('c');
+	await typeInto(page, nameBox, 'Wallet');
+	await page.keyboard.press('Escape');
+	await expect(node(page, 'Wallet')).toHaveCount(1);
+	await expectKeyboardOnCanvas(page);
+
+	await page.keyboard.press('Enter');
+	await expect(nameBox).toBeFocused();
+	await page.keyboard.press('Tab');
+	await typeInto(page, attr, '- coins: int');
+	await page.keyboard.press('Escape');
+	await expect(lines(page, 'Wallet', 'attribute')).toHaveText(['- coins: int']);
+	await page.keyboard.press('ControlOrMeta+z');
+	await expect(lines(page, 'Wallet', 'attribute')).toHaveCount(0);
+
+	await page.mouse.move(640, 640);
+	await page.keyboard.press('n');
+	const note = canvas.getByRole('textbox', { name: 'Note text' });
+	await typeInto(page, note, 'Holds coins');
+	await page.keyboard.press('Escape');
+	await expect(page.locator('.note-node[data-kind="note"]')).toContainText('Holds coins');
+});
+
 /** keyboard.md: ⌘⇧↑ / ⌘⇧↓ move a member to the top / bottom, on the canvas as in the inspector. */
 test('⌘⇧↓ and ⌘⇧↑ move the open line to the bottom and back to the top, the editor following', async ({
 	page
