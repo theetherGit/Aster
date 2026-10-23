@@ -87,8 +87,7 @@
 					{t('projects.title')}
 				</h1>
 				<p class="mt-1 text-(length:--text-body) text-chrome-muted">
-					{t('projects.intro')}{#if used}
-						{used}{/if}
+					{[t('projects.intro'), used].filter(Boolean).join(' ')}
 				</p>
 			</div>
 			{#if list?.length}

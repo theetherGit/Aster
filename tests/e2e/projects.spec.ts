@@ -62,6 +62,8 @@ test('all projects: one fallen off Recent is listed, opens by its address, downl
 
 	// Download writes the project's own format, named after it.
 	await page.goto('/projects');
+	// The storage sentence follows the intro as its own sentence.
+	await expect(page.locator('#projects-title + p')).toContainText(/file\. Aster takes/);
 	const download = page.waitForEvent('download');
 	await page.getByRole('button', { name: 'Download Library' }).click();
 	const file = await download;
