@@ -540,11 +540,14 @@
 			width: Math.max(...boxes.map((b) => b.x + b.w)) - x,
 			height: Math.max(...boxes.map((b) => b.y + b.h)) - y
 		};
-		// Fitted and centred; a diagram too big to read whole opens at half size from its
-		// top-left instead, so a 5,000-class file draws a screenful, not every box.
+		// Fitted and centred; a large diagram (Svelte Flow culls above LARGE_DIAGRAM nodes) too big
+		// to read whole opens at half size from its top-left instead, so a 5,000-class file draws a
+		// screenful, not every box.
 		const fit = getViewportForBounds(bounds, el.clientWidth, el.clientHeight, 0.1, 1, 0.1);
 		const MIN = 0.5;
-		return fit.zoom >= MIN ? fit : { x: GRID * 2 - x * MIN, y: GRID * 2 - y * MIN, zoom: MIN };
+		return fit.zoom >= MIN || boxes.length <= LARGE_DIAGRAM
+			? fit
+			: { x: GRID * 2 - x * MIN, y: GRID * 2 - y * MIN, zoom: MIN };
 	}
 	$effect(() => {
 		const key = `${projectStore.opened}/${projectStore.activeDiagramId}`;

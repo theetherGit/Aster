@@ -43,33 +43,25 @@ export interface LayoutResult {
 	sizes: Map<Id, { w: number; h: number }>;
 }
 
-/** ui.md: a package is at least 240 × 160 and its tab 24 px high; members sit a grid step inside. */
-const FRAME_MIN = '(240.0,160.0)';
-const FRAME_PADDING = `[top=${24 + GRID * 2},left=${GRID * 2},bottom=${GRID * 2},right=${GRID * 2}]`;
-
 const GAP = GRID * 2;
 
 export async function layout(
 	elk: ELK,
 	input: LayoutInput,
-	{ algorithm, direction, aspect = 1.6 }: LayoutOptions,
+	options: LayoutOptions,
 	origin: Point
 ): Promise<LayoutResult> {
+	if (input.nodes.some((n) => n.frame)) return nested(elk, input, options, origin);
+	const { algorithm, direction, aspect = 1.6 } = options;
 	const vertical = direction === 'DOWN' || direction === 'UP';
 	const linked = new Set(input.edges.flatMap((e) => [e.source, e.target]));
 	const nodes = input.nodes;
-	// A package frame and what it holds go to ELK as one compound node; only a lone box at the top
-	// level goes to the loose block.
-	const frames = new Set(nodes.filter((n) => n.frame).map((n) => n.id));
-	const parentOf = (n: LayoutInput['nodes'][number]) =>
-		n.parent && frames.has(n.parent) ? n.parent : undefined;
-	const graphed = nodes.filter((n) => linked.has(n.id) || frames.has(n.id) || parentOf(n));
-	const hierarchical = frames.size > 0;
+	const graphed = nodes.filter((n) => linked.has(n.id));
 	// The loose block keeps the order its boxes have now, read the way the block fills: down the
 	// columns beside a top-to-bottom layout, along the rows otherwise. A re-run refills it as is.
 	const byColumn = graphed.length > 0 && vertical;
 	const loose = nodes
-		.filter((n) => !graphed.includes(n))
+		.filter((n) => !linked.has(n.id))
 		.sort((a, b) => {
 			const [ax, ay, bx, by] = [a.x ?? 0, a.y ?? 0, b.x ?? 0, b.y ?? 0];
 			return byColumn ? ax - bx || ay - by : ay - by || ax - bx;
@@ -113,7 +105,6 @@ export async function layout(
 
 	const positions = new Map<Id, Point>();
 	const waypoints = new Map<Id, Point[]>();
-	const sizes = new Map<Id, { w: number; h: number }>();
 	let main = { right: 0, bottom: 0 };
 
 	if (graphed.length) {
@@ -137,51 +128,20 @@ export async function layout(
 				'elk.spacing.edgeEdge': String(labelled ? GRID : GRID / 2),
 				'elk.layered.spacing.edgeEdgeBetweenLayers': String(labelled ? GRID : GRID / 2),
 				'elk.layered.spacing.edgeNodeBetweenLayers': String(GRID),
-				'elk.spacing.componentComponent': String(GRID * 4),
-				// Packages (M3.1): one layout across the frames, lines between them included, every
-				// coordinate on the root's.
-				...(hierarchical && {
-					'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
-					'elk.json.shapeCoords': 'ROOT',
-					'elk.json.edgeCoords': 'ROOT'
-				})
+				'elk.spacing.componentComponent': String(GRID * 4)
 			},
-			children: elkChildren(undefined),
+			children: graphed.map((n) => ({
+				id: n.id,
+				width: n.w,
+				height: n.h,
+				...(ports.has(n.id)
+					? { ports: ports.get(n.id), layoutOptions: { 'elk.portConstraints': 'FREE' } }
+					: {})
+			})),
 			edges: elkEdges
 		};
-		function elkChildren(parent: Id | undefined): ElkNode[] {
-			return graphed
-				.filter((n) => parentOf(n) === parent)
-				.map((n): ElkNode =>
-					frames.has(n.id)
-						? {
-								id: n.id,
-								width: n.w,
-								height: n.h,
-								layoutOptions: {
-									'elk.padding': FRAME_PADDING,
-									'elk.nodeSize.constraints': '[MINIMUM_SIZE]',
-									'elk.nodeSize.minimum': FRAME_MIN
-								},
-								children: elkChildren(n.id)
-							}
-						: {
-								id: n.id,
-								width: n.w,
-								height: n.h,
-								...(ports.has(n.id)
-									? { ports: ports.get(n.id), layoutOptions: { 'elk.portConstraints': 'FREE' } }
-									: {})
-							}
-				);
-		}
 		const out = await elk.layout(graph);
-		const flat = (list: ElkNode[]): ElkNode[] =>
-			list.flatMap((n) => [n, ...flat(n.children ?? [])]);
-		const placed = flat(out.children ?? []);
-		for (const n of placed)
-			if (frames.has(n.id))
-				sizes.set(n.id, { w: Math.round(n.width ?? 0), h: Math.round(n.height ?? 0) });
+		const placed = out.children ?? [];
 		const dx = -Math.min(...placed.map((n) => n.x ?? 0));
 		const dy = -Math.min(...placed.map((n) => n.y ?? 0));
 		const shift = (p: { x: number; y: number }) => ({ x: p.x + dx, y: p.y + dy });
@@ -262,6 +222,105 @@ export async function layout(
 	const place = (p: Point) => ({ x: Math.round(p.x + ox), y: Math.round(p.y + oy) });
 	for (const [id, p] of positions) positions.set(id, place(p));
 	for (const [id, points] of waypoints) waypoints.set(id, points.map(place));
+	return { positions, waypoints, sizes: new Map() };
+}
+
+/** ui.md: a package is at least 240 × 160 and its tab 24 px high; members sit two grid steps inside. */
+const PAD = GRID * 2;
+const PAD_TOP = 24 + GRID * 2;
+
+/**
+ * Packages (M3.1): each frame is laid out on its own, innermost first, so the members it holds pack
+ * into a block of its own shape (owner's report: one compound pass strung a package's unconnected
+ * members out in a single row); then the level above lays out with each frame as one fixed box. A
+ * line between two frames' members is given to that level between the boxes that hold its ends,
+ * and draws its own route afterwards (no bends): only a line inside one level gets ELK's.
+ */
+async function nested(
+	elk: ELK,
+	input: LayoutInput,
+	options: LayoutOptions,
+	origin: Point
+): Promise<LayoutResult> {
+	const frames = new Set(input.nodes.filter((n) => n.frame).map((n) => n.id));
+	const byId = new Map(input.nodes.map((n) => [n.id, n]));
+	const parentOf = (id: Id) => {
+		const p = byId.get(id)?.parent;
+		return p && frames.has(p) ? p : undefined;
+	};
+	/** The box directly in `frame` (or at the top) that holds `id`, if `id` is under it. */
+	const holder = (id: Id, frame: Id | undefined): Id | undefined => {
+		for (let cur: Id | undefined = id; cur !== undefined; cur = parentOf(cur))
+			if (parentOf(cur) === frame) return cur;
+		return undefined;
+	};
+	const rel = new Map<Id, Point>();
+	const sizes = new Map<Id, { w: number; h: number }>();
+	const bends: { frame: Id | undefined; id: Id; points: Point[] }[] = [];
+
+	async function level(frame: Id | undefined): Promise<{ w: number; h: number }> {
+		const members = input.nodes.filter((n) => parentOf(n.id) === frame);
+		const boxes: LayoutInput['nodes'] = [];
+		for (const m of members) {
+			const size = frames.has(m.id) ? await level(m.id) : { w: m.w, h: m.h };
+			if (frames.has(m.id)) sizes.set(m.id, size);
+			boxes.push({ id: m.id, w: size.w, h: size.h, x: m.x, y: m.y });
+		}
+		const edges: LayoutInput['edges'] = [];
+		const lifted = new Set<string>();
+		for (const e of input.edges) {
+			const s = holder(e.source, frame);
+			const t = holder(e.target, frame);
+			if (!s || !t || s === t) continue;
+			if (s === e.source && t === e.target) {
+				edges.push(e);
+				continue;
+			}
+			const key = `${s}\u0000${t}`;
+			if (lifted.has(key)) continue;
+			lifted.add(key);
+			edges.push({ id: `\u0000lift\u0000${key}`, source: s, target: t, upward: e.upward });
+		}
+		const out = await layout(elk, { nodes: boxes, edges }, options, { x: 0, y: 0 });
+		let right = 0;
+		let bottom = 0;
+		for (const b of boxes) {
+			const at = out.positions.get(b.id)!;
+			rel.set(b.id, at);
+			right = Math.max(right, at.x + b.w);
+			bottom = Math.max(bottom, at.y + b.h);
+		}
+		for (const [id, points] of out.waypoints)
+			if (!id.startsWith('\u0000lift')) bends.push({ frame, id, points });
+		return { w: Math.max(240, right + PAD * 2), h: Math.max(160, bottom + PAD_TOP + PAD) };
+	}
+	await level(undefined);
+
+	// Absolute places: the top level at the origin, a frame's members inside its padding.
+	const positions = new Map<Id, Point>();
+	const offsets = new Map<Id | undefined, Point>([[undefined, origin]]);
+	const place = (frame: Id | undefined) => {
+		const o = offsets.get(frame)!;
+		for (const n of input.nodes)
+			if (parentOf(n.id) === frame) {
+				const r = rel.get(n.id)!;
+				const at = { x: Math.round(o.x + r.x), y: Math.round(o.y + r.y) };
+				positions.set(n.id, at);
+				if (frames.has(n.id)) {
+					offsets.set(n.id, { x: at.x + PAD, y: at.y + PAD_TOP });
+					place(n.id);
+				}
+			}
+	};
+	place(undefined);
+	const waypoints = new Map<Id, Point[]>();
+	for (const { frame, id, points } of bends) {
+		const o = offsets.get(frame)!;
+		waypoints.set(
+			id,
+			points.map((p) => ({ x: Math.round(p.x + o.x), y: Math.round(p.y + o.y) }))
+		);
+	}
 	return { positions, waypoints, sizes };
 }
 
