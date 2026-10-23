@@ -778,7 +778,7 @@
 									>{/if}
 								<!-- The documentation's first line; read as the row's description, not its name. -->
 								{#if row.doc}<span
-										class="ms-2 min-w-0 truncate text-(length:--text-small) text-chrome-muted"
+										class="ms-2 min-w-0 flex-1 basis-0 truncate text-(length:--text-small) text-chrome-muted"
 										id="outline-doc-{i}"
 										aria-hidden="true"
 										title={row.doc}>{row.doc}</span
