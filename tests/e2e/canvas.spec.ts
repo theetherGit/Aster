@@ -128,3 +128,63 @@ test('new classes land in free space, never on top of each other', async ({ page
 	expect(apart).toBe(true);
 	expect(Math.abs(b.x - a.x) + Math.abs(b.y - a.y)).toBeLessThan(400); // near, not flung away
 });
+
+/** UX audit 2026-10-23: the inspector sliding in must not throw the diagram across the screen. */
+test('a class under the inspector is panned into view by the least distance, not centred', async ({
+	page
+}) => {
+	await page.goto('/design/new');
+	const canvas = canvasOf(page);
+	await expect(canvas).toBeFocused();
+	const box = (await canvas.boundingBox())!;
+	await page.mouse.move(box.x + 360, box.y + 200);
+	await create(page, 'c', 'Wallet');
+	await page.keyboard.press('Escape');
+	await page.keyboard.press('Escape');
+	// The inspector folds away with the selection; wait for the paper to be whole again.
+	await expect.poll(async () => (await canvas.boundingBox())!.width).toBe(box.width);
+	const before = (await node(page, 'Wallet').boundingBox())!;
+
+	// Near the right edge: the inspector that opens with the new class covers it.
+	await page.mouse.click(box.x + box.width - 180, box.y + 420);
+	await create(page, 'c', 'Coin');
+	await page.keyboard.press('Escape');
+	await page.keyboard.press('Escape');
+	await expect(node(page, 'Coin')).toBeVisible();
+	// Any pan animates: wait until the view stops moving.
+	let last = '';
+	await expect
+		.poll(
+			async () => {
+				const now = await page.locator('.svelte-flow__viewport').getAttribute('style');
+				const still = now === last;
+				last = now ?? '';
+				return still;
+			},
+			{ intervals: [150] }
+		)
+		.toBe(true);
+	// Centring it shoved Wallet under the toolbox; the least pan leaves it in view.
+	const after = (await node(page, 'Wallet').boundingBox())!;
+	const tools = (await page.getByRole('toolbar', { name: 'Toolbox' }).boundingBox())!;
+	expect(after.x).toBeGreaterThan(tools.x + tools.width);
+	expect(Math.abs(after.y - before.y)).toBeLessThan(1);
+});
+
+test('a diagram opens fitted beside the toolbox and under the strip, not beneath them', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1366, height: 768 });
+	await page.goto('/design/demo');
+	const frame = page.locator('.svelte-flow__node').filter({ hasText: 'model' }).first();
+	await expect(frame).toBeVisible();
+	const tools = (await page.getByRole('toolbar', { name: 'Toolbox' }).boundingBox())!;
+	expect((await frame.boundingBox())!.x).toBeGreaterThan(tools.x + tools.width);
+
+	// ⌘9 fits the same way.
+	await page.keyboard.press('ControlOrMeta+=');
+	await page.keyboard.press('ControlOrMeta+9');
+	await expect
+		.poll(async () => (await frame.boundingBox())!.x - (tools.x + tools.width))
+		.toBeGreaterThan(0);
+});

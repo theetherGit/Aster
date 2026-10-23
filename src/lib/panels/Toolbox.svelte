@@ -61,6 +61,7 @@
 <Toolbar.Root
 	orientation="vertical"
 	aria-label={t('ui.toolbox')}
+	data-toolbox
 	style="top: calc(var(--space-3) + var(--canvas-inset-top, 0px))"
 	class="absolute start-3 z-(--z-toolbox) rounded-menu border border-chrome-border bg-chrome-bg p-1.5 shadow-float"
 >

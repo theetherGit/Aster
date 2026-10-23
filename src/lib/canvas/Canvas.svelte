@@ -92,6 +92,7 @@
 		setCenter,
 		fitView,
 		fitBounds,
+		getViewport,
 		setViewport
 	} = useSvelteFlow();
 
@@ -140,7 +141,10 @@
 			},
 			fitAll: () => {
 				touched = true;
-				fitView({ padding: 0.1, duration: dur(200) });
+				const { left, top } = covered();
+				const px = (n: number) => `${n + 40}px` as const;
+				const padding = { top: px(top), left: px(left), right: px(0), bottom: px(0) };
+				fitView({ padding, duration: dur(200) });
 			},
 			fitSelection: () => {
 				const r = rects();
@@ -303,17 +307,36 @@
 		hideTip();
 	}
 
-	/** Pan so the focused element is inside the viewport (accessibility.md); zoom stays. */
+	/** The paper the floating chrome covers: the toolbox at the start, the banner or strip on top. */
+	function covered() {
+		const box = el.getBoundingClientRect();
+		const tools =
+			el.parentElement?.querySelector('[data-toolbox]')?.getBoundingClientRect() ?? null;
+		const top = parseFloat(getComputedStyle(el).getPropertyValue('--canvas-inset-top')) || 0;
+		return { box, tools, top, left: tools ? Math.max(0, tools.right - box.left) : 0 };
+	}
+
+	/**
+	 * Pan the least distance that brings the focused element into view, clear of the toolbox and
+	 * banner (accessibility.md); zoom stays. Centring it threw the whole diagram across the screen
+	 * whenever the inspector slid in over a new class (UX audit 2026-10-23).
+	 */
 	function reveal(id: Id) {
 		const r = rects().get(id);
 		if (!r) return;
-		const box = el.getBoundingClientRect();
+		const { box, tools, top } = covered();
 		const a = flowToScreenPosition({ x: r.x, y: r.y });
 		const b = flowToScreenPosition({ x: r.x + r.w, y: r.y + r.h });
 		const m = 24;
-		if (a.x >= box.left + m && b.x <= box.right - m && a.y >= box.top + m && b.y <= box.bottom - m)
-			return;
-		setCenter(r.x + r.w / 2, r.y + r.h / 2, { zoom: getZoom(), duration: dur(160) });
+		const besideTools = tools && a.y < tools.bottom && b.y > tools.top;
+		// Too big to fit: line up its start; otherwise move just enough on each axis.
+		const shift = (lo: number, hi: number, from: number, to: number) =>
+			from < lo || to - from > hi - lo ? lo - from : to > hi ? hi - to : 0;
+		const dx = shift((besideTools ? tools.right : box.left) + m, box.right - m, a.x, b.x);
+		const dy = shift(box.top + top + m, box.bottom - m, a.y, b.y);
+		if (!dx && !dy) return;
+		const v = getViewport();
+		void setViewport({ x: v.x + dx, y: v.y + dy, zoom: v.zoom }, { duration: dur(160) });
 	}
 
 	// Roving focus in the DOM: after any re-render, the owner part takes real focus, but only while
@@ -543,7 +566,15 @@
 		// Fitted and centred; a large diagram (Svelte Flow culls above LARGE_DIAGRAM nodes) too big
 		// to read whole opens at half size from its top-left instead, so a 5,000-class file draws a
 		// screenful, not every box.
-		const fit = getViewportForBounds(bounds, el.clientWidth, el.clientHeight, 0.1, 1, 0.1);
+		let fit = getViewportForBounds(bounds, el.clientWidth, el.clientHeight, 0.1, 1, 0.1);
+		// ponytail: refit into the paper the toolbox and banner leave only when the plain fit lands
+		// under them, so a diagram already clear of them keeps its place (and its reviewed snapshot).
+		const { left, top } = covered();
+		if (fit.x + x * fit.zoom < left || fit.y + y * fit.zoom < top) {
+			const w = el.clientWidth - left;
+			const inner = getViewportForBounds(bounds, w, el.clientHeight - top, 0.1, 1, 0.1);
+			fit = { x: inner.x + left, y: inner.y + top, zoom: inner.zoom };
+		}
 		const MIN = 0.5;
 		return fit.zoom >= MIN || boxes.length <= LARGE_DIAGRAM
 			? fit
