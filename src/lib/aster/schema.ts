@@ -46,7 +46,7 @@ const fail = (path: string, message: string): never => {
 const isObj = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 // ---- primitives -------------------------------------------------------------
-// Each reader also describes itself as JSON Schema (2020-12), so the schema published at
+// Each reader also describes itself as JSON Schema (draft-07), so the schema published at
 // ASTER_SCHEMA is this validator, not a second copy that could drift (`asterJsonSchema`).
 
 export type JsonSchema = Record<string, unknown>;
@@ -118,12 +118,12 @@ function describe(v: unknown): string {
 			: String(v);
 }
 
-/** Named object schemas, published under `$defs` and referred to by `$ref`. */
+/** Named object schemas, published under `definitions` and referred to by `$ref`. */
 const DEFS = new Map<string, JsonSchema>();
 
 /**
  * A strict object: every key must be in `fields`; each field's reader runs; undefined results are
- * dropped. With a `name`, its JSON Schema is a `$defs` entry and readers refer to it.
+ * dropped. With a `name`, its JSON Schema is a `definitions` entry and readers refer to it.
  */
 function strict<T>(
 	fields: { [K in keyof T]-?: (v: unknown, path: string) => T[K] },
@@ -152,7 +152,7 @@ function strict<T>(
 			}
 			return out as T;
 		},
-		name ? { $ref: `#/$defs/${name}` } : schema
+		name ? { $ref: `#/definitions/${name}` } : schema
 	);
 }
 
@@ -495,18 +495,19 @@ export const validateAsterFile = strict<AsterFile>({
 });
 
 /**
- * The published JSON Schema (2020-12) of an `.aster` file, at ASTER_SCHEMA: written out of the
+ * The published JSON Schema (draft-07, which editors such as VS Code support in full) of an
+ * `.aster` file, at ASTER_SCHEMA: written out of the
  * validator above, so the two cannot disagree. `tests/unit/aster-schema.test.ts` keeps
  * `static/schema/v1.json` equal to it.
  */
 export function asterJsonSchema(): JsonSchema {
 	return {
-		$schema: 'https://json-schema.org/draft/2020-12/schema',
+		$schema: 'https://json-schema.org/draft-07/schema#',
 		$id: ASTER_SCHEMA,
 		title: 'Aster project',
 		description:
 			'An .aster file: an Aster (https://asteruml.app) UML project as JSON. Version 1. Aster validates every file it opens against the same rules.',
 		...schemaOf(validateAsterFile),
-		$defs: Object.fromEntries([...DEFS].sort(([a], [b]) => a.localeCompare(b)))
+		definitions: Object.fromEntries([...DEFS].sort(([a], [b]) => a.localeCompare(b)))
 	};
 }

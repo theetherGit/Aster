@@ -1,5 +1,5 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$schema": "https://json-schema.org/draft-07/schema#",
 	"$id": "https://asteruml.app/schema/v1.json",
 	"title": "Aster project",
 	"description": "An .aster file: an Aster (https://asteruml.app) UML project as JSON. Version 1. Aster validates every file it opens against the same rules.",
@@ -12,13 +12,13 @@
 			"const": 1
 		},
 		"meta": {
-			"$ref": "#/$defs/Meta"
+			"$ref": "#/definitions/Meta"
 		},
 		"origin": {
-			"$ref": "#/$defs/Origin"
+			"$ref": "#/definitions/Origin"
 		},
 		"project": {
-			"$ref": "#/$defs/Project"
+			"$ref": "#/definitions/Project"
 		}
 	},
 	"required": [
@@ -26,7 +26,7 @@
 		"project"
 	],
 	"additionalProperties": false,
-	"$defs": {
+	"definitions": {
 		"Attribute": {
 			"type": "object",
 			"properties": {
@@ -139,19 +139,19 @@
 				"attributes": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Attribute"
+						"$ref": "#/definitions/Attribute"
 					}
 				},
 				"operations": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Operation"
+						"$ref": "#/definitions/Operation"
 					}
 				},
 				"literals": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Literal"
+						"$ref": "#/definitions/Literal"
 					}
 				},
 				"packageId": {
@@ -199,16 +199,16 @@
 					"additionalProperties": {
 						"oneOf": [
 							{
-								"$ref": "#/$defs/NodeLayout"
+								"$ref": "#/definitions/NodeLayout"
 							},
 							{
-								"$ref": "#/$defs/EdgeLayout"
+								"$ref": "#/definitions/EdgeLayout"
 							}
 						]
 					}
 				},
 				"defaults": {
-					"$ref": "#/$defs/DisplayFlags"
+					"$ref": "#/definitions/DisplayFlags"
 				}
 			},
 			"required": [
@@ -293,7 +293,7 @@
 				"waypoints": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Point"
+						"$ref": "#/definitions/Point"
 					}
 				},
 				"lineStyle": {
@@ -311,25 +311,25 @@
 					"type": "object",
 					"properties": {
 						"name": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						},
 						"sourceMultiplicity": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						},
 						"targetMultiplicity": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						},
 						"sourceRole": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						},
 						"targetRole": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						},
 						"sourceProperty": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						},
 						"targetProperty": {
-							"$ref": "#/$defs/LabelOffset"
+							"$ref": "#/definitions/LabelOffset"
 						}
 					},
 					"required": [],
@@ -408,7 +408,7 @@
 				"slots": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Slot"
+						"$ref": "#/definitions/Slot"
 					}
 				},
 				"stereotype": {
@@ -544,7 +544,7 @@
 					"type": "string"
 				},
 				"flags": {
-					"$ref": "#/$defs/PartialDisplayFlags"
+					"$ref": "#/definitions/PartialDisplayFlags"
 				}
 			},
 			"required": [
@@ -606,7 +606,7 @@
 				"parameters": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Parameter"
+						"$ref": "#/definitions/Parameter"
 					}
 				},
 				"isStatic": {
@@ -799,25 +799,25 @@
 					"additionalProperties": {
 						"oneOf": [
 							{
-								"$ref": "#/$defs/Classifier"
+								"$ref": "#/definitions/Classifier"
 							},
 							{
-								"$ref": "#/$defs/Relationship"
+								"$ref": "#/definitions/Relationship"
 							},
 							{
-								"$ref": "#/$defs/Package"
+								"$ref": "#/definitions/Package"
 							},
 							{
-								"$ref": "#/$defs/Note"
+								"$ref": "#/definitions/Note"
 							},
 							{
-								"$ref": "#/$defs/TextElement"
+								"$ref": "#/definitions/TextElement"
 							},
 							{
-								"$ref": "#/$defs/Instance"
+								"$ref": "#/definitions/Instance"
 							},
 							{
-								"$ref": "#/$defs/Link"
+								"$ref": "#/definitions/Link"
 							}
 						]
 					}
@@ -825,13 +825,13 @@
 				"diagrams": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Diagram"
+						"$ref": "#/definitions/Diagram"
 					}
 				},
 				"unknown": {
 					"type": "array",
 					"items": {
-						"$ref": "#/$defs/Unknown"
+						"$ref": "#/definitions/Unknown"
 					}
 				},
 				"importedIds": {
@@ -886,10 +886,10 @@
 					"type": "string"
 				},
 				"sourceEnd": {
-					"$ref": "#/$defs/End"
+					"$ref": "#/definitions/End"
 				},
 				"targetEnd": {
-					"$ref": "#/$defs/End"
+					"$ref": "#/definitions/End"
 				}
 			},
 			"required": [

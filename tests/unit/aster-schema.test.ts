@@ -18,8 +18,8 @@ const schema = asterJsonSchema();
 /** A checker for exactly the keywords the schema uses; it says where and why a value fails. */
 function check(value: unknown, s: JsonSchema, path = '$'): string | null {
 	if (s.$ref) {
-		const name = String(s.$ref).replace('#/$defs/', '');
-		return check(value, (schema.$defs as Record<string, JsonSchema>)[name], path);
+		const name = String(s.$ref).replace('#/definitions/', '');
+		return check(value, (schema.definitions as Record<string, JsonSchema>)[name], path);
 	}
 	if ('const' in s && value !== s.const) return `${path}: not ${JSON.stringify(s.const)}`;
 	if (s.enum && !(s.enum as unknown[]).includes(value)) return `${path}: not in enum`;
