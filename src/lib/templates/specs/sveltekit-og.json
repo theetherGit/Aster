@@ -1,6 +1,6 @@
 {
 	"id": "sveltekit-og",
-	"name": "SvelteKit OG",
+	"name": "SvelteKit OG 4",
 	"repo": "ethercorps/sveltekit-og",
 	"url": "https://github.com/ethercorps/sveltekit-og",
 	"summary": "A SvelteKit library that generates Open Graph images from an HTML/CSS string or a Svelte component without a headless browser, using Satori and resvg or the Takumi engine.",
@@ -10,10 +10,26 @@
 		{
 			"name": "Public API",
 			"packages": [
-				{ "id": "pkg-lib", "name": "lib", "parent": null },
-				{ "id": "pkg-takumi", "name": "takumi", "parent": "pkg-lib" },
-				{ "id": "pkg-client", "name": "client", "parent": "pkg-lib" },
-				{ "id": "pkg-helpers", "name": "helpers", "parent": "pkg-lib" }
+				{
+					"id": "pkg-lib",
+					"name": "lib",
+					"parent": null
+				},
+				{
+					"id": "pkg-takumi",
+					"name": "takumi",
+					"parent": "pkg-lib"
+				},
+				{
+					"id": "pkg-client",
+					"name": "client",
+					"parent": "pkg-lib"
+				},
+				{
+					"id": "pkg-helpers",
+					"name": "helpers",
+					"parent": "pkg-lib"
+				}
 			],
 			"classes": [
 				{
@@ -397,11 +413,28 @@
 		},
 		{
 			"name": "Rendering pipeline",
+			"showPackages": false,
 			"packages": [
-				{ "id": "pkg-lib", "name": "lib", "parent": null },
-				{ "id": "pkg-helpers", "name": "helpers", "parent": "pkg-lib" },
-				{ "id": "pkg-providers", "name": "providers", "parent": "pkg-lib" },
-				{ "id": "pkg-takumi", "name": "takumi", "parent": "pkg-lib" }
+				{
+					"id": "pkg-lib",
+					"name": "lib",
+					"parent": null
+				},
+				{
+					"id": "pkg-helpers",
+					"name": "helpers",
+					"parent": "pkg-lib"
+				},
+				{
+					"id": "pkg-providers",
+					"name": "providers",
+					"parent": "pkg-lib"
+				},
+				{
+					"id": "pkg-takumi",
+					"name": "takumi",
+					"parent": "pkg-lib"
+				}
 			],
 			"classes": [
 				{

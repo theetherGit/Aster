@@ -40,7 +40,8 @@ async function laidOut(spec: TemplateSpec): Promise<TemplateLayout> {
 		}
 		for (const c of d.classes) {
 			const r = rects.get(c.id)!;
-			input.nodes.push({ id: c.id, w: r.w, h: r.h, parent: c.package ?? undefined });
+			const parent = c.package && frames.has(c.package) ? c.package : undefined;
+			input.nodes.push({ id: c.id, w: r.w, h: r.h, parent });
 		}
 		for (const r of d.relationships)
 			if (r.source !== r.target)

@@ -53,6 +53,11 @@ export interface TemplateRelationship {
 }
 export interface TemplateDiagram {
 	name: string;
+	/**
+	 * False: the classes keep their packages in the model, but this diagram draws no frames, for a
+	 * flow whose lines would cross a frame at every step.
+	 */
+	showPackages?: boolean;
 	packages: { id: string; name: string; parent: string | null }[];
 	classes: TemplateClass[];
 	relationships: TemplateRelationship[];
@@ -76,8 +81,8 @@ export type TemplateLayout = {
 
 /** A relationship's element id: unique across the template's diagrams. */
 export const relationshipId = (diagram: number, id: string) => `d${diagram}-${id}`;
-/** The packages a diagram draws: those holding one of its classes, and their parents. */
-export function framesOf(d: TemplateDiagram): string[] {
+/** The packages a diagram holds: those of its classes, and their parents. */
+function packagesOf(d: TemplateDiagram): string[] {
 	const out = new Set<string>();
 	const add = (id: string | null) => {
 		while (id && !out.has(id)) {
@@ -88,6 +93,9 @@ export function framesOf(d: TemplateDiagram): string[] {
 	for (const c of d.classes) add(c.package);
 	return d.packages.filter((p) => out.has(p.id)).map((p) => p.id);
 }
+/** The packages a diagram draws as frames. */
+export const framesOf = (d: TemplateDiagram): string[] =>
+	d.showPackages === false ? [] : packagesOf(d);
 
 /**
  * A new project from a template: its own id, named after the template. Without a layout (only
@@ -106,13 +114,16 @@ export function templateProject(spec: TemplateSpec, layout?: TemplateLayout): Pr
 				: { ...defaultNodeLayout(40 + (k % 4) * 260, 40 + Math.floor(k / 4) * 220), w, h };
 		};
 		// Packages first, at the back of the diagram (as addPackage puts them).
-		for (const [k, id] of framesOf(d).entries()) {
+		const frames = framesOf(d);
+		for (const id of packagesOf(d)) {
 			const p = d.packages.find((x) => x.id === id)!;
 			if (!project.elements.has(id))
 				project.elements.set(
 					id,
 					createPackage({ id, name: p.name, ...(p.parent && { parentId: p.parent }) })
 				);
+		}
+		for (const [k, id] of frames.entries()) {
 			diagram.elementIds.push(id);
 			diagram.layout.set(id, box(id, k, 240, 160));
 		}

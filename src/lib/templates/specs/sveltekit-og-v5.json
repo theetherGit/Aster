@@ -1,0 +1,816 @@
+{
+	"id": "sveltekit-og-v5",
+	"name": "SvelteKit OG 5 (next)",
+	"repo": "ethercorps/sveltekit-og",
+	"url": "https://github.com/ethercorps/sveltekit-og",
+	"summary": "The 5.0.0-next pre-release of SvelteKit OG: one API on the server and in the browser, Takumi by default and Satori on request, each engine an optional peer the app installs.",
+	"description": "The public API (one shared ImageResponse that the server and client entries extend, and options the engine field narrows) and the single render pipeline to a lazily loaded engine, stubbed when its peer is missing. v4 had a class and a render path per engine.",
+	"notes": "No Engine interface exists: Engine is the union \"takumi\" | \"satori\" (an attribute type here, not drawn), the two engine modules share render(vnode, options) only by convention, serverPlatform/clientPlatform are const objects drawn as classes realizing Platform, and the stub is source text from plugin.stubSource, not a class. ResponseOptions is folded into ImageResponseOptions; unions narrowed (render results drawn Promise<Uint8Array>, svg actually yields a string; Satori format string = png or svg; FontInput also admits FontDescriptor). Left out for the 14 limit: core/packages.ts (installMessage), helpers/response.ts, the memoized providers and client wasm/font loaders, FONT_CACHE_MAP, resolveFonts, ErrorCodes.",
+	"diagrams": [
+		{
+			"name": "Public API",
+			"packages": [
+				{
+					"id": "pkg-lib",
+					"name": "lib",
+					"parent": null
+				},
+				{
+					"id": "pkg-core",
+					"name": "core",
+					"parent": null
+				},
+				{
+					"id": "pkg-ssr",
+					"name": "ssr",
+					"parent": null
+				},
+				{
+					"id": "pkg-client",
+					"name": "client",
+					"parent": null
+				}
+			],
+			"classes": [
+				{
+					"id": "response",
+					"name": "Response",
+					"kind": "class",
+					"package": null,
+					"stereotype": "platform",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/image-response.ts"
+				},
+				{
+					"id": "core-image-response",
+					"name": "ImageResponse",
+					"kind": "class",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"<<create>> + ImageResponse(platform: Platform, element: T, options: ImageResponseOptions, props: Record<string, unknown>)",
+						"+ arrayBuffer(): Promise<ArrayBuffer>",
+						"+ blob(): Promise<Blob>",
+						"+ text(): Promise<string>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/image-response.ts"
+				},
+				{
+					"id": "ssr-image-response",
+					"name": "ImageResponse",
+					"kind": "class",
+					"package": "pkg-ssr",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"<<create>> + ImageResponse(element: T, options: ImageResponseOptions, props: PropsArg<T>)"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/ssr/render.ts"
+				},
+				{
+					"id": "client-image-response",
+					"name": "ImageResponse",
+					"kind": "class",
+					"package": "pkg-client",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"<<create>> + ImageResponse(element: T, options: ImageResponseOptions, props: PropsArg<T>)"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/client/render.ts"
+				},
+				{
+					"id": "ssr-render",
+					"name": "render",
+					"kind": "class",
+					"package": "pkg-ssr",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": ["+ serverPlatform: Platform {readOnly}"],
+					"operations": [
+						"+ createImage(element: T, options: ImageResponseOptions, props: PropsArg<T>): ImageResponse<T>",
+						"+ renderImage(element: T, options: ImageResponseOptions, props: PropsArg<T>): Promise<Uint8Array>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/ssr/render.ts"
+				},
+				{
+					"id": "client-render",
+					"name": "render",
+					"kind": "class",
+					"package": "pkg-client",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": ["+ clientPlatform: Platform {readOnly}"],
+					"operations": [
+						"+ createImage(element: T, options: ImageResponseOptions, props: PropsArg<T>): ImageResponse<T>",
+						"+ renderImage(element: T, options: ImageResponseOptions, props: PropsArg<T>): Promise<Uint8Array>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/client/render.ts"
+				},
+				{
+					"id": "image-response-options",
+					"name": "ImageResponseOptions",
+					"kind": "interface",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ status: number = 200",
+						"+ statusText: string = \"Success\"",
+						"+ headers: Record<string, string>[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/types.ts"
+				},
+				{
+					"id": "image-options",
+					"name": "ImageOptions",
+					"kind": "interface",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/types.ts"
+				},
+				{
+					"id": "base-options",
+					"name": "BaseOptions",
+					"kind": "interface",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ width: number = 1200",
+						"+ height: number = 630",
+						"+ fonts: FontInput[*]",
+						"+ debug: boolean = false"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/types.ts"
+				},
+				{
+					"id": "takumi-options",
+					"name": "TakumiOptions",
+					"kind": "interface",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ engine: Engine[0..1] = \"takumi\"",
+						"+ format: Format = \"png\"",
+						"+ quality: number[0..1]",
+						"+ stylesheets: string[*]",
+						"+ emoji: TakumiEmoji = \"twemoji\"",
+						"+ takumi: Partial<TakumiRenderOptions>[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/types.ts"
+				},
+				{
+					"id": "satori-options",
+					"name": "SatoriOptions",
+					"kind": "interface",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ engine: Engine = \"satori\"",
+						"+ format: string = \"png\"",
+						"+ emoji: SatoriEmoji = \"twemoji\"",
+						"+ tailwindConfig: SatoriLibOptions.tailwindConfig[0..1]",
+						"+ satori: Partial<SatoriLibOptions>[0..1]",
+						"+ resvg: ResvgRenderOptions[0..1]"
+					],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/types.ts"
+				},
+				{
+					"id": "base-font",
+					"name": "BaseFont",
+					"kind": "class",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ name: string",
+						"+ style: FontStyle = \"normal\"",
+						"+ weight: FontWeight = 400",
+						"+ data: MayBePromise<ArrayBuffer> {readOnly}"
+					],
+					"operations": ["<<create>> + BaseFont(name: string, options: BaseFontOptions)"],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/fonts.ts"
+				},
+				{
+					"id": "custom-font",
+					"name": "CustomFont",
+					"kind": "class",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"# input: MayBePromise<ArrayBuffer>",
+						"- promise: Promise<ArrayBuffer>[0..1]"
+					],
+					"operations": [
+						"<<create>> + CustomFont(name: string, input: MayBePromise<ArrayBuffer>, options: BaseFontOptions)"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/fonts.ts"
+				},
+				{
+					"id": "google-font",
+					"name": "GoogleFont",
+					"kind": "class",
+					"package": "pkg-lib",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [
+						"+ family: string",
+						"+ text: string[0..1]",
+						"- promise: Promise<ArrayBuffer>[0..1]"
+					],
+					"operations": ["<<create>> + GoogleFont(family: string, options: object)"],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/fonts.ts"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-1",
+					"kind": "generalization",
+					"source": "core-image-response",
+					"target": "response",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-2",
+					"kind": "generalization",
+					"source": "ssr-image-response",
+					"target": "core-image-response",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-3",
+					"kind": "generalization",
+					"source": "client-image-response",
+					"target": "core-image-response",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-4",
+					"kind": "dependency",
+					"source": "ssr-render",
+					"target": "ssr-image-response",
+					"name": "createImage",
+					"stereotype": "create",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-5",
+					"kind": "dependency",
+					"source": "client-render",
+					"target": "client-image-response",
+					"name": "createImage",
+					"stereotype": "create",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-6",
+					"kind": "dependency",
+					"source": "core-image-response",
+					"target": "image-response-options",
+					"name": "options",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-7",
+					"kind": "generalization",
+					"source": "image-response-options",
+					"target": "image-options",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-8",
+					"kind": "generalization",
+					"source": "takumi-options",
+					"target": "image-options",
+					"name": "engine omitted or \"takumi\"",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-9",
+					"kind": "generalization",
+					"source": "satori-options",
+					"target": "image-options",
+					"name": "engine: \"satori\"",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-10",
+					"kind": "generalization",
+					"source": "takumi-options",
+					"target": "base-options",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-11",
+					"kind": "generalization",
+					"source": "satori-options",
+					"target": "base-options",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-12",
+					"kind": "aggregation",
+					"source": "base-font",
+					"target": "base-options",
+					"name": "fonts",
+					"stereotype": null,
+					"sourceMultiplicity": "*",
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-13",
+					"kind": "generalization",
+					"source": "custom-font",
+					"target": "base-font",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-14",
+					"kind": "generalization",
+					"source": "google-font",
+					"target": "base-font",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				}
+			]
+		},
+		{
+			"name": "Render pipeline",
+			"showPackages": false,
+			"packages": [
+				{
+					"id": "pkg-lib",
+					"name": "lib",
+					"parent": null
+				},
+				{
+					"id": "pkg-core",
+					"name": "core",
+					"parent": null
+				},
+				{
+					"id": "pkg-engines",
+					"name": "engines",
+					"parent": "pkg-core"
+				},
+				{
+					"id": "pkg-ssr",
+					"name": "ssr",
+					"parent": null
+				},
+				{
+					"id": "pkg-client",
+					"name": "client",
+					"parent": null
+				},
+				{
+					"id": "pkg-helpers",
+					"name": "helpers",
+					"parent": null
+				}
+			],
+			"classes": [
+				{
+					"id": "core-render",
+					"name": "render",
+					"kind": "class",
+					"package": "pkg-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [
+						"- SATORI_FORMATS: Format[*] {readOnly}",
+						"- satoriEngine: Promise<satori>[0..1]",
+						"- takumiEngine: Promise<takumi>[0..1]"
+					],
+					"operations": [
+						"+ renderImage(element: Element, options: ImageResponseOptions, props: Record<string, unknown>, platform: Platform): Promise<Uint8Array>",
+						"+ imageResponseInit(element: Element, options: ImageResponseOptions, props: Record<string, unknown>, platform: Platform)",
+						"- assertFormat(engine: Engine, format: string)",
+						"- loadTakumi(): Promise<takumi>",
+						"- loadSatori(): Promise<satori>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/render.ts"
+				},
+				{
+					"id": "platform",
+					"name": "Platform",
+					"kind": "interface",
+					"package": "pkg-core",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ componentToHtml(component: AnyComponent, props: Record<string, unknown>): Promise<string>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/render.ts"
+				},
+				{
+					"id": "server-platform",
+					"name": "serverPlatform",
+					"kind": "class",
+					"package": "pkg-ssr",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ componentToHtml(component: AnyComponent, props: Record<string, unknown>): Promise<string>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/ssr/render.ts"
+				},
+				{
+					"id": "client-platform",
+					"name": "clientPlatform",
+					"kind": "class",
+					"package": "pkg-client",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ componentToHtml(component: AnyComponent, props: Record<string, unknown>): Promise<string>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/client/render.ts"
+				},
+				{
+					"id": "satori-assets",
+					"name": "SatoriAssets",
+					"kind": "interface",
+					"package": "pkg-engines",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ satori(): Promise<satori>",
+						"+ resvg(): Promise<Resvg>",
+						"+ fonts(): Promise<ResolvedFont[*]>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/engines/satori.ts"
+				},
+				{
+					"id": "tojsx",
+					"name": "toJSX",
+					"kind": "class",
+					"package": "pkg-helpers",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ createVNode(markup: string): VNode",
+						"- dropEmptyChildren(node: VNode): VNode"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/helpers/toJSX.ts"
+				},
+				{
+					"id": "core-fonts",
+					"name": "fonts",
+					"kind": "class",
+					"package": "pkg-core",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": ["- resolved: WeakMap<FontInput, Promise<ResolvedFont>> {readOnly}"],
+					"operations": [
+						"+ resolveFontInputs(fonts: FontInput[*]): Promise<ResolvedFont[*]>",
+						"- resolveFont(font: FontInput): Promise<ResolvedFont>",
+						"- loadFont(font: FontInput): Promise<ResolvedFont>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/fonts.ts"
+				},
+				{
+					"id": "engine-takumi",
+					"name": "takumi",
+					"kind": "class",
+					"package": "pkg-engines",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [
+						"- rendererPromise: Promise<Renderer>[0..1]",
+						"- registeredFontKeys: Set<string> {readOnly}"
+					],
+					"operations": [
+						"+ render(vnode: VNode, options: TakumiEngineOptions): Promise<Uint8Array>",
+						"- useRenderer(): Promise<Renderer>",
+						"- initRenderer(): Promise<Renderer>",
+						"- registerFonts(renderer: Renderer, fonts: ResolvedFont[*]): Promise<void>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/engines/takumi.ts"
+				},
+				{
+					"id": "engine-satori",
+					"name": "satori",
+					"kind": "class",
+					"package": "pkg-engines",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [
+						"+ render(vnode: VNode, options: SatoriEngineOptions, assets: SatoriAssets): Promise<Uint8Array>"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/core/engines/satori.ts"
+				},
+				{
+					"id": "plugin",
+					"name": "plugin",
+					"kind": "class",
+					"package": "pkg-lib",
+					"stereotype": "module",
+					"isAbstract": false,
+					"attributes": [
+						"+ STUB_PREFIX: string {readOnly}",
+						"- ENGINE_MODULES: Record<Engine, RegExp> {readOnly}"
+					],
+					"operations": [
+						"+ sveltekitOG(options: SveltekitOGOptions): VitePlugin[*]",
+						"+ missingEngines(from: string): Engine[*]",
+						"+ stubSource(engine: Engine): string",
+						"- enginesPlugin(engines: Engine[*]): VitePlugin",
+						"- wasmPlugin(options: UnwasmPluginOptions): VitePlugin"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/plugin.ts"
+				},
+				{
+					"id": "image-response-error",
+					"name": "ImageResponseError",
+					"kind": "class",
+					"package": "pkg-helpers",
+					"stereotype": null,
+					"isAbstract": false,
+					"attributes": ["+ code: string", "+ originalError: Error[0..1]"],
+					"operations": [
+						"<<create>> + ImageResponseError(message: string, code: string, originalError: Error)"
+					],
+					"literals": [],
+					"source": "packages/sveltekit-og/src/lib/helpers/error-handler.ts"
+				},
+				{
+					"id": "lib-takumi-js",
+					"name": "takumi-js",
+					"kind": "class",
+					"package": null,
+					"stereotype": "library",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/package.json"
+				},
+				{
+					"id": "lib-satori",
+					"name": "satori",
+					"kind": "class",
+					"package": null,
+					"stereotype": "library",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/package.json"
+				},
+				{
+					"id": "lib-resvg",
+					"name": "@resvg/resvg-wasm",
+					"kind": "class",
+					"package": null,
+					"stereotype": "library",
+					"isAbstract": false,
+					"attributes": [],
+					"operations": [],
+					"literals": [],
+					"source": "packages/sveltekit-og/package.json"
+				}
+			],
+			"relationships": [
+				{
+					"id": "r-15",
+					"kind": "dependency",
+					"source": "core-render",
+					"target": "platform",
+					"name": "componentToHtml",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-16",
+					"kind": "realization",
+					"source": "server-platform",
+					"target": "platform",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-17",
+					"kind": "realization",
+					"source": "client-platform",
+					"target": "platform",
+					"name": null,
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-18",
+					"kind": "composition",
+					"source": "satori-assets",
+					"target": "platform",
+					"name": "satori",
+					"stereotype": null,
+					"sourceMultiplicity": "1",
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-19",
+					"kind": "dependency",
+					"source": "core-render",
+					"target": "tojsx",
+					"name": "createVNode",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-20",
+					"kind": "dependency",
+					"source": "core-render",
+					"target": "core-fonts",
+					"name": "resolveFontInputs",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-21",
+					"kind": "dependency",
+					"source": "core-render",
+					"target": "engine-takumi",
+					"name": "loadTakumi",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-22",
+					"kind": "dependency",
+					"source": "core-render",
+					"target": "engine-satori",
+					"name": "loadSatori",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-23",
+					"kind": "dependency",
+					"source": "core-render",
+					"target": "image-response-error",
+					"name": null,
+					"stereotype": "throws",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-24",
+					"kind": "dependency",
+					"source": "engine-satori",
+					"target": "satori-assets",
+					"name": "assets",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-25",
+					"kind": "dependency",
+					"source": "engine-satori",
+					"target": "lib-satori",
+					"name": "SVG",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-26",
+					"kind": "dependency",
+					"source": "engine-satori",
+					"target": "lib-resvg",
+					"name": "PNG",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-27",
+					"kind": "dependency",
+					"source": "engine-takumi",
+					"target": "lib-takumi-js",
+					"name": "render",
+					"stereotype": null,
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-28",
+					"kind": "dependency",
+					"source": "plugin",
+					"target": "engine-takumi",
+					"name": null,
+					"stereotype": "stubs",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-29",
+					"kind": "dependency",
+					"source": "plugin",
+					"target": "engine-satori",
+					"name": null,
+					"stereotype": "stubs",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				},
+				{
+					"id": "r-30",
+					"kind": "dependency",
+					"source": "client-platform",
+					"target": "image-response-error",
+					"name": null,
+					"stereotype": "throws",
+					"sourceMultiplicity": null,
+					"targetMultiplicity": null
+				}
+			]
+		}
+	]
+}

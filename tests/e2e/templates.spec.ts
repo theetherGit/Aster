@@ -11,8 +11,15 @@ test('the gallery lists the templates, and one opens as a project of your own', 
 	await page.goto('/');
 	await page.getByRole('button', { name: /Start from a template/ }).click();
 	const gallery = page.getByRole('dialog', { name: 'Start from a template' });
-	await expect(gallery.getByRole('listitem')).toHaveCount(5);
-	for (const name of ['Doota', 'LMRS Shop', 'SvelteKit OG', 'SvelteKit Redis Session', 'un-jinja'])
+	await expect(gallery.getByRole('listitem')).toHaveCount(6);
+	for (const name of [
+		'Doota',
+		'LMRS Shop',
+		'SvelteKit OG 4',
+		'SvelteKit OG 5 (next)',
+		'SvelteKit Redis Session',
+		'un-jinja'
+	])
 		await expect(gallery.getByRole('button', { name: `Use the ${name} template` })).toBeVisible();
 	// Each card says where it comes from, and its picture is named.
 	await expect(gallery.getByRole('link', { name: /ethercorps\/doota/ })).toHaveAttribute(
