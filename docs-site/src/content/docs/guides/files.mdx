@@ -65,3 +65,5 @@ Every change is saved in the browser a moment after you make it, with your undo 
 ## Aster's own format
 
 `.aster` is the project as JSON, with everything Aster holds, including the parts of a `.mdj` it keeps without showing. Use it if you like; for anything you share with StarUML users, stay with `.mdj`. See [.mdj compatibility](/reference/mdj/).
+
+Every `.aster` file names its JSON Schema, [asteruml.app/schema/v1.json](https://asteruml.app/schema/v1.json), so an editor that reads `$schema` (VS Code does) checks the file as you edit it, against the same rules Aster uses when it opens one.

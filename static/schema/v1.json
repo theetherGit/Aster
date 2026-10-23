@@ -1,0 +1,973 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://asteruml.app/schema/v1.json",
+	"title": "Aster project",
+	"description": "An .aster file: an Aster (https://asteruml.app) UML project as JSON. Version 1. Aster validates every file it opens against the same rules.",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"const": "https://asteruml.app/schema/v1.json"
+		},
+		"version": {
+			"const": 1
+		},
+		"meta": {
+			"$ref": "#/$defs/Meta"
+		},
+		"origin": {
+			"$ref": "#/$defs/Origin"
+		},
+		"project": {
+			"$ref": "#/$defs/Project"
+		}
+	},
+	"required": [
+		"version",
+		"project"
+	],
+	"additionalProperties": false,
+	"$defs": {
+		"Attribute": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"visibility": {
+					"enum": [
+						"public",
+						"protected",
+						"private",
+						"package"
+					]
+				},
+				"multiplicity": {
+					"type": "string"
+				},
+				"defaultValue": {
+					"type": "string"
+				},
+				"isStatic": {
+					"type": "boolean"
+				},
+				"isReadOnly": {
+					"type": "boolean"
+				},
+				"isDerived": {
+					"type": "boolean"
+				},
+				"isOrdered": {
+					"type": "boolean"
+				},
+				"isUnique": {
+					"type": "boolean"
+				},
+				"isID": {
+					"type": "boolean"
+				},
+				"stereotype": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				},
+				"raw": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"visibility",
+				"isStatic",
+				"isReadOnly",
+				"isDerived",
+				"isOrdered",
+				"isUnique",
+				"isID",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"Classifier": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "classifier"
+				},
+				"id": {
+					"type": "string"
+				},
+				"classifierKind": {
+					"enum": [
+						"class",
+						"interface",
+						"enum",
+						"dataType",
+						"primitiveType"
+					]
+				},
+				"name": {
+					"type": "string"
+				},
+				"stereotype": {
+					"type": "string"
+				},
+				"isAbstract": {
+					"type": "boolean"
+				},
+				"isLeaf": {
+					"type": "boolean"
+				},
+				"visibility": {
+					"enum": [
+						"public",
+						"protected",
+						"private",
+						"package"
+					]
+				},
+				"documentation": {
+					"type": "string"
+				},
+				"attributes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Attribute"
+					}
+				},
+				"operations": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Operation"
+					}
+				},
+				"literals": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Literal"
+					}
+				},
+				"packageId": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"classifierKind",
+				"name",
+				"isAbstract",
+				"isLeaf",
+				"visibility",
+				"documentation",
+				"attributes",
+				"operations",
+				"literals"
+			],
+			"additionalProperties": false
+		},
+		"Diagram": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"diagramKind": {
+					"enum": [
+						"class",
+						"object"
+					]
+				},
+				"elementIds": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"layout": {
+					"type": "object",
+					"additionalProperties": {
+						"oneOf": [
+							{
+								"$ref": "#/$defs/NodeLayout"
+							},
+							{
+								"$ref": "#/$defs/EdgeLayout"
+							}
+						]
+					}
+				},
+				"defaults": {
+					"$ref": "#/$defs/DisplayFlags"
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"diagramKind",
+				"elementIds",
+				"layout",
+				"defaults"
+			],
+			"additionalProperties": false
+		},
+		"DisplayFlags": {
+			"type": "object",
+			"properties": {
+				"showVisibility": {
+					"type": "boolean"
+				},
+				"showType": {
+					"type": "boolean"
+				},
+				"showMultiplicity": {
+					"type": "boolean"
+				},
+				"showOperationSignature": {
+					"type": "boolean"
+				},
+				"showNamespace": {
+					"type": "boolean"
+				},
+				"showProperty": {
+					"type": "boolean"
+				},
+				"suppressAttributes": {
+					"type": "boolean"
+				},
+				"suppressOperations": {
+					"type": "boolean"
+				},
+				"suppressLiterals": {
+					"type": "boolean"
+				},
+				"stereotypeDisplay": {
+					"enum": [
+						"none",
+						"label",
+						"decoration",
+						"decoration-label",
+						"icon",
+						"icon-label"
+					]
+				},
+				"wordWrap": {
+					"type": "boolean"
+				},
+				"autoResize": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"showVisibility",
+				"showType",
+				"showMultiplicity",
+				"showOperationSignature",
+				"showNamespace",
+				"showProperty",
+				"suppressAttributes",
+				"suppressOperations",
+				"suppressLiterals",
+				"stereotypeDisplay",
+				"wordWrap",
+				"autoResize"
+			],
+			"additionalProperties": false
+		},
+		"EdgeLayout": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "edge"
+				},
+				"waypoints": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Point"
+					}
+				},
+				"lineStyle": {
+					"enum": [
+						"rectilinear",
+						"oblique",
+						"roundrect",
+						"curve"
+					]
+				},
+				"line": {
+					"type": "string"
+				},
+				"labelOffsets": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"$ref": "#/$defs/LabelOffset"
+						},
+						"sourceMultiplicity": {
+							"$ref": "#/$defs/LabelOffset"
+						},
+						"targetMultiplicity": {
+							"$ref": "#/$defs/LabelOffset"
+						},
+						"sourceRole": {
+							"$ref": "#/$defs/LabelOffset"
+						},
+						"targetRole": {
+							"$ref": "#/$defs/LabelOffset"
+						},
+						"sourceProperty": {
+							"$ref": "#/$defs/LabelOffset"
+						},
+						"targetProperty": {
+							"$ref": "#/$defs/LabelOffset"
+						}
+					},
+					"required": [],
+					"additionalProperties": false
+				}
+			},
+			"required": [
+				"kind",
+				"waypoints",
+				"lineStyle",
+				"labelOffsets"
+			],
+			"additionalProperties": false
+		},
+		"End": {
+			"type": "object",
+			"properties": {
+				"role": {
+					"type": "string"
+				},
+				"multiplicity": {
+					"type": "string"
+				},
+				"navigable": {
+					"enum": [
+						"unspecified",
+						"navigable",
+						"notNavigable"
+					]
+				},
+				"visibility": {
+					"enum": [
+						"public",
+						"protected",
+						"private",
+						"package"
+					]
+				},
+				"isDerived": {
+					"type": "boolean"
+				},
+				"isOrdered": {
+					"type": "boolean"
+				},
+				"isUnique": {
+					"type": "boolean"
+				},
+				"ownsOther": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"navigable",
+				"isDerived",
+				"isOrdered",
+				"isUnique",
+				"ownsOther"
+			],
+			"additionalProperties": false
+		},
+		"Instance": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "instance"
+				},
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"classifier": {
+					"type": "string"
+				},
+				"slots": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Slot"
+					}
+				},
+				"stereotype": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				},
+				"packageId": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"name",
+				"slots",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"LabelOffset": {
+			"type": "object",
+			"properties": {
+				"alpha": {
+					"type": "number"
+				},
+				"distance": {
+					"type": "number"
+				}
+			},
+			"required": [
+				"alpha",
+				"distance"
+			],
+			"additionalProperties": false
+		},
+		"Link": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "link"
+				},
+				"id": {
+					"type": "string"
+				},
+				"sourceId": {
+					"type": "string"
+				},
+				"targetId": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"associationId": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"sourceId",
+				"targetId",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"Literal": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"stereotype": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"Meta": {
+			"type": "object",
+			"properties": {
+				"app": {
+					"type": "string"
+				},
+				"savedAt": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"app",
+				"savedAt"
+			],
+			"additionalProperties": false
+		},
+		"NodeLayout": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "node"
+				},
+				"x": {
+					"type": "number"
+				},
+				"y": {
+					"type": "number"
+				},
+				"w": {
+					"type": "number"
+				},
+				"h": {
+					"type": "number"
+				},
+				"fill": {
+					"type": "string"
+				},
+				"line": {
+					"type": "string"
+				},
+				"flags": {
+					"$ref": "#/$defs/PartialDisplayFlags"
+				}
+			},
+			"required": [
+				"kind",
+				"x",
+				"y",
+				"w",
+				"h"
+			],
+			"additionalProperties": false
+		},
+		"Note": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "note"
+				},
+				"id": {
+					"type": "string"
+				},
+				"text": {
+					"type": "string"
+				},
+				"linkedIds": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"text",
+				"linkedIds"
+			],
+			"additionalProperties": false
+		},
+		"Operation": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"visibility": {
+					"enum": [
+						"public",
+						"protected",
+						"private",
+						"package"
+					]
+				},
+				"returnType": {
+					"type": "string"
+				},
+				"parameters": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Parameter"
+					}
+				},
+				"isStatic": {
+					"type": "boolean"
+				},
+				"isAbstract": {
+					"type": "boolean"
+				},
+				"isQuery": {
+					"type": "boolean"
+				},
+				"stereotype": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				},
+				"raw": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"visibility",
+				"parameters",
+				"isStatic",
+				"isAbstract",
+				"isQuery",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"Origin": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "staruml"
+				},
+				"sourceHash": {
+					"type": "string"
+				},
+				"fileName": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"sourceHash"
+			],
+			"additionalProperties": false
+		},
+		"Package": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "package"
+				},
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"memberIds": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"parentId": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"name",
+				"memberIds",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"Parameter": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"type": {
+					"type": "string"
+				},
+				"direction": {
+					"enum": [
+						"in",
+						"out",
+						"inout"
+					]
+				},
+				"defaultValue": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"name",
+				"direction"
+			],
+			"additionalProperties": false
+		},
+		"PartialDisplayFlags": {
+			"type": "object",
+			"properties": {
+				"showVisibility": {
+					"type": "boolean"
+				},
+				"showType": {
+					"type": "boolean"
+				},
+				"showMultiplicity": {
+					"type": "boolean"
+				},
+				"showOperationSignature": {
+					"type": "boolean"
+				},
+				"showNamespace": {
+					"type": "boolean"
+				},
+				"showProperty": {
+					"type": "boolean"
+				},
+				"suppressAttributes": {
+					"type": "boolean"
+				},
+				"suppressOperations": {
+					"type": "boolean"
+				},
+				"suppressLiterals": {
+					"type": "boolean"
+				},
+				"stereotypeDisplay": {
+					"enum": [
+						"none",
+						"label",
+						"decoration",
+						"decoration-label",
+						"icon",
+						"icon-label"
+					]
+				},
+				"wordWrap": {
+					"type": "boolean"
+				},
+				"autoResize": {
+					"type": "boolean"
+				}
+			},
+			"required": [],
+			"additionalProperties": false
+		},
+		"Point": {
+			"type": "object",
+			"properties": {
+				"x": {
+					"type": "number"
+				},
+				"y": {
+					"type": "number"
+				}
+			},
+			"required": [
+				"x",
+				"y"
+			],
+			"additionalProperties": false
+		},
+		"Project": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"elements": {
+					"type": "object",
+					"additionalProperties": {
+						"oneOf": [
+							{
+								"$ref": "#/$defs/Classifier"
+							},
+							{
+								"$ref": "#/$defs/Relationship"
+							},
+							{
+								"$ref": "#/$defs/Package"
+							},
+							{
+								"$ref": "#/$defs/Note"
+							},
+							{
+								"$ref": "#/$defs/TextElement"
+							},
+							{
+								"$ref": "#/$defs/Instance"
+							},
+							{
+								"$ref": "#/$defs/Link"
+							}
+						]
+					}
+				},
+				"diagrams": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Diagram"
+					}
+				},
+				"unknown": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Unknown"
+					}
+				},
+				"importedIds": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"elements",
+				"diagrams",
+				"unknown",
+				"importedIds"
+			],
+			"additionalProperties": false
+		},
+		"Relationship": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "relationship"
+				},
+				"id": {
+					"type": "string"
+				},
+				"relationshipKind": {
+					"enum": [
+						"association",
+						"aggregation",
+						"composition",
+						"generalization",
+						"realization",
+						"dependency"
+					]
+				},
+				"sourceId": {
+					"type": "string"
+				},
+				"targetId": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"stereotype": {
+					"type": "string"
+				},
+				"documentation": {
+					"type": "string"
+				},
+				"sourceEnd": {
+					"$ref": "#/$defs/End"
+				},
+				"targetEnd": {
+					"$ref": "#/$defs/End"
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"relationshipKind",
+				"sourceId",
+				"targetId",
+				"documentation"
+			],
+			"additionalProperties": false
+		},
+		"Slot": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string"
+				},
+				"value": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"value"
+			],
+			"additionalProperties": false
+		},
+		"TextElement": {
+			"type": "object",
+			"properties": {
+				"kind": {
+					"const": "text"
+				},
+				"id": {
+					"type": "string"
+				},
+				"text": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"id",
+				"text"
+			],
+			"additionalProperties": false
+		},
+		"Unknown": {
+			"type": "object",
+			"properties": {
+				"json": {
+					"description": "Kept verbatim from the .mdj: any JSON."
+				},
+				"parentId": {
+					"type": [
+						"string",
+						"null"
+					]
+				},
+				"path": {
+					"type": "string"
+				},
+				"index": {
+					"type": "number"
+				}
+			},
+			"required": [
+				"json",
+				"parentId",
+				"path",
+				"index"
+			],
+			"additionalProperties": false
+		}
+	}
+}
