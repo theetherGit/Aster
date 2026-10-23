@@ -71,8 +71,9 @@ test('⌘G hides and shows the grid, ⌘⇧G snaps a drag to it; both remembered
 	await page.mouse.move(box.x + box.width / 2 + 37, box.y + box.height / 2 + 13, { steps: 5 });
 	await page.mouse.up();
 	const at = await position(customer);
-	expect(at.x % 20).toBe(0);
-	expect(at.y % 20).toBe(0);
+	// On the grid; Math.abs because a negative multiple of 20 leaves -0, which toBe(0) refuses.
+	expect(Math.abs(at.x % 20)).toBe(0);
+	expect(Math.abs(at.y % 20)).toBe(0);
 	expect(at).not.toEqual({ x: 480, y: 120 });
 });
 
