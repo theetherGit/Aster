@@ -188,3 +188,43 @@ test('a diagram opens fitted beside the toolbox and under the strip, not beneath
 		.poll(async () => (await frame.boundingBox())!.x - (tools.x + tools.width))
 		.toBeGreaterThan(0);
 });
+
+/** UX audit 2026-10-23: Classic's canvas is narrower, so ⌘⇧L must not leave the diagram cut off. */
+test('switching layout re-fits a diagram nobody has panned, and keeps the centre of one that was', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1366, height: 768 });
+	await page.goto('/design/demo');
+	const frame = page.locator('.svelte-flow__node').filter({ hasText: 'model' }).first();
+	await expect(frame).toBeVisible();
+	await page.keyboard.press('ControlOrMeta+Shift+l');
+	await expect(page.getByRole('menubar')).toBeVisible();
+	const pane = page.locator('.svelte-flow');
+	await expect
+		.poll(async () => {
+			const f = (await frame.boundingBox())!;
+			const p = (await pane.boundingBox())!;
+			return f.x >= p.x && f.x + f.width <= p.x + p.width;
+		})
+		.toBe(true);
+
+	// Pan by hand (a two-finger scroll), then switch back: the point at the centre stays there.
+	const p = (await pane.boundingBox())!;
+	await page.mouse.move(p.x + p.width / 2, p.y + p.height / 2);
+	await page.mouse.wheel(60, 30);
+	await page.waitForTimeout(300);
+	const offset = async () => {
+		const f = (await frame.boundingBox())!;
+		const q = (await pane.boundingBox())!;
+		return { x: Math.round(f.x - (q.x + q.width / 2)), y: Math.round(f.y - (q.y + q.height / 2)) };
+	};
+	const before = await offset();
+	await page.keyboard.press('ControlOrMeta+Shift+l');
+	await expect(page.getByRole('menubar')).toHaveCount(0);
+	await expect
+		.poll(async () => {
+			const after = await offset();
+			return Math.abs(after.x - before.x) <= 2 && Math.abs(after.y - before.y) <= 2;
+		})
+		.toBe(true);
+});

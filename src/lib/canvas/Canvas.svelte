@@ -391,9 +391,31 @@
 		const r = rects().get(id);
 		if (r) setCenter(r.x + r.w / 2, r.y + r.h / 2, { zoom: getZoom(), duration });
 	}
+	// A layout switch (⌘⇧L) changes the paper's size, and Classic's is narrower: a view nobody
+	// has moved is fitted again, one that was keeps the point at its centre (UX audit 2026-10-23).
+	let seenLayout = untrack(() => ui.layoutPreset);
+	let relayoutUntil = 0;
 	$effect(() => {
+		if (ui.layoutPreset === seenLayout) return;
+		seenLayout = ui.layoutPreset;
+		relayoutUntil = performance.now() + 1000;
+	});
+	$effect(() => {
+		let size = { w: el.clientWidth, h: el.clientHeight };
 		const ro = new ResizeObserver(() => {
 			if (centring && performance.now() < centring.until) centre(centring.id, 0);
+			const now = { w: el.clientWidth, h: el.clientHeight };
+			// The panels settle over a few frames: refit (the last fit wins) or shift by half of each
+			// change in size (the shifts add up) for as long as the switch lasts.
+			if (performance.now() < relayoutUntil && (now.w !== size.w || now.h !== size.h)) {
+				const v = getViewport();
+				void setViewport(
+					touched
+						? { x: v.x + (now.w - size.w) / 2, y: v.y + (now.h - size.h) / 2, zoom: v.zoom }
+						: fitted()
+				);
+			}
+			size = now;
 		});
 		ro.observe(el);
 		return () => ro.disconnect();
@@ -543,8 +565,10 @@
 	let placedFor = '';
 	let touched = false;
 	function placement(diagramId: Id) {
-		const saved = cachedView(diagramId);
-		if (saved) return saved;
+		return cachedView(diagramId) ?? fitted();
+	}
+	/** The active diagram fitted to the paper, clear of the toolbox and banner. */
+	function fitted() {
 		const d = projectStore.diagram;
 		const p = projectStore.project;
 		const boxes = d.elementIds.flatMap((id) => {
