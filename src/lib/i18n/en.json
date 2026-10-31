@@ -130,6 +130,7 @@
 	"ui.tool.class": "Class",
 	"ui.tool.interface": "Interface",
 	"ui.tool.enum": "Enumeration",
+	"ui.tool.dataType": "Data type",
 	"ui.tool.package": "Package",
 	"ui.tool.link": "Link",
 	"ui.tool.object": "Object",

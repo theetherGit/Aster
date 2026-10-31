@@ -134,3 +134,17 @@ test('the Classic toolbox: a relationship tool is Link with that kind, and switc
 	// The previous tip may still be fading; the one for Undo is the newest.
 	await expect(page.getByRole('tooltip').last()).toHaveText(/Nothing to undo/);
 });
+
+/** Board 03 lists the tools as StarUML does, and StarUML's class toolbox has DataType (D on the keyboard). */
+test('the Classic toolbox places a data type', async ({ page }) => {
+	await page.addInitScript(() => localStorage.setItem('aster:layout', 'classic'));
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	const tool = page
+		.getByRole('toolbar', { name: 'Toolbox' })
+		.getByRole('radio', { name: /Data type/ });
+	await tool.click();
+	const pane = (await page.locator('.svelte-flow__pane').boundingBox())!;
+	await page.mouse.click(pane.x + pane.width - 200, pane.y + pane.height - 160);
+	await expect(page.locator('.classifier-node[data-kind="dataType"]')).toHaveCount(1);
+});

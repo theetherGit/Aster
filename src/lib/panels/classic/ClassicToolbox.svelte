@@ -21,6 +21,7 @@
 					{ tool: 'class', label: t('ui.tool.class'), ready: true },
 					{ tool: 'interface', label: t('ui.tool.interface'), ready: true },
 					{ tool: 'enum', label: t('ui.tool.enum'), ready: true },
+					{ tool: 'dataType', label: t('ui.tool.dataType'), ready: true },
 					{ tool: 'package', label: t('ui.tool.package'), ready: true }
 				]
 	);
@@ -35,7 +36,7 @@
 	const dashed = (k: RelationshipKind) => k === 'realization' || k === 'dependency';
 	const note = () => runCommand('create.note');
 	// Bits single groups: the chosen value, or '' when the chosen item is clicked again.
-	const ELEMENT_TOOLS: Tool[] = ['class', 'interface', 'enum', 'package', 'object'];
+	const ELEMENT_TOOLS: Tool[] = ['class', 'interface', 'enum', 'dataType', 'package', 'object'];
 	const pick = (v: string) => {
 		ui.tool = v ? (v as Tool) : 'select';
 		if (ui.pinned !== ui.tool) ui.pinned = null;
@@ -170,6 +171,7 @@
 	}
 	.glyph.class,
 	.glyph.enum,
+	.glyph.dataType,
 	.glyph.object {
 		background: linear-gradient(currentColor, currentColor) 0 4px / 100% 1px no-repeat;
 	}

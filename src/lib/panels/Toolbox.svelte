@@ -15,7 +15,8 @@
 	// but an action on the one selected node, the same as the L key. An object diagram places
 	// objects instead (M3.2; keyboard.md gives Object no key).
 	// The tool glyphs live in Icon.svelte (board 01), drawn at 15 px.
-	type ToolDef = { id: Tool; key: string | null };
+	// ui.md's six tools; Data type is Classic's (board 03, as StarUML lists it) and the D key's.
+	type ToolDef = { id: Exclude<Tool, 'dataType'>; key: string | null };
 	const CLASS_TOOLS: ToolDef[] = [
 		{ id: 'select', key: null },
 		{ id: 'class', key: 'C' },
