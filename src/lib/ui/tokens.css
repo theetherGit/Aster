@@ -164,6 +164,7 @@
 	/* Layers, lowest to highest: canvas chrome, floating panels, overlays, dialogs, tooltips, drop target. */
 	--z-footer: 5;
 	--z-toolbox: 10;
+	--z-splitter: 15;
 	--z-inspector-float: 20;
 	--z-banner: 25;
 	--z-toast: 30;

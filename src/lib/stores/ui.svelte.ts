@@ -31,6 +31,37 @@ const storedTextWidth = new PersistedState<number>('aster:textWidth', 360, {
 		deserialize: (v) => (Number.isFinite(Number(v)) ? Number(v) : 360)
 	}
 });
+/**
+ * Owner's request (2026-10-31): every panel resizes, remembered per browser. Widths and the
+ * validation panel's height are px; the two shares inside a Classic column are the percent of it
+ * the lower panel takes. ui.md's sizes are the defaults.
+ */
+export const PANEL_SIZES = {
+	outline: 240,
+	inspector: 300,
+	sidebar: 200,
+	right: 280,
+	toolbox: 70,
+	editors: 60,
+	validation: 224
+};
+export type PanelSize = keyof typeof PANEL_SIZES;
+const storedSizes = new PersistedState<typeof PANEL_SIZES>('aster:panels', PANEL_SIZES, {
+	serializer: {
+		serialize: (v) => JSON.stringify(v),
+		deserialize: (v) => {
+			try {
+				const read = JSON.parse(v) as Record<string, unknown>;
+				const out = { ...PANEL_SIZES };
+				for (const k of Object.keys(out) as PanelSize[])
+					if (typeof read[k] === 'number' && Number.isFinite(read[k])) out[k] = read[k];
+				return out;
+			} catch {
+				return { ...PANEL_SIZES };
+			}
+		}
+	}
+});
 /** keyboard.md ⌘G / ⌘⇧G (StarUML's keys): the paper grid is shown, snapping is off, both remembered. */
 const storedGrid = new PersistedState<boolean>('aster:grid', true, {
 	serializer: { serialize: (v) => (v ? '1' : '0'), deserialize: (v) => v !== '0' }
@@ -78,6 +109,12 @@ class Ui {
 		if (v === 'modern' && this.inspectorTab === 'documentation') this.inspectorTab = 'properties';
 	}
 	panels = new Panels();
+	get sizes(): Readonly<typeof PANEL_SIZES> {
+		return storedSizes.current;
+	}
+	setSize(key: PanelSize, v: number) {
+		storedSizes.current = { ...storedSizes.current, [key]: Math.round(v) };
+	}
 	get textWidth(): number {
 		return storedTextWidth.current;
 	}

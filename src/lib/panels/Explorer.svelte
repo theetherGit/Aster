@@ -43,7 +43,8 @@
 	import { field, menu, menuItem } from '#lib/ui/styles.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import { ui } from '#lib/stores/ui.svelte.ts';
+	import { PANEL_SIZES, ui } from '#lib/stores/ui.svelte.ts';
+	import Splitter from '#lib/ui/atoms/Splitter.svelte';
 	import Icon from '#lib/ui/atoms/Icon.svelte';
 	import PanelTitle from '#lib/ui/atoms/PanelTitle.svelte';
 	import PanelHeader from '#lib/ui/molecules/PanelHeader.svelte';
@@ -848,15 +849,27 @@
 	</section>
 {:else}
 	<!-- The slide (ui.md motion) animates this wrapper's width and clips; the panel inside keeps
-	     its 240 px, so nothing reflows while it moves. -->
+	     its width, so nothing reflows while it moves. ui.md's 240 px is the default; the strip
+	     after it resizes it (owner's request, 2026-10-31). -->
 	<div transition:panelSlide|global class="flex shrink-0 overflow-hidden">
 		<aside
 			aria-labelledby="explorer-title"
-			class="flex w-[240px] shrink-0 flex-col overflow-auto border-e border-chrome-border bg-chrome-surface"
+			class="flex shrink-0 flex-col overflow-auto border-e border-chrome-border bg-chrome-surface"
+			style:width="{ui.sizes.outline}px"
 		>
 			{@render body()}
 		</aside>
 	</div>
+	<Splitter
+		label={t('split.outline')}
+		bind:value={() => ui.sizes.outline, (v) => ui.setSize('outline', v)}
+		min={208}
+		max={480}
+		reset={PANEL_SIZES.outline}
+		axis="x"
+		panel="before"
+		testid="split-outline"
+	/>
 {/if}
 
 <style>

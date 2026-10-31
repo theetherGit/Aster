@@ -1,6 +1,5 @@
 <script lang="ts">
 	import TextView from './TextView.svelte';
-	import { isRtl, locale } from '#lib/i18n/locale.svelte.ts';
 	import SkipLink from '#lib/ui/atoms/SkipLink.svelte';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
 	import { renameClass } from '#lib/canvas/inline.ts';
@@ -14,7 +13,8 @@
 	import type { ClassifierKind, Visibility } from '#lib/model/types.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import { ui } from '#lib/stores/ui.svelte.ts';
+	import { PANEL_SIZES, ui } from '#lib/stores/ui.svelte.ts';
+	import Splitter from '#lib/ui/atoms/Splitter.svelte';
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import Checkbox from '#lib/ui/atoms/Checkbox.svelte';
 	import Field from '#lib/ui/atoms/Field.svelte';
@@ -114,31 +114,16 @@
 		if (selection.size > 0) held = false;
 	});
 
-	// 280 + 16 n: the range's steps land on ui.md's 360.
+	// Every tab resizes (owner's requests, 2026-10-19 for Text, 2026-10-31 for the rest): the Text
+	// tab keeps its own width, ui.md's 360, the others share ui.md's 300. 280 + 16 n and
+	// 268 + 16 n put the range's steps on those defaults; the canvas keeps at least 400 px.
 	const TEXT_MIN = 280;
+	const PANEL_MIN = 268;
 	let innerWidth = $state(1280);
-	const textMax = $derived(Math.max(TEXT_MIN, Math.min(800, innerWidth - 400)));
-	/** The strip: drag toward the canvas to widen. */
-	function drag(e: PointerEvent) {
-		if (e.button !== 0) return;
-		e.preventDefault();
-		const strip = e.currentTarget as HTMLElement;
-		strip.setPointerCapture(e.pointerId);
-		const start = e.clientX;
-		const from = ui.textWidth;
-		const towardCanvas = isRtl(locale.current) ? 1 : -1;
-		const move = (ev: PointerEvent) => {
-			const w = from + (ev.clientX - start) * towardCanvas;
-			const snapped = TEXT_MIN + Math.round((w - TEXT_MIN) / 16) * 16;
-			ui.textWidth = Math.max(TEXT_MIN, Math.min(textMax, snapped));
-		};
-		const up = () => {
-			strip.removeEventListener('pointermove', move);
-			strip.removeEventListener('pointerup', up);
-		};
-		strip.addEventListener('pointermove', move);
-		strip.addEventListener('pointerup', up);
-	}
+	const text = $derived(ui.inspectorTab === 'text');
+	const panelMin = $derived(text ? TEXT_MIN : PANEL_MIN);
+	const panelMax = $derived(Math.max(panelMin, Math.min(text ? 800 : 560, innerWidth - 400)));
+	const panelWidth = $derived(Math.min(text ? ui.textWidth : ui.sizes.inspector, panelMax));
 </script>
 
 <svelte:window bind:innerWidth />
@@ -376,39 +361,25 @@
 			{@render panel()}
 		</aside>
 	{:else}
-		<!-- The slide animates this wrapper's width and clips; the panel keeps its 300 px inside. -->
+		<Splitter
+			label={t('inspector.resize')}
+			bind:value={
+				() => (text ? ui.textWidth : ui.sizes.inspector),
+				(v) => (text ? (ui.textWidth = v) : ui.setSize('inspector', v))
+			}
+			min={panelMin}
+			max={panelMax}
+			reset={text ? 360 : PANEL_SIZES.inspector}
+			axis="x"
+			panel="after"
+			testid="inspector-resize"
+		/>
+		<!-- The slide animates this wrapper's width and clips; the panel keeps its width inside. -->
 		<div transition:panelSlide|global class="inspector flex shrink-0 overflow-hidden">
-			{#if ui.inspectorTab === 'text'}
-				<!-- Owner's request: the Text tab resizes. The control is a real range input (keys, screen
-				     readers; its direction set so the arrow toward the canvas widens); the strip beside
-				     it is the pointer's handle, the same value. -->
-				<label class="contents">
-					<span class="sr-only">{t('inspector.resize')}</span>
-					<input
-						type="range"
-						class="peer sr-only"
-						dir={isRtl(locale.current) ? 'ltr' : 'rtl'}
-						min={TEXT_MIN}
-						max={textMax}
-						step="16"
-						bind:value={ui.textWidth}
-					/>
-				</label>
-				<div
-					data-testid="inspector-resize"
-					aria-hidden="true"
-					class="w-1.5 shrink-0 cursor-col-resize bg-transparent peer-focus-visible:bg-accent hover:bg-accent/40"
-					onpointerdown={drag}
-				></div>
-			{/if}
 			<aside
 				aria-label={t('inspector.title')}
-				class="{ui.inspectorTab === 'text'
-					? ''
-					: 'w-[300px]'} shrink-0 overflow-auto border-s border-chrome-border bg-chrome-surface"
-				style:width={ui.inspectorTab === 'text'
-					? `${Math.min(ui.textWidth, textMax)}px`
-					: undefined}
+				class="shrink-0 overflow-auto border-s border-chrome-border bg-chrome-surface"
+				style:width="{panelWidth}px"
 			>
 				{@render panel()}
 			</aside>

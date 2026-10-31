@@ -133,7 +133,8 @@ test('the Text tab resizes by keyboard and pointer, remembers its width, and col
 	expect(await width()).toBe(392);
 	// Drag the strip 100 px further out, once the panel has finished sliding in.
 	const strip = page.getByTestId('inspector-resize');
-	await expect.poll(async () => (await strip.boundingBox())!.x).toBe(1280 - 392 - 6);
+	// The strip lies over the panel's edge: 8 px, centred on it.
+	await expect.poll(async () => (await strip.boundingBox())!.x).toBe(1280 - 392 - 4);
 	const box = (await strip.boundingBox())!;
 	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
 	await page.mouse.down();

@@ -49,7 +49,7 @@
 	import { notationProject, sampleProject } from '#lib/model/fixtures.ts';
 	import { demoProject } from '#lib/model/demo.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
-	import { ui } from '#lib/stores/ui.svelte.ts';
+	import { PANEL_SIZES, ui } from '#lib/stores/ui.svelte.ts';
 	import { announce, live } from '#lib/stores/live.svelte.ts';
 	import { motion } from '#lib/ui/motion.ts';
 	import { canvasFocus } from '#lib/canvas/focus.ts';
@@ -59,6 +59,7 @@
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import IconButton from '#lib/ui/atoms/IconButton.svelte';
 	import Banner from '#lib/ui/molecules/Banner.svelte';
+	import Splitter from '#lib/ui/atoms/Splitter.svelte';
 
 	// `/design/<slug>`: `new` is the unnamed draft (restored when one exists, else fresh), `sample`
 	// the bundled sample with its strip, `demo` Aster's own design with the same strip, `notation` the UML notation fixture (visual regression and
@@ -121,6 +122,28 @@
 	// 03. The canvas column is shared, so switching keeps the canvas mounted: selection, zoom and
 	// unsaved state stay (features.md, Classic layout).
 	const classic = $derived(ui.layoutPreset === 'classic');
+	// Owner's request (2026-10-31): Classic's columns and the panels stacked in them resize. A
+	// column never squeezes the canvas under 400 px; the strips' ranges stop there too.
+	let innerWidth = $state(1280);
+	let sidebarEl: HTMLElement | undefined = $state();
+	let rightEl: HTMLElement | undefined = $state();
+	const SIDEBAR_MIN = 168;
+	const RIGHT_MIN = 248;
+	const sidebarMax = $derived(
+		Math.max(
+			SIDEBAR_MIN,
+			Math.min(
+				400,
+				innerWidth - (ui.classic.navigator || ui.classic.editors ? ui.sizes.right : 0) - 400
+			)
+		)
+	);
+	const rightMax = $derived(
+		Math.max(
+			RIGHT_MIN,
+			Math.min(560, innerWidth - (ui.classic.sidebar ? ui.sizes.sidebar : 0) - 400)
+		)
+	);
 
 	const counts = $derived.by(() => {
 		const d = projectStore.diagram;
@@ -244,6 +267,7 @@
 </svelte:head>
 
 <svelte:window
+	bind:innerWidth
 	{onkeydown}
 	onbeforeunload={(e) => {
 		// Edits to a file the browser cannot keep: ask. Browser-only projects are autosaved.
@@ -288,15 +312,46 @@
 				{#if classic}
 					{#if ui.classic.sidebar}
 						<aside
+							bind:this={sidebarEl}
 							class="classic-column left"
 							aria-label={t('classic.sidebar')}
 							data-panel="sidebar"
+							style:width="{Math.min(ui.sizes.sidebar, sidebarMax)}px"
 						>
-							<WorkingDiagrams />
+							<div class="flex min-h-0 flex-1 flex-col overflow-auto">
+								<WorkingDiagrams />
+							</div>
 							{#if ui.classic.toolbox}
-								<ClassicToolbox />
+								<Splitter
+									label={t('split.toolbox')}
+									bind:value={() => ui.sizes.toolbox, (v) => ui.setSize('toolbox', v)}
+									min={30}
+									max={85}
+									step={5}
+									reset={PANEL_SIZES.toolbox}
+									axis="y"
+									panel="after"
+									perUnit={() => (sidebarEl?.clientHeight ?? 100) / 100}
+									testid="split-toolbox"
+								/>
+								<div
+									class="flex min-h-0 shrink-0 grow-0 flex-col"
+									style:flex-basis="{ui.sizes.toolbox}%"
+								>
+									<ClassicToolbox />
+								</div>
 							{/if}
 						</aside>
+						<Splitter
+							label={t('split.sidebar')}
+							bind:value={() => ui.sizes.sidebar, (v) => ui.setSize('sidebar', v)}
+							min={SIDEBAR_MIN}
+							max={sidebarMax}
+							reset={PANEL_SIZES.sidebar}
+							axis="x"
+							panel="before"
+							testid="split-sidebar"
+						/>
 					{/if}
 				{:else if ui.panels.outline}
 					<div class="contents" data-panel="outline"><Explorer /></div>
@@ -410,19 +465,62 @@
 							</footer>
 						{/if}
 					</main>
-					{#if validation.open}<ValidationPanel />{/if}
+					{#if validation.open}
+						<Splitter
+							label={t('split.validation')}
+							bind:value={() => ui.sizes.validation, (v) => ui.setSize('validation', v)}
+							min={96}
+							max={480}
+							reset={PANEL_SIZES.validation}
+							axis="y"
+							panel="after"
+							testid="split-validation"
+						/>
+						<ValidationPanel />
+					{/if}
 				</div>
 				{#if classic}
 					{#if ui.classic.navigator || ui.classic.editors}
+						<Splitter
+							label={t('split.right')}
+							bind:value={() => ui.sizes.right, (v) => ui.setSize('right', v)}
+							min={RIGHT_MIN}
+							max={rightMax}
+							reset={PANEL_SIZES.right}
+							axis="x"
+							panel="after"
+							testid="split-right"
+						/>
 						<aside
+							bind:this={rightEl}
 							class="classic-column right"
 							aria-label={t('classic.rightColumn')}
 							data-panel="right"
+							style:width="{Math.min(ui.sizes.right, rightMax)}px"
 						>
 							{#if ui.classic.navigator}
 								<Explorer variant="classic" />
 							{/if}
-							{#if ui.classic.editors}
+							{#if ui.classic.navigator && ui.classic.editors}
+								<Splitter
+									label={t('split.editors')}
+									bind:value={() => ui.sizes.editors, (v) => ui.setSize('editors', v)}
+									min={25}
+									max={85}
+									step={5}
+									reset={PANEL_SIZES.editors}
+									axis="y"
+									panel="after"
+									perUnit={() => (rightEl?.clientHeight ?? 100) / 100}
+									testid="split-editors"
+								/>
+								<div
+									class="flex min-h-0 shrink-0 grow-0 flex-col"
+									style:flex-basis="{ui.sizes.editors}%"
+								>
+									<Inspector variant="classic" />
+								</div>
+							{:else if ui.classic.editors}
 								<Inspector variant="classic" />
 							{/if}
 						</aside>
@@ -476,11 +574,9 @@
 		background: var(--chrome-bg);
 	}
 	.classic-column.left {
-		width: 200px;
 		border-inline-end: 1px solid var(--chrome-border);
 	}
 	.classic-column.right {
-		width: 280px;
 		border-inline-start: 1px solid var(--chrome-border);
 	}
 	/* The footer sits on the paper, which is white in every theme, so its text and plate are paper-side. */

@@ -31,7 +31,7 @@ spec's table, kept as hex (4.5:1 text, 3:1 edges in every theme, checked by `tes
 	--font-chrome --font-mono --font-paper
 	--radius-card --radius-menu --radius-pill    /* controls use --control-radius: 6 px Modern, 3 px Classic */
 	--dur-micro --dur-short --dur-long --ease-out --ease-in-out
-	--z-footer --z-toolbox --z-inspector-float --z-banner --z-toast --z-notice --z-dialog --z-tooltip --z-drop
+	--z-footer --z-toolbox --z-splitter --z-inspector-float --z-banner --z-toast --z-notice --z-dialog --z-tooltip --z-drop
 	--shadow-float --shadow-menu --shadow-toast --shadow-dialog
 	--control-min --control-icon --control-bar  /* 24 / 28 / 32 px */
 }
@@ -47,11 +47,11 @@ spec's table, kept as hex (4.5:1 text, 3:1 edges in every theme, checked by `tes
 
 Three layers. The layer says where a thing lives and what may back it.
 
-| Layer    | Lives in                             | Backed by                                                 | Examples                                                                                                                                              |
-| -------- | ------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Atom     | `src/lib/ui/atoms/`                  | one Bits UI primitive, or one native element, plus tokens | Button, IconButton, Kbd, KbdGroup, Icon, Tooltip, Field, Checkbox, Select, Segment, Tab, Separator, MenuItem, DialogFrame, SectionHeading, PanelTitle |
-| Molecule | `src/lib/ui/molecules/`              | atoms only, no stores                                     | InlineName, Toast, Banner, ConfirmDialog, PanelHeader, EmptyState, KeyHint                                                                            |
-| Organism | `src/lib/panels/`, `src/lib/canvas/` | molecules, atoms, the stores and the command registry     | TopBar, Explorer, Inspector, Toolbox, Palette, the sheets, nodes and edges                                                                            |
+| Layer    | Lives in                             | Backed by                                                 | Examples                                                                                                                                                        |
+| -------- | ------------------------------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Atom     | `src/lib/ui/atoms/`                  | one Bits UI primitive, or one native element, plus tokens | Button, IconButton, Kbd, KbdGroup, Icon, Tooltip, Field, Checkbox, Select, Segment, Tab, Separator, Splitter, MenuItem, DialogFrame, SectionHeading, PanelTitle |
+| Molecule | `src/lib/ui/molecules/`              | atoms only, no stores                                     | InlineName, Toast, Banner, ConfirmDialog, PanelHeader, EmptyState, KeyHint                                                                                      |
+| Organism | `src/lib/panels/`, `src/lib/canvas/` | molecules, atoms, the stores and the command registry     | TopBar, Explorer, Inspector, Toolbox, Palette, the sheets, nodes and edges                                                                                      |
 
 Rules:
 

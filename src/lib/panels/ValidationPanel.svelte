@@ -4,6 +4,7 @@
 	import { t, type MessageKey } from '#lib/i18n/index.ts';
 	import type { Finding } from '#lib/model/validate.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
+	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { validation } from '#lib/stores/validation.svelte.ts';
 	import Button from '#lib/ui/atoms/Button.svelte';
 	import PanelHeader from '#lib/ui/molecules/PanelHeader.svelte';
@@ -38,7 +39,8 @@
 
 <section
 	bind:this={region}
-	class="flex max-h-56 min-h-0 shrink-0 flex-col border-t border-chrome-border bg-chrome-surface text-chrome-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-dashed"
+	style:max-height="{ui.sizes.validation}px"
+	class="flex min-h-0 shrink-0 flex-col border-t border-chrome-border bg-chrome-surface text-chrome-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-dashed"
 	aria-labelledby="validation-title"
 	tabindex="-1"
 	data-panel="validation"
