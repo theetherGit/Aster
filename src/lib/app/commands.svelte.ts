@@ -222,7 +222,7 @@ const nudge = (id: string, key: string, dx: number, dy: number, big = false): Ap
 	run: () => nudgeSelection(dx * (big ? 8 : 1), dy * (big ? 8 : 1))
 });
 
-/** ⇧+arrows resize the selected note or package (keyboard.md § Canvas keyboard model). */
+/** ⇧+arrows resize the one selected box: class, object, note or package (keyboard.md). */
 const resize = (id: string, key: string, dw: number, dh: number): AppCommand => ({
 	id,
 	group: 'select',
@@ -231,10 +231,7 @@ const resize = (id: string, key: string, dw: number, dh: number): AppCommand => 
 	context: 'canvas',
 	sheetOnly: true,
 	when: () =>
-		selection.list.some((x) => {
-			const k = projectStore.project.elements.get(x)?.kind;
-			return k === 'note' || k === 'package';
-		}),
+		selection.size === 1 && projectStore.diagram.layout.get(selection.list[0])?.kind === 'node',
 	run: () => resizeSelection(dw, dh)
 });
 

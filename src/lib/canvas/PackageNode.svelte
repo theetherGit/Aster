@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-	import { PACKAGE_MIN, replaceElement, resizeNode } from '#lib/commands/index.ts';
+	import { replaceElement } from '#lib/commands/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import { flow, type PackageFlowNode } from '#lib/stores/flow.svelte.ts';
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import { selection } from '#lib/stores/selection.svelte.ts';
-	import { ui } from '#lib/stores/ui.svelte.ts';
 	import { canvasFocus } from './focus.ts';
 	import { edit } from './inline.ts';
+	import ResizeCorner from './ResizeCorner.svelte';
+	import { leastSize } from './resize.ts';
 	import { elementSummary } from './summary.ts';
 
 	// A package (M3.1, ui.md): a tab 24 px high and 40 % of the width carrying the name, over the
@@ -57,31 +58,6 @@
 			}
 		};
 	}
-	/** The corner handle: the new size follows the pointer, one resizeNode when it is let go. */
-	function resize(e: PointerEvent) {
-		if (e.button !== 0) return;
-		e.preventDefault();
-		e.stopPropagation();
-		const handle = e.currentTarget as HTMLElement;
-		handle.setPointerCapture(e.pointerId);
-		const start = { x: e.clientX, y: e.clientY, ...size };
-		const move = (ev: PointerEvent) => {
-			const z = ui.zoom || 1;
-			live = {
-				w: Math.max(PACKAGE_MIN.w, Math.round(start.w + (ev.clientX - start.x) / z)),
-				h: Math.max(PACKAGE_MIN.h, Math.round(start.h + (ev.clientY - start.y) / z))
-			};
-		};
-		const up = () => {
-			handle.removeEventListener('pointermove', move);
-			handle.removeEventListener('pointerup', up);
-			if (live && (live.w !== data.width || live.h !== data.height))
-				projectStore.run(resizeNode, { diagramId: projectStore.activeDiagramId, id, ...live });
-			live = null;
-		};
-		handle.addEventListener('pointermove', move);
-		handle.addEventListener('pointerup', up);
-	}
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -125,11 +101,14 @@
 	{#if selected}
 		<span class="handle tl"></span><span class="handle tr"></span>
 		<span class="handle bl"></span>
-		<!-- 24 px target around the 6 px corner (CLAUDE.md rule 4); ⇧+arrows are the keyboard path. -->
-		<span class="nodrag nopan resize" aria-hidden="true" onpointerdown={resize}
-			><span class="handle br"></span></span
-		>
 	{/if}
+	<ResizeCorner
+		{id}
+		shown={selected}
+		from={() => size}
+		min={leastSize('package')}
+		onlive={(s) => (live = s)}
+	/>
 </div>
 
 <style>
@@ -222,17 +201,5 @@
 	.handle.bl {
 		bottom: -3px;
 		left: -3px;
-	}
-	.resize {
-		position: absolute;
-		right: -12px;
-		bottom: -12px;
-		width: 24px;
-		height: 24px;
-		cursor: nwse-resize;
-	}
-	.resize .handle.br {
-		top: 9px;
-		left: 9px;
 	}
 </style>

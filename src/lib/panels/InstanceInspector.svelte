@@ -13,6 +13,7 @@
 	import SectionHeading from '#lib/ui/atoms/SectionHeading.svelte';
 	import FieldSelect from '#lib/ui/atoms/Select.svelte';
 	import Documentation from './Documentation.svelte';
+	import SizeSection from './SizeSection.svelte';
 	import StyleSection from './StyleSection.svelte';
 
 	// M3.2: an object's name, class, stereotype and slots, or a link's name. Every field is one
@@ -90,6 +91,7 @@
 			save({ ...instanceFromText(o, `${instanceLabel(o)}\n${value(e)}`), name: o.name })}
 	/>
 	<p class="mt-1 text-(length:--text-small) text-chrome-muted">{t('object.slotsHint')}</p>
+	<SizeSection id={o.id} />
 	<StyleSection id={o.id} keys={['fill', 'line']} />
 	<Documentation id={o.id} documentation={o.documentation} field="obj-doc" />
 {:else}

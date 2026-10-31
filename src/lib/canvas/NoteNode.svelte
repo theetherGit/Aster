@@ -7,6 +7,8 @@
 	import { selection } from '#lib/stores/selection.svelte.ts';
 	import { canvasFocus } from './focus.ts';
 	import { edit } from './inline.ts';
+	import ResizeCorner from './ResizeCorner.svelte';
+	import { leastSize, type Size } from './resize.ts';
 	import { elementSummary } from './summary.ts';
 
 	// A note (folded corner, ui.md: 12 px, min 120×60) or a free text element; the same
@@ -16,6 +18,11 @@
 	const el = $derived(data.element);
 	const isNote = $derived(el.kind === 'note');
 	let draft = $state('');
+	// The corner drag draws the new size live; the note's own size otherwise.
+	let root: HTMLDivElement;
+	let live = $state<Size | null>(null);
+	const w = $derived(live?.w ?? data.width);
+	const h = $derived(live?.h ?? data.height);
 	const summary = $derived(
 		elementSummary(projectStore.project, projectStore.diagram, id, { index: flow.relIndex })
 	);
@@ -59,6 +66,7 @@
      corner handles draw whole; the sheet inside carries the fill, the border and the folded corner. -->
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
+	bind:this={root}
 	class="note-node uml-paint"
 	role="group"
 	aria-label={summary}
@@ -71,6 +79,7 @@
 	class:edge-hover={data.hovered}
 	style:--fill={isNote ? data.fill : undefined}
 	style:--line={isNote ? data.line : undefined}
+	style:max-width="{Math.max(420, w)}px"
 	data-kind={el.kind}
 	ondblclick={(e) => {
 		e.stopPropagation();
@@ -79,8 +88,8 @@
 >
 	<div
 		class="sheet"
-		style:min-width="{isNote ? Math.max(120, data.width) : Math.max(60, data.width)}px"
-		style:min-height="{isNote ? Math.max(60, data.height) : 0}px"
+		style:min-width="{isNote ? Math.max(120, w) : Math.max(60, w)}px"
+		style:min-height="{isNote ? Math.max(60, h) : 0}px"
 	>
 		{#if isNote}<span class="fold" aria-hidden="true"></span>{/if}
 		{#if data.editing}
@@ -101,8 +110,15 @@
 	{/each}
 	{#if selected}
 		<span class="handle tl"></span><span class="handle tr"></span>
-		<span class="handle bl"></span><span class="handle br"></span>
+		<span class="handle bl"></span>
 	{/if}
+	<ResizeCorner
+		{id}
+		shown={selected}
+		from={() => ({ w: root.offsetWidth, h: root.offsetHeight })}
+		min={leastSize(el.kind)}
+		onlive={(s) => (live = s)}
+	/>
 </div>
 
 <style>
@@ -214,7 +230,7 @@
 	.note-node:hover :global(.uml-handle) {
 		opacity: 1;
 	}
-	/* ui.md: 6 px hollow corner handles, the same as a class's; notes do not resize yet (M2). */
+	/* ui.md: 6 px hollow corner handles, the same as a class's; the fourth is ResizeCorner. */
 	.handle {
 		position: absolute;
 		box-sizing: border-box;
@@ -234,9 +250,5 @@
 	.handle.bl {
 		bottom: -3px;
 		left: -3px;
-	}
-	.handle.br {
-		bottom: -3px;
-		right: -3px;
 	}
 </style>

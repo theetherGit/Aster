@@ -55,6 +55,8 @@ export type NoteFlowNode = Node<NoteNodeData, 'note' | 'text'>;
 /** An object (M3.2): its label and slots; edited as text, as a note is. */
 export interface InstanceNodeData extends Record<string, unknown> {
 	instance: Instance;
+	/** As a class's: with autoResize off the stored height is the least the object takes. */
+	minHeight: number;
 	width: number;
 	editing: boolean;
 	link: 'source' | 'target' | 'both' | null;
@@ -229,6 +231,7 @@ class Flow {
 					data: {
 						instance: structuredClone(el),
 						width: l.w,
+						minHeight: { ...diagram.defaults, ...l.flags }.autoResize === false ? l.h : 0,
 						editing: false,
 						link: null,
 						hovered: false,

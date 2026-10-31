@@ -33,6 +33,7 @@
 	import PackageInspector from './PackageInspector.svelte';
 	import RelationshipInspector from './RelationshipInspector.svelte';
 	import RelationshipList from './RelationshipList.svelte';
+	import SizeSection from './SizeSection.svelte';
 	import StyleSection from './StyleSection.svelte';
 	import { menu, menuItem } from '#lib/ui/styles.ts';
 
@@ -301,6 +302,7 @@
 						<MemberList classifier={c} {kind} />
 					{/each}
 					<RelationshipList classifier={c} />
+					<SizeSection id={c.id} />
 					<StyleSection id={c.id} keys={['fill', 'line']} />
 					<Collapsible.Root bind:open={displayOpen} class="mt-6">
 						<div class="flex h-7 items-center gap-2">

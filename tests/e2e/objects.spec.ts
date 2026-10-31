@@ -21,6 +21,32 @@ async function palette(page: Page, query: string) {
 }
 const object = (page: Page, name: string) => page.locator(`.instance-node[data-name="${name}"]`);
 
+/** keyboard.md § Mouse: an object resizes from its corner, as a class does; ⇧↓ adds 8 px. */
+test('an object resizes from its corner and by ⇧+arrows', async ({ page }) => {
+	await page.goto('/design/sample');
+	await expect(canvasOf(page)).toBeFocused();
+	await palette(page, 'Add object diagram');
+	await palette(page, 'New object');
+	await expect(canvasOf(page).getByRole('textbox', { name: /^Object:/ })).toBeFocused();
+	await page.keyboard.type('acc: Account');
+	await page.keyboard.press('ControlOrMeta+Enter');
+	const acc = object(page, 'acc');
+	await acc.click();
+	const before = (await acc.boundingBox())!;
+	const corner = (await acc.locator('.resize').boundingBox())!;
+	await page.mouse.move(corner.x + 12, corner.y + 12);
+	await page.mouse.down();
+	await page.mouse.move(corner.x + 72, corner.y + 52, { steps: 8 });
+	await page.mouse.up();
+	await expect
+		.poll(async () => (await acc.boundingBox())!.width)
+		.toBeGreaterThan(before.width + 50);
+	const dragged = (await acc.boundingBox())!;
+	expect(Math.abs(dragged.height - (before.height + 40))).toBeLessThan(3);
+	await page.keyboard.press('Shift+ArrowDown');
+	await expect.poll(async () => (await acc.boundingBox())!.height).toBeGreaterThan(dragged.height);
+});
+
 test('object diagram: objects of the sample classes, a slot, a link, and UMLObjectDiagram on export', async ({
 	page
 }) => {

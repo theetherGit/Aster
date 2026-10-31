@@ -9,11 +9,16 @@
 	import { canvasFocus } from './focus.ts';
 	import { edit } from './inline.ts';
 	import { elementSummary } from './summary.ts';
+	import ResizeCorner from './ResizeCorner.svelte';
+	import { leastSize, type Size } from './resize.ts';
 
 	// An object (M3.2), as StarUML draws one: the underlined "name: Class" over its slots. One
 	// multi-line editor, as a note has: the label on the first line, a slot per line after it.
 	// ⌘↩, Esc or leaving the field commits; ⌘Z takes it back.
 	let { id, data, selected }: NodeProps<InstanceFlowNode> = $props();
+	// The corner drag draws the new size live; the stored size is a least, so slots still win.
+	let root: HTMLDivElement;
+	let live = $state<Size | null>(null);
 	const o = $derived(data.instance);
 	let draft = $state('');
 	const summary = $derived(
@@ -62,6 +67,7 @@
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
+	bind:this={root}
 	class="instance-node uml-paint"
 	role="group"
 	aria-label={summary}
@@ -71,7 +77,8 @@
 	class:selected
 	class:link-target={data.link === 'target' || data.link === 'both'}
 	class:edge-hover={data.hovered}
-	style:min-width="{Math.max(120, data.width)}px"
+	style:min-width="{Math.max(120, live?.w ?? data.width)}px"
+	style:min-height={(live?.h ?? data.minHeight) ? `${live?.h ?? data.minHeight}px` : undefined}
 	style:--fill={data.fill}
 	style:--line={data.line}
 	data-name={o.name}
@@ -105,8 +112,15 @@
 	{/each}
 	{#if selected}
 		<span class="handle tl"></span><span class="handle tr"></span>
-		<span class="handle bl"></span><span class="handle br"></span>
+		<span class="handle bl"></span>
 	{/if}
+	<ResizeCorner
+		{id}
+		shown={selected}
+		from={() => ({ w: root.offsetWidth, h: root.offsetHeight })}
+		min={leastSize('instance')}
+		onlive={(s) => (live = s)}
+	/>
 </div>
 
 <style>
@@ -238,9 +252,5 @@
 	.handle.bl {
 		bottom: -3px;
 		left: -3px;
-	}
-	.handle.br {
-		bottom: -3px;
-		right: -3px;
 	}
 </style>

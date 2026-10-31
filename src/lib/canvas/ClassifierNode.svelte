@@ -7,7 +7,9 @@
 	import { projectStore } from '#lib/stores/project.svelte.ts';
 	import Compartment from './Compartment.svelte';
 	import LineEditor from './LineEditor.svelte';
+	import ResizeCorner from './ResizeCorner.svelte';
 	import { compartmentsFor, edit, headerLabel } from './inline.ts';
+	import { leastSize, type Size } from './resize.ts';
 	import { elementSummary } from './summary.ts';
 
 	let { id, data, selected }: NodeProps<ClassifierFlowNode> = $props();
@@ -48,10 +50,16 @@
 	const summary = $derived(
 		elementSummary(projectStore.project, projectStore.diagram, id, { index: flow.relIndex })
 	);
+	// The corner drag draws the new size live; the stored size is a least, so content still wins.
+	let root: HTMLDivElement;
+	let live = $state<Size | null>(null);
+	const minWidth = $derived(live?.w ?? data.minWidth);
+	const minHeight = $derived(live?.h ?? data.minHeight);
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
+	bind:this={root}
 	class="classifier-node uml-paint"
 	role="group"
 	aria-label={summary}
@@ -62,9 +70,9 @@
 	class:link-target={data.link === 'target' || data.link === 'both'}
 	class:edge-hover={data.hovered}
 	class:wrap={flags.wordWrap}
-	style:min-width="{data.minWidth}px"
-	style:width={flags.wordWrap ? `${data.minWidth}px` : undefined}
-	style:min-height={data.minHeight ? `${data.minHeight}px` : undefined}
+	style:min-width="{minWidth}px"
+	style:width={flags.wordWrap ? `${minWidth}px` : undefined}
+	style:min-height={minHeight ? `${minHeight}px` : undefined}
 	style:--fill={data.fill}
 	style:--line={data.line}
 	data-name={c.name}
@@ -117,8 +125,15 @@
 	{/each}
 	{#if selected}
 		<span class="handle tl"></span><span class="handle tr"></span>
-		<span class="handle bl"></span><span class="handle br"></span>
+		<span class="handle bl"></span>
 	{/if}
+	<ResizeCorner
+		{id}
+		shown={selected}
+		from={() => ({ w: root.offsetWidth, h: root.offsetHeight })}
+		min={leastSize('classifier')}
+		onlive={(s) => (live = s)}
+	/>
 </div>
 
 <style>
@@ -282,9 +297,5 @@
 	.handle.bl {
 		bottom: -3px;
 		left: -3px;
-	}
-	.handle.br {
-		bottom: -3px;
-		right: -3px;
 	}
 </style>

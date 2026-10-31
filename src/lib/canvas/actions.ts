@@ -16,7 +16,7 @@ import {
 	setNodePositions,
 	setWaypoints
 } from '#lib/commands/index.ts';
-import { serialise } from '#lib/commands/registry.ts';
+import { hydrate, serialise } from '#lib/commands/registry.ts';
 import { t } from '#lib/i18n/index.ts';
 import { newId } from '#lib/model/ids.ts';
 import {
@@ -55,6 +55,7 @@ import { edit, endEditing } from './inline.ts';
 import { firstTarget } from './link.ts';
 import { linkAsRelationship } from './edges/notation.ts';
 import { freePosition } from './place.ts';
+import { resizeView } from './resize.ts';
 
 /**
  * Creates a classifier near a paper position (in free space, never on another node), selects it
@@ -178,22 +179,31 @@ export function nudgeSelection(dx: number, dy: number) {
 	projectStore.run(moveNode, { diagramId: projectStore.activeDiagramId, ids, dx, dy });
 }
 
-/** ⇧+arrows: resize the one selected note or package by 8 px (keyboard.md). */
+/** One box to a new size as one undo step: the corner drag, ⇧+arrows and the inspector's Size. */
+export function resizeTo(id: Id, size: { w: number; h?: number }) {
+	const p = projectStore.project;
+	const commands = resizeView(p, projectStore.activeDiagramId, id, size);
+	if (!commands.length) return;
+	// The undo step reads as the resize ("resize Account"), not as the flag that goes with it.
+	projectStore.run(batch, { label: hydrate(p, commands[0]).label, commands });
+}
+
+/** ⇧+arrows: resize the one selected box by 8 px from its size (keyboard.md). */
 export function resizeSelection(dw: number, dh: number): boolean {
-	const ids = selectedWith('node').filter(
-		(id) => kindOf(id) === 'note' || kindOf(id) === 'package'
-	);
+	const ids = selectedWith('node');
 	if (ids.length !== 1 || selection.size !== 1) return false;
-	const l = projectStore.diagram.layout.get(ids[0]);
-	if (l?.kind !== 'node') return false;
-	// ui.md: a note is at least 120 × 60, a package 240 × 160.
-	const min = kindOf(ids[0]) === 'package' ? PACKAGE_MIN : { w: 120, h: 60 };
-	projectStore.run(resizeNode, {
-		diagramId: projectStore.activeDiagramId,
-		id: ids[0],
-		w: Math.max(min.w, l.w + dw),
-		h: Math.max(min.h, l.h + dh)
-	});
+	const d = projectStore.diagram;
+	const l = d.layout.get(ids[0]);
+	const r = rectOf(ids[0]);
+	if (l?.kind !== 'node' || !r) return false;
+	// The stored size is a least that content can outgrow; the drawn one lags a frame behind a
+	// key repeat, so take the larger. A height that follows the content is the drawn one.
+	const follows = { ...d.defaults, ...l.flags }.autoResize !== false;
+	const kind = kindOf(ids[0]);
+	const auto = follows && (kind === 'classifier' || kind === 'instance');
+	const w = Math.max(l.w, r.w) + dw;
+	// ⇧← / ⇧→ change the width alone, so a class's height still follows its content.
+	resizeTo(ids[0], dh ? { w, h: (auto ? r.h : Math.max(l.h, r.h)) + dh } : { w });
 	return true;
 }
 
@@ -319,10 +329,10 @@ export function sameSizeSelection(dim: Dimension) {
 	if (ids.length < 2) return;
 	const diagramId = projectStore.activeDiagramId;
 	const p = projectStore.project;
-	const commands = sameSize(rectsOf(ids), ids, dim).flatMap(({ id, w, h }) => {
-		const l = projectStore.diagram.layout.get(id) as NodeLayout;
-		return l.w === w && l.h === h ? [] : [serialise(resizeNode(p, { diagramId, id, w, h }))];
-	});
+	// resizeView: a class keeps a height only with its autoResize off, which it turns off.
+	const commands = sameSize(rectsOf(ids), ids, dim).flatMap(({ id, w, h }) =>
+		resizeView(p, diagramId, id, { w, h })
+	);
 	if (commands.length)
 		projectStore.run(batch, { label: t('cmd.tidy.size', { name: many(ids) }), commands });
 }
